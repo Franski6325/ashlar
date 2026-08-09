@@ -1,0 +1,2679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Deckle — Paper Atelier · Hand-moulded sheets, letterpress, editions</title>
+<meta name="description" content="Deckle is a paper atelier in Bruges. Hand-moulded cotton sheets, letterpress impression, brass foil and section-sewn editions — made slowly, in small numbers." />
+<meta name="theme-color" content="#F2EDE3" />
+<meta property="og:title" content="Deckle — Paper Atelier" />
+<meta property="og:description" content="Hand-moulded sheets, letterpress impression, and editions bound one signature at a time." />
+<meta property="og:type" content="website" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23F2EDE3'/%3E%3Cpath d='M7 8l9 17 9-17' fill='none' stroke='%2317140F' stroke-width='2.4'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,200..600;1,6..72,200..500&display=swap" rel="stylesheet" />
+<script>document.documentElement.classList.add("js");</script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+<style>
+/* ============================================================
+   DECKLE — design tokens
+   ============================================================ */
+:root{
+  --paper:#f2ede3;
+  --paper-2:#e8e1d3;
+  --paper-3:#ddd4c1;
+  --card:#fbf8f1;
+  --ink:#17140f;
+  --ink-2:#3a342b;
+  --muted:#7a7161;
+  --line:rgba(23,20,15,.13);
+  --line-2:rgba(23,20,15,.28);
+  --foil:#b07d2a;
+  --foil-2:#8a5f1c;
+  --foil-3:#e3c07a;
+  --seal:#8d3b2b;
+  --dark-text:#efe9dc;
+
+  --font-display:"Newsreader",Georgia,"Times New Roman",serif;
+  --font-sans:"DM Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+
+  --ease:cubic-bezier(.22,1,.36,1);
+
+  --pad:clamp(1.1rem,3.4vw,2.75rem);
+  --max:1360px;
+  --nav-h:4.5rem;
+  --gap:clamp(.85rem,1.5vw,1.4rem);
+
+  --fs-xs:.68rem;
+  --fs-sm:.855rem;
+  --fs-md:1rem;
+  --fs-lg:clamp(1.02rem,.94rem + .42vw,1.22rem);
+  --fs-h3:clamp(1.3rem,1.08rem + .95vw,1.9rem);
+  --fs-h2:clamp(2.05rem,1.3rem + 2.9vw,3.9rem);
+  --fs-h1:clamp(2.7rem,1rem + 6.4vw,6.2rem);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--paper);-webkit-text-size-adjust:100%}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto !important}
+.lenis.lenis-stopped{overflow:hidden}
+
+body{
+  font-family:var(--font-sans);
+  font-size:var(--fs-md);
+  line-height:1.55;
+  color:var(--ink);
+  background:var(--paper);
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+body.has-cursor,body.has-cursor a,body.has-cursor button,body.has-cursor input,
+body.has-cursor select,body.has-cursor textarea,body.has-cursor label{cursor:none}
+
+img,svg{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+ul,ol{list-style:none}
+button,input,select,textarea{font:inherit;color:inherit;background:none;border:0;border-radius:0;appearance:none;-webkit-appearance:none}
+button{cursor:pointer}
+::selection{background:var(--ink);color:var(--paper)}
+:focus-visible{outline:2px solid var(--foil);outline-offset:3px}
+
+.wrap{width:100%;max-width:var(--max);margin-inline:auto;padding-inline:var(--pad)}
+.skip{position:absolute;left:-9999px;top:0;z-index:10100;background:var(--ink);color:var(--paper);padding:.7rem 1rem;font:500 .8rem/1 var(--font-mono)}
+.skip:focus{left:.5rem;top:.5rem}
+
+/* ============================================================
+   Type
+   ============================================================ */
+.mono{font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.14em;text-transform:uppercase}
+.label{font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.16em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:.6rem}
+.label::before{content:"";width:1.6rem;height:1px;background:var(--foil);flex:none}
+
+.h1{font-family:var(--font-display);font-size:var(--fs-h1);font-weight:300;line-height:.95;letter-spacing:-.025em;font-variation-settings:"opsz" 72}
+.h2{font-family:var(--font-display);font-size:var(--fs-h2);font-weight:300;line-height:1.02;letter-spacing:-.02em;font-variation-settings:"opsz" 60}
+.h3{font-family:var(--font-display);font-size:var(--fs-h3);font-weight:400;line-height:1.14;letter-spacing:-.012em}
+.h1 em,.h2 em,.h3 em{font-style:italic;font-weight:300}
+.lede{font-size:var(--fs-lg);line-height:1.5;color:var(--ink-2);max-width:46ch}
+.small{font-size:var(--fs-sm);color:var(--muted);line-height:1.6}
+.foil-text{color:var(--foil-2)}
+
+.line{display:block;overflow:hidden;padding-bottom:.06em}
+.line>span{display:block;will-change:transform}
+.js .line>span{transform:translateY(112%)}
+.js [data-reveal]{opacity:0}
+
+.underline{position:relative;display:inline-block}
+.underline::after{content:"";position:absolute;left:0;bottom:-2px;width:100%;height:1px;background:currentColor;transform:scaleX(0);transform-origin:right;transition:transform .5s var(--ease)}
+.underline:hover::after{transform:scaleX(1);transform-origin:left}
+.rule{height:1px;background:var(--line);width:100%}
+
+/* ============================================================
+   Textures
+   ============================================================ */
+.grain{
+  position:fixed;inset:0;z-index:9000;pointer-events:none;opacity:.06;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.laid{
+  background-image:
+    repeating-linear-gradient(90deg,rgba(23,20,15,.045) 0 1px,transparent 1px 4px),
+    repeating-linear-gradient(90deg,rgba(23,20,15,.075) 0 1px,transparent 1px 30px);
+}
+.halftone{background-image:radial-gradient(currentColor .9px,transparent 1.2px);background-size:7px 7px}
+.hatch{background-image:repeating-linear-gradient(45deg,var(--line) 0 1px,transparent 1px 7px)}
+
+/* ============================================================
+   Cursor — V-seal (ink diamond / foil hairline). No blend modes.
+   ============================================================ */
+.cur{position:fixed;top:0;left:0;pointer-events:none;z-index:10050;transform:translate3d(-140px,-140px,0);will-change:transform;opacity:0}
+.cur__seal{
+  position:absolute;top:0;left:0;width:12px;height:12px;margin:-6px 0 0 -6px;
+  background:var(--ink);border:1px solid var(--ink);border-radius:0;
+  display:grid;place-items:center;transform:rotate(45deg);
+  transition:width .32s var(--ease),height .32s var(--ease),margin .32s var(--ease),
+    background-color .28s var(--ease),border-color .28s var(--ease),transform .32s var(--ease)
+}
+.cur__v{
+  width:9px;height:9px;color:var(--paper);display:block;transform:rotate(-45deg);
+  transition:width .32s var(--ease),height .32s var(--ease),color .28s var(--ease),transform .32s var(--ease)
+}
+.cur__v path{fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:square;stroke-linejoin:miter}
+.cur__label{
+  position:absolute;left:0;top:0;margin:14px 0 0 14px;
+  font:500 .58rem/1 var(--font-mono);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink);opacity:0;white-space:nowrap;pointer-events:none;
+  transition:opacity .22s var(--ease),margin .32s var(--ease),color .28s
+}
+body.cur-link .cur__seal{
+  width:34px;height:34px;margin:-17px 0 0 -17px;background:transparent;border-color:var(--foil);transform:rotate(0)
+}
+body.cur-link .cur__v{width:14px;height:14px;color:var(--foil);transform:none}
+body.cur-link .cur__label:not(:empty){opacity:1;margin:22px 0 0 22px;color:var(--foil-2)}
+body.cur-media .cur__seal{
+  width:72px;height:72px;margin:-36px 0 0 -36px;background:var(--ink);border-color:var(--ink);transform:rotate(0)
+}
+body.cur-media .cur__v{width:22px;height:22px;color:var(--paper);transform:none}
+body.cur-media .cur__label{opacity:1;margin:42px 0 0 42px;color:var(--ink)}
+body.on-dark .cur__seal{background:var(--paper);border-color:var(--paper)}
+body.on-dark .cur__v{color:var(--ink)}
+body.on-dark .cur__label{color:var(--paper)}
+body.on-dark.cur-link .cur__seal{background:transparent;border-color:var(--foil-3)}
+body.on-dark.cur-link .cur__v{color:var(--foil-3)}
+body.on-dark.cur-link .cur__label{color:var(--foil-3)}
+body.on-dark.cur-media .cur__seal{background:var(--paper);border-color:var(--paper)}
+body.on-dark.cur-media .cur__v{color:var(--ink)}
+body.on-dark.cur-media .cur__label{color:var(--paper)}
+
+/* ============================================================
+   Preloader
+   ============================================================ */
+.loader{position:fixed;inset:0;z-index:10000;background:var(--paper);display:grid;grid-template-rows:1fr auto;padding:var(--pad);overflow:hidden}
+.loader__field{position:absolute;inset:0;opacity:.5}
+.loader__field i{position:absolute;top:0;bottom:0;width:1px;background:var(--line)}
+.loader__mid{display:grid;place-items:center;position:relative;z-index:2}
+.loader__markbox{display:grid;justify-items:center;gap:1.05rem;text-align:center}
+.loader__mark{width:72px;height:72px;color:var(--ink)}
+.loader__word{display:flex;gap:.02em;overflow:hidden}
+.loader__word span{display:block;font-family:var(--font-display);font-weight:300;font-size:clamp(2.4rem,9vw,4.4rem);line-height:1.06;letter-spacing:.01em}
+.loader__tag{font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.3em;text-transform:uppercase;color:var(--muted)}
+.loader__foot{position:relative;z-index:2;display:grid;gap:.85rem}
+.loader__bar{height:2px;background:var(--line);position:relative;overflow:hidden}
+.loader__bar i{position:absolute;inset:0 auto 0 0;width:0%;background:var(--ink)}
+.loader__row{display:flex;align-items:flex-end;justify-content:space-between;gap:1rem}
+.loader__count{font-family:var(--font-display);font-size:clamp(2.2rem,7vw,3.4rem);line-height:.9;font-weight:300;font-variant-numeric:tabular-nums}
+.loader__count em{font-style:normal;font-family:var(--font-mono);font-size:.85rem;vertical-align:super;color:var(--muted);margin-left:.15rem}
+
+/* ============================================================
+   Progress + side index
+   ============================================================ */
+.progress{position:fixed;top:0;left:0;right:0;height:2px;z-index:9600;pointer-events:none}
+.progress i{display:block;height:100%;width:100%;background:var(--foil);transform:scaleX(0);transform-origin:left}
+
+.idx{position:fixed;left:calc(var(--pad) * .4);top:50%;transform:translateY(-50%);z-index:900;display:none;flex-direction:column;gap:.5rem}
+.idx button{display:flex;align-items:center;gap:.55rem;font:500 .58rem/1 var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);opacity:.5;transition:opacity .3s,color .3s}
+.idx button i{width:14px;height:1px;background:currentColor;transition:width .35s var(--ease),background-color .3s}
+.idx button span{opacity:0;transform:translateX(-4px);transition:opacity .3s,transform .3s}
+.idx button:hover,.idx button.is-on{opacity:1;color:var(--ink)}
+.idx button.is-on i{width:26px;background:var(--foil)}
+.idx button:hover span,.idx button.is-on span{opacity:1;transform:none}
+body.on-dark .idx button{color:var(--dark-text)}
+@media (min-width:1500px){.idx{display:flex}}
+
+/* ============================================================
+   Nav
+   ============================================================ */
+.nav{position:fixed;top:0;left:0;right:0;z-index:9500;height:var(--nav-h);display:flex;align-items:center;border-bottom:1px solid transparent;transition:transform .5s var(--ease),background-color .4s,border-color .4s}
+.nav.is-stuck{background:rgba(242,237,227,.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom-color:var(--line)}
+.nav.is-hidden{transform:translateY(-102%)}
+.nav__in{width:100%;max-width:var(--max);margin-inline:auto;padding-inline:var(--pad);display:flex;align-items:center;gap:1.4rem}
+.brand{display:flex;align-items:center;gap:.6rem;flex:none}
+.brand__mark{width:26px;height:26px;flex:none}
+.brand__word{font-family:var(--font-display);font-size:1.35rem;font-weight:400;letter-spacing:-.01em;line-height:1}
+.brand__sub{display:none;color:var(--muted);border-left:1px solid var(--line);padding-left:.6rem}
+@media (min-width:48rem){.brand__sub{display:block}}
+
+.nav__links{display:none;gap:1.5rem;margin-inline:auto}
+.nav__links a{font-size:var(--fs-sm);color:var(--ink-2);position:relative;padding-block:.3rem}
+.nav__links a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--foil);transform:scaleX(0);transform-origin:right;transition:transform .45s var(--ease)}
+.nav__links a:hover::after{transform:scaleX(1);transform-origin:left}
+@media (min-width:64rem){.nav__links{display:flex}}
+
+.nav__end{display:flex;align-items:center;gap:.7rem;margin-left:auto}
+.nav__status{display:none;align-items:center;gap:.45rem;color:var(--muted)}
+.nav__status i{width:6px;height:6px;background:var(--foil);flex:none}
+@media (min-width:80rem){.nav__status{display:flex}}
+
+.menu-btn{display:flex;align-items:center;gap:.6rem;border:1px solid var(--line-2);padding:.6rem .8rem;transition:background-color .3s,color .3s,border-color .3s}
+.menu-btn:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.menu-btn__ico{display:grid;gap:4px;width:16px}
+.menu-btn__ico i{height:1px;background:currentColor;display:block;transition:transform .4s var(--ease)}
+.menu-btn:hover .menu-btn__ico i:first-child{transform:translateX(4px)}
+.menu-btn:hover .menu-btn__ico i:last-child{transform:translateX(-4px)}
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+.btn{
+  --mx:0px;--my:0px;
+  display:inline-flex;align-items:center;justify-content:center;gap:.7rem;padding:1rem 1.5rem;
+  border:1px solid var(--ink);background:var(--ink);color:var(--paper);
+  font:500 .74rem/1 var(--font-sans);letter-spacing:.13em;text-transform:uppercase;
+  position:relative;overflow:hidden;transform:translate3d(var(--mx),var(--my),0);
+  transition:transform .4s var(--ease),color .35s var(--ease),border-color .35s
+}
+.btn>*{position:relative;z-index:2}
+.btn::after{content:"";position:absolute;inset:0;background:var(--foil);transform:translateY(101%);transition:transform .5s var(--ease);z-index:1}
+.btn:hover::after{transform:translateY(0)}
+.btn:hover{color:var(--ink);border-color:var(--foil)}
+.btn--ghost{background:transparent;color:var(--ink);border-color:var(--line-2)}
+.btn--ghost::after{background:var(--ink)}
+.btn--ghost:hover{color:var(--paper);border-color:var(--ink)}
+.btn--sm{padding:.72rem 1rem;font-size:.68rem}
+.ico{width:13px;height:13px;flex:none}
+
+/* ============================================================
+   Overlay menu
+   ============================================================ */
+.menu{position:fixed;inset:0;z-index:9800;background:var(--ink);color:var(--dark-text);visibility:hidden;opacity:0;display:grid;grid-template-rows:auto 1fr auto}
+.menu.is-open{visibility:visible}
+.menu__bg{position:absolute;inset:0;opacity:.13;color:var(--paper);pointer-events:none}
+.menu__bg i{position:absolute;top:0;bottom:0;width:1px;background:currentColor}
+.menu__head,.menu__foot{position:relative;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1.05rem var(--pad);border-bottom:1px solid rgba(239,233,220,.16)}
+.menu__foot{border-bottom:0;border-top:1px solid rgba(239,233,220,.16);flex-wrap:wrap}
+.menu__foot a{color:rgba(239,233,220,.72);font-size:var(--fs-sm)}
+.menu__foot a:hover{color:var(--paper)}
+.menu__close{display:flex;align-items:center;gap:.6rem;border:1px solid rgba(239,233,220,.3);padding:.6rem .8rem;color:inherit;transition:background-color .3s,color .3s}
+.menu__close:hover{background:var(--paper);color:var(--ink)}
+.menu__body{position:relative;z-index:3;display:grid;grid-template-columns:1fr;align-content:center;gap:1.5rem;padding:clamp(1.2rem,4vw,2.4rem) var(--pad);overflow-y:auto}
+@media (min-width:60rem){.menu__body{grid-template-columns:1.4fr .78fr;align-items:center;overflow:hidden}}
+
+.menu__list{display:grid}
+.menu__item{border-top:1px solid rgba(239,233,220,.14);opacity:0}
+.menu__item:last-child{border-bottom:1px solid rgba(239,233,220,.14)}
+.menu__item a{display:flex;align-items:baseline;gap:1rem;padding:clamp(.55rem,1.5vw,1rem) 0}
+.menu__item .n{font:500 .62rem/1 var(--font-mono);letter-spacing:.16em;color:rgba(239,233,220,.45);width:2rem;flex:none}
+.menu__item .t{font-family:var(--font-display);font-weight:300;letter-spacing:-.02em;line-height:1.04;font-size:clamp(1.9rem,6vw,3.9rem);display:inline-block;transition:transform .5s var(--ease),color .4s}
+.menu__item .d{margin-left:auto;font:400 .72rem/1 var(--font-mono);color:rgba(239,233,220,.4);opacity:0;transform:translateX(-8px);transition:opacity .4s,transform .5s var(--ease)}
+.menu__item:hover .t{transform:translateX(1rem);color:var(--foil-3)}
+.menu__item:hover .d{opacity:1;transform:none}
+
+.menu__aside{display:none;gap:.9rem}
+@media (min-width:60rem){.menu__aside{display:grid}}
+.menu__preview{position:relative;aspect-ratio:4/5;border:1px solid rgba(239,233,220,.2);overflow:hidden;background:rgba(239,233,220,.04)}
+.menu__slide{position:absolute;inset:0;opacity:0;transform:scale(1.04);transition:opacity .55s var(--ease),transform .8s var(--ease);color:var(--paper)}
+.menu__slide.is-on{opacity:1;transform:none}
+.menu__slide svg{width:100%;height:100%}
+.menu__meta{display:flex;justify-content:space-between;gap:1rem;color:rgba(239,233,220,.55)}
+
+/* ============================================================
+   Hero
+   ============================================================ */
+.hero{padding-top:calc(var(--nav-h) + clamp(1rem,2.6vw,2rem));padding-bottom:clamp(1.4rem,3vw,2.4rem);position:relative;overflow:hidden}
+.hero__top{display:flex;flex-wrap:wrap;gap:.5rem 1.4rem;justify-content:space-between;align-items:center;padding-bottom:.85rem;border-bottom:1px solid var(--line);color:var(--muted)}
+.hero__top .dotrow{display:flex;gap:.28rem;align-items:center}
+.hero__top .dotrow i{width:5px;height:5px;background:var(--line-2)}
+.hero__top .dotrow i:first-child{background:var(--foil)}
+
+.hero__grid{display:grid;gap:var(--gap);padding-top:var(--gap);grid-template-columns:1fr;grid-template-areas:"head" "plate" "verbs" "rail" "strip"}
+@media (min-width:56rem){
+  .hero__grid{grid-template-columns:1fr 1fr;grid-template-areas:"head head" "plate verbs" "rail rail" "strip strip"}
+}
+@media (min-width:76rem){
+  .hero__grid{
+    grid-template-columns:minmax(0,1.12fr) minmax(0,.7fr) minmax(0,.68fr);
+    grid-template-areas:"head head rail" "plate verbs rail" "strip strip strip";
+  }
+}
+.hero__head{grid-area:head;display:grid;gap:clamp(.9rem,1.8vw,1.3rem);align-content:start}
+.hero__headrow{display:grid;gap:1.1rem;align-items:end}
+@media (min-width:52rem){.hero__headrow{grid-template-columns:minmax(0,1.15fr) minmax(0,22rem)}}
+.hero__title{max-width:15ch}
+.hero__title em{position:relative;white-space:nowrap}
+.hero__title em::after{content:"";position:absolute;left:0;right:0;bottom:.06em;height:2px;background:var(--foil);transform:scaleX(0);transform-origin:left;transition:transform 1s var(--ease)}
+.hero__title em.is-underlined::after{transform:scaleX(1)}
+.hero__cta{display:flex;flex-wrap:wrap;gap:.55rem}
+
+.plate{grid-area:plate;position:relative;overflow:hidden;background:var(--card);border:1px solid var(--line);aspect-ratio:5/4;min-height:14rem}
+@media (min-width:76rem){.plate{aspect-ratio:16/10}}
+.plate__art{position:absolute;inset:-2%;color:var(--ink)}
+.plate__art svg{width:100%;height:100%}
+.plate__wm{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
+.plate__wm svg{width:40%;height:auto;opacity:.15}
+.plate__cap{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;gap:1rem;padding:.6rem .8rem;background:linear-gradient(to top,rgba(251,248,241,.96),rgba(251,248,241,0));color:var(--muted)}
+
+.hero__verbs{grid-area:verbs;border:1px solid var(--line);background:var(--paper-2);display:grid;grid-template-rows:auto 1fr auto;overflow:hidden}
+.hero__verbs .hd{padding:.65rem .85rem;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;color:var(--muted)}
+.verbs{padding:.5rem .85rem;display:grid;align-content:center}
+.verbs li{font-family:var(--font-display);font-size:clamp(1.1rem,2.2vw,1.7rem);font-weight:300;line-height:1.26;color:var(--muted);opacity:.4;display:flex;align-items:baseline;gap:.6rem;transition:opacity .5s var(--ease),color .5s var(--ease),transform .6s var(--ease)}
+.verbs li b{font:500 .58rem/1 var(--font-mono);letter-spacing:.1em;color:var(--line-2);width:1.6rem;flex:none}
+.verbs li.is-on{opacity:.8;color:var(--ink-2)}
+.verbs li.is-hot{opacity:1;color:var(--ink);transform:translateX(.35rem)}
+.verbs li.is-hot b{color:var(--foil)}
+.hero__swatches{display:flex;border-top:1px solid var(--line)}
+.hero__swatches i{flex:1;height:2rem}
+
+.hero__rail{grid-area:rail;display:grid;gap:var(--gap);align-content:start}
+.card{background:var(--card);border:1px solid var(--line)}
+.card__hd{display:flex;align-items:center;justify-content:space-between;gap:.8rem;padding:.65rem .9rem;border-bottom:1px solid var(--line);color:var(--muted)}
+.spec-list{display:grid}
+.spec-list div{display:flex;justify-content:space-between;gap:1rem;padding:.5rem .9rem;border-bottom:1px dashed var(--line);font-size:var(--fs-sm)}
+.spec-list div:last-child{border-bottom:0}
+.spec-list .k{color:var(--muted);font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.08em;text-transform:uppercase}
+.spec-list .v{font-weight:500;text-align:right}
+.rail__note{padding:.85rem .9rem;display:grid;gap:.45rem}
+.rail__quote{font-family:var(--font-display);font-style:italic;font-size:1.05rem;line-height:1.35;color:var(--ink-2)}
+
+.hero__strip{grid-area:strip;display:grid;grid-template-columns:repeat(2,1fr);border:1px solid var(--line);background:var(--card)}
+@media (min-width:52rem){.hero__strip{grid-template-columns:repeat(4,1fr) minmax(0,14rem)}}
+.hero__strip>div{padding:.7rem .9rem;border-right:1px solid var(--line);display:grid;gap:.15rem;align-content:center}
+.hero__strip>div:nth-child(2n){border-right:0}
+@media (min-width:52rem){
+  .hero__strip>div{border-right:1px solid var(--line)}
+  .hero__strip>div:last-child{border-right:0}
+}
+.hero__strip strong{font-family:var(--font-display);font-size:1.12rem;font-weight:400;line-height:1.15}
+.hero__strip>div.scrollcue{display:flex;align-items:center;gap:.6rem;color:var(--muted)}
+.scrollcue .track{width:34px;height:1px;background:var(--line-2);position:relative;overflow:hidden;flex:none}
+.scrollcue .track i{position:absolute;inset:0;background:var(--foil);transform:scaleX(0);transform-origin:left}
+
+/* ============================================================
+   Marquee
+   ============================================================ */
+.marquee{border-block:1px solid var(--line);background:var(--paper-2);overflow:hidden;padding:.8rem 0}
+.marquee__track{display:flex;width:max-content;will-change:transform}
+.marquee__track span{font-family:var(--font-display);font-size:clamp(1.3rem,3vw,2.35rem);font-weight:300;padding-inline:1rem;display:inline-flex;align-items:center;gap:1rem;white-space:nowrap}
+.marquee__track span::after{content:"";width:8px;height:8px;background:var(--foil);transform:rotate(45deg);flex:none}
+.marquee__track span.alt{font-style:italic;color:var(--muted)}
+
+/* ============================================================
+   Section shell
+   ============================================================ */
+.sec{padding-block:clamp(2.8rem,6.5vw,6rem);position:relative}
+.sec__head{display:grid;gap:1rem;margin-bottom:clamp(1.3rem,2.8vw,2.2rem)}
+@media (min-width:60rem){.sec__head{grid-template-columns:minmax(0,1fr) minmax(0,25rem);align-items:end;gap:2rem}}
+.sec__head .h2{max-width:17ch}
+.sec--tint{background:var(--paper-2);border-block:1px solid var(--line)}
+.sec--dark{background:var(--ink);color:var(--dark-text)}
+.sec--dark .label{color:rgba(239,233,220,.55)}
+.sec--dark .small{color:rgba(239,233,220,.6)}
+.sec--dark .lede{color:rgba(239,233,220,.78)}
+
+/* ============================================================
+   Atelier
+   ============================================================ */
+.atelier__grid{display:grid;gap:var(--gap);grid-template-columns:1fr}
+@media (min-width:52rem){.atelier__grid{grid-template-columns:1fr 1fr}}
+@media (min-width:76rem){.atelier__grid{grid-template-columns:1fr 1fr minmax(0,17rem)}}
+.panel{background:var(--card);border:1px solid var(--line);display:grid;grid-template-rows:auto 1fr auto auto;overflow:hidden}
+.panel__art{position:relative;aspect-ratio:16/10;border-bottom:1px solid var(--line);overflow:hidden;background:var(--paper)}
+.panel__art svg{position:absolute;inset:0;width:100%;height:100%;color:var(--ink)}
+.panel__num{position:absolute;top:.55rem;left:.7rem;font:500 .62rem/1 var(--font-mono);letter-spacing:.16em;color:var(--muted);z-index:2}
+.panel__body{padding:clamp(.85rem,1.9vw,1.3rem);display:grid;gap:.6rem;align-content:start}
+.panel__rows{border-top:1px solid var(--line)}
+.panel__rows div{display:flex;justify-content:space-between;gap:1rem;padding:.45rem clamp(.85rem,1.9vw,1.3rem);border-bottom:1px dashed var(--line);font-size:var(--fs-sm)}
+.panel__rows div:last-child{border-bottom:0}
+.panel__rows .k{font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.panel__link{padding:.8rem clamp(.85rem,1.9vw,1.3rem);border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:1rem;transition:background-color .35s}
+.panel__link:hover{background:var(--paper-2)}
+.panel__link span{font:500 .68rem/1 var(--font-mono);letter-spacing:.12em;text-transform:uppercase}
+
+.notes{background:var(--ink);color:var(--dark-text);display:grid;grid-template-rows:auto 1fr auto;border:1px solid var(--ink)}
+.notes__hd{padding:.7rem .9rem;border-bottom:1px solid rgba(239,233,220,.16);display:flex;justify-content:space-between;color:rgba(239,233,220,.55)}
+.notes__list{padding:.35rem .9rem;display:grid;align-content:start}
+.notes__list li{display:flex;gap:.65rem;padding:.55rem 0;border-bottom:1px dashed rgba(239,233,220,.14);font-size:var(--fs-sm);line-height:1.45}
+.notes__list li:last-child{border-bottom:0}
+.notes__list .tick{width:12px;height:12px;border:1px solid rgba(239,233,220,.45);flex:none;margin-top:.22rem;position:relative}
+.notes__list .tick::after{content:"";position:absolute;inset:2px;background:var(--foil);transform:scale(0);transition:transform .4s var(--ease)}
+.notes__list li.done .tick::after{transform:scale(1)}
+.notes__foot{padding:.8rem .9rem;border-top:1px solid rgba(239,233,220,.16);display:flex;align-items:baseline;justify-content:space-between;gap:1rem}
+.notes__foot .big{font-family:var(--font-display);font-size:1.55rem;font-weight:300;line-height:1}
+
+/* ============================================================
+   Stats
+   ============================================================ */
+.stats{background:var(--ink);color:var(--dark-text);padding-block:clamp(2.2rem,5vw,3.4rem);overflow:hidden;position:relative}
+.stats__bg{position:absolute;inset:0;color:var(--paper);opacity:.07}
+.stats__in{position:relative;z-index:2}
+.stats__top{display:flex;flex-wrap:wrap;gap:.7rem 1.5rem;justify-content:space-between;align-items:baseline;padding-bottom:1.1rem;border-bottom:1px solid rgba(239,233,220,.18)}
+.stats__grid{display:grid;grid-template-columns:repeat(2,1fr)}
+@media (min-width:60rem){.stats__grid{grid-template-columns:repeat(4,1fr)}}
+.stat{padding:clamp(1.05rem,2.4vw,1.7rem) 1rem clamp(1.05rem,2.4vw,1.7rem) 0;border-bottom:1px solid rgba(239,233,220,.14)}
+@media (min-width:60rem){
+  .stat{border-bottom:0;border-right:1px solid rgba(239,233,220,.14);padding-inline:clamp(1rem,2vw,1.7rem)}
+  .stat:first-child{padding-left:0}
+  .stat:last-child{border-right:0}
+}
+.stat__n{font-family:var(--font-display);font-weight:200;font-size:clamp(2.3rem,6vw,4.2rem);line-height:.92;letter-spacing:-.03em;font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:.12em}
+.stat__n sup{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.06em;color:var(--foil-3);line-height:1}
+.stat__k{margin-top:.5rem;color:rgba(239,233,220,.62);font-size:var(--fs-sm);line-height:1.45;max-width:23ch}
+
+/* ============================================================
+   Editions
+   ============================================================ */
+.ed__grid{display:grid;gap:var(--gap);grid-template-columns:1fr}
+@media (min-width:56rem){
+  .ed__grid{grid-template-columns:repeat(12,1fr)}
+  .ed--a{grid-column:span 7}
+  .ed--b{grid-column:span 5}
+  .ed--c{grid-column:span 12;grid-template-columns:minmax(0,1.12fr) minmax(0,1fr);grid-template-rows:1fr}
+}
+.ed{position:relative;background:var(--card);border:1px solid var(--line);display:grid;grid-template-rows:auto 1fr;overflow:hidden;transform-style:preserve-3d}
+.ed__art{position:relative;overflow:hidden;aspect-ratio:16/11;background:var(--paper);border-bottom:1px solid var(--line)}
+@media (min-width:56rem){.ed--c .ed__art{aspect-ratio:auto;min-height:20rem;border-bottom:0;border-right:1px solid var(--line)}}
+.ed__art .inner{position:absolute;inset:-9% -2%;color:var(--ink);will-change:transform}
+.ed__art svg{width:100%;height:100%}
+.ed__tag{position:absolute;top:.65rem;left:.75rem;z-index:3;background:var(--paper);border:1px solid var(--line);padding:.26rem .5rem;color:var(--muted)}
+.ed__body{padding:clamp(.85rem,1.9vw,1.3rem);display:grid;gap:.65rem;align-content:space-between}
+.ed__row{display:flex;justify-content:space-between;gap:1rem;align-items:baseline}
+.ed__title{font-family:var(--font-display);font-size:clamp(1.45rem,2.4vw,2.15rem);font-weight:300;line-height:1.04;letter-spacing:-.02em}
+.ed__meta{display:grid;grid-template-columns:repeat(2,1fr);gap:0 .8rem;border-top:1px solid var(--line);padding-top:.6rem}
+.ed__meta div{display:flex;justify-content:space-between;gap:.6rem;padding:.26rem 0;font-size:var(--fs-sm);border-bottom:1px dashed var(--line)}
+.ed__meta .k{font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.ed__go{display:inline-flex;align-items:center;gap:.5rem;font:500 .66rem/1 var(--font-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--foil-2);transition:color .35s}
+.ed:hover .ed__go{color:var(--ink)}
+
+/* ============================================================
+   Bindery (pinned)
+   ============================================================ */
+.bindery{background:var(--paper-2);border-block:1px solid var(--line)}
+.bindery__pin{min-height:100svh;display:flex;align-items:center;padding-block:clamp(2.4rem,5.5vw,3.6rem);overflow:hidden}
+.bindery__grid{display:grid;gap:var(--gap);grid-template-columns:1fr;width:100%}
+@media (min-width:62rem){.bindery__grid{grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);align-items:center}}
+.bindery__side{display:grid;gap:1rem;align-content:center}
+.bsteps{display:grid;border-top:1px solid var(--line)}
+.bstep{display:flex;gap:.9rem;padding:.75rem 0;border-bottom:1px solid var(--line);opacity:.36;transition:opacity .45s var(--ease)}
+.bstep.is-on{opacity:1}
+.bstep .n{font:500 .62rem/1 var(--font-mono);letter-spacing:.14em;color:var(--muted);width:1.9rem;flex:none;padding-top:.28rem}
+.bstep.is-on .n{color:var(--foil-2)}
+.bstep strong{font-family:var(--font-display);font-size:1.18rem;font-weight:400;display:block;line-height:1.15}
+.bstep p{font-size:var(--fs-sm);color:var(--muted);line-height:1.5;margin-top:.1rem;max-width:38ch}
+.bmeter{height:2px;background:var(--line);position:relative;overflow:hidden}
+.bmeter i{position:absolute;inset:0;background:var(--foil);transform:scaleX(0);transform-origin:left}
+
+.stage{position:relative;border:1px solid var(--line);background:var(--card);overflow:hidden}
+.stage__frame{position:relative;aspect-ratio:4/3;min-height:16rem;perspective:1500px;perspective-origin:50% 45%}
+.stage__grid{position:absolute;inset:0;opacity:.5}
+.sheetwrap{position:absolute;inset:0;transform-style:preserve-3d}
+.sheet{position:absolute;left:50%;top:50%;width:20%;height:52%;transform-style:preserve-3d;will-change:transform}
+.sheet .half{position:absolute;top:0;bottom:0;width:100%;background:var(--paper);border:1px solid var(--line-2)}
+.sheet .half.l{left:0}
+.sheet .half.r{left:100%;transform-origin:left center;background:var(--card)}
+.sheet .half .ln{position:absolute;left:14%;right:14%;top:18%;height:1px;background:var(--line);box-shadow:0 8px 0 var(--line),0 16px 0 var(--line),0 24px 0 var(--line)}
+.sheet .half .mark{position:absolute;right:12%;bottom:9%;width:11px;height:11px;border:1px solid var(--foil);opacity:.8}
+.thread{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.thread path{fill:none;stroke:var(--foil-2);stroke-width:1.8;stroke-dasharray:6 6}
+.needle{fill:var(--ink)}
+.case{position:absolute;left:39%;top:50%;width:21%;height:58%;transform-origin:right center;background:var(--ink);color:var(--dark-text);display:grid;place-items:center;opacity:0;will-change:transform}
+.case__in{display:grid;gap:.45rem;justify-items:center;text-align:center;padding:.8rem}
+.case__mark{width:34px;height:34px;color:var(--foil-3)}
+.case__word{font-family:var(--font-display);font-size:1.15rem;font-weight:300;letter-spacing:.03em;color:var(--foil-3);line-height:1.2}
+.stage__cap{display:flex;justify-content:space-between;gap:1rem;padding:.65rem .9rem;border-top:1px solid var(--line);color:var(--muted)}
+
+/* ============================================================
+   Composer
+   ============================================================ */
+.cmp__grid{display:grid;gap:var(--gap);grid-template-columns:1fr}
+@media (min-width:64rem){.cmp__grid{grid-template-columns:minmax(0,.88fr) minmax(0,1.12fr)}}
+.controls{background:var(--card);border:1px solid var(--line);display:grid;align-content:start}
+.ctrl{padding:clamp(.85rem,1.9vw,1.15rem);border-bottom:1px solid var(--line);display:grid;gap:.6rem}
+.ctrl:last-child{border-bottom:0}
+.ctrl__hd{display:flex;justify-content:space-between;align-items:baseline;gap:1rem}
+.ctrl__hd .k{font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.ctrl__hd .v{font-family:var(--font-display);font-size:1.05rem;font-weight:400}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem}
+.chip{border:1px solid var(--line-2);padding:.55rem .75rem;font:500 .66rem/1 var(--font-mono);letter-spacing:.1em;text-transform:uppercase;transition:background-color .3s var(--ease),color .3s,border-color .3s,transform .3s var(--ease)}
+.chip:hover{transform:translateY(-2px)}
+.chip.is-on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+input[type=range]{width:100%;height:2px;background:var(--line-2);outline:none;margin-block:.5rem}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:22px;background:var(--ink);border:0;border-radius:0}
+input[type=range]::-moz-range-thumb{width:13px;height:22px;background:var(--ink);border:0;border-radius:0}
+.ticks{display:flex;justify-content:space-between;color:var(--muted);font-family:var(--font-mono);font-size:.6rem;letter-spacing:.08em}
+
+.preview{display:grid;gap:var(--gap);align-content:start}
+.press{position:relative;background:var(--paper-2);border:1px solid var(--line);overflow:hidden;padding:clamp(1.1rem,3vw,2rem);display:grid;place-items:center;min-height:18rem}
+.press__bg{position:absolute;inset:0}
+.platen{position:absolute;left:0;top:0;width:100%;height:100%;background:rgba(23,20,15,.88);z-index:5;pointer-events:none;display:grid;place-items:end center;padding-bottom:1rem;transform:translateY(-101%)}
+.platen span{font:500 .66rem/1 var(--font-mono);letter-spacing:.2em;text-transform:uppercase;color:var(--foil-3)}
+.specimen{position:relative;width:min(100%,24rem);z-index:2}
+.spec-sheet{--tone:#efe8d8;position:relative;aspect-ratio:1/1.3;background:var(--tone);display:grid;place-items:center;will-change:transform}
+.spec-sheet.is-laid{
+  background-image:
+    repeating-linear-gradient(90deg,rgba(23,20,15,.05) 0 1px,transparent 1px 4px),
+    repeating-linear-gradient(0deg,rgba(23,20,15,.07) 0 1px,transparent 1px 26px);
+}
+.spec-grain{position:absolute;inset:0;opacity:.28;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E")}
+.spec-inner{position:relative;z-index:2;width:74%;display:grid;gap:.9rem;justify-items:center;text-align:center}
+.spec-block{
+  --imp:.55;width:100%;padding:1rem .8rem;background:rgba(23,20,15,.015);display:grid;gap:.45rem;justify-items:center;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.5),inset 0 calc(var(--imp) * -3px) calc(var(--imp) * 8px) rgba(23,20,15,calc(.05 + var(--imp) * .24))
+}
+.spec-block .t{font-family:var(--font-display);font-size:clamp(1.25rem,3.2vw,1.8rem);font-weight:300;line-height:1.05;color:var(--ink);text-shadow:0 1px 0 rgba(255,255,255,.55)}
+.spec-block .s{font:400 .58rem/1.4 var(--font-mono);letter-spacing:.2em;text-transform:uppercase;color:var(--ink-2)}
+.spec-rule{width:34%;height:1px;background:rgba(23,20,15,.35)}
+.spec-foil{width:60%;height:12px;background:linear-gradient(100deg,#8a5f1c,#e3c07a 18%,#b07d2a 38%,#f2dda8 52%,#a3721f 72%,#dcb265);background-size:220% 100%;transition:opacity .35s}
+.spec-foil.is-blind{background:transparent;box-shadow:inset 0 2px 4px rgba(23,20,15,.32),0 1px 0 rgba(255,255,255,.5)}
+.spec-foil.is-off{opacity:0}
+.spec-edge{height:8px;background:linear-gradient(to bottom,rgba(23,20,15,.32),rgba(23,20,15,.05));transition:height .35s var(--ease)}
+.stamp{position:absolute;right:-.3rem;bottom:14%;z-index:6;border:2px solid var(--seal);color:var(--seal);padding:.4rem .55rem;font:500 .58rem/1.3 var(--font-mono);letter-spacing:.12em;text-transform:uppercase;text-align:center;opacity:0}
+
+.ledger{background:var(--card);border:1px solid var(--line)}
+.ledger__hd{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.7rem .95rem;border-bottom:1px solid var(--line);color:var(--muted)}
+.ledger__body{display:grid;grid-template-columns:1fr}
+@media (min-width:34rem){.ledger__body{grid-template-columns:1fr 1fr}}
+.ledger__body div{display:flex;justify-content:space-between;gap:1rem;padding:.48rem .95rem;border-bottom:1px dashed var(--line);font-size:var(--fs-sm)}
+.ledger__body .k{font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.ledger__body .v{font-weight:500;text-align:right;font-variant-numeric:tabular-nums}
+.ledger__foot{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding:.95rem;border-top:1px solid var(--line);background:var(--paper-2)}
+.ledger__total{display:grid;gap:.1rem}
+.ledger__total b{font-family:var(--font-display);font-size:clamp(1.8rem,4vw,2.5rem);font-weight:300;line-height:.98;font-variant-numeric:tabular-nums}
+.ledger__actions{display:flex;flex-wrap:wrap;gap:.5rem}
+
+/* ============================================================
+   Bench
+   ============================================================ */
+.bench__grid{display:grid;gap:var(--gap);grid-template-columns:1fr}
+@media (min-width:64rem){.bench__grid{grid-template-columns:minmax(0,1fr) minmax(0,1.05fr)}}
+.principles{display:grid;border-top:1px solid rgba(239,233,220,.18);align-content:start}
+.principle{padding:clamp(.95rem,2.2vw,1.4rem) 0;border-bottom:1px solid rgba(239,233,220,.18);display:grid;gap:.45rem}
+.principle .n{font:500 .62rem/1 var(--font-mono);letter-spacing:.16em;color:var(--foil-3)}
+.principle .t{font-family:var(--font-display);font-size:clamp(1.45rem,2.8vw,2.1rem);font-weight:300;line-height:1.08;letter-spacing:-.015em}
+.principle p{color:rgba(239,233,220,.62);font-size:var(--fs-sm);max-width:44ch;line-height:1.6}
+
+.feed{border:1px solid rgba(239,233,220,.2);display:grid;grid-template-rows:auto auto 1fr auto;background:rgba(239,233,220,.03)}
+.feed__hd{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:space-between;padding:.75rem .95rem;border-bottom:1px solid rgba(239,233,220,.16)}
+.feed__live{display:flex;align-items:center;gap:.45rem;color:rgba(239,233,220,.7)}
+.feed__live i{width:6px;height:6px;background:var(--foil-3);flex:none}
+.feed__tabs{display:flex;gap:.35rem}
+.ftab{border:1px solid rgba(239,233,220,.24);padding:.42rem .6rem;font:500 .62rem/1 var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:rgba(239,233,220,.72);transition:background-color .3s,color .3s,border-color .3s}
+.ftab.is-on,.ftab:hover{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+.gauges{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid rgba(239,233,220,.16)}
+.gauge{padding:.65rem .95rem;border-right:1px solid rgba(239,233,220,.16);display:grid;gap:.3rem}
+.gauge:last-child{border-right:0}
+.gauge .k{font:400 .56rem/1.3 var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:rgba(239,233,220,.5)}
+.gauge .v{font-family:var(--font-display);font-size:1.25rem;font-weight:300;line-height:1;font-variant-numeric:tabular-nums}
+.gauge .bar{height:2px;background:rgba(239,233,220,.18);position:relative;overflow:hidden}
+.gauge .bar i{position:absolute;inset:0 auto 0 0;background:var(--foil-3);width:50%;transition:width .8s var(--ease)}
+.feed__list{padding:.15rem .95rem;display:grid;align-content:start;min-height:15rem;overflow:hidden}
+.feed__list li{display:grid;grid-template-columns:3.4rem 10px 1fr;gap:.7rem;align-items:start;padding:.58rem 0;border-bottom:1px dashed rgba(239,233,220,.14)}
+.feed__list li:last-child{border-bottom:0}
+.feed__list time{font:400 .62rem/1.5 var(--font-mono);letter-spacing:.05em;color:rgba(239,233,220,.5)}
+.feed__list .pip{width:8px;height:8px;border:1px solid rgba(239,233,220,.45);margin-top:.3rem}
+.feed__list li.is-new .pip{background:var(--foil-3);border-color:var(--foil-3)}
+.feed__list strong{font-weight:500;font-size:var(--fs-sm);display:block;line-height:1.35}
+.feed__list em{font-style:normal;font-size:var(--fs-xs);color:rgba(239,233,220,.5);font-family:var(--font-mono);letter-spacing:.04em}
+.feed__foot{padding:.75rem .95rem;border-top:1px solid rgba(239,233,220,.16);display:flex;flex-wrap:wrap;gap:.5rem 1rem;justify-content:space-between;color:rgba(239,233,220,.5)}
+
+/* ============================================================
+   Capabilities
+   ============================================================ */
+.cap__grid{display:grid;gap:var(--gap);grid-template-columns:1fr}
+@media (min-width:64rem){.cap__grid{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);align-items:start}}
+.acc{border-top:1px solid var(--line)}
+.acc__item{border-bottom:1px solid var(--line)}
+.acc__btn{width:100%;display:flex;align-items:center;gap:1rem;padding:clamp(.8rem,1.9vw,1.15rem) 0;text-align:left}
+.acc__btn .n{font:500 .62rem/1 var(--font-mono);letter-spacing:.14em;color:var(--muted);width:2rem;flex:none}
+.acc__btn .t{font-family:var(--font-display);font-size:clamp(1.18rem,2.3vw,1.7rem);font-weight:400;line-height:1.12;letter-spacing:-.015em;transition:color .35s}
+.acc__btn:hover .t{color:var(--foil-2)}
+.acc__sign{margin-left:auto;width:14px;height:14px;position:relative;flex:none}
+.acc__sign::before,.acc__sign::after{content:"";position:absolute;background:var(--ink);transition:transform .45s var(--ease)}
+.acc__sign::before{left:0;right:0;top:50%;height:1px;margin-top:-.5px}
+.acc__sign::after{top:0;bottom:0;left:50%;width:1px;margin-left:-.5px}
+.acc__item.is-open .acc__sign::after{transform:scaleY(0)}
+.acc__item.is-open .acc__btn .t{color:var(--foil-2)}
+.acc__panel{display:grid;grid-template-rows:0fr;transition:grid-template-rows .55s var(--ease)}
+.acc__item.is-open .acc__panel{grid-template-rows:1fr}
+.acc__inner{overflow:hidden}
+.acc__pad{padding:0 0 1.1rem 3rem;display:grid;gap:.75rem}
+.acc__pad p{color:var(--ink-2);font-size:var(--fs-sm);line-height:1.65;max-width:52ch}
+.acc__tags{display:flex;flex-wrap:wrap;gap:.35rem}
+.acc__tags span{border:1px solid var(--line-2);padding:.3rem .5rem;font:400 .6rem/1 var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+
+.board{position:sticky;top:calc(var(--nav-h) + 1rem);border:1px solid var(--line);background:var(--card);overflow:hidden}
+.board__stage{position:relative;aspect-ratio:1/1;background:var(--paper)}
+.board__slide{position:absolute;inset:0;opacity:0;transform:scale(1.03);transition:opacity .6s var(--ease),transform .8s var(--ease);color:var(--ink)}
+.board__slide.is-on{opacity:1;transform:none}
+.board__slide svg{width:100%;height:100%}
+.board__meta{display:grid;grid-template-columns:1fr 1fr}
+.board__meta div{padding:.62rem .9rem;border-top:1px solid var(--line);border-right:1px solid var(--line);display:grid;gap:.15rem}
+.board__meta div:nth-child(2n){border-right:0}
+.board__meta .k{font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.board__meta .v{font-family:var(--font-display);font-size:1.02rem;font-weight:400}
+
+/* ============================================================
+   Commission
+   ============================================================ */
+.cta__grid{display:grid;gap:var(--gap);grid-template-columns:1fr}
+@media (min-width:64rem){.cta__grid{grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr)}}
+.cta__side{display:grid;gap:1.1rem;align-content:start}
+.cta__list{display:grid;border-top:1px solid var(--line)}
+.cta__list div{display:flex;justify-content:space-between;gap:1rem;padding:.62rem 0;border-bottom:1px solid var(--line);font-size:var(--fs-sm)}
+.cta__list .k{font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+
+.form{background:var(--card);border:1px solid var(--line);padding:clamp(1rem,2.4vw,1.7rem);display:grid;gap:1.05rem;align-content:start}
+.field{display:grid;gap:.35rem}
+.field label{font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.field input,.field select,.field textarea{border-bottom:1px solid var(--line-2);padding:.55rem 0;font-size:var(--fs-md);background:transparent;transition:border-color .35s}
+.field textarea{resize:vertical;min-height:5.5rem;line-height:1.5}
+.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%237a7161' stroke-width='1.3'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .1rem center;background-size:11px;padding-right:1.4rem}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--foil)}
+.form__row{display:grid;gap:1.05rem}
+@media (min-width:40rem){.form__row{grid-template-columns:1fr 1fr}}
+.form__foot{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding-top:1rem}
+
+/* ============================================================
+   Footer
+   ============================================================ */
+.footer{background:var(--ink);color:var(--dark-text);padding-top:clamp(2.4rem,5vw,3.8rem);overflow:hidden}
+.footer__top{display:grid;gap:1.5rem;grid-template-columns:1fr;padding-bottom:1.7rem;border-bottom:1px solid rgba(239,233,220,.16)}
+@media (min-width:40rem){.footer__top{grid-template-columns:1fr 1fr}}
+@media (min-width:60rem){.footer__top{grid-template-columns:1.35fr .75fr .75fr .75fr}}
+.footer__cols{display:grid;gap:.42rem;align-content:start}
+.footer__cols a{color:rgba(239,233,220,.7);font-size:var(--fs-sm);width:fit-content}
+.footer__cols a:hover{color:var(--paper)}
+.footer__cols .hd{font:500 .62rem/1 var(--font-mono);letter-spacing:.16em;text-transform:uppercase;color:rgba(239,233,220,.45);margin-bottom:.3rem}
+.clock{display:grid;gap:.2rem}
+.clock b{font-family:var(--font-display);font-size:clamp(1.7rem,4vw,2.3rem);font-weight:200;line-height:1;font-variant-numeric:tabular-nums}
+.footer__word{padding-block:clamp(1rem,2.6vw,1.8rem)}
+.footer__word .line>span{font-family:var(--font-display);font-weight:200;letter-spacing:-.03em;line-height:.84;font-size:clamp(3.6rem,19vw,16rem);color:rgba(239,233,220,.92)}
+.footer__bottom{display:flex;flex-wrap:wrap;gap:.7rem 1.4rem;justify-content:space-between;align-items:center;padding-block:1.05rem;border-top:1px solid rgba(239,233,220,.16);color:rgba(239,233,220,.5)}
+.totop{display:inline-flex;align-items:center;gap:.5rem;color:rgba(239,233,220,.75);font:500 .66rem/1 var(--font-mono);letter-spacing:.14em;text-transform:uppercase}
+.totop:hover{color:var(--paper)}
+
+/* ============================================================
+   Reduced motion
+   ============================================================ */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important}
+  .js .line>span{transform:none}
+  .js [data-reveal]{opacity:1}
+  .menu__item{opacity:1}
+  .cur{display:none}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="grain" aria-hidden="true"></div>
+
+<!-- ======================= PRELOADER ======================= -->
+<div class="loader" id="loader" aria-hidden="true">
+  <div class="loader__field" id="loaderField"></div>
+  <div class="loader__mid">
+    <div class="loader__markbox">
+      <div class="loader__mark">
+        <svg viewBox="0 0 80 80" aria-hidden="true">
+          <rect x="1" y="1" width="78" height="78" fill="none" stroke="currentColor" stroke-width="1" opacity=".35"/>
+          <path d="M16 20l24 42 24-42" fill="none" stroke="currentColor" stroke-width="2.2"/>
+          <path d="M28 20h24" fill="none" stroke="currentColor" stroke-width="1" opacity=".5"/>
+          <circle cx="40" cy="34" r="9" fill="none" stroke="currentColor" stroke-width=".8" opacity=".4"/>
+        </svg>
+      </div>
+      <div class="loader__word" id="loaderWord">
+        <span>V</span><span>e</span><span>l</span><span>l</span><span>u</span><span>m</span>
+      </div>
+      <p class="loader__tag">Paper Atelier · Bruges</p>
+    </div>
+  </div>
+  <div class="loader__foot">
+    <div class="loader__bar"><i id="loaderBar"></i></div>
+    <div class="loader__row">
+      <span class="mono" id="loaderStage">Wetting the mould</span>
+      <span class="loader__count"><b id="loaderCount">0</b><em>%</em></span>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= CURSOR ======================= -->
+<div class="cur" id="cur" aria-hidden="true">
+  <div class="cur__seal">
+    <svg class="cur__v" viewBox="0 0 32 32" aria-hidden="true"><path d="M7 9l9 15 9-15"/></svg>
+  </div>
+  <span class="cur__label" id="curLabel"></span>
+</div>
+<div class="progress" aria-hidden="true"><i id="progressBar"></i></div>
+
+<nav class="idx" id="idxRail" aria-label="Section index">
+  <button type="button" data-target="#hero" data-cursor="link"><i></i><span>Atelier</span></button>
+  <button type="button" data-target="#atelier" data-cursor="link"><i></i><span>Craft</span></button>
+  <button type="button" data-target="#numbers" data-cursor="link"><i></i><span>Numbers</span></button>
+  <button type="button" data-target="#editions" data-cursor="link"><i></i><span>Editions</span></button>
+  <button type="button" data-target="#bindery" data-cursor="link"><i></i><span>Bindery</span></button>
+  <button type="button" data-target="#composer" data-cursor="link"><i></i><span>Composer</span></button>
+  <button type="button" data-target="#bench" data-cursor="link"><i></i><span>Bench</span></button>
+  <button type="button" data-target="#capabilities" data-cursor="link"><i></i><span>Capability</span></button>
+  <button type="button" data-target="#commission" data-cursor="link"><i></i><span>Commission</span></button>
+</nav>
+
+<!-- ======================= NAV ======================= -->
+<header class="nav" id="nav">
+  <div class="nav__in">
+    <a class="brand" href="#top" data-cursor="link" aria-label="Deckle, home">
+      <span class="brand__mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32">
+          <rect x=".6" y=".6" width="30.8" height="30.8" fill="none" stroke="currentColor" stroke-width="1" opacity=".4"/>
+          <path d="M7 9l9 15 9-15" fill="none" stroke="currentColor" stroke-width="2"/>
+        </svg>
+      </span>
+      <span class="brand__word">Deckle</span>
+      <span class="brand__sub mono">Paper Atelier</span>
+    </a>
+
+    <div class="nav__links">
+      <a href="#atelier" data-cursor="link">Atelier</a>
+      <a href="#editions" data-cursor="link">Editions</a>
+      <a href="#bindery" data-cursor="link">Bindery</a>
+      <a href="#composer" data-cursor="link">Composer</a>
+      <a href="#bench" data-cursor="link">The Bench</a>
+    </div>
+
+    <div class="nav__end">
+      <span class="nav__status mono"><i aria-hidden="true"></i> Press running · No. 4</span>
+      <a class="btn btn--ghost btn--sm" href="#commission" data-magnetic data-cursor="link"><span>Commission</span></a>
+      <button class="menu-btn" id="menuOpen" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="menu" data-cursor="link">
+        <span class="menu-btn__ico" aria-hidden="true"><i></i><i></i></span>
+        <span class="mono">Index</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ======================= MENU ======================= -->
+<div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Site index" aria-hidden="true">
+  <div class="menu__bg" id="menuBg" aria-hidden="true"></div>
+
+  <div class="menu__head">
+    <span class="mono">Index · Deckle Atelier</span>
+    <button class="menu__close" id="menuClose" type="button" data-cursor="link">
+      <span class="mono">Close</span>
+      <svg class="ico" viewBox="0 0 14 14" aria-hidden="true"><path d="M1 1l12 12M13 1L1 13" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+    </button>
+  </div>
+
+  <div class="menu__body">
+    <ul class="menu__list" id="menuList">
+      <li class="menu__item" data-preview="atelier"><a href="#atelier" data-cursor="link"><span class="n">01</span><span class="t">Atelier</span><span class="d">Vat · mould · deckle</span></a></li>
+      <li class="menu__item" data-preview="editions"><a href="#editions" data-cursor="link"><span class="n">02</span><span class="t">Editions</span><span class="d">Selected work</span></a></li>
+      <li class="menu__item" data-preview="bindery"><a href="#bindery" data-cursor="link"><span class="n">03</span><span class="t">Bindery</span><span class="d">Fold to case</span></a></li>
+      <li class="menu__item" data-preview="composer"><a href="#composer" data-cursor="link"><span class="n">04</span><span class="t">Composer</span><span class="d">Spec your sheet</span></a></li>
+      <li class="menu__item" data-preview="bench"><a href="#bench" data-cursor="link"><span class="n">05</span><span class="t">The Bench</span><span class="d">Live from the floor</span></a></li>
+      <li class="menu__item" data-preview="commission"><a href="#commission" data-cursor="link"><span class="n">06</span><span class="t">Commission</span><span class="d">Start a run</span></a></li>
+    </ul>
+
+    <div class="menu__aside">
+      <div class="menu__preview" id="menuPreview">
+        <div class="menu__slide is-on" data-id="atelier">
+          <svg viewBox="0 0 300 380" aria-hidden="true">
+            <g stroke="currentColor" fill="none" opacity=".9">
+              <rect x="38" y="46" width="224" height="288" stroke-width="1.2"/>
+              <rect x="56" y="64" width="188" height="252" stroke-width=".6" opacity=".5"/>
+              <g stroke-width=".6" opacity=".45"><path d="M70 64v252M94 64v252M118 64v252M142 64v252M166 64v252M190 64v252M214 64v252M238 64v252"/></g>
+              <g stroke-width=".6" opacity=".3"><path d="M56 100h188M56 148h188M56 196h188M56 244h188M56 292h188"/></g>
+              <path d="M112 150l38 62 38-62" stroke-width="2"/>
+              <circle cx="150" cy="176" r="30" stroke-width=".8" opacity=".6"/>
+            </g>
+            <rect x="38" y="352" width="76" height="4" fill="currentColor" opacity=".9"/>
+          </svg>
+        </div>
+        <div class="menu__slide" data-id="editions">
+          <svg viewBox="0 0 300 380" aria-hidden="true">
+            <g stroke="currentColor" fill="none" stroke-width="1.2">
+              <rect x="30" y="40" width="110" height="150"/><rect x="160" y="40" width="110" height="96"/>
+              <rect x="160" y="156" width="110" height="184"/><rect x="30" y="210" width="110" height="130"/>
+            </g>
+            <g fill="currentColor">
+              <rect x="46" y="56" width="46" height="46" opacity=".9"/>
+              <rect x="176" y="172" width="78" height="6" opacity=".8"/>
+              <rect x="176" y="186" width="52" height="6" opacity=".5"/>
+              <circle cx="215" cy="88" r="22" opacity=".85"/>
+              <rect x="46" y="240" width="6" height="70" opacity=".7"/>
+              <rect x="62" y="256" width="6" height="54" opacity=".5"/>
+            </g>
+          </svg>
+        </div>
+        <div class="menu__slide" data-id="bindery">
+          <svg viewBox="0 0 300 380" aria-hidden="true">
+            <g stroke="currentColor" fill="none" stroke-width="1.1">
+              <path d="M60 60h180v260H60z"/><path d="M150 60v260"/>
+              <path d="M78 84h58M78 104h58M78 124h44M164 84h58M164 104h58M164 124h44" stroke-width=".7" opacity=".55"/>
+              <path d="M46 46h208v288H46z" stroke-width=".7" opacity=".4"/>
+            </g>
+            <path d="M150 68v244" stroke="currentColor" stroke-width="1.4" stroke-dasharray="6 6" fill="none"/>
+            <g fill="currentColor"><rect x="144" y="150" width="12" height="12"/><rect x="144" y="220" width="12" height="12" opacity=".6"/></g>
+          </svg>
+        </div>
+        <div class="menu__slide" data-id="composer">
+          <svg viewBox="0 0 300 380" aria-hidden="true">
+            <g stroke="currentColor" fill="none" stroke-width="1">
+              <rect x="34" y="40" width="232" height="300"/>
+              <path d="M34 110h232M34 180h232M34 250h232"/><path d="M110 40v300" opacity=".5"/>
+            </g>
+            <g fill="currentColor">
+              <rect x="52" y="66" width="40" height="24" opacity=".9"/><rect x="128" y="72" width="118" height="12" opacity=".45"/>
+              <rect x="52" y="136" width="40" height="24" opacity=".5"/><rect x="128" y="140" width="80" height="12" opacity=".7"/>
+              <rect x="52" y="206" width="40" height="24" opacity=".7"/><rect x="128" y="210" width="52" height="12" opacity=".9"/>
+              <rect x="52" y="276" width="194" height="34" opacity=".14"/><rect x="52" y="276" width="96" height="34" opacity=".8"/>
+            </g>
+          </svg>
+        </div>
+        <div class="menu__slide" data-id="bench">
+          <svg viewBox="0 0 300 380" aria-hidden="true">
+            <g stroke="currentColor" fill="none" stroke-width="1">
+              <circle cx="150" cy="150" r="96"/><circle cx="150" cy="150" r="64" opacity=".55"/>
+              <circle cx="150" cy="150" r="32" opacity=".3"/><path d="M150 54v192M54 150h192" opacity=".35"/>
+            </g>
+            <g fill="currentColor">
+              <circle cx="150" cy="54" r="5"/><circle cx="214" cy="150" r="4" opacity=".7"/>
+              <rect x="40" y="288" width="220" height="1.6" opacity=".5"/><rect x="40" y="304" width="150" height="1.6" opacity=".35"/>
+              <rect x="40" y="320" width="184" height="1.6" opacity=".25"/>
+            </g>
+          </svg>
+        </div>
+        <div class="menu__slide" data-id="commission">
+          <svg viewBox="0 0 300 380" aria-hidden="true">
+            <g stroke="currentColor" fill="none" stroke-width="1.1">
+              <path d="M46 90h208v200H46z"/><path d="M46 90l104 84 104-84"/>
+              <path d="M30 44h240v292H30z" stroke-width=".7" opacity=".4"/>
+            </g>
+            <g fill="currentColor" opacity=".85"><rect x="46" y="60" width="208" height="4"/><circle cx="150" cy="230" r="16"/></g>
+          </svg>
+        </div>
+      </div>
+      <div class="menu__meta mono"><span>Preview plate</span><span id="menuIdxLabel">01 / 06</span></div>
+    </div>
+  </div>
+
+  <div class="menu__foot">
+    <span class="mono">Sint-Annarei 14 · 8000 Bruges</span>
+    <div style="display:flex;gap:1.2rem;flex-wrap:wrap">
+      <a href="mailto:atelier@deckle.press" data-cursor="link">atelier@deckle.press</a>
+      <a href="#commission" data-cursor="link">+32 50 34 21 08</a>
+    </div>
+  </div>
+</div>
+
+<main id="main">
+  <span id="top"></span>
+
+  <!-- ======================= HERO ======================= -->
+  <section class="hero" id="hero" data-idx="#hero">
+    <div class="wrap">
+      <div class="hero__top mono">
+        <span>Deckle — Paper Atelier · Est. 2004</span>
+        <span class="dotrow" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+        <span>Pulled by hand · 51.209°N 3.224°E</span>
+      </div>
+
+      <div class="hero__grid">
+        <div class="hero__head">
+          <div class="hero__headrow">
+            <h1 class="h1 hero__title" id="heroTitle">
+              <span class="line"><span>We make paper</span></span>
+              <span class="line"><span>that <em>remembers</em></span></span>
+              <span class="line"><span>being made.</span></span>
+            </h1>
+            <div style="display:grid;gap:.85rem">
+              <p class="lede" data-reveal>A twelve-person atelier working a 1954 platen press, a cotton vat and a bindery bench. We pull, print, fold and sew short editions — nothing that could be done faster somewhere else.</p>
+              <div class="hero__cta" data-reveal>
+                <a class="btn" href="#editions" data-magnetic data-cursor="link">
+                  <span>See the editions</span>
+                  <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 14L14 2M6 2h8v8" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+                </a>
+                <a class="btn btn--ghost" href="#composer" data-magnetic data-cursor="link"><span>Spec a sheet</span></a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <figure class="plate" id="heroPlate" data-cursor="media" data-cursor-label="Plate 01">
+          <div class="plate__art" id="heroPlateArt">
+            <svg viewBox="0 0 640 512" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+              <rect width="640" height="512" fill="#fbf8f1"/>
+              <g stroke="currentColor" opacity=".14" stroke-width="1">
+                <path d="M40 0v512M80 0v512M120 0v512M160 0v512M200 0v512M240 0v512M280 0v512M320 0v512M360 0v512M400 0v512M440 0v512M480 0v512M520 0v512M560 0v512M600 0v512"/>
+              </g>
+              <g stroke="currentColor" opacity=".22" stroke-width="1"><path d="M120 0v512M360 0v512M600 0v512"/></g>
+              <rect x="64" y="58" width="512" height="396" fill="none" stroke="currentColor" stroke-width="1.4"/>
+              <rect x="92" y="86" width="456" height="340" fill="none" stroke="currentColor" stroke-width=".7" opacity=".45"/>
+              <g fill="currentColor">
+                <rect x="92" y="86" width="196" height="128" opacity=".92"/>
+                <rect x="304" y="86" width="244" height="10" opacity=".5"/>
+                <rect x="304" y="108" width="180" height="10" opacity=".35"/>
+                <rect x="304" y="130" width="212" height="10" opacity=".22"/>
+              </g>
+              <g fill="#b07d2a"><rect x="92" y="232" width="196" height="14"/><rect x="304" y="232" width="60" height="14" opacity=".55"/></g>
+              <g fill="none" stroke="currentColor">
+                <circle cx="470" cy="330" r="66" stroke-width="1"/>
+                <circle cx="470" cy="330" r="44" stroke-width="1" opacity=".6"/>
+              </g>
+              <circle cx="470" cy="330" r="22" fill="currentColor" opacity=".9"/>
+              <g fill="currentColor" opacity=".55">
+                <rect x="92" y="272" width="150" height="6"/><rect x="92" y="288" width="196" height="6"/>
+                <rect x="92" y="304" width="120" height="6"/><rect x="92" y="320" width="176" height="6"/>
+                <rect x="92" y="336" width="96" height="6"/>
+              </g>
+              <g fill="currentColor" opacity=".22">
+                <circle cx="316" cy="392" r="3"/><circle cx="332" cy="392" r="3"/><circle cx="348" cy="392" r="3"/>
+                <circle cx="364" cy="392" r="3"/><circle cx="380" cy="392" r="3"/><circle cx="316" cy="408" r="3"/>
+                <circle cx="332" cy="408" r="3"/><circle cx="348" cy="408" r="3"/><circle cx="364" cy="408" r="3"/>
+                <circle cx="380" cy="408" r="3"/>
+              </g>
+            </svg>
+          </div>
+          <div class="plate__wm" aria-hidden="true">
+            <svg viewBox="0 0 200 200">
+              <path d="M40 50l60 104 60-104" fill="none" stroke="#17140f" stroke-width="3"/>
+              <circle cx="100" cy="100" r="72" fill="none" stroke="#17140f" stroke-width="1"/>
+            </svg>
+          </div>
+          <figcaption class="plate__cap mono"><span>Plate 01 — Watermark study</span><span>320 gsm · laid</span></figcaption>
+        </figure>
+
+        <div class="hero__verbs">
+          <div class="hd mono"><span>The motions</span><span>06</span></div>
+          <ul class="verbs" id="heroVerbs">
+            <li class="is-hot"><b>01</b>Beat</li>
+            <li class="is-on"><b>02</b>Pull</li>
+            <li><b>03</b>Couch</li>
+            <li><b>04</b>Press</li>
+            <li><b>05</b>Size</li>
+            <li><b>06</b>Cure</li>
+          </ul>
+          <div class="hero__swatches" aria-hidden="true">
+            <i style="background:#f8f3e9"></i><i style="background:#efe8d8"></i>
+            <i style="background:#ddd4c1"></i><i style="background:#b07d2a"></i><i style="background:#17140f"></i>
+          </div>
+        </div>
+
+        <aside class="hero__rail">
+          <div class="card">
+            <div class="card__hd"><span class="mono">House sheet · No. 4</span><span class="mono">Spec</span></div>
+            <div class="spec-list">
+              <div><span class="k">Fibre</span><span class="v">100% cotton rag</span></div>
+              <div><span class="k">Mould</span><span class="v">640 × 900 mm</span></div>
+              <div><span class="k">Weight</span><span class="v">320 gsm</span></div>
+              <div><span class="k">Sizing</span><span class="v">Gelatine, tub</span></div>
+              <div><span class="k">Edge</span><span class="v">Four-side deckle</span></div>
+              <div><span class="k">pH</span><span class="v">7.9 · ISO 9706</span></div>
+            </div>
+            <div class="rail__note">
+              <p class="rail__quote">“A sheet should argue a little with the light.”</p>
+              <p class="mono" style="color:var(--muted)">— Marte Devos, head of the vat</p>
+            </div>
+          </div>
+          <div class="card" style="padding:.85rem;display:grid;gap:.5rem">
+            <span class="mono" style="color:var(--muted)">Currently at the vat</span>
+            <p style="font-family:var(--font-display);font-size:1.2rem;line-height:1.22">Quire No. 7 — second pull, 220 sheets</p>
+            <span class="rule"></span>
+            <div style="display:flex;justify-content:space-between" class="mono"><span>Booking from</span><span class="foil-text">March 2027</span></div>
+          </div>
+        </aside>
+
+        <div class="hero__strip">
+          <div><span class="mono" style="color:var(--muted)">Founded</span><strong>2004</strong></div>
+          <div><span class="mono" style="color:var(--muted)">At the bench</span><strong>12 hands</strong></div>
+          <div><span class="mono" style="color:var(--muted)">Editions</span><strong>25 – 500</strong></div>
+          <div><span class="mono" style="color:var(--muted)">Press</span><strong>Heidelberg ’54</strong></div>
+          <div class="scrollcue"><span class="mono">Scroll</span><span class="track" aria-hidden="true"><i id="cueBar"></i></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= MARQUEE ======================= -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee__track" id="marqueeTrack">
+      <span>Cotton rag</span><span class="alt">letterpress</span><span>Brass foil</span><span class="alt">deckle edge</span><span>Section sewn</span><span class="alt">hand pulled</span>
+      <span>Cotton rag</span><span class="alt">letterpress</span><span>Brass foil</span><span class="alt">deckle edge</span><span>Section sewn</span><span class="alt">hand pulled</span>
+      <span>Cotton rag</span><span class="alt">letterpress</span><span>Brass foil</span><span class="alt">deckle edge</span><span>Section sewn</span><span class="alt">hand pulled</span>
+    </div>
+  </div>
+
+  <!-- ======================= ATELIER ======================= -->
+  <section class="sec" id="atelier" data-idx="#atelier">
+    <div class="wrap">
+      <div class="sec__head">
+        <div style="display:grid;gap:.85rem">
+          <p class="label" data-reveal>01 — The atelier</p>
+          <h2 class="h2" data-reveal>Two rooms, <em>one argument:</em> slow is a specification.</h2>
+        </div>
+        <p class="small" data-reveal>Everything happens between the vat room and the press floor, eleven metres apart. A sheet is wet on Monday and printed the following week — we have never found a way to shorten that which we liked.</p>
+      </div>
+
+      <div class="atelier__grid" data-stagger>
+        <article class="panel" data-reveal>
+          <div class="panel__art">
+            <span class="panel__num">01</span>
+            <svg viewBox="0 0 480 300" aria-hidden="true">
+              <rect width="480" height="300" fill="#f2ede3"/>
+              <g stroke="currentColor" fill="none">
+                <rect x="60" y="42" width="360" height="216" stroke-width="1.4"/>
+                <rect x="78" y="60" width="324" height="180" stroke-width=".7" opacity=".5"/>
+                <g stroke-width=".7" opacity=".5"><path d="M96 60v180M114 60v180M132 60v180M150 60v180M168 60v180M186 60v180M204 60v180M222 60v180M240 60v180M258 60v180M276 60v180M294 60v180M312 60v180M330 60v180M348 60v180M366 60v180M384 60v180"/></g>
+                <g stroke-width="1.1" opacity=".85"><path d="M78 96h324M78 150h324M78 204h324"/></g>
+              </g>
+              <g fill="currentColor"><rect x="60" y="258" width="360" height="6" opacity=".9"/><rect x="60" y="272" width="120" height="3" opacity=".4"/></g>
+              <rect x="200" y="140" width="80" height="20" fill="#b07d2a"/>
+            </svg>
+          </div>
+          <div class="panel__body">
+            <h3 class="h3">The vat &amp; the mould</h3>
+            <p class="small">Cotton half-stuff is beaten for six hours in a Hollander until the fibre draws like cream. Each sheet is lifted on a laid mould, couched onto woollen felts, pressed at forty tonnes and hung to cure for a fortnight.</p>
+          </div>
+          <div class="panel__rows">
+            <div><span class="k">Furnish</span><span>Cotton, flax, abaca</span></div>
+            <div><span class="k">Range</span><span>120 – 640 gsm</span></div>
+            <div><span class="k">Watermark</span><span>Wire-sewn, bespoke</span></div>
+          </div>
+          <a class="panel__link" href="#composer" data-cursor="link">
+            <span>Spec your own sheet</span>
+            <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 14L14 2M6 2h8v8" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+          </a>
+        </article>
+
+        <article class="panel" data-reveal>
+          <div class="panel__art">
+            <span class="panel__num">02</span>
+            <svg viewBox="0 0 480 300" aria-hidden="true">
+              <rect width="480" height="300" fill="#f2ede3"/>
+              <g stroke="currentColor" fill="none" stroke-width="1.2">
+                <rect x="96" y="34" width="288" height="46"/><rect x="72" y="196" width="336" height="70"/>
+                <path d="M120 80v40M360 80v40M240 80v22"/>
+              </g>
+              <g fill="currentColor"><rect x="132" y="120" width="216" height="60" opacity=".92"/><rect x="132" y="120" width="216" height="8" opacity=".3"/></g>
+              <g stroke="currentColor" fill="none" opacity=".55" stroke-width=".8"><circle cx="240" cy="150" r="70"/><circle cx="240" cy="150" r="94"/></g>
+              <g fill="#b07d2a"><rect x="96" y="34" width="288" height="6"/><circle cx="240" cy="231" r="12"/></g>
+              <g fill="currentColor" opacity=".35"><rect x="88" y="214" width="120" height="4"/><rect x="88" y="228" width="90" height="4"/><rect x="88" y="242" width="140" height="4"/></g>
+            </svg>
+          </div>
+          <div class="panel__body">
+            <h3 class="h3">The press floor</h3>
+            <p class="small">A 1954 Heidelberg platen and a Vandercook proof press. Photopolymer for new type, foundry metal for the old faces. Impression is set by feel and checked against a proof pulled every hundred sheets.</p>
+          </div>
+          <div class="panel__rows">
+            <div><span class="k">Formes</span><span>Polymer · foundry metal</span></div>
+            <div><span class="k">Impression</span><span>Kiss to 0.9 mm</span></div>
+            <div><span class="k">Ink</span><span>Rubber-base, mixed by eye</span></div>
+          </div>
+          <a class="panel__link" href="#bindery" data-cursor="link">
+            <span>Follow a sheet to the bindery</span>
+            <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 14L14 2M6 2h8v8" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+          </a>
+        </article>
+
+        <aside class="notes" data-reveal>
+          <div class="notes__hd mono"><span>Today’s docket</span><span>Bench two</span></div>
+          <ul class="notes__list" id="docket">
+            <li class="done"><span class="tick" aria-hidden="true"></span><span>Beat 40 kg cotton half-stuff — Hollander No. 2</span></li>
+            <li class="done"><span class="tick" aria-hidden="true"></span><span>Pull 220 sheets, 320 gsm laid, four-side deckle</span></li>
+            <li class="done"><span class="tick" aria-hidden="true"></span><span>Couch and press — 40 t, ninety minutes</span></li>
+            <li><span class="tick" aria-hidden="true"></span><span>Lock up the forme for <em>Quire No. 7</em>, signature C</span></li>
+            <li><span class="tick" aria-hidden="true"></span><span>Brass die proof — colophon, struck blind</span></li>
+            <li><span class="tick" aria-hidden="true"></span><span>Sew 60 sections, linen thread, five stations</span></li>
+          </ul>
+          <div class="notes__foot">
+            <span class="mono" style="color:rgba(239,233,220,.5)">Sheets drying</span>
+            <span class="big">1,480</span>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= NUMBERS ======================= -->
+  <section class="stats" id="numbers" data-idx="#numbers" data-theme="dark">
+    <div class="stats__bg halftone" aria-hidden="true"></div>
+    <div class="wrap stats__in">
+      <div class="stats__top">
+        <p class="label" style="color:rgba(239,233,220,.6)" data-reveal>02 — By the numbers</p>
+        <p class="mono" style="color:rgba(239,233,220,.5)" data-reveal>Rolling twelve months · taken from the bench book</p>
+      </div>
+      <div class="stats__grid" data-stagger>
+        <div class="stat" data-reveal>
+          <div class="stat__n"><span data-count="2148" data-sep="1">0</span></div>
+          <p class="stat__k">Sheets pulled by hand each month, two pairs of hands at the vat.</p>
+        </div>
+        <div class="stat" data-reveal>
+          <div class="stat__n"><span data-count="24">0</span></div>
+          <p class="stat__k">Editions printed, sewn and cased in the last year. We turn down more.</p>
+        </div>
+        <div class="stat" data-reveal>
+          <div class="stat__n"><span data-count="640">0</span><sup>gsm</sup></div>
+          <p class="stat__k">Heaviest sheet the mould will carry without losing its rattle.</p>
+        </div>
+        <div class="stat" data-reveal>
+          <div class="stat__n"><span data-count="22">0</span><sup>yrs</sup></div>
+          <p class="stat__k">At the same address on the Sint-Annarei, with the same press.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= EDITIONS ======================= -->
+  <section class="sec" id="editions" data-idx="#editions">
+    <div class="wrap">
+      <div class="sec__head">
+        <div style="display:grid;gap:.85rem">
+          <p class="label" data-reveal>03 — Selected editions</p>
+          <h2 class="h2" data-reveal>Three we would <em>make again</em> tomorrow.</h2>
+        </div>
+        <div style="display:grid;gap:.7rem">
+          <p class="small" data-reveal>Each was pulled, printed and bound in this building. Numbers are final — we do not reprint. Full colophons on request.</p>
+          <a class="ed__go underline" href="#commission" data-cursor="link" data-reveal>Request the full catalogue</a>
+        </div>
+      </div>
+
+      <div class="ed__grid" data-stagger>
+        <article class="ed ed--a" data-tilt data-reveal data-cursor="media" data-cursor-label="Plate 02">
+          <div class="ed__art">
+            <span class="ed__tag mono">Edition of 220</span>
+            <div class="inner" data-par>
+              <svg viewBox="0 0 720 520" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                <rect width="720" height="520" fill="#f2ede3"/>
+                <g stroke="currentColor" fill="none" stroke-width="1" opacity=".45"><path d="M0 60h720M0 120h720M0 180h720M0 240h720M0 300h720M0 360h720M0 420h720M0 480h720"/></g>
+                <g fill="currentColor">
+                  <rect x="70" y="70" width="240" height="240" opacity=".94"/>
+                  <rect x="70" y="330" width="240" height="12" opacity=".45"/>
+                  <rect x="70" y="356" width="164" height="12" opacity=".3"/>
+                </g>
+                <g fill="#b07d2a"><rect x="350" y="70" width="300" height="26"/><rect x="350" y="112" width="120" height="8" opacity=".7"/></g>
+                <g stroke="currentColor" fill="none">
+                  <path d="M350 170a150 150 0 0 1 300 0" stroke-width="1.4"/>
+                  <path d="M380 200a120 120 0 0 1 240 0" stroke-width="1.1" opacity=".7"/>
+                  <path d="M410 230a90 90 0 0 1 180 0" stroke-width=".9" opacity=".5"/>
+                  <path d="M440 260a60 60 0 0 1 120 0" stroke-width=".7" opacity=".35"/>
+                </g>
+                <g fill="currentColor" opacity=".22">
+                  <circle cx="360" cy="330" r="4"/><circle cx="384" cy="330" r="4"/><circle cx="408" cy="330" r="4"/>
+                  <circle cx="432" cy="330" r="4"/><circle cx="456" cy="330" r="4"/><circle cx="480" cy="330" r="4"/>
+                  <circle cx="360" cy="354" r="4"/><circle cx="384" cy="354" r="4"/><circle cx="408" cy="354" r="4"/>
+                  <circle cx="432" cy="354" r="4"/><circle cx="456" cy="354" r="4"/><circle cx="480" cy="354" r="4"/>
+                </g>
+                <rect x="70" y="440" width="580" height="4" fill="currentColor" opacity=".9"/>
+              </svg>
+            </div>
+          </div>
+          <div class="ed__body">
+            <div class="ed__row"><h3 class="ed__title">Quire No. 7</h3><span class="mono" style="color:var(--muted)">2026</span></div>
+            <p class="small">An annual of new poetry set in 12pt foundry Bembo, printed on our own 320 gsm laid with a blind-debossed colophon and a hand-torn fore-edge.</p>
+            <div class="ed__meta">
+              <div><span class="k">Stock</span><span>320 laid</span></div>
+              <div><span class="k">Process</span><span>Letterpress</span></div>
+              <div><span class="k">Binding</span><span>Section sewn</span></div>
+              <div><span class="k">Finish</span><span>Blind deboss</span></div>
+            </div>
+            <span class="ed__go">View plate <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 14L14 2M6 2h8v8" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></span>
+          </div>
+        </article>
+
+        <article class="ed ed--b" data-tilt data-reveal data-cursor="media" data-cursor-label="Plate 03">
+          <div class="ed__art">
+            <span class="ed__tag mono">Edition of 120</span>
+            <div class="inner" data-par>
+              <svg viewBox="0 0 520 520" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                <rect width="520" height="520" fill="#f2ede3"/>
+                <g stroke="currentColor" fill="none" stroke-width=".8" opacity=".4"><path d="M60 0v520M140 0v520M220 0v520M300 0v520M380 0v520M460 0v520"/></g>
+                <g fill="currentColor">
+                  <rect x="60" y="60" width="72" height="72" opacity=".9"/><rect x="148" y="60" width="72" height="72" opacity=".55"/>
+                  <rect x="236" y="60" width="72" height="72" opacity=".3"/><rect x="60" y="148" width="72" height="72" opacity=".55"/>
+                  <rect x="236" y="148" width="72" height="72" opacity=".8"/><rect x="60" y="236" width="72" height="72" opacity=".25"/>
+                  <rect x="148" y="236" width="72" height="72" opacity=".7"/>
+                </g>
+                <g fill="#b07d2a"><rect x="148" y="148" width="72" height="72"/><rect x="324" y="60" width="136" height="14"/></g>
+                <g stroke="currentColor" fill="none" stroke-width="1.2"><path d="M324 100l136 136M460 100L324 236"/><rect x="324" y="272" width="136" height="136"/></g>
+                <g fill="currentColor">
+                  <rect x="60" y="340" width="200" height="8" opacity=".85"/><rect x="60" y="360" width="140" height="8" opacity=".55"/>
+                  <rect x="60" y="380" width="180" height="8" opacity=".32"/><rect x="356" y="304" width="72" height="72" opacity=".92"/>
+                  <rect x="60" y="452" width="400" height="4" opacity=".9"/>
+                </g>
+              </svg>
+            </div>
+          </div>
+          <div class="ed__body">
+            <div class="ed__row"><h3 class="ed__title">Marginalia</h3><span class="mono" style="color:var(--muted)">2025</span></div>
+            <p class="small">A type specimen for a Ghent foundry: brass foil on 250 gsm wove, twelve signatures, and a fold-out chart of every alternate in the family.</p>
+            <div class="ed__meta">
+              <div><span class="k">Stock</span><span>250 wove</span></div>
+              <div><span class="k">Process</span><span>Foil + press</span></div>
+              <div><span class="k">Binding</span><span>Quarter cloth</span></div>
+              <div><span class="k">Finish</span><span>Brass foil</span></div>
+            </div>
+            <span class="ed__go">View plate <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 14L14 2M6 2h8v8" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></span>
+          </div>
+        </article>
+
+        <article class="ed ed--c" data-tilt data-reveal data-cursor="media" data-cursor-label="Plate 04">
+          <div class="ed__art">
+            <span class="ed__tag mono">Edition of 60</span>
+            <div class="inner" data-par>
+              <svg viewBox="0 0 900 560" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                <rect width="900" height="560" fill="#f2ede3"/>
+                <g stroke="currentColor" fill="none" stroke-width=".8" opacity=".32"><path d="M0 80h900M0 160h900M0 240h900M0 320h900M0 400h900M0 480h900"/></g>
+                <path d="M80 460V160l120-60 120 60 120-60 120 60 120-60 120 60v300" stroke="currentColor" fill="none" stroke-width="1.3"/>
+                <g fill="currentColor">
+                  <rect x="80" y="460" width="720" height="6" opacity=".92"/>
+                  <rect x="120" y="300" width="90" height="140" opacity=".8"/><rect x="240" y="250" width="90" height="190" opacity=".55"/>
+                  <rect x="360" y="330" width="90" height="110" opacity=".9"/><rect x="480" y="220" width="90" height="220" opacity=".38"/>
+                  <rect x="600" y="290" width="90" height="150" opacity=".7"/>
+                </g>
+                <g fill="#b07d2a"><rect x="120" y="120" width="180" height="16"/><circle cx="720" cy="180" r="26"/></g>
+                <g fill="currentColor" opacity=".2">
+                  <circle cx="740" cy="300" r="4"/><circle cx="762" cy="300" r="4"/><circle cx="784" cy="300" r="4"/>
+                  <circle cx="740" cy="322" r="4"/><circle cx="762" cy="322" r="4"/><circle cx="784" cy="322" r="4"/>
+                  <circle cx="740" cy="344" r="4"/><circle cx="762" cy="344" r="4"/><circle cx="784" cy="344" r="4"/>
+                </g>
+              </svg>
+            </div>
+          </div>
+          <div class="ed__body">
+            <div class="ed__row"><h3 class="ed__title">The Salt Ledger</h3><span class="mono" style="color:var(--muted)">2025</span></div>
+            <p class="small">A monograph on the North Sea salt trade for a maritime archive. Sixty copies, each with a hand-deckled tipped-in chart, limp vellum covers and a boxed set of loose plates. The heaviest thing we have made: 640 gsm boards, pulled two at a time.</p>
+            <div class="ed__meta">
+              <div><span class="k">Stock</span><span>640 rag</span></div>
+              <div><span class="k">Process</span><span>Letterpress</span></div>
+              <div><span class="k">Binding</span><span>Limp vellum</span></div>
+              <div><span class="k">Extras</span><span>Clamshell box</span></div>
+            </div>
+            <span class="ed__go">View plate <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 14L14 2M6 2h8v8" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></span>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= BINDERY ======================= -->
+  <section class="bindery" id="bindery" data-idx="#bindery">
+    <div class="bindery__pin" id="binderyPin">
+      <div class="wrap bindery__grid">
+        <div class="bindery__side">
+          <p class="label">04 — The bindery</p>
+          <h2 class="h2">Four motions <em>make a book.</em></h2>
+          <p class="small" style="max-width:40ch">Scroll to walk a signature from flat sheet to cased volume. Nothing here is automated; the thread is linen and the paste is wheat starch.</p>
+          <ol class="bsteps" id="bsteps">
+            <li class="bstep is-on"><span class="n">01</span><div><strong>Fold</strong><p>Each sheet is folded with the grain and bone-creased once, never twice.</p></div></li>
+            <li class="bstep"><span class="n">02</span><div><strong>Gather</strong><p>Folded sections are nested in order and knocked square against the bench.</p></div></li>
+            <li class="bstep"><span class="n">03</span><div><strong>Sew</strong><p>Linen thread through five stations, kettle-stitched at head and tail.</p></div></li>
+            <li class="bstep"><span class="n">04</span><div><strong>Case</strong><p>Boards are covered, the block is cased in, and the title is struck in brass.</p></div></li>
+          </ol>
+          <div class="bmeter" aria-hidden="true"><i id="bmeterBar"></i></div>
+        </div>
+
+        <div class="stage" id="binderyStage">
+          <div class="stage__frame" id="stageFrame">
+            <div class="stage__grid laid" aria-hidden="true"></div>
+            <div class="sheetwrap" id="sheetWrap">
+              <div class="sheet" data-sheet><div class="half l"><span class="ln"></span></div><div class="half r"><span class="mark"></span></div></div>
+              <div class="sheet" data-sheet><div class="half l"><span class="ln"></span></div><div class="half r"><span class="mark"></span></div></div>
+              <div class="sheet" data-sheet><div class="half l"><span class="ln"></span></div><div class="half r"><span class="mark"></span></div></div>
+              <div class="sheet" data-sheet><div class="half l"><span class="ln"></span></div><div class="half r"><span class="mark"></span></div></div>
+              <div class="sheet" data-sheet><div class="half l"><span class="ln"></span></div><div class="half r"><span class="mark"></span></div></div>
+            </div>
+            <svg class="thread" viewBox="0 0 400 300" preserveAspectRatio="none" aria-hidden="true">
+              <defs>
+                <clipPath id="sewClip"><rect id="sewRect" x="228" y="76" width="24" height="0"/></clipPath>
+              </defs>
+              <g clip-path="url(#sewClip)"><path id="threadPath" d="M240 78 L240 224"/></g>
+              <circle class="needle" id="needle" cx="240" cy="78" r="3.4" opacity="0"/>
+            </svg>
+            <div class="case" id="stageCase">
+              <div class="case__in">
+                <span class="case__mark" aria-hidden="true">
+                  <svg viewBox="0 0 40 40"><path d="M8 11l12 20 12-20" fill="none" stroke="currentColor" stroke-width="2"/><rect x="1" y="1" width="38" height="38" fill="none" stroke="currentColor" stroke-width=".7" opacity=".6"/></svg>
+                </span>
+                <span class="case__word">Quire<br />No. 7</span>
+                <span class="mono" style="color:rgba(239,233,220,.45)">Deckle</span>
+              </div>
+            </div>
+          </div>
+          <div class="stage__cap mono">
+            <span id="stageLabel">Fold</span>
+            <span><span id="stagePct">0</span>% of the signature</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= COMPOSER ======================= -->
+  <section class="sec sec--tint" id="composer" data-idx="#composer">
+    <div class="wrap">
+      <div class="sec__head">
+        <div style="display:grid;gap:.85rem">
+          <p class="label" data-reveal>05 — The composer</p>
+          <h2 class="h2" data-reveal>Build a sheet, <em>pull a proof.</em></h2>
+        </div>
+        <p class="small" data-reveal>Set stock, weight, edge and impression. The specimen is drawn live, and the ledger prices the run the way our bench book does — make-ready, spoilage and press hours included.</p>
+      </div>
+
+      <div class="cmp__grid">
+        <div class="controls" data-reveal>
+          <div class="ctrl">
+            <div class="ctrl__hd"><span class="k">Stock</span><span class="v" id="outStockName">Laid</span></div>
+            <div class="chips" id="stockChips" role="group" aria-label="Stock">
+              <button class="chip is-on" type="button" data-stock="laid" data-cursor="link">Laid</button>
+              <button class="chip" type="button" data-stock="wove" data-cursor="link">Wove</button>
+              <button class="chip" type="button" data-stock="rag" data-cursor="link">Cotton rag</button>
+              <button class="chip" type="button" data-stock="kraft" data-cursor="link">Kraft</button>
+            </div>
+            <p class="small" id="stockNote">Chain and laid lines visible against the light — our house sheet.</p>
+          </div>
+
+          <div class="ctrl">
+            <div class="ctrl__hd"><span class="k">Weight</span><span class="v"><span id="outGsm">320</span> gsm</span></div>
+            <input type="range" id="cmpGsm" min="120" max="640" step="10" value="320" aria-label="Weight in grams per square metre" />
+            <div class="ticks"><span>120</span><span>320</span><span>640</span></div>
+          </div>
+
+          <div class="ctrl">
+            <div class="ctrl__hd"><span class="k">Edge</span><span class="v" id="outEdgeName">Four-side deckle</span></div>
+            <div class="chips" id="edgeChips" role="group" aria-label="Edge">
+              <button class="chip is-on" type="button" data-edge="deckle" data-cursor="link">Deckle</button>
+              <button class="chip" type="button" data-edge="trim" data-cursor="link">Trimmed</button>
+            </div>
+          </div>
+
+          <div class="ctrl">
+            <div class="ctrl__hd"><span class="k">Finish</span><span class="v" id="outFoilName">Brass foil</span></div>
+            <div class="chips" id="foilChips" role="group" aria-label="Finish">
+              <button class="chip" type="button" data-foil="none" data-cursor="link">None</button>
+              <button class="chip is-on" type="button" data-foil="brass" data-cursor="link">Brass foil</button>
+              <button class="chip" type="button" data-foil="blind" data-cursor="link">Blind deboss</button>
+            </div>
+          </div>
+
+          <div class="ctrl">
+            <div class="ctrl__hd"><span class="k">Impression</span><span class="v"><span id="outImp">55</span> / 100</span></div>
+            <input type="range" id="cmpImp" min="0" max="100" step="5" value="55" aria-label="Impression depth" />
+            <div class="ticks"><span>Kiss</span><span>Bite</span><span>Deboss</span></div>
+          </div>
+
+          <div class="ctrl">
+            <div class="ctrl__hd"><span class="k">Run</span><span class="v"><span id="outRun">150</span> copies</span></div>
+            <input type="range" id="cmpRun" min="25" max="600" step="25" value="150" aria-label="Run size" />
+            <div class="ticks"><span>25</span><span>300</span><span>600</span></div>
+          </div>
+        </div>
+
+        <div class="preview">
+          <div class="press" data-reveal>
+            <div class="press__bg hatch" aria-hidden="true"></div>
+            <div class="platen" id="platen" aria-hidden="true"><span>Impression</span></div>
+            <div class="specimen">
+              <div class="spec-sheet is-laid" id="specSheet">
+                <span class="spec-grain" aria-hidden="true"></span>
+                <div class="spec-inner">
+                  <div class="spec-foil" id="specFoil" aria-hidden="true"></div>
+                  <div class="spec-block" id="specBlock">
+                    <span class="s">Deckle Atelier</span>
+                    <span class="t">Specimen Sheet</span>
+                    <span class="spec-rule" aria-hidden="true"></span>
+                    <span class="s" id="specSpecLine">Laid · 320 gsm · deckle</span>
+                  </div>
+                </div>
+              </div>
+              <div class="spec-edge" id="specEdge" aria-hidden="true"></div>
+              <div class="stamp" id="proofStamp" aria-hidden="true">Proof<br /><span id="proofNo">№ 001</span></div>
+            </div>
+          </div>
+
+          <div class="ledger" data-reveal>
+            <div class="ledger__hd"><span class="mono">Bench book · estimate</span><span class="mono">Rev. <span id="ledgerRev">01</span></span></div>
+            <div class="ledger__body">
+              <div><span class="k">Sheets to pull</span><span class="v" id="outPull">174</span></div>
+              <div><span class="k">Press hours</span><span class="v" id="outHours">3.6 h</span></div>
+              <div><span class="k">Make-ready</span><span class="v" id="outReady">17</span></div>
+              <div><span class="k">Lead time</span><span class="v" id="outLead">5 weeks</span></div>
+              <div><span class="k">Per sheet</span><span class="v" id="outPer">€4.10</span></div>
+              <div><span class="k">Setup</span><span class="v" id="outSetup">€720</span></div>
+            </div>
+            <div class="ledger__foot">
+              <div class="ledger__total"><span class="mono" style="color:var(--muted)">Estimate, ex. VAT</span><b id="outTotal">€0</b></div>
+              <div class="ledger__actions">
+                <button class="btn btn--sm" id="pullProof" type="button" data-magnetic data-cursor="link">
+                  <span>Pull a proof</span>
+                  <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1v11M3.5 7.5L8 12l4.5-4.5M2 15h12" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+                </button>
+                <a class="btn btn--ghost btn--sm" href="#commission" data-magnetic data-cursor="link"><span>Send to the bench</span></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= BENCH ======================= -->
+  <section class="sec sec--dark" id="bench" data-idx="#bench" data-theme="dark">
+    <div class="wrap">
+      <div class="sec__head">
+        <div style="display:grid;gap:.85rem">
+          <p class="label" data-reveal>06 — The bench</p>
+          <h2 class="h2" data-reveal>What we believe, <em>and what is happening</em> right now.</h2>
+        </div>
+        <p class="small" data-reveal>The floor keeps a running book: every pull, proof and sewing is logged by hand and mirrored here. Conditions matter — paper moves with the room.</p>
+      </div>
+
+      <div class="bench__grid">
+        <div class="principles" data-stagger>
+          <article class="principle" data-reveal>
+            <span class="n">Principle 01</span>
+            <h3 class="t">Grain before gloss.</h3>
+            <p>The direction of the fibre decides how a book opens, how a fold behaves, and whether a spine will last a century. We choose it first and design around it.</p>
+          </article>
+          <article class="principle" data-reveal>
+            <span class="n">Principle 02</span>
+            <h3 class="t">Impression is an argument.</h3>
+            <p>Too light and the type floats; too deep and the sheet is punished. We set it by feel, in front of the press, with the paper we will actually run.</p>
+          </article>
+          <article class="principle" data-reveal>
+            <span class="n">Principle 03</span>
+            <h3 class="t">Make fewer. Make them last.</h3>
+            <p>Every sheet is alkaline-buffered and tub-sized to ISO 9706. If a copy is still legible in 2226, the run was worth pulling.</p>
+          </article>
+        </div>
+
+        <div class="feed" data-reveal>
+          <div class="feed__hd">
+            <span class="feed__live mono"><i aria-hidden="true"></i> Live from the floor</span>
+            <div class="feed__tabs" id="feedTabs">
+              <button class="ftab is-on" type="button" data-feed="press" aria-pressed="true" data-cursor="link">Press</button>
+              <button class="ftab" type="button" data-feed="bindery" aria-pressed="false" data-cursor="link">Bindery</button>
+              <button class="ftab" type="button" data-feed="proofs" aria-pressed="false" data-cursor="link">Proofs</button>
+            </div>
+          </div>
+          <div class="gauges">
+            <div class="gauge">
+              <span class="k">Relative humidity</span>
+              <span class="v"><span id="gaugeRh">54.0</span>%</span>
+              <span class="bar" aria-hidden="true"><i id="gaugeRhBar"></i></span>
+            </div>
+            <div class="gauge">
+              <span class="k">Press room</span>
+              <span class="v"><span id="gaugeTemp">20.4</span>°C</span>
+              <span class="bar" aria-hidden="true"><i id="gaugeTempBar"></i></span>
+            </div>
+            <div class="gauge">
+              <span class="k">Vat level</span>
+              <span class="v"><span id="gaugeVat">72</span>%</span>
+              <span class="bar" aria-hidden="true"><i id="gaugeVatBar"></i></span>
+            </div>
+          </div>
+          <ul class="feed__list" id="feedList" aria-live="polite"></ul>
+          <div class="feed__foot mono">
+            <span>Bench book · page <span id="feedPage">214</span></span>
+            <span>Updated <span id="feedAgo">just now</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= CAPABILITIES ======================= -->
+  <section class="sec" id="capabilities" data-idx="#capabilities">
+    <div class="wrap">
+      <div class="sec__head">
+        <div style="display:grid;gap:.85rem">
+          <p class="label" data-reveal>07 — Capability</p>
+          <h2 class="h2" data-reveal>Everything a sheet can be <em>put through</em> here.</h2>
+        </div>
+        <p class="small" data-reveal>Open a line to see the board change. If what you need is not listed, it probably still exists somewhere in the building — ask.</p>
+      </div>
+
+      <div class="cap__grid">
+        <div class="acc" id="acc" data-reveal>
+          <div class="acc__item is-open" data-board="sheets">
+            <button class="acc__btn" type="button" aria-expanded="true" data-cursor="link"><span class="n">01</span><span class="t">Hand-moulded sheets</span><span class="acc__sign" aria-hidden="true"></span></button>
+            <div class="acc__panel"><div class="acc__inner"><div class="acc__pad">
+              <p>Cotton, flax and abaca beaten in-house and pulled on laid or wove moulds up to 640 × 900 mm. Bespoke wire watermarks are sewn to the mould for runs over one hundred sheets, and every sheet is tub-sized in gelatine for a surface that takes both letterpress and dip pen.</p>
+              <div class="acc__tags"><span>120–640 gsm</span><span>Wire watermark</span><span>Tub sized</span><span>Four-side deckle</span></div>
+            </div></div></div>
+          </div>
+
+          <div class="acc__item" data-board="press">
+            <button class="acc__btn" type="button" aria-expanded="false" data-cursor="link"><span class="n">02</span><span class="t">Letterpress</span><span class="acc__sign" aria-hidden="true"></span></button>
+            <div class="acc__panel"><div class="acc__inner"><div class="acc__pad">
+              <p>A 1954 Heidelberg platen for the runs and a Vandercook for the proofs. Photopolymer plates for contemporary type, foundry metal for the faces that deserve it. Rubber-base inks mixed on a slab and matched to a drawdown you approve before we run.</p>
+              <div class="acc__tags"><span>Polymer</span><span>Foundry metal</span><span>Split fountain</span><span>Two-colour</span></div>
+            </div></div></div>
+          </div>
+
+          <div class="acc__item" data-board="foil">
+            <button class="acc__btn" type="button" aria-expanded="false" data-cursor="link"><span class="n">03</span><span class="t">Foil &amp; blind</span><span class="acc__sign" aria-hidden="true"></span></button>
+            <div class="acc__panel"><div class="acc__inner"><div class="acc__pad">
+              <p>Engraved brass dies, heated and struck on the platen. Twelve stock foils including our house brass, plus blind debossing to 0.9 mm on heavy rag. Registration to a printed image is held to a quarter of a millimetre by eye and jig.</p>
+              <div class="acc__tags"><span>Brass dies</span><span>12 foils</span><span>0.9 mm deboss</span><span>Edge gilding</span></div>
+            </div></div></div>
+          </div>
+
+          <div class="acc__item" data-board="binding">
+            <button class="acc__btn" type="button" aria-expanded="false" data-cursor="link"><span class="n">04</span><span class="t">Binding</span><span class="acc__sign" aria-hidden="true"></span></button>
+            <div class="acc__panel"><div class="acc__inner"><div class="acc__pad">
+              <p>Section sewing on linen thread with kettle stitches at head and tail; quarter cloth, full cloth, limp vellum and paper-over-board cases. Wheat-starch paste, hand-sewn headbands on request, and a clamshell box for anything that needs one.</p>
+              <div class="acc__tags"><span>Section sewn</span><span>Limp vellum</span><span>Quarter cloth</span><span>Clamshell</span></div>
+            </div></div></div>
+          </div>
+
+          <div class="acc__item" data-board="archival">
+            <button class="acc__btn" type="button" aria-expanded="false" data-cursor="link"><span class="n">05</span><span class="t">Editions &amp; archive</span><span class="acc__sign" aria-hidden="true"></span></button>
+            <div class="acc__panel"><div class="acc__inner"><div class="acc__pad">
+              <p>Numbering, signing sheets, colophons and deposit copies. Every edition is logged in the bench book with its furnish, press settings and date, so a replacement leaf can be pulled to match ten years later. Two archive copies stay in the building.</p>
+              <div class="acc__tags"><span>ISO 9706</span><span>Colophon</span><span>Deposit copies</span><span>Bench record</span></div>
+            </div></div></div>
+          </div>
+        </div>
+
+        <div class="board" data-reveal>
+          <div class="board__stage" id="boardStage">
+            <div class="board__slide is-on" data-board="sheets">
+              <svg viewBox="0 0 400 400" aria-hidden="true">
+                <rect width="400" height="400" fill="#f2ede3"/>
+                <g stroke="currentColor" fill="none">
+                  <rect x="50" y="50" width="300" height="300" stroke-width="1.4"/>
+                  <rect x="68" y="68" width="264" height="264" stroke-width=".6" opacity=".5"/>
+                  <g stroke-width=".6" opacity=".5"><path d="M86 68v264M104 68v264M122 68v264M140 68v264M158 68v264M176 68v264M194 68v264M212 68v264M230 68v264M248 68v264M266 68v264M284 68v264M302 68v264M320 68v264"/></g>
+                  <g stroke-width="1" opacity=".8"><path d="M68 122h264M68 200h264M68 278h264"/></g>
+                  <path d="M150 170l50 84 50-84" stroke-width="2.2"/>
+                  <circle cx="200" cy="200" r="58" stroke-width=".8" opacity=".55"/>
+                </g>
+                <rect x="50" y="356" width="120" height="6" fill="#b07d2a"/>
+              </svg>
+            </div>
+            <div class="board__slide" data-board="press">
+              <svg viewBox="0 0 400 400" aria-hidden="true">
+                <rect width="400" height="400" fill="#f2ede3"/>
+                <g stroke="currentColor" fill="none" stroke-width="1.3">
+                  <rect x="70" y="46" width="260" height="40"/><rect x="54" y="290" width="292" height="64"/><path d="M100 86v42M300 86v42"/>
+                </g>
+                <g fill="currentColor"><rect x="110" y="128" width="180" height="130" opacity=".9"/><rect x="110" y="128" width="180" height="10" opacity=".28"/></g>
+                <g stroke="currentColor" fill="none" opacity=".5" stroke-width=".8"><circle cx="200" cy="193" r="86"/><circle cx="200" cy="193" r="112"/></g>
+                <g fill="#b07d2a"><rect x="70" y="46" width="260" height="7"/><circle cx="200" cy="322" r="13"/></g>
+                <g fill="currentColor" opacity=".32"><rect x="70" y="306" width="90" height="4"/><rect x="70" y="320" width="64" height="4"/><rect x="70" y="334" width="108" height="4"/></g>
+              </svg>
+            </div>
+            <div class="board__slide" data-board="foil">
+              <svg viewBox="0 0 400 400" aria-hidden="true">
+                <rect width="400" height="400" fill="#f2ede3"/>
+                <defs>
+                  <linearGradient id="foilG" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stop-color="#8a5f1c"/><stop offset=".28" stop-color="#e3c07a"/>
+                    <stop offset=".5" stop-color="#b07d2a"/><stop offset=".72" stop-color="#f2dda8"/><stop offset="1" stop-color="#8a5f1c"/>
+                  </linearGradient>
+                </defs>
+                <g stroke="currentColor" fill="none" stroke-width="1.2"><rect x="60" y="60" width="280" height="280"/><rect x="92" y="92" width="216" height="216" opacity=".45"/></g>
+                <rect x="120" y="150" width="160" height="30" fill="url(#foilG)"/>
+                <rect x="120" y="196" width="104" height="12" fill="url(#foilG)" opacity=".75"/>
+                <g fill="currentColor"><rect x="120" y="230" width="160" height="8" opacity=".25"/><rect x="120" y="248" width="130" height="8" opacity=".18"/></g>
+                <g stroke="currentColor" fill="none" stroke-width=".7" opacity=".45"><path d="M60 120h280M60 280h280M140 60v280M260 60v280"/></g>
+              </svg>
+            </div>
+            <div class="board__slide" data-board="binding">
+              <svg viewBox="0 0 400 400" aria-hidden="true">
+                <rect width="400" height="400" fill="#f2ede3"/>
+                <g stroke="currentColor" fill="none" stroke-width="1.3">
+                  <path d="M80 70h240v260H80z"/><path d="M200 70v260"/>
+                  <path d="M100 98h72M100 120h72M100 142h54M228 98h72M228 120h72M228 142h54" stroke-width=".7" opacity=".5"/>
+                </g>
+                <path d="M200 84v232" stroke="currentColor" stroke-width="1.6" stroke-dasharray="7 7" fill="none"/>
+                <g fill="currentColor"><rect x="194" y="150" width="12" height="12"/><rect x="194" y="210" width="12" height="12" opacity=".6"/><rect x="194" y="270" width="12" height="12" opacity=".35"/></g>
+                <rect x="80" y="342" width="240" height="6" fill="#b07d2a"/>
+              </svg>
+            </div>
+            <div class="board__slide" data-board="archival">
+              <svg viewBox="0 0 400 400" aria-hidden="true">
+                <rect width="400" height="400" fill="#f2ede3"/>
+                <g stroke="currentColor" fill="none" stroke-width="1.1">
+                  <rect x="56" y="76" width="288" height="60"/><rect x="56" y="150" width="288" height="60"/>
+                  <rect x="56" y="224" width="288" height="60"/><rect x="56" y="308" width="288" height="36" stroke-width=".8" opacity=".5"/>
+                </g>
+                <g fill="currentColor" opacity=".85">
+                  <rect x="76" y="98" width="120" height="8"/><rect x="76" y="114" width="72" height="6" opacity=".5"/>
+                  <rect x="76" y="172" width="150" height="8"/><rect x="76" y="188" width="92" height="6" opacity=".5"/>
+                  <rect x="76" y="246" width="104" height="8"/><rect x="76" y="262" width="130" height="6" opacity=".5"/>
+                </g>
+                <g fill="#b07d2a"><rect x="290" y="96" width="34" height="20"/><rect x="290" y="170" width="34" height="20" opacity=".6"/><rect x="290" y="244" width="34" height="20" opacity=".35"/></g>
+              </svg>
+            </div>
+          </div>
+          <div class="board__meta">
+            <div><span class="k">Discipline</span><span class="v" id="boardName">Hand-moulded sheets</span></div>
+            <div><span class="k">Lead</span><span class="v" id="boardLead">3–5 weeks</span></div>
+            <div><span class="k">Minimum</span><span class="v" id="boardMin">100 sheets</span></div>
+            <div><span class="k">Bench</span><span class="v" id="boardBench">Vat room</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= COMMISSION ======================= -->
+  <section class="sec sec--tint" id="commission" data-idx="#commission">
+    <div class="wrap">
+      <div class="cta__grid">
+        <div class="cta__side">
+          <p class="label" data-reveal>08 — Commission</p>
+          <h2 class="h2" data-reveal>Tell us what it is <em>for.</em></h2>
+          <p class="lede" data-reveal>We take on roughly two dozen editions a year. Send the shape of the thing — extent, quantity, deadline — and we will tell you honestly whether we are the right bench for it.</p>
+          <div class="cta__list" data-reveal>
+            <div><span class="k">Atelier</span><span>Sint-Annarei 14, 8000 Bruges</span></div>
+            <div><span class="k">Email</span><span><a class="underline" href="mailto:atelier@deckle.press" data-cursor="link">atelier@deckle.press</a></span></div>
+            <div><span class="k">Telephone</span><span>+32 50 34 21 08</span></div>
+            <div><span class="k">Bench hours</span><span>Tue – Sat · 09:00 – 17:30</span></div>
+            <div><span class="k">Booking from</span><span class="foil-text">March 2027</span></div>
+          </div>
+        </div>
+
+        <form class="form" id="commissionForm" novalidate data-reveal>
+          <div class="form__row">
+            <div class="field"><label for="fName">Name</label><input id="fName" name="name" type="text" placeholder="Your name" /></div>
+            <div class="field"><label for="fEmail">Email</label><input id="fEmail" name="email" type="email" placeholder="you@studio.com" /></div>
+          </div>
+          <div class="form__row">
+            <div class="field">
+              <label for="fKind">What is it</label>
+              <select id="fKind" name="kind">
+                <option>Edition / book</option>
+                <option>Specimen or catalogue</option>
+                <option>Stationery &amp; identity</option>
+                <option>Paper only, no printing</option>
+                <option>Something else entirely</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="fRun">Run size</label>
+              <select id="fRun" name="run">
+                <option>Under 50</option>
+                <option selected>50 – 200</option>
+                <option>200 – 500</option>
+                <option>Over 500</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="fMsg">The brief</label>
+            <textarea id="fMsg" name="message" placeholder="Extent, stock in mind, deadline, and anything the sheet has to survive."></textarea>
+          </div>
+          <div class="form__foot">
+            <p class="small" style="max-width:26ch">We reply within two working days, from the bench, not a template.</p>
+            <button class="btn" type="submit" data-magnetic data-cursor="link">
+              <span data-btn-label>Send the brief</span>
+              <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 14L14 2M6 2h8v8" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ======================= FOOTER ======================= -->
+<footer class="footer" data-theme="dark">
+  <div class="wrap">
+    <div class="footer__top">
+      <div style="display:grid;gap:.85rem;align-content:start">
+        <div class="brand">
+          <span class="brand__mark" aria-hidden="true">
+            <svg viewBox="0 0 32 32"><rect x=".6" y=".6" width="30.8" height="30.8" fill="none" stroke="currentColor" stroke-width="1" opacity=".4"/><path d="M7 9l9 15 9-15" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+          </span>
+          <span class="brand__word">Deckle</span>
+        </div>
+        <p class="small" style="max-width:32ch;color:rgba(239,233,220,.62)">A paper atelier on the Sint-Annarei. Hand-moulded sheets, letterpress impression, and editions bound one signature at a time.</p>
+        <div class="clock">
+          <span class="mono" style="color:rgba(239,233,220,.45)">Atelier time · Bruges</span>
+          <b id="liveClock">00:00:00</b>
+        </div>
+      </div>
+
+      <nav class="footer__cols" aria-label="Studio">
+        <span class="hd">Studio</span>
+        <a href="#atelier" data-cursor="link">The atelier</a>
+        <a href="#bindery" data-cursor="link">Bindery</a>
+        <a href="#bench" data-cursor="link">The bench</a>
+        <a href="#capabilities" data-cursor="link">Capability</a>
+      </nav>
+      <nav class="footer__cols" aria-label="Work">
+        <span class="hd">Work</span>
+        <a href="#editions" data-cursor="link">Editions</a>
+        <a href="#composer" data-cursor="link">Composer</a>
+        <a href="#commission" data-cursor="link">Commission</a>
+        <a href="mailto:atelier@deckle.press" data-cursor="link">Catalogue request</a>
+      </nav>
+      <nav class="footer__cols" aria-label="Elsewhere">
+        <span class="hd">Elsewhere</span>
+        <a href="#top" data-cursor="link">Instagram</a>
+        <a href="#top" data-cursor="link">Are.na</a>
+        <a href="#top" data-cursor="link">Colophon</a>
+        <a href="#top" data-cursor="link">Bench book</a>
+      </nav>
+    </div>
+
+    <div class="footer__word" id="footerWord" aria-hidden="true">
+      <span class="line"><span>Deckle</span></span>
+    </div>
+
+    <div class="footer__bottom">
+      <span class="mono">© <span id="year">2026</span> Deckle Paper Atelier · Set in Newsreader &amp; DM Sans</span>
+      <span class="mono">100% cotton · pH 7.9 · ISO 9706</span>
+      <button class="totop" id="toTop" type="button" data-cursor="link">
+        Back to the vat
+        <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 15V4M3.5 8.5L8 4l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+      </button>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var isTouch = window.matchMedia("(hover: none), (pointer: coarse)").matches;
+  var useCursor = !reduced && !isTouch;
+
+  if (useCursor) document.body.classList.add("has-cursor");
+
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.config({ nullTargetWarn: false });
+
+  function debounce(fn, wait) {
+    var t;
+    return function () {
+      clearTimeout(t);
+      t = setTimeout(fn, wait);
+    };
+  }
+
+  /* ---------- decorative rule fields ---------- */
+  function buildField(el, count) {
+    if (!el) return;
+    var html = "";
+    for (var i = 1; i < count; i++) html += '<i style="left:' + ((i / count) * 100) + '%"></i>';
+    el.innerHTML = html;
+  }
+  buildField(document.getElementById("loaderField"), 14);
+  buildField(document.getElementById("menuBg"), 12);
+
+  /* =========================================================
+     PRELOADER
+     ========================================================= */
+  var loader = document.getElementById("loader");
+  var loaderBar = document.getElementById("loaderBar");
+  var loaderCount = document.getElementById("loaderCount");
+  var loaderStage = document.getElementById("loaderStage");
+  var STAGES = [
+    [0, "Wetting the mould"],
+    [20, "Pulling the sheet"],
+    [44, "Couching onto felt"],
+    [66, "Under the press"],
+    [86, "Drying on the line"],
+    [99, "Ready"]
+  ];
+  var htmlEl = document.documentElement;
+  htmlEl.style.overflow = "hidden";
+  document.body.style.overflow = "hidden";
+
+  function finishLoad() {
+    htmlEl.style.overflow = "";
+    document.body.style.overflow = "";
+    loader.style.display = "none";
+    initSite();
+  }
+
+  window.addEventListener("load", function () {
+    if (reduced) {
+      loaderCount.textContent = "100";
+      loaderBar.style.width = "100%";
+      loaderStage.textContent = "Ready";
+      finishLoad();
+      return;
+    }
+
+    gsap.set("#loaderWord span", { yPercent: 112, y: 0 });
+
+    var counter = { v: 0 };
+    gsap.timeline({ onComplete: finishLoad })
+      .to("#loaderWord span", { yPercent: 0, duration: .95, stagger: .05, ease: "power4.out" }, 0)
+      .from(".loader__mark", { opacity: 0, scale: .86, duration: .9, ease: "power3.out" }, 0)
+      .from(".loader__tag", { opacity: 0, y: 10, duration: .6, ease: "power2.out" }, .3)
+      .to(counter, {
+        v: 100, duration: 1.8, ease: "power2.inOut",
+        onUpdate: function () {
+          var v = Math.round(counter.v);
+          loaderCount.textContent = v;
+          loaderBar.style.width = v + "%";
+          for (var i = STAGES.length - 1; i >= 0; i--) {
+            if (v >= STAGES[i][0]) {
+              if (loaderStage.textContent !== STAGES[i][1]) loaderStage.textContent = STAGES[i][1];
+              break;
+            }
+          }
+        }
+      }, .2)
+      .to(".loader__mid, .loader__foot", { opacity: 0, y: -18, duration: .4, ease: "power2.in" }, "+=0.1")
+      .to(loader, { yPercent: -100, duration: .95, ease: "expo.inOut" }, "-=0.12");
+  });
+
+  /* =========================================================
+     SITE
+     ========================================================= */
+  function initSite() {
+    var lenis = null;
+
+    if (!reduced) {
+      lenis = new Lenis({
+        duration: 1.15,
+        easing: function (t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); },
+        smoothWheel: true,
+        touchMultiplier: 1.6
+      });
+      lenis.on("scroll", ScrollTrigger.update);
+      gsap.ticker.add(function (t) { lenis.raf(t * 1000); });
+      gsap.ticker.lagSmoothing(0);
+    }
+
+    function goTo(target, offset) {
+      if (lenis) lenis.scrollTo(target, { offset: offset || 0, duration: 1.25, force: true });
+      else if (typeof target === "number") window.scrollTo(0, target);
+      else {
+        var el = typeof target === "string" ? document.querySelector(target) : target;
+        if (el) window.scrollTo(0, el.getBoundingClientRect().top + window.pageYOffset + (offset || 0));
+      }
+    }
+
+    /* ---------- cursor ---------- */
+    if (useCursor) {
+      var cur = document.getElementById("cur");
+      var curLabel = document.getElementById("curLabel");
+      var mx = window.innerWidth / 2, my = window.innerHeight / 2, cx = mx, cy = my;
+      var setCurX = gsap.quickSetter(cur, "x", "px");
+      var setCurY = gsap.quickSetter(cur, "y", "px");
+
+      gsap.set(cur, { opacity: 1 });
+      window.addEventListener("mousemove", function (e) { mx = e.clientX; my = e.clientY; }, { passive: true });
+
+      gsap.ticker.add(function () {
+        cx += (mx - cx) * 0.22;
+        cy += (my - cy) * 0.22;
+        setCurX(cx); setCurY(cy);
+      });
+
+      document.addEventListener("mouseleave", function () { gsap.to(cur, { opacity: 0, duration: .2 }); });
+      document.addEventListener("mouseenter", function () { gsap.to(cur, { opacity: 1, duration: .2 }); });
+
+      document.querySelectorAll("[data-cursor]").forEach(function (el) {
+        el.addEventListener("mouseenter", function () {
+          var mode = el.getAttribute("data-cursor");
+          document.body.classList.remove("cur-link", "cur-media");
+          if (mode === "link") {
+            document.body.classList.add("cur-link");
+            curLabel.textContent = el.getAttribute("data-cursor-label") || "";
+          }
+          if (mode === "media") {
+            document.body.classList.add("cur-media");
+            curLabel.textContent = el.getAttribute("data-cursor-label") || "View";
+          }
+        });
+        el.addEventListener("mouseleave", function () {
+          document.body.classList.remove("cur-link", "cur-media");
+          curLabel.textContent = "";
+        });
+      });
+
+      /* ---------- magnetic ---------- */
+      document.querySelectorAll("[data-magnetic]").forEach(function (el) {
+        el.addEventListener("mousemove", function (e) {
+          var r = el.getBoundingClientRect();
+          el.style.setProperty("--mx", ((e.clientX - (r.left + r.width / 2)) / r.width) * 14 + "px");
+          el.style.setProperty("--my", ((e.clientY - (r.top + r.height / 2)) / r.height) * 14 + "px");
+        });
+        el.addEventListener("mouseleave", function () {
+          el.style.setProperty("--mx", "0px");
+          el.style.setProperty("--my", "0px");
+        });
+      });
+    }
+
+    /* ---------- nav, progress, dark sections, index ---------- */
+    var nav = document.getElementById("nav");
+    var progressBar = document.getElementById("progressBar");
+    var cueBar = document.getElementById("cueBar");
+    var lastY = 0;
+
+    ScrollTrigger.create({
+      start: 0, end: "max",
+      onUpdate: function (self) {
+        var y = self.scroll();
+        nav.classList.toggle("is-stuck", y > 20);
+        if (y > lastY && y > 240 && !document.body.classList.contains("menu-open")) nav.classList.add("is-hidden");
+        else nav.classList.remove("is-hidden");
+        lastY = y;
+        gsap.set(progressBar, { scaleX: self.progress });
+        if (cueBar) gsap.set(cueBar, { scaleX: Math.min(1, self.progress * 7) });
+      }
+    });
+
+    document.querySelectorAll("[data-theme='dark']").forEach(function (sec) {
+      ScrollTrigger.create({
+        trigger: sec, start: "top 50%", end: "bottom 50%",
+        onToggle: function (self) {
+          if (document.body.classList.contains("menu-open")) return;
+          document.body.classList.toggle("on-dark", self.isActive);
+        }
+      });
+    });
+
+    var idxButtons = Array.prototype.slice.call(document.querySelectorAll("#idxRail button"));
+    idxButtons.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var el = document.querySelector(btn.getAttribute("data-target"));
+        if (el) goTo(el, -20);
+      });
+    });
+    document.querySelectorAll("[data-idx]").forEach(function (sec) {
+      ScrollTrigger.create({
+        trigger: sec, start: "top 45%", end: "bottom 45%",
+        onToggle: function (self) {
+          if (!self.isActive) return;
+          var id = sec.getAttribute("data-idx");
+          idxButtons.forEach(function (b) { b.classList.toggle("is-on", b.getAttribute("data-target") === id); });
+        }
+      });
+    });
+
+    /* ---------- overlay menu ---------- */
+    var menu = document.getElementById("menu");
+    var menuOpenBtn = document.getElementById("menuOpen");
+    var menuCloseBtn = document.getElementById("menuClose");
+    var menuItems = gsap.utils.toArray(".menu__item");
+    var menuSlides = gsap.utils.toArray(".menu__slide");
+    var menuIdxLabel = document.getElementById("menuIdxLabel");
+    var menuTl = null;
+
+    function menuIsOpen() { return menu.classList.contains("is-open"); }
+
+    function openMenu() {
+      document.body.classList.add("menu-open", "on-dark");
+      menu.classList.add("is-open");
+      menu.setAttribute("aria-hidden", "false");
+      menuOpenBtn.setAttribute("aria-expanded", "true");
+      if (lenis) lenis.stop();
+
+      if (menuTl) menuTl.kill();
+      var d = reduced ? .01 : 1;
+      menuTl = gsap.timeline();
+      menuTl.set(menu, { autoAlpha: 1 })
+        .fromTo(menu, { clipPath: "inset(0% 0% 100% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: .75 * d, ease: "expo.inOut" }, 0)
+        .fromTo(".menu__head, .menu__foot", { opacity: 0 }, { opacity: 1, duration: .5 * d }, .28 * d)
+        .fromTo(menuItems, { yPercent: 55, opacity: 0 }, { yPercent: 0, opacity: 1, duration: .7 * d, stagger: .055 * d, ease: "power4.out" }, .3 * d)
+        .fromTo(".menu__aside", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: .6 * d, ease: "power3.out" }, .44 * d);
+      menuCloseBtn.focus({ preventScroll: true });
+    }
+
+    function closeMenu() {
+      if (!menuIsOpen()) return;
+      if (menuTl) menuTl.kill();
+      menuOpenBtn.setAttribute("aria-expanded", "false");
+      var d = reduced ? .01 : 1;
+      gsap.timeline({
+        onComplete: function () {
+          menu.classList.remove("is-open");
+          menu.setAttribute("aria-hidden", "true");
+          document.body.classList.remove("menu-open", "on-dark");
+          if (lenis) lenis.start();
+          ScrollTrigger.refresh();
+        }
+      })
+        .to(menuItems, { yPercent: -30, opacity: 0, duration: .3 * d, stagger: .03 * d, ease: "power2.in" }, 0)
+        .to(".menu__aside", { opacity: 0, duration: .25 * d }, 0)
+        .to(menu, { clipPath: "inset(0% 0% 100% 0%)", duration: .55 * d, ease: "expo.inOut" }, .12 * d)
+        .set(menu, { autoAlpha: 0, clearProps: "clipPath" });
+    }
+
+    menuOpenBtn.addEventListener("click", function () { menuIsOpen() ? closeMenu() : openMenu(); });
+    menuCloseBtn.addEventListener("click", closeMenu);
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && menuIsOpen()) closeMenu(); });
+
+    menuItems.forEach(function (item, i) {
+      item.addEventListener("mouseenter", function () {
+        var id = item.getAttribute("data-preview");
+        menuSlides.forEach(function (s) { s.classList.toggle("is-on", s.getAttribute("data-id") === id); });
+        menuIdxLabel.textContent = String(i + 1).padStart(2, "0") + " / 06";
+      });
+    });
+
+    /* ---------- anchors ---------- */
+    document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+      a.addEventListener("click", function (e) {
+        var id = a.getAttribute("href");
+        if (!id || id.length < 2) return;
+        var el = document.querySelector(id);
+        if (!el) return;
+        e.preventDefault();
+        if (menuIsOpen()) {
+          closeMenu();
+          setTimeout(function () { goTo(el, -20); }, 760);
+        } else {
+          goTo(el, -20);
+        }
+      });
+    });
+
+    /* ---------- hero ---------- */
+    var heroLines = gsap.utils.toArray("#heroTitle .line > span");
+    gsap.set(heroLines, { yPercent: 112, y: 0 });
+    gsap.set(".hero [data-reveal]", { opacity: 1 });
+
+    if (reduced) {
+      gsap.set(heroLines, { yPercent: 0 });
+      gsap.set("[data-reveal]", { opacity: 1, y: 0 });
+    } else {
+      gsap.timeline({ defaults: { ease: "power4.out" } })
+        .to(heroLines, { yPercent: 0, duration: 1.05, stagger: .09 }, 0)
+        .from(".hero__top > *", { opacity: 0, y: 12, duration: .7, stagger: .06 }, 0)
+        .from(".hero__head .lede, .hero__cta", { opacity: 0, y: 22, duration: .85, stagger: .08 }, .34)
+        .from(".plate", { opacity: 0, yPercent: 5, duration: 1.05 }, .24)
+        .from(".hero__verbs", { opacity: 0, y: 26, duration: .85 }, .32)
+        .from(".hero__rail > *", { opacity: 0, y: 28, duration: .85, stagger: .09 }, .36)
+        .from(".hero__strip > *", { opacity: 0, y: 16, duration: .7, stagger: .05 }, .48);
+    }
+
+    setTimeout(function () {
+      var em = document.querySelector("#heroTitle em");
+      if (em) em.classList.add("is-underlined");
+    }, reduced ? 0 : 950);
+
+    if (useCursor) {
+      var plate = document.getElementById("heroPlate");
+      var plateArt = document.getElementById("heroPlateArt");
+      if (plate && plateArt) {
+        plate.addEventListener("mousemove", function (e) {
+          var r = plate.getBoundingClientRect();
+          gsap.to(plateArt, {
+            x: ((e.clientX - r.left) / r.width - .5) * -16,
+            y: ((e.clientY - r.top) / r.height - .5) * -12,
+            duration: .8, ease: "power3.out"
+          });
+        });
+        plate.addEventListener("mouseleave", function () {
+          gsap.to(plateArt, { x: 0, y: 0, duration: 1, ease: "power3.out" });
+        });
+      }
+    }
+
+    var verbs = gsap.utils.toArray("#heroVerbs li");
+    if (!reduced && verbs.length) {
+      var vi = 0;
+      setInterval(function () {
+        verbs.forEach(function (v) { v.classList.remove("is-on", "is-hot"); });
+        verbs[vi % verbs.length].classList.add("is-on", "is-hot");
+        verbs[(vi + 1) % verbs.length].classList.add("is-on");
+        vi++;
+      }, 1700);
+    }
+
+    /* ---------- reveals ---------- */
+    if (!reduced) {
+      gsap.utils.toArray("[data-stagger]").forEach(function (group) {
+        var kids = group.querySelectorAll("[data-reveal]");
+        if (!kids.length) return;
+        gsap.fromTo(kids, { opacity: 0, y: 34 }, {
+          opacity: 1, y: 0, duration: .95, stagger: .11, ease: "power3.out",
+          scrollTrigger: { trigger: group, start: "top 82%", once: true }
+        });
+      });
+
+      gsap.utils.toArray("[data-reveal]").forEach(function (el) {
+        if (el.closest("[data-stagger]") || el.closest(".hero")) return;
+        gsap.fromTo(el, { opacity: 0, y: 26 }, {
+          opacity: 1, y: 0, duration: .9, ease: "power3.out",
+          scrollTrigger: { trigger: el, start: "top 88%", once: true }
+        });
+      });
+    }
+
+    /* ---------- marquee ---------- */
+    var track = document.getElementById("marqueeTrack");
+    if (track && !reduced) {
+      var mX = 0, boost = 0, dir = -1;
+      ScrollTrigger.create({
+        start: 0, end: "max",
+        onUpdate: function (self) {
+          var v = self.getVelocity();
+          boost = gsap.utils.clamp(0, 3.2, Math.abs(v) / 900);
+          dir = v > 0 ? -1 : 1;
+        }
+      });
+      gsap.ticker.add(function () {
+        var w = track.scrollWidth / 3;
+        if (!w) return;
+        mX += dir * (0.45 + boost);
+        if (mX <= -w) mX += w;
+        if (mX >= 0) mX -= w;
+        gsap.set(track, { x: mX });
+        boost *= 0.93;
+      });
+    }
+
+    /* ---------- counters ---------- */
+    gsap.utils.toArray("[data-count]").forEach(function (el) {
+      var target = parseFloat(el.getAttribute("data-count"));
+      var sep = el.getAttribute("data-sep") === "1";
+      var obj = { v: 0 };
+      function render() {
+        var n = Math.round(obj.v);
+        el.textContent = sep ? n.toLocaleString("en-GB") : String(n);
+      }
+      if (reduced) { obj.v = target; render(); return; }
+      gsap.to(obj, {
+        v: target, duration: 2, ease: "power2.out", onUpdate: render,
+        scrollTrigger: { trigger: el, start: "top 88%", once: true }
+      });
+    });
+
+    if (!reduced) {
+      ScrollTrigger.create({
+        trigger: "#docket", start: "top 78%", once: true,
+        onEnter: function () {
+          document.querySelectorAll("#docket li:not(.done)").forEach(function (li, i) {
+            setTimeout(function () { li.classList.add("done"); }, 800 + i * 650);
+          });
+        }
+      });
+    }
+
+    /* ---------- editions ---------- */
+    gsap.utils.toArray("[data-tilt]").forEach(function (card) {
+      var art = card.querySelector("[data-par]");
+      if (art && !reduced) {
+        gsap.fromTo(art, { yPercent: -6 }, {
+          yPercent: 6, ease: "none",
+          scrollTrigger: { trigger: card, start: "top bottom", end: "bottom top", scrub: true }
+        });
+      }
+      if (useCursor) {
+        card.addEventListener("mousemove", function (e) {
+          var r = card.getBoundingClientRect();
+          gsap.to(card, {
+            rotateX: ((e.clientY - r.top) / r.height - .5) * -5,
+            rotateY: ((e.clientX - r.left) / r.width - .5) * 5,
+            transformPerspective: 1100, duration: .5, ease: "power2.out"
+          });
+        });
+        card.addEventListener("mouseleave", function () {
+          gsap.to(card, { rotateX: 0, rotateY: 0, duration: .7, ease: "power3.out" });
+        });
+      }
+    });
+
+    if (!reduced) {
+      gsap.utils.toArray(".ed").forEach(function (card) {
+        gsap.fromTo(card.querySelector(".ed__art"),
+          { clipPath: "inset(12% 7% 12% 7%)" },
+          {
+            clipPath: "inset(0% 0% 0% 0%)", duration: 1.2, ease: "expo.out",
+            scrollTrigger: { trigger: card, start: "top 84%", once: true }
+          });
+      });
+    }
+
+    /* ---------- bindery ---------- */
+    var sheets = gsap.utils.toArray("[data-sheet]");
+    var rightHalves = sheets.map(function (s) { return s.querySelector(".half.r"); });
+    var bsteps = gsap.utils.toArray(".bstep");
+    var bmeterBar = document.getElementById("bmeterBar");
+    var stageLabel = document.getElementById("stageLabel");
+    var stagePct = document.getElementById("stagePct");
+    var sewRect = document.getElementById("sewRect");
+    var needle = document.getElementById("needle");
+    var stageCase = document.getElementById("stageCase");
+    var STEP_NAMES = ["Fold", "Gather", "Sew", "Case"];
+    var SEW_TOP = 76, SEW_LEN = 152;
+
+    function setStep(i) {
+      bsteps.forEach(function (s, k) { s.classList.toggle("is-on", k === i); });
+      if (stageLabel) stageLabel.textContent = STEP_NAMES[i];
+    }
+
+    function layoutStart() {
+      sheets.forEach(function (s, i) {
+        gsap.set(s, {
+          xPercent: -100 + (i - 2) * 30,
+          yPercent: -50 + (i - 2) * 6,
+          rotate: (i - 2) * 7,
+          z: (4 - i) * 0.8,
+          transformOrigin: "50% 50%"
+        });
+        gsap.set(rightHalves[i], { rotateY: 0, z: -1 });
+      });
+      gsap.set("#sheetWrap", { scale: 1 });
+      gsap.set(stageCase, { rotateY: 100, opacity: 0, yPercent: -50, transformOrigin: "right center" });
+      gsap.set(needle, { opacity: 0, attr: { cy: SEW_TOP + 2 } });
+      gsap.set(sewRect, { attr: { height: 0 } });
+    }
+
+    function layoutEnd() {
+      sheets.forEach(function (s, i) {
+        gsap.set(s, { xPercent: -50, yPercent: -50 + (i - 2) * 1.6, rotate: 0, z: (4 - i) * 0.8 });
+        gsap.set(rightHalves[i], { rotateY: -178, z: -1 });
+      });
+      gsap.set("#sheetWrap", { scale: 1 });
+      gsap.set(sewRect, { attr: { height: SEW_LEN } });
+      gsap.set(needle, { opacity: 1, attr: { cy: SEW_TOP + SEW_LEN - 4 } });
+      gsap.set(stageCase, { rotateY: 0, opacity: 1, yPercent: -50, transformOrigin: "right center" });
+      gsap.set(".case__in > *", { opacity: 1, y: 0 });
+      setStep(3);
+      if (bmeterBar) gsap.set(bmeterBar, { scaleX: 1 });
+      if (stagePct) stagePct.textContent = "100";
+    }
+
+    var mm = gsap.matchMedia();
+
+    mm.add("(min-width: 992px) and (prefers-reduced-motion: no-preference)", function () {
+      layoutStart();
+      setStep(0);
+
+      var tl = gsap.timeline({
+        defaults: { ease: "power2.inOut" },
+        scrollTrigger: {
+          trigger: "#bindery",
+          start: "top top",
+          end: "+=280%",
+          pin: "#binderyPin",
+          scrub: .9,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          onUpdate: function (self) {
+            var p = self.progress;
+            if (bmeterBar) gsap.set(bmeterBar, { scaleX: p });
+            if (stagePct) stagePct.textContent = Math.round(p * 100);
+            var i = Math.min(3, Math.floor(p * 4));
+            if (bsteps[i] && !bsteps[i].classList.contains("is-on")) setStep(i);
+          }
+        }
+      });
+
+      /* 01 fold */
+      tl.to(sheets, { rotate: 0, xPercent: -100, yPercent: -50, duration: .45, stagger: .03 }, 0)
+        .to(rightHalves, { rotateY: -178, duration: .62, stagger: .05, ease: "power3.inOut" }, .12);
+
+      /* 02 gather */
+      tl.to(sheets, {
+        xPercent: -50,
+        yPercent: function (i) { return -50 + (i - 2) * 1.6; },
+        duration: .8, stagger: .03, ease: "power3.inOut"
+      }, 1.05)
+        .to("#sheetWrap", { scale: 1.03, duration: .8 }, 1.05);
+
+      /* 03 sew */
+      tl.set(needle, { opacity: 1 }, 2.05)
+        .fromTo(sewRect, { attr: { height: 0 } }, { attr: { height: SEW_LEN }, duration: .9, ease: "none" }, 2.05)
+        .fromTo(needle, { attr: { cy: SEW_TOP + 2 } }, { attr: { cy: SEW_TOP + SEW_LEN - 4 }, duration: .9, ease: "none" }, 2.05);
+
+      /* 04 case */
+      tl.to(stageCase, { opacity: 1, duration: .16 }, 3.0)
+        .to(stageCase, { rotateY: 0, duration: .85, ease: "power3.out" }, 3.0)
+        .to("#sheetWrap", { scale: 1, duration: .85, ease: "power2.out" }, 3.0)
+        .fromTo(".case__in > *", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: .35, stagger: .08 }, 3.3)
+        .to({ pad: 0 }, { pad: 1, duration: .01 }, 3.99);
+
+      return function () {
+        if (tl.scrollTrigger) tl.scrollTrigger.kill();
+        tl.kill();
+      };
+    });
+
+    mm.add("(max-width: 991.98px), (prefers-reduced-motion: reduce)", function () {
+      layoutEnd();
+      if (reduced) return;
+      var st = ScrollTrigger.create({
+        trigger: "#bindery", start: "top 72%", once: true,
+        onEnter: function () {
+          gsap.fromTo(sheets, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: .8, stagger: .07, ease: "power3.out" });
+        }
+      });
+      return function () { st.kill(); };
+    });
+
+    /* ---------- composer ---------- */
+    var STOCKS = {
+      laid:  { name: "Laid",       tone: "#efe8d8", price: 3.10, laid: true,  note: "Chain and laid lines visible against the light — our house sheet." },
+      wove:  { name: "Wove",       tone: "#f4efe4", price: 2.55, laid: false, note: "An even, closed surface. The quiet option for dense text settings." },
+      rag:   { name: "Cotton rag", tone: "#f8f3e9", price: 5.40, laid: false, note: "100% rag, tub-sized, soft rattle. Takes a deep impression without cracking." },
+      kraft: { name: "Kraft",      tone: "#d9c9ac", price: 2.05, laid: false, note: "Unbleached and honest. Good for wrappers, boxes and title labels." }
+    };
+    var EDGES = {
+      deckle: { name: "Four-side deckle", factor: 1.18, setup: 120 },
+      trim:   { name: "Trimmed square",   factor: 1.00, setup: 0 }
+    };
+    var FOILS = {
+      none:  { name: "No finish",    per: 0.00, setup: 0 },
+      brass: { name: "Brass foil",   per: 1.85, setup: 260 },
+      blind: { name: "Blind deboss", per: 0.85, setup: 180 }
+    };
+
+    var state = { stock: "laid", gsm: 320, edge: "deckle", foil: "brass", imp: 55, run: 150 };
+    var proofCount = 0;
+    var rev = 0;
+
+    var specSheet = document.getElementById("specSheet");
+    var specFoil = document.getElementById("specFoil");
+    var specBlock = document.getElementById("specBlock");
+    var specEdge = document.getElementById("specEdge");
+    var specLine = document.getElementById("specSpecLine");
+    var totalEl = document.getElementById("outTotal");
+    var shownTotal = 0;
+    var totalTween = null;
+
+    function deckleClip() {
+      var n = 20, pts = [], i;
+      function j() { return (Math.random() * 1.6).toFixed(2); }
+      for (i = 0; i <= n; i++) pts.push((i / n * 100).toFixed(2) + "% " + j() + "%");
+      for (i = 1; i <= n; i++) pts.push((100 - j()) + "% " + (i / n * 100).toFixed(2) + "%");
+      for (i = n; i >= 0; i--) pts.push((i / n * 100).toFixed(2) + "% " + (100 - j()) + "%");
+      for (i = n; i >= 1; i--) pts.push(j() + "% " + (i / n * 100).toFixed(2) + "%");
+      return "polygon(" + pts.join(",") + ")";
+    }
+
+    function money(n) { return "\u20AC" + Math.round(n).toLocaleString("en-GB"); }
+
+    function renderComposer(reclip) {
+      var st = STOCKS[state.stock], edge = EDGES[state.edge], foil = FOILS[state.foil];
+
+      specSheet.style.setProperty("--tone", st.tone);
+      specSheet.classList.toggle("is-laid", st.laid);
+      if (state.edge === "deckle") {
+        if (reclip || !specSheet.style.clipPath || specSheet.style.clipPath === "none") {
+          specSheet.style.clipPath = deckleClip();
+        }
+      } else {
+        specSheet.style.clipPath = "none";
+      }
+      specBlock.style.setProperty("--imp", (state.imp / 100).toFixed(2));
+      specFoil.classList.toggle("is-off", state.foil === "none");
+      specFoil.classList.toggle("is-blind", state.foil === "blind");
+      specEdge.style.height = (3 + (state.gsm / 640) * 13).toFixed(1) + "px";
+      specLine.textContent = st.name + " · " + state.gsm + " gsm · " + (state.edge === "deckle" ? "deckle" : "trimmed");
+
+      document.getElementById("outStockName").textContent = st.name;
+      document.getElementById("stockNote").textContent = st.note;
+      document.getElementById("outGsm").textContent = state.gsm;
+      document.getElementById("outEdgeName").textContent = edge.name;
+      document.getElementById("outFoilName").textContent = foil.name;
+      document.getElementById("outImp").textContent = state.imp;
+      document.getElementById("outRun").textContent = state.run;
+
+      var weightF = Math.pow(state.gsm / 300, 0.85);
+      var impF = 1 + (state.imp / 100) * 0.28;
+      var perSheet = st.price * weightF * edge.factor * impF + foil.per;
+      var runDiscount = 1 - Math.min(0.22, ((state.run - 25) / 575) * 0.22);
+      var setup = 340 + edge.setup + foil.setup;
+      var makeReady = 12 + Math.round(state.imp / 10);
+      var toPull = state.run + Math.ceil(state.run * 0.08) + makeReady;
+      var hours = 1.5 + state.run / 110 + (state.foil !== "none" ? 1.2 : 0) + (state.gsm > 400 ? 0.8 : 0);
+      var lead = 2 + Math.ceil(state.run / 200) + (state.foil !== "none" ? 1 : 0) + (state.edge === "deckle" ? 1 : 0);
+      var total = perSheet * state.run * runDiscount + setup;
+
+      document.getElementById("outPull").textContent = toPull.toLocaleString("en-GB");
+      document.getElementById("outHours").textContent = hours.toFixed(1) + " h";
+      document.getElementById("outReady").textContent = makeReady;
+      document.getElementById("outLead").textContent = lead + " weeks";
+      document.getElementById("outPer").textContent = "\u20AC" + perSheet.toFixed(2);
+      document.getElementById("outSetup").textContent = money(setup);
+
+      if (reduced) {
+        shownTotal = total;
+        totalEl.textContent = money(total);
+      } else {
+        if (totalTween) totalTween.kill();
+        totalTween = gsap.to({ v: shownTotal }, {
+          v: total, duration: .55, ease: "power2.out",
+          onUpdate: function () {
+            shownTotal = this.targets()[0].v;
+            totalEl.textContent = money(shownTotal);
+          }
+        });
+      }
+
+      rev = (rev % 99) + 1;
+      document.getElementById("ledgerRev").textContent = String(rev).padStart(2, "0");
+    }
+
+    function bindChips(id, key, reclip) {
+      var wrap = document.getElementById(id);
+      if (!wrap) return;
+      wrap.querySelectorAll(".chip").forEach(function (chip) {
+        chip.addEventListener("click", function () {
+          wrap.querySelectorAll(".chip").forEach(function (c) { c.classList.remove("is-on"); });
+          chip.classList.add("is-on");
+          state[key] = chip.getAttribute("data-" + key);
+          renderComposer(reclip);
+          if (!reduced) gsap.fromTo(specSheet, { scale: .985 }, { scale: 1, duration: .5, ease: "power3.out" });
+        });
+      });
+    }
+    bindChips("stockChips", "stock", false);
+    bindChips("edgeChips", "edge", true);
+    bindChips("foilChips", "foil", false);
+
+    [["cmpGsm", "gsm"], ["cmpImp", "imp"], ["cmpRun", "run"]].forEach(function (pair) {
+      var el = document.getElementById(pair[0]);
+      if (!el) return;
+      el.addEventListener("input", function () {
+        state[pair[1]] = parseInt(el.value, 10);
+        renderComposer(false);
+      });
+    });
+
+    renderComposer(true);
+
+    var platen = document.getElementById("platen");
+    var proofStamp = document.getElementById("proofStamp");
+    var proofNo = document.getElementById("proofNo");
+    gsap.set(platen, { yPercent: -101, y: 0 });
+
+    document.getElementById("pullProof").addEventListener("click", function () {
+      proofCount++;
+      proofNo.textContent = "\u2116 " + String(proofCount).padStart(3, "0");
+      if (state.edge === "deckle") specSheet.style.clipPath = deckleClip();
+      if (reduced) {
+        gsap.set(proofStamp, { opacity: 1, rotate: -6 });
+        return;
+      }
+      gsap.timeline()
+        .set(proofStamp, { opacity: 0, scale: .8, rotate: -14 })
+        .to(platen, { yPercent: 0, duration: .4, ease: "power3.in" })
+        .to(specSheet, { scaleY: .985, duration: .12, ease: "power2.out" }, "-=0.05")
+        .to(specSheet, { scaleY: 1, duration: .32, ease: "elastic.out(1, .5)" })
+        .to(platen, { yPercent: -101, duration: .55, ease: "power3.out" }, "-=0.2")
+        .fromTo(specFoil, { backgroundPosition: "0% 0%" }, { backgroundPosition: "100% 0%", duration: .9, ease: "power2.inOut" }, "-=0.45")
+        .to(proofStamp, { opacity: 1, scale: 1, rotate: -6, duration: .5, ease: "back.out(2)" }, "-=0.7");
+    });
+
+    /* ---------- bench ---------- */
+    var FEEDS = {
+      press: [
+        ["09:14", "Forme locked", "Quire No. 7 · signature C"],
+        ["08:52", "Impression set", "0.42 mm on 320 laid"],
+        ["08:20", "Ink mixed", "Warm black + 4% brass"],
+        ["07:58", "Rollers washed", "Heidelberg · platen"],
+        ["Yest.", "Run complete", "Marginalia · 1,240 sheets"]
+      ],
+      bindery: [
+        ["10:06", "Sections folded", "Quire No. 7 · 60 of 220"],
+        ["09:31", "Thread waxed", "Linen 18/3 · beeswax"],
+        ["09:02", "Boards cut", "2.4 mm grey · grain long"],
+        ["08:15", "Headbands sewn", "Salt Ledger · silk, two-colour"],
+        ["Yest.", "Cased in", "12 copies · limp vellum"]
+      ],
+      proofs: [
+        ["11:20", "Proof approved", "Colophon · blind deboss"],
+        ["10:44", "Second pull", "Title page · brass foil"],
+        ["10:02", "Client mark-up", "Folio position, 3 mm out"],
+        ["09:18", "Drawdown matched", "Warm black on rag"],
+        ["Yest.", "Register checked", "Quarter mm, held"]
+      ]
+    };
+    var NEW_EVENTS = [
+      ["Sheet pulled", "320 gsm laid · vat two"],
+      ["Proof taken", "Vandercook · one pull"],
+      ["Felt changed", "Wool · press bed"],
+      ["Section knocked up", "Signature D · squared"],
+      ["Die heated", "Brass · 118 °C"],
+      ["Stack turned", "Drying line · row four"],
+      ["Furnish beaten", "Cotton · six hours"],
+      ["Kettle stitch tied", "Head and tail"]
+    ];
+
+    var feedList = document.getElementById("feedList");
+    var feedTabs = gsap.utils.toArray(".ftab");
+    var feedRows = FEEDS.press.slice();
+
+    function paintFeed(isNew) {
+      feedList.innerHTML = feedRows.slice(0, 5).map(function (r, i) {
+        return '<li' + (i === 0 && isNew ? ' class="is-new"' : '') + '>' +
+          '<time>' + r[0] + '</time>' +
+          '<span class="pip" aria-hidden="true"></span>' +
+          '<div><strong>' + r[1] + '</strong><em>' + r[2] + '</em></div></li>';
+      }).join("");
+      if (reduced) return;
+      if (isNew) gsap.fromTo(feedList.children[0], { opacity: 0, y: -14 }, { opacity: 1, y: 0, duration: .5, ease: "power3.out" });
+      else gsap.fromTo(feedList.children, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: .45, stagger: .05, ease: "power2.out" });
+    }
+    paintFeed(false);
+
+    feedTabs.forEach(function (tab) {
+      tab.addEventListener("click", function () {
+        feedTabs.forEach(function (t) { t.classList.remove("is-on"); t.setAttribute("aria-pressed", "false"); });
+        tab.classList.add("is-on");
+        tab.setAttribute("aria-pressed", "true");
+        feedRows = FEEDS[tab.getAttribute("data-feed")].slice();
+        paintFeed(false);
+      });
+    });
+
+    var feedAgo = document.getElementById("feedAgo");
+    var feedPage = document.getElementById("feedPage");
+    var lastFeedAt = Date.now();
+
+    if (!reduced) {
+      setInterval(function () {
+        var d = new Date();
+        var e = NEW_EVENTS[Math.floor(Math.random() * NEW_EVENTS.length)];
+        feedRows.unshift([
+          String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"),
+          e[0], e[1]
+        ]);
+        if (feedRows.length > 7) feedRows.pop();
+        paintFeed(true);
+        lastFeedAt = Date.now();
+        feedPage.textContent = 214 + Math.floor(Math.random() * 3);
+      }, 7200);
+
+      setInterval(function () {
+        var s = Math.round((Date.now() - lastFeedAt) / 1000);
+        feedAgo.textContent = s < 5 ? "just now" : s + "s ago";
+      }, 1000);
+    }
+
+    var gRh = document.getElementById("gaugeRh");
+    var gTemp = document.getElementById("gaugeTemp");
+    var gVat = document.getElementById("gaugeVat");
+    var gRhBar = document.getElementById("gaugeRhBar");
+    var gTempBar = document.getElementById("gaugeTempBar");
+    var gVatBar = document.getElementById("gaugeVatBar");
+    var rh = 54, temp = 20.4, vat = 72;
+
+    function paintGauges() {
+      gRh.textContent = rh.toFixed(1);
+      gTemp.textContent = temp.toFixed(1);
+      gVat.textContent = Math.round(vat);
+      gRhBar.style.width = gsap.utils.clamp(4, 100, rh) + "%";
+      gTempBar.style.width = gsap.utils.clamp(4, 100, (temp / 30) * 100) + "%";
+      gVatBar.style.width = gsap.utils.clamp(4, 100, vat) + "%";
+    }
+    paintGauges();
+    if (!reduced) {
+      setInterval(function () {
+        rh = gsap.utils.clamp(48, 60, rh + (Math.random() - .5) * .6);
+        temp = gsap.utils.clamp(18.5, 22.5, temp + (Math.random() - .5) * .22);
+        vat = gsap.utils.clamp(48, 92, vat + (Math.random() - .5) * 2.4);
+        paintGauges();
+      }, 3200);
+    }
+
+    /* ---------- capabilities ---------- */
+    var BOARD_META = {
+      sheets:   ["Hand-moulded sheets", "3–5 weeks", "100 sheets", "Vat room"],
+      press:    ["Letterpress", "2–4 weeks", "50 copies", "Press floor"],
+      foil:     ["Foil & blind", "3 weeks", "80 copies", "Platen"],
+      binding:  ["Binding", "4–6 weeks", "25 copies", "Bench two"],
+      archival: ["Editions & archive", "With the run", "Any", "Bench book"]
+    };
+    var accItems = gsap.utils.toArray(".acc__item");
+    var boardSlides = gsap.utils.toArray(".board__slide");
+
+    function setBoard(key) {
+      boardSlides.forEach(function (s) { s.classList.toggle("is-on", s.getAttribute("data-board") === key); });
+      var m = BOARD_META[key];
+      if (!m) return;
+      document.getElementById("boardName").textContent = m[0];
+      document.getElementById("boardLead").textContent = m[1];
+      document.getElementById("boardMin").textContent = m[2];
+      document.getElementById("boardBench").textContent = m[3];
+      if (!reduced) gsap.fromTo(".board__meta .v", { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: .45, stagger: .05, ease: "power2.out" });
+    }
+
+    accItems.forEach(function (item) {
+      var btn = item.querySelector(".acc__btn");
+      btn.addEventListener("click", function () {
+        var wasOpen = item.classList.contains("is-open");
+        accItems.forEach(function (o) {
+          o.classList.remove("is-open");
+          o.querySelector(".acc__btn").setAttribute("aria-expanded", "false");
+        });
+        if (!wasOpen) {
+          item.classList.add("is-open");
+          btn.setAttribute("aria-expanded", "true");
+          setBoard(item.getAttribute("data-board"));
+        }
+        setTimeout(function () { ScrollTrigger.refresh(); }, 600);
+      });
+      btn.addEventListener("mouseenter", function () {
+        if (item.classList.contains("is-open")) setBoard(item.getAttribute("data-board"));
+      });
+    });
+
+    /* ---------- form ---------- */
+    var form = document.getElementById("commissionForm");
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var label = form.querySelector("[data-btn-label]");
+      var name = document.getElementById("fName");
+      var email = document.getElementById("fEmail");
+      if (!name.value.trim() || email.value.indexOf("@") < 1) {
+        label.textContent = "Name and email, please";
+        if (!reduced) gsap.fromTo(form, { x: -6 }, { x: 0, duration: .5, ease: "elastic.out(1, .4)" });
+        setTimeout(function () { label.textContent = "Send the brief"; }, 2200);
+        return;
+      }
+      label.textContent = "Filed at the bench";
+      if (!reduced) gsap.fromTo(form, { scale: .995 }, { scale: 1, duration: .6, ease: "power3.out" });
+      setTimeout(function () {
+        form.reset();
+        label.textContent = "Send the brief";
+      }, 2400);
+    });
+
+    /* ---------- footer ---------- */
+    var fw = document.querySelector("#footerWord .line > span");
+    if (reduced) {
+      gsap.set(fw, { yPercent: 0, y: 0 });
+    } else {
+      gsap.set(fw, { yPercent: 110, y: 0 });
+      gsap.to(fw, {
+        yPercent: 0, duration: 1.2, ease: "expo.out",
+        scrollTrigger: { trigger: "#footerWord", start: "top 92%", once: true }
+      });
+    }
+
+    var clock = document.getElementById("liveClock");
+    function tick() {
+      clock.textContent = new Intl.DateTimeFormat("en-GB", {
+        timeZone: "Europe/Brussels", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false
+      }).format(new Date());
+    }
+    tick();
+    setInterval(tick, 1000);
+    document.getElementById("year").textContent = new Date().getFullYear();
+    document.getElementById("toTop").addEventListener("click", function () { goTo(0, 0); });
+
+    window.addEventListener("resize", debounce(function () { ScrollTrigger.refresh(); }, 260));
+    ScrollTrigger.refresh();
+  }
+})();
+</script>
+</body>
+</html>

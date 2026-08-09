@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pulse — Recovery you can feel</title>
+<meta name="description" content="Pulse is a recovery wearable that turns HRV, sleep, and strain into calm, actionable guidance. Know when to push — and when to rest." />
+<meta name="theme-color" content="#0E1110" />
+<meta name="color-scheme" content="dark" />
+<meta property="og:title" content="Pulse — Recovery you can feel" />
+<meta property="og:description" content="A soft-signal wearable for HRV, sleep, and strain. Recovery guidance that feels human." />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Pulse" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Pulse — Recovery you can feel" />
+<meta name="twitter:description" content="A soft-signal wearable for HRV, sleep, and strain. Recovery guidance that feels human." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='10' fill='%230E1110'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%236EF3C5' stroke-width='1.5' opacity='.35'/%3E%3Ccircle cx='16' cy='16' r='5.5' fill='none' stroke='%236EF3C5' stroke-width='1.5' opacity='.7'/%3E%3Ccircle cx='16' cy='16' r='2.2' fill='%236EF3C5'/%3E%3C/svg%3E" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet" />
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js" defer></script>
+
+<style>
+:root {
+  --bg: #0E1110;
+  --panel: #171A19;
+  --panel-2: #1C201F;
+  --ink: #F2F6F4;
+  --ink-2: rgba(242, 246, 244, 0.72);
+  --ink-3: rgba(242, 246, 244, 0.48);
+  --line: rgba(242, 246, 244, 0.08);
+  --line-2: rgba(242, 246, 244, 0.14);
+  --mint: #6EF3C5;
+  --mint-soft: rgba(110, 243, 197, 0.14);
+  --mint-glow: rgba(110, 243, 197, 0.22);
+  --mint-dim: rgba(110, 243, 197, 0.55);
+  --radius: 22px;
+  --pill: 999px;
+  --font-body: "Manrope", system-ui, sans-serif;
+  --font-display: "Syne", system-ui, sans-serif;
+  --pad: clamp(1.25rem, 4vw, 2.5rem);
+  --max: 1120px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: auto;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--ink-2);
+  background: var(--bg);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  cursor: none;
+}
+
+body.is-touch { cursor: auto; }
+
+img, svg { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: none; }
+ul { list-style: none; }
+
+::selection {
+  background: var(--mint);
+  color: #0E1110;
+}
+
+:focus-visible {
+  outline: 2px solid var(--mint);
+  outline-offset: 3px;
+}
+
+.skip {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 300;
+  transform: translateY(-160%);
+  background: var(--mint);
+  color: var(--bg);
+  padding: 0.7rem 1.1rem;
+  border-radius: var(--pill);
+  font-weight: 600;
+  transition: transform 0.3s var(--ease);
+}
+.skip:focus { transform: translateY(1rem) translateX(1rem); }
+
+/* Custom cursor */
+.cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 36px;
+  height: 36px;
+  margin: -18px 0 0 -18px;
+  border: 1.5px solid var(--mint);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 500;
+  opacity: 0;
+  mix-blend-mode: difference;
+  transition: width 0.35s var(--ease), height 0.35s var(--ease), margin 0.35s var(--ease), opacity 0.25s ease, border-color 0.25s ease;
+  will-change: transform;
+}
+.cursor.is-on { opacity: 0.85; }
+.cursor.is-hover {
+  width: 52px;
+  height: 52px;
+  margin: -26px 0 0 -26px;
+  border-color: rgba(110, 243, 197, 0.9);
+}
+body.is-touch .cursor { display: none; }
+
+/* Atmosphere */
+.atmosphere {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.atmosphere__orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.45;
+}
+.atmosphere__orb--1 {
+  width: min(70vw, 640px);
+  height: min(70vw, 640px);
+  top: -18%;
+  right: -10%;
+  background: radial-gradient(circle, rgba(110, 243, 197, 0.22) 0%, transparent 68%);
+}
+.atmosphere__orb--2 {
+  width: min(55vw, 480px);
+  height: min(55vw, 480px);
+  bottom: 10%;
+  left: -12%;
+  background: radial-gradient(circle, rgba(110, 243, 197, 0.12) 0%, transparent 70%);
+}
+.atmosphere__orb--3 {
+  width: min(40vw, 360px);
+  height: min(40vw, 360px);
+  top: 42%;
+  left: 40%;
+  background: radial-gradient(circle, rgba(80, 120, 110, 0.18) 0%, transparent 70%);
+}
+
+.wrap {
+  position: relative;
+  z-index: 1;
+  width: min(100% - (var(--pad) * 2), var(--max));
+  margin-inline: auto;
+}
+
+/* Nav */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 1rem var(--pad);
+  transition: background 0.4s var(--ease), backdrop-filter 0.4s var(--ease);
+}
+.nav.is-solid {
+  background: rgba(14, 17, 16, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.nav__inner {
+  width: min(100%, var(--max));
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.logo {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.2rem;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.logo__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--mint);
+  box-shadow: 0 0 12px var(--mint-glow);
+}
+.nav__links {
+  display: none;
+  align-items: center;
+  gap: 1.75rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--ink-3);
+}
+.nav__links a {
+  transition: color 0.25s var(--ease);
+}
+.nav__links a:hover { color: var(--ink); }
+.nav__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65rem 1.25rem;
+  border-radius: var(--pill);
+  background: var(--mint);
+  color: #0A1210;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
+  box-shadow: 0 0 0 0 transparent;
+}
+.nav__cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 28px var(--mint-glow);
+}
+
+@media (min-width: 860px) {
+  .nav__links { display: flex; }
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.9rem 1.55rem;
+  border-radius: var(--pill);
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: transform 0.3s var(--ease), background 0.3s var(--ease), box-shadow 0.3s var(--ease), border-color 0.3s var(--ease);
+}
+.btn--primary {
+  background: var(--mint);
+  color: #0A1210;
+  box-shadow: 0 0 32px rgba(110, 243, 197, 0.18);
+}
+.btn--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 36px rgba(110, 243, 197, 0.28);
+}
+.btn--ghost {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--line-2);
+}
+.btn--ghost:hover {
+  border-color: var(--mint-dim);
+  background: var(--mint-soft);
+  transform: translateY(-2px);
+}
+
+/* Reveal helpers — start visible enough that GSAP fromTo won't stick at 0 if JS fails late */
+[data-reveal] {
+  opacity: 1;
+  will-change: transform, opacity;
+}
+
+/* Hero */
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  padding: calc(5.5rem + env(safe-area-inset-top)) 0 4rem;
+  overflow: hidden;
+}
+.hero__grid {
+  display: grid;
+  gap: 3rem;
+  align-items: center;
+}
+@media (min-width: 920px) {
+  .hero__grid {
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 2rem;
+  }
+}
+.hero__brand {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(3.4rem, 10vw, 7.5rem);
+  line-height: 0.92;
+  letter-spacing: -0.055em;
+  color: var(--ink);
+  margin-bottom: 1.25rem;
+}
+.hero__title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.35rem, 2.8vw, 2rem);
+  line-height: 1.25;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  max-width: 16ch;
+  margin-bottom: 1rem;
+}
+.hero__lead {
+  max-width: 34ch;
+  font-size: 1.05rem;
+  color: var(--ink-3);
+  margin-bottom: 2rem;
+}
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+}
+
+/* Pulse visual */
+.pulse-visual {
+  position: relative;
+  width: min(100%, 420px);
+  aspect-ratio: 1;
+  margin-inline: auto;
+  display: grid;
+  place-items: center;
+}
+.pulse-visual__glow {
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(110, 243, 197, 0.18) 0%, transparent 70%);
+  filter: blur(20px);
+}
+.pulse-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.pulse-ring {
+  fill: none;
+  stroke: var(--mint);
+  stroke-linecap: round;
+  transform-origin: 50% 50%;
+  transform-box: fill-box;
+}
+.pulse-ring--outer { stroke-width: 1.2; opacity: 0.22; }
+.pulse-ring--mid { stroke-width: 1.6; opacity: 0.45; }
+.pulse-ring--inner { stroke-width: 2; opacity: 0.85; }
+.pulse-core {
+  fill: var(--mint);
+  filter: drop-shadow(0 0 12px rgba(110, 243, 197, 0.55));
+}
+.pulse-wave {
+  fill: none;
+  stroke: var(--mint);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.7;
+}
+
+/* Sections shared */
+.section {
+  padding: clamp(4.5rem, 10vw, 7.5rem) 0;
+}
+.section__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mint-dim);
+  margin-bottom: 1rem;
+}
+.section__eyebrow::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--mint);
+  box-shadow: 0 0 10px var(--mint-glow);
+}
+.section__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.85rem, 4.2vw, 3.1rem);
+  line-height: 1.12;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+  max-width: 16ch;
+  margin-bottom: 0.85rem;
+}
+.section__desc {
+  max-width: 42ch;
+  color: var(--ink-3);
+  font-size: 1.05rem;
+  margin-bottom: 2.5rem;
+}
+.section-head {
+  margin-bottom: 2.25rem;
+}
+
+/* Metrics */
+.metrics {
+  background: linear-gradient(180deg, transparent 0%, rgba(23, 26, 25, 0.55) 40%, transparent 100%);
+}
+.metrics__grid {
+  display: grid;
+  gap: 1rem;
+}
+@media (min-width: 740px) {
+  .metrics__grid { grid-template-columns: repeat(3, 1fr); }
+}
+.metric-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.6rem 1.5rem 1.7rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.35s var(--ease), transform 0.35s var(--ease);
+}
+.metric-card::after {
+  content: "";
+  position: absolute;
+  top: -40%;
+  right: -20%;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--mint-soft) 0%, transparent 70%);
+  pointer-events: none;
+}
+.metric-card:hover {
+  border-color: rgba(110, 243, 197, 0.28);
+  transform: translateY(-3px);
+}
+.metric-card__label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 1.25rem;
+}
+.metric-card__value {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 5vw, 3.2rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+  line-height: 1;
+  margin-bottom: 0.35rem;
+}
+.metric-card__unit {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--mint);
+  margin-left: 0.25rem;
+}
+.metric-card__note {
+  font-size: 0.92rem;
+  color: var(--ink-3);
+  max-width: 22ch;
+}
+
+/* Band */
+.band__layout {
+  display: grid;
+  gap: 2.5rem;
+  align-items: center;
+}
+@media (min-width: 900px) {
+  .band__layout {
+    grid-template-columns: 1fr 1fr;
+    gap: 3.5rem;
+  }
+}
+.band-stage {
+  position: relative;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) + 6px);
+  aspect-ratio: 1 / 1.05;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.band-stage__glow {
+  position: absolute;
+  width: 70%;
+  height: 50%;
+  bottom: 10%;
+  left: 15%;
+  background: radial-gradient(ellipse, rgba(110, 243, 197, 0.16) 0%, transparent 70%);
+  filter: blur(24px);
+}
+.band-device {
+  position: relative;
+  width: min(72%, 280px);
+}
+.band-strap {
+  width: 100%;
+  height: 42px;
+  border-radius: var(--pill);
+  background: linear-gradient(180deg, #2A302E 0%, #1A1E1C 100%);
+  border: 1px solid var(--line-2);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
+  position: relative;
+}
+.band-module {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 78px;
+  height: 58px;
+  border-radius: 18px;
+  background: linear-gradient(160deg, #222826 0%, #121614 100%);
+  border: 1px solid rgba(110, 243, 197, 0.25);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 0 24px rgba(110, 243, 197, 0.12);
+  display: grid;
+  place-items: center;
+}
+.band-module__lens {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #9affd9, #2a8f72 55%, #0e1110 100%);
+  box-shadow: 0 0 16px rgba(110, 243, 197, 0.45);
+}
+.band-copy .section__title { max-width: 12ch; }
+.band-features {
+  display: grid;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+.band-feature {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.9rem;
+  padding: 1rem 1.1rem;
+  border-radius: 18px;
+  background: rgba(23, 26, 25, 0.7);
+  border: 1px solid var(--line);
+}
+.band-feature__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: var(--mint-soft);
+  display: grid;
+  place-items: center;
+  color: var(--mint);
+}
+.band-feature h3 {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  margin-bottom: 0.15rem;
+}
+.band-feature p {
+  font-size: 0.88rem;
+  color: var(--ink-3);
+}
+
+/* App moments */
+.app__grid {
+  display: grid;
+  gap: 1rem;
+}
+@media (min-width: 800px) {
+  .app__grid {
+    grid-template-columns: 1.15fr 0.85fr;
+    grid-template-rows: auto auto;
+  }
+  .app-card--wide { grid-row: span 2; }
+}
+.app-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.6rem;
+  overflow: hidden;
+  position: relative;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+}
+.app-card--wide {
+  min-height: 320px;
+  background:
+    radial-gradient(ellipse at 80% 20%, rgba(110, 243, 197, 0.12), transparent 50%),
+    var(--panel);
+}
+.app-card h3 {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  margin-bottom: 0.5rem;
+}
+.app-card p {
+  color: var(--ink-3);
+  font-size: 0.95rem;
+  max-width: 32ch;
+  margin-bottom: auto;
+}
+.app-mock {
+  margin-top: 1.5rem;
+  border-radius: 18px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  padding: 1.1rem 1.2rem;
+}
+.app-mock__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.85rem;
+}
+.app-mock__label {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 600;
+}
+.app-mock__score {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--mint);
+  letter-spacing: -0.03em;
+}
+.app-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.4rem;
+  height: 72px;
+}
+.app-bars span {
+  flex: 1;
+  border-radius: 8px 8px 4px 4px;
+  background: linear-gradient(180deg, var(--mint) 0%, rgba(110, 243, 197, 0.25) 100%);
+  opacity: 0.85;
+}
+.app-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+.app-chip {
+  padding: 0.45rem 0.85rem;
+  border-radius: var(--pill);
+  background: var(--mint-soft);
+  border: 1px solid rgba(110, 243, 197, 0.2);
+  color: var(--mint);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* Science */
+.science {
+  background: radial-gradient(ellipse at 50% 0%, rgba(110, 243, 197, 0.06), transparent 55%);
+}
+.science__panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) + 4px);
+  padding: clamp(1.75rem, 4vw, 2.75rem);
+  display: grid;
+  gap: 2rem;
+}
+@media (min-width: 820px) {
+  .science__panel {
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+  }
+}
+.science__list {
+  display: grid;
+  gap: 1.15rem;
+}
+.science__item {
+  display: grid;
+  gap: 0.3rem;
+  padding-bottom: 1.15rem;
+  border-bottom: 1px solid var(--line);
+}
+.science__item:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.science__item strong {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
+.science__item span {
+  font-size: 0.92rem;
+  color: var(--ink-3);
+}
+.science-chart {
+  width: 100%;
+  height: auto;
+}
+
+/* Pricing */
+.pricing__grid {
+  display: grid;
+  gap: 1rem;
+}
+@media (min-width: 780px) {
+  .pricing__grid {
+    grid-template-columns: repeat(3, 1fr);
+    align-items: stretch;
+  }
+}
+.price-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.75rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: relative;
+}
+.price-card--featured {
+  border-color: rgba(110, 243, 197, 0.35);
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(110, 243, 197, 0.1), transparent 55%),
+    var(--panel-2);
+  box-shadow: 0 0 48px rgba(110, 243, 197, 0.08);
+}
+.price-card__badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: var(--pill);
+  background: var(--mint);
+  color: #0A1210;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.price-card__name {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 650;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
+.price-card__price {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+.price-card__price small {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--ink-3);
+  margin-left: 0.2rem;
+}
+.price-card__desc {
+  font-size: 0.92rem;
+  color: var(--ink-3);
+}
+.price-card__list {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0.25rem 0 0.5rem;
+  flex: 1;
+}
+.price-card__list li {
+  font-size: 0.9rem;
+  color: var(--ink-2);
+  padding-left: 1.2rem;
+  position: relative;
+}
+.price-card__list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.45em;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--mint);
+  opacity: 0.85;
+}
+.price-card .btn { width: 100%; }
+
+/* Footer */
+.footer {
+  padding: 3.5rem 0 2.5rem;
+  border-top: 1px solid var(--line);
+}
+.footer__top {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+}
+.footer__brand p {
+  margin-top: 0.75rem;
+  max-width: 28ch;
+  color: var(--ink-3);
+  font-size: 0.95rem;
+}
+.footer__cols {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.5rem;
+}
+.footer__col h4 {
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 600;
+  margin-bottom: 0.85rem;
+}
+.footer__col a {
+  display: block;
+  font-size: 0.92rem;
+  color: var(--ink-2);
+  margin-bottom: 0.45rem;
+  transition: color 0.25s var(--ease);
+}
+.footer__col a:hover { color: var(--mint); }
+.footer__bottom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.82rem;
+  color: var(--ink-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor { display: none !important; }
+  body { cursor: auto; }
+  button, a { cursor: pointer; }
+  .metric-card:hover,
+  .btn--primary:hover,
+  .btn--ghost:hover,
+  .nav__cta:hover {
+    transform: none;
+  }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="cursor" aria-hidden="true"></div>
+<div class="atmosphere" aria-hidden="true">
+  <div class="atmosphere__orb atmosphere__orb--1"></div>
+  <div class="atmosphere__orb atmosphere__orb--2"></div>
+  <div class="atmosphere__orb atmosphere__orb--3"></div>
+</div>
+
+<header class="nav" id="nav">
+  <div class="nav__inner">
+    <a class="logo" href="#top" data-hover>
+      <span class="logo__dot" aria-hidden="true"></span>
+      Pulse
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="#metrics" data-hover>Metrics</a>
+      <a href="#band" data-hover>Band</a>
+      <a href="#app" data-hover>App</a>
+      <a href="#science" data-hover>Science</a>
+      <a href="#pricing" data-hover>Pricing</a>
+    </nav>
+    <a class="nav__cta" href="#pricing" data-hover>Get Pulse</a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" id="top">
+    <div class="wrap hero__grid">
+      <div class="hero__copy">
+        <h1 class="hero__brand" data-reveal>Pulse</h1>
+        <p class="hero__title" data-reveal>Recovery you can feel — not just a score you chase.</p>
+        <p class="hero__lead" data-reveal>A calm wearable that listens to your HRV, sleep, and strain, then tells you when your body is ready.</p>
+        <div class="hero__actions" data-reveal>
+          <a class="btn btn--primary" href="#pricing" data-hover>Start with Pulse</a>
+          <a class="btn btn--ghost" href="#band" data-hover>See the band</a>
+        </div>
+      </div>
+      <div class="pulse-visual" data-reveal aria-hidden="true">
+        <div class="pulse-visual__glow"></div>
+        <svg class="pulse-svg" viewBox="0 0 400 400" role="img" aria-label="Pulse recovery signal">
+          <circle class="pulse-ring pulse-ring--outer" cx="200" cy="200" r="150" />
+          <circle class="pulse-ring pulse-ring--mid" cx="200" cy="200" r="110" />
+          <circle class="pulse-ring pulse-ring--inner" cx="200" cy="200" r="72" />
+          <circle class="pulse-core" cx="200" cy="200" r="14" />
+          <path class="pulse-wave" d="M95 200 C120 200 130 160 155 160 C180 160 185 240 210 240 C235 240 245 200 270 200 C295 200 305 175 330 175" />
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <section class="section metrics" id="metrics">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section__eyebrow" data-reveal>Daily signal</p>
+        <h2 class="section__title" data-reveal>Three soft metrics. One clear morning.</h2>
+        <p class="section__desc" data-reveal>Pulse folds overnight physiology into language you can act on — without turning recovery into a leaderboard.</p>
+      </div>
+      <div class="metrics__grid">
+        <article class="metric-card" data-reveal>
+          <p class="metric-card__label">HRV balance</p>
+          <p class="metric-card__value">68<span class="metric-card__unit">ms</span></p>
+          <p class="metric-card__note">Steady overnight variability — green light for focused work.</p>
+        </article>
+        <article class="metric-card" data-reveal>
+          <p class="metric-card__label">Sleep depth</p>
+          <p class="metric-card__value">92<span class="metric-card__unit">%</span></p>
+          <p class="metric-card__note">Deep and REM cycles held longer than your 14-day baseline.</p>
+        </article>
+        <article class="metric-card" data-reveal>
+          <p class="metric-card__label">Strain load</p>
+          <p class="metric-card__value">4.2<span class="metric-card__unit">/10</span></p>
+          <p class="metric-card__note">Light cumulative load — room for a hard session if you want it.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section band" id="band">
+    <div class="wrap band__layout">
+      <div class="band-stage" data-reveal>
+        <div class="band-stage__glow"></div>
+        <div class="band-device">
+          <div class="band-strap" aria-hidden="true">
+            <div class="band-module">
+              <div class="band-module__lens"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="band-copy">
+        <p class="section__eyebrow" data-reveal>Hardware</p>
+        <h2 class="section__title" data-reveal>Soft on the wrist. Serious under the hood.</h2>
+        <p class="section__desc" data-reveal>The Pulse Band is built to disappear — matte titanium module, breathable strap, sensors that stay quiet until morning.</p>
+        <div class="band-features">
+          <div class="band-feature" data-reveal>
+            <div class="band-feature__icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="3.5"/></svg>
+            </div>
+            <div>
+              <h3>Optical + skin temp</h3>
+              <p>Continuous HRV sampling with gentle temperature context for overnight recovery.</p>
+            </div>
+          </div>
+          <div class="band-feature" data-reveal>
+            <div class="band-feature__icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="7" width="18" height="12" rx="3"/><path d="M7 7V5.5A2.5 2.5 0 0 1 9.5 3h5A2.5 2.5 0 0 1 17 5.5V7"/><path d="M12 11v4"/></svg>
+            </div>
+            <div>
+              <h3>Five-day charge</h3>
+              <p>Wear it through training weeks without hunting for a cable mid-week.</p>
+            </div>
+          </div>
+          <div class="band-feature" data-reveal>
+            <div class="band-feature__icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 14c3-6 13-6 16 0"/><path d="M7 17c2-3.5 8-3.5 10 0"/><circle cx="12" cy="20" r="1.5" fill="currentColor" stroke="none"/></svg>
+            </div>
+            <div>
+              <h3>Quiet sync</h3>
+              <p>Data lands on your phone overnight. No buzzes. No badges. Just a morning read.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section app" id="app">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section__eyebrow" data-reveal>App moments</p>
+        <h2 class="section__title" data-reveal>Guidance that feels like a coach, not a dashboard.</h2>
+        <p class="section__desc" data-reveal>Open Pulse once in the morning. Leave with a plan — train, taper, or protect sleep — in under a minute.</p>
+      </div>
+      <div class="app__grid">
+        <article class="app-card app-card--wide" data-reveal>
+          <h3>Morning readiness</h3>
+          <p>A single recovery sentence, backed by HRV trend and sleep continuity — not a wall of charts.</p>
+          <div class="app-mock">
+            <div class="app-mock__row">
+              <span class="app-mock__label">Readiness</span>
+              <span class="app-mock__score">High</span>
+            </div>
+            <div class="app-bars" aria-hidden="true">
+              <span style="height:42%"></span>
+              <span style="height:58%"></span>
+              <span style="height:70%"></span>
+              <span style="height:52%"></span>
+              <span style="height:78%"></span>
+              <span style="height:88%"></span>
+              <span style="height:74%"></span>
+            </div>
+          </div>
+        </article>
+        <article class="app-card" data-reveal>
+          <h3>Strain dial</h3>
+          <p>See how yesterday’s effort still sits in the system — and how much headroom you have left.</p>
+          <div class="app-chip-row">
+            <span class="app-chip">Easy day ok</span>
+            <span class="app-chip">Skip intervals</span>
+          </div>
+        </article>
+        <article class="app-card" data-reveal>
+          <h3>Sleep wind-down</h3>
+          <p>Soft prompts timed to your usual wind-down — dim screens, cool room, earlier lights-out.</p>
+          <div class="app-chip-row">
+            <span class="app-chip">+22 min deep</span>
+            <span class="app-chip">Cooler room</span>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section science" id="science">
+    <div class="wrap">
+      <div class="science__panel" data-reveal>
+        <div>
+          <p class="section__eyebrow">Science, briefly</p>
+          <h2 class="section__title">Built on physiology — explained in plain language.</h2>
+          <p class="section__desc" style="margin-bottom:0">Pulse doesn’t invent recovery. It translates well-studied signals into decisions you can trust on busy weeks.</p>
+        </div>
+        <div>
+          <ul class="science__list">
+            <li class="science__item">
+              <strong>Heart rate variability</strong>
+              <span>Nighttime RMSSD tracks autonomic balance — a quiet indicator of how ready you are to absorb stress.</span>
+            </li>
+            <li class="science__item">
+              <strong>Sleep architecture</strong>
+              <span>We weigh deep and REM continuity against your personal baseline, not a generic “8 hours” myth.</span>
+            </li>
+            <li class="science__item">
+              <strong>Strain accumulation</strong>
+              <span>Training load is contextualized over days so one hard session doesn’t override the full picture.</span>
+            </li>
+          </ul>
+          <svg class="science-chart" viewBox="0 0 420 120" aria-hidden="true" style="margin-top:1.5rem">
+            <defs>
+              <linearGradient id="sciFill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#6EF3C5" stop-opacity="0.28"/>
+                <stop offset="100%" stop-color="#6EF3C5" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path d="M0 78 C40 74 60 52 90 55 C130 60 150 88 190 70 C230 52 250 30 290 38 C330 46 350 68 390 42 L420 36 L420 120 L0 120 Z" fill="url(#sciFill)"/>
+            <path d="M0 78 C40 74 60 52 90 55 C130 60 150 88 190 70 C230 52 250 30 290 38 C330 46 350 68 390 42 L420 36" fill="none" stroke="#6EF3C5" stroke-width="2.2" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section pricing" id="pricing">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section__eyebrow" data-reveal>Pricing</p>
+        <h2 class="section__title" data-reveal>Choose how closely you want to listen.</h2>
+        <p class="section__desc" data-reveal>Hardware once. Membership optional. Cancel anytime — your band keeps working offline.</p>
+      </div>
+      <div class="pricing__grid">
+        <article class="price-card" data-reveal>
+          <p class="price-card__name">Band</p>
+          <p class="price-card__price">$249</p>
+          <p class="price-card__desc">Hardware only — core recovery readouts on-device and in the free app layer.</p>
+          <ul class="price-card__list">
+            <li>Pulse Band + charger</li>
+            <li>Morning readiness score</li>
+            <li>14-day HRV history</li>
+            <li>Firmware updates</li>
+          </ul>
+          <a class="btn btn--ghost" href="#top" data-hover>Order Band</a>
+        </article>
+        <article class="price-card price-card--featured" data-reveal>
+          <span class="price-card__badge">Popular</span>
+          <p class="price-card__name">Pulse+</p>
+          <p class="price-card__price">$12<small>/mo</small></p>
+          <p class="price-card__desc">Full coaching language, longer trends, and sleep wind-down rituals.</p>
+          <ul class="price-card__list">
+            <li>Everything in Band</li>
+            <li>90-day trends & insights</li>
+            <li>Strain dial + training tips</li>
+            <li>Personalized wind-down</li>
+          </ul>
+          <a class="btn btn--primary" href="#top" data-hover>Start Pulse+</a>
+        </article>
+        <article class="price-card" data-reveal>
+          <p class="price-card__name">Studio</p>
+          <p class="price-card__price">$29<small>/seat</small></p>
+          <p class="price-card__desc">For coaches and small teams who need shared recovery visibility.</p>
+          <ul class="price-card__list">
+            <li>Everything in Pulse+</li>
+            <li>Athlete roster view</li>
+            <li>Export-ready reports</li>
+            <li>Priority support</li>
+          </ul>
+          <a class="btn btn--ghost" href="#top" data-hover>Talk to us</a>
+        </article>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <a class="logo" href="#top" data-hover>
+          <span class="logo__dot" aria-hidden="true"></span>
+          Pulse
+        </a>
+        <p>Recovery guidance for people who train hard and still want to feel human.</p>
+      </div>
+      <div class="footer__cols">
+        <div class="footer__col">
+          <h4>Product</h4>
+          <a href="#band" data-hover>Band</a>
+          <a href="#app" data-hover>App</a>
+          <a href="#pricing" data-hover>Pricing</a>
+        </div>
+        <div class="footer__col">
+          <h4>Company</h4>
+          <a href="#science" data-hover>Science</a>
+          <a href="#metrics" data-hover>Metrics</a>
+          <a href="#top" data-hover>Contact</a>
+        </div>
+        <div class="footer__col">
+          <h4>Legal</h4>
+          <a href="#top" data-hover>Privacy</a>
+          <a href="#top" data-hover>Terms</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>© 2026 Pulse Labs. Fictional brand for demonstration.</span>
+      <span>Not a medical device.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const isTouch = matchMedia("(hover: none), (pointer: coarse)").matches;
+  if (isTouch) document.body.classList.add("is-touch");
+
+  /* ---------- Custom cursor ---------- */
+  const cursor = document.querySelector(".cursor");
+  if (cursor && !isTouch && !reduceMotion) {
+    let x = window.innerWidth / 2;
+    let y = window.innerHeight / 2;
+    let cx = x;
+    let cy = y;
+    let raf = 0;
+
+    const render = () => {
+      cx += (x - cx) * 0.22;
+      cy += (y - cy) * 0.22;
+      cursor.style.transform = `translate3d(${cx}px, ${cy}px, 0)`;
+      raf = requestAnimationFrame(render);
+    };
+    raf = requestAnimationFrame(render);
+
+    window.addEventListener("pointermove", (e) => {
+      x = e.clientX;
+      y = e.clientY;
+      cursor.classList.add("is-on");
+    }, { passive: true });
+
+    document.querySelectorAll("[data-hover], a, button").forEach((el) => {
+      el.addEventListener("pointerenter", () => cursor.classList.add("is-hover"));
+      el.addEventListener("pointerleave", () => cursor.classList.remove("is-hover"));
+    });
+
+    window.addEventListener("blur", () => cursor.classList.remove("is-on", "is-hover"));
+  }
+
+  /* ---------- Nav solid on scroll ---------- */
+  const nav = document.getElementById("nav");
+  const onScrollNav = () => {
+    if (!nav) return;
+    nav.classList.toggle("is-solid", window.scrollY > 24);
+  };
+  onScrollNav();
+  window.addEventListener("scroll", onScrollNav, { passive: true });
+
+  const waitForLibs = () =>
+    new Promise((resolve) => {
+      const tick = () => {
+        if (window.gsap && window.ScrollTrigger && window.Lenis) resolve();
+        else requestAnimationFrame(tick);
+      };
+      tick();
+    });
+
+  waitForLibs().then(() => {
+    const gsap = window.gsap;
+    const ScrollTrigger = window.ScrollTrigger;
+    gsap.registerPlugin(ScrollTrigger);
+
+    /* ---------- Lenis ---------- */
+    let lenis = null;
+    if (!reduceMotion) {
+      lenis = new window.Lenis({
+        duration: 1.1,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true,
+      });
+      lenis.on("scroll", ScrollTrigger.update);
+      gsap.ticker.add((time) => {
+        lenis.raf(time * 1000);
+      });
+      gsap.ticker.lagSmoothing(0);
+    }
+
+    /* ---------- Hero pulse animation ---------- */
+    if (!reduceMotion) {
+      const rings = gsap.utils.toArray(".pulse-ring");
+      rings.forEach((ring, i) => {
+        gsap.fromTo(
+          ring,
+          { scale: 1, opacity: i === 0 ? 0.22 : i === 1 ? 0.45 : 0.85 },
+          {
+            scale: 1.08 + i * 0.03,
+            opacity: i === 0 ? 0.08 : i === 1 ? 0.2 : 0.45,
+            duration: 2.4 + i * 0.35,
+            ease: "sine.inOut",
+            repeat: -1,
+            yoyo: true,
+            delay: i * 0.2,
+          }
+        );
+      });
+
+      gsap.fromTo(
+        ".pulse-core",
+        { scale: 1 },
+        {
+          scale: 1.18,
+          duration: 1.6,
+          ease: "sine.inOut",
+          repeat: -1,
+          yoyo: true,
+        }
+      );
+
+      gsap.fromTo(
+        ".pulse-wave",
+        { opacity: 0.35 },
+        {
+          opacity: 0.9,
+          duration: 2.2,
+          ease: "sine.inOut",
+          repeat: -1,
+          yoyo: true,
+        }
+      );
+    }
+
+    /* ---------- Reveals: always fromTo → opacity 1 ---------- */
+    const reveals = gsap.utils.toArray("[data-reveal]");
+    reveals.forEach((el, i) => {
+      const isHero = el.closest(".hero");
+      gsap.fromTo(
+        el,
+        {
+          opacity: 0,
+          y: reduceMotion ? 0 : 28,
+        },
+        {
+          opacity: 1,
+          y: 0,
+          duration: reduceMotion ? 0.01 : 0.9,
+          ease: "power3.out",
+          delay: isHero && !reduceMotion ? Math.min(i * 0.08, 0.4) : 0,
+          immediateRender: true,
+          scrollTrigger: isHero
+            ? undefined
+            : {
+                trigger: el,
+                start: "top 88%",
+                toggleActions: "play none none none",
+                once: true,
+              },
+        }
+      );
+    });
+
+    /* Soft nav / footer fade-in */
+    gsap.fromTo(
+      ".nav",
+      { opacity: 0, y: -12 },
+      { opacity: 1, y: 0, duration: reduceMotion ? 0.01 : 0.7, ease: "power2.out", delay: 0.05 }
+    );
+
+    /* Smooth anchor links via Lenis when available */
+    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+      anchor.addEventListener("click", (e) => {
+        const id = anchor.getAttribute("href");
+        if (!id || id === "#") return;
+        const target = document.querySelector(id);
+        if (!target) return;
+        e.preventDefault();
+        if (lenis) lenis.scrollTo(target, { offset: -72, duration: 1.15 });
+        else target.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+      });
+    });
+
+    ScrollTrigger.refresh();
+  });
+});
+</script>
+</body>
+</html>

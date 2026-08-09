@@ -1,0 +1,1953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Citrine — Route Instrument</title>
+<meta name="description" content="Citrine is an EV charging network you operate like a route instrument: live arteries, open bays, reserve on the map, pay from the session receipt." />
+<meta name="theme-color" content="#12141A" />
+<meta name="color-scheme" content="dark" />
+<meta property="og:title" content="Citrine — Route Instrument" />
+<meta property="og:description" content="Live arteries. Open bays. Reserve on the map. Charge without the hunt." />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Citrine" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Citrine — Route Instrument" />
+<meta name="twitter:description" content="Live arteries. Open bays. Reserve on the map. Charge without the hunt." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2312141A'/%3E%3Cpath d='M18.2 6L10 17.2h5.2L13.8 26 22 14.8h-5.2L18.2 6z' fill='%23C8F542'/%3E%3C/svg%3E" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js" defer></script>
+
+<style>
+:root {
+  --graphite: #12141A;
+  --graphite-2: #181B24;
+  --graphite-3: #1E2230;
+  --ink: #E8ECF2;
+  --ink-2: rgba(232, 236, 242, 0.72);
+  --ink-3: rgba(232, 236, 242, 0.45);
+  --steel: #8B93A7;
+  --steel-dim: rgba(139, 147, 167, 0.55);
+  --citrus: #C8F542;
+  --citrus-dim: rgba(200, 245, 66, 0.55);
+  --citrus-soft: rgba(200, 245, 66, 0.12);
+  --citrus-line: rgba(200, 245, 66, 0.35);
+  --line: rgba(232, 236, 242, 0.08);
+  --line-2: rgba(232, 236, 242, 0.14);
+  --radius: 7px;
+  --radius-sm: 6px;
+  --radius-lg: 8px;
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --pad: clamp(1rem, 3.5vw, 2.25rem);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --nav-h: 64px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: auto;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: 0.975rem;
+  line-height: 1.55;
+  color: var(--ink-2);
+  background: var(--graphite);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  cursor: none;
+}
+
+body.is-touch { cursor: auto; }
+
+img, svg { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: none;
+}
+body.is-touch button,
+body.is-touch a { cursor: pointer; }
+ul { list-style: none; }
+
+::selection {
+  background: var(--citrus);
+  color: var(--graphite);
+}
+
+:focus-visible {
+  outline: 2px solid var(--citrus);
+  outline-offset: 3px;
+}
+
+.skip {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 400;
+  transform: translateY(-160%);
+  background: var(--citrus);
+  color: var(--graphite);
+  padding: 0.65rem 1rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+}
+.skip:focus { transform: translateY(0.75rem) translateX(0.75rem); }
+
+/* —— Cursor reticle —— */
+.cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 22px;
+  height: 22px;
+  margin: -11px 0 0 -11px;
+  border: 1.5px solid var(--citrus);
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 500;
+  mix-blend-mode: difference;
+  transition: width 0.18s var(--ease), height 0.18s var(--ease), margin 0.18s var(--ease), background 0.18s, border-radius 0.18s;
+  will-change: transform;
+}
+.cursor::before,
+.cursor::after {
+  content: "";
+  position: absolute;
+  background: var(--citrus);
+}
+.cursor::before {
+  left: 50%;
+  top: -4px;
+  bottom: -4px;
+  width: 1px;
+  transform: translateX(-50%);
+  opacity: 0.55;
+}
+.cursor::after {
+  top: 50%;
+  left: -4px;
+  right: -4px;
+  height: 1px;
+  transform: translateY(-50%);
+  opacity: 0.55;
+}
+.cursor.is-hold {
+  width: 36px;
+  height: 36px;
+  margin: -18px 0 0 -18px;
+  background: var(--citrus-soft);
+  mix-blend-mode: normal;
+}
+.cursor-label {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 8px);
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  letter-spacing: 0.14em;
+  color: var(--citrus);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+}
+.cursor.is-hold .cursor-label { opacity: 1; }
+.cursor-bolt {
+  position: fixed;
+  width: 10px;
+  height: 14px;
+  margin: -7px 0 0 -5px;
+  pointer-events: none;
+  z-index: 499;
+  opacity: 0;
+  color: var(--citrus);
+  will-change: transform, opacity;
+}
+.cursor-bolt svg { width: 100%; height: 100%; }
+body.is-touch .cursor,
+body.is-touch .cursor-bolt { display: none; }
+
+/* —— Nav —— */
+.nav {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 80;
+  height: var(--nav-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--pad);
+  pointer-events: none;
+}
+.nav > * { pointer-events: auto; }
+.nav-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.nav-mark svg { width: 18px; height: 18px; }
+.nav-meta {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--steel);
+}
+.nav-meta span { display: inline-flex; align-items: center; gap: 0.4rem; }
+.nav-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--citrus);
+  box-shadow: 0 0 0 3px var(--citrus-soft);
+  animation: pulse-dot 2.4s ease-in-out infinite;
+}
+.nav-cta {
+  display: inline-flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 0.9rem;
+  border: 1px solid var(--citrus-line);
+  border-radius: var(--radius);
+  background: var(--citrus-soft);
+  color: var(--citrus);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.8125rem;
+  letter-spacing: -0.01em;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.nav-cta:hover {
+  background: var(--citrus);
+  border-color: var(--citrus);
+  color: var(--graphite);
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(0.85); }
+}
+
+/* —— Hero: full-viewport route instrument —— */
+.hero {
+  position: relative;
+  min-height: 100svh;
+  min-height: 100dvh;
+  background: var(--graphite);
+  overflow: hidden;
+}
+
+.instrument {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.instrument svg.map {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.map-bg { fill: #0E1016; }
+.map-grid {
+  stroke: rgba(139, 147, 167, 0.08);
+  stroke-width: 1;
+  fill: none;
+}
+.map-artery {
+  fill: none;
+  stroke: rgba(139, 147, 167, 0.28);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.map-artery.is-live {
+  stroke: rgba(200, 245, 66, 0.22);
+  stroke-width: 2.6;
+}
+.map-artery.is-active {
+  stroke: var(--citrus);
+  stroke-width: 2.8;
+  filter: drop-shadow(0 0 6px rgba(200, 245, 66, 0.35));
+}
+.map-artery-glow {
+  fill: none;
+  stroke: rgba(200, 245, 66, 0.08);
+  stroke-width: 10;
+  stroke-linecap: round;
+}
+.map-scan {
+  fill: url(#scanGrad);
+  opacity: 0;
+  pointer-events: none;
+}
+.map-district {
+  fill: rgba(139, 147, 167, 0.03);
+  stroke: rgba(139, 147, 167, 0.1);
+  stroke-width: 1;
+  stroke-dasharray: 4 6;
+}
+
+/* Pins */
+.pin {
+  cursor: none;
+  outline: none;
+}
+body.is-touch .pin { cursor: pointer; }
+.pin-ring {
+  fill: none;
+  stroke: var(--citrus);
+  stroke-width: 1.25;
+  opacity: 0.35;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+.pin-core {
+  fill: var(--graphite);
+  stroke: var(--citrus);
+  stroke-width: 1.75;
+  transition: fill 0.2s;
+}
+.pin-dot {
+  fill: var(--citrus);
+}
+.pin.is-open .pin-core { fill: var(--citrus-soft); }
+.pin.is-busy .pin-core { stroke: var(--steel); }
+.pin.is-busy .pin-dot { fill: var(--steel); }
+.pin.is-busy .pin-ring { stroke: var(--steel); }
+.pin.is-held .pin-core {
+  fill: var(--citrus);
+  stroke: var(--citrus);
+}
+.pin.is-held .pin-dot { fill: var(--graphite); }
+.pin.is-confirmed .pin-core {
+  fill: var(--citrus);
+  stroke: var(--citrus);
+}
+.pin-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  fill: var(--steel);
+  pointer-events: none;
+}
+.pin.is-held .pin-label,
+.pin.is-open:hover .pin-label { fill: var(--citrus); }
+
+.pin-pulse {
+  fill: none;
+  stroke: var(--citrus);
+  stroke-width: 1;
+  opacity: 0;
+  transform-origin: center;
+  transform-box: fill-box;
+  pointer-events: none;
+}
+
+.hold-arc {
+  fill: none;
+  stroke: var(--citrus);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  transform-origin: center;
+  transform-box: fill-box;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.stamp-bolt {
+  opacity: 0;
+  pointer-events: none;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+.stamp-bolt path { fill: var(--graphite); }
+
+/* Hero overlays — brand reticle + one headline */
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  display: grid;
+  place-items: center;
+  padding: calc(var(--nav-h) + 1.5rem) var(--pad) 6rem;
+}
+
+.brand-reticle {
+  position: absolute;
+  top: calc(var(--nav-h) + clamp(1.25rem, 4vw, 2.5rem));
+  left: 50%;
+  transform: translateX(-50%);
+  display: grid;
+  place-items: center;
+  width: min(280px, 72vw);
+  aspect-ratio: 1;
+  pointer-events: none;
+}
+.brand-reticle svg.frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.85;
+}
+.brand-name {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2.6rem, 8vw, 5.5rem);
+  letter-spacing: -0.055em;
+  line-height: 0.9;
+  color: var(--ink);
+  text-align: center;
+}
+.brand-name em {
+  font-style: normal;
+  color: var(--citrus);
+}
+
+.hero-copy {
+  position: absolute;
+  bottom: clamp(5.5rem, 14vh, 8rem);
+  left: var(--pad);
+  right: var(--pad);
+  max-width: 18ch;
+  z-index: 5;
+}
+.hero-copy h1 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.55rem, 3.4vw, 2.35rem);
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.hero-copy p {
+  display: none;
+}
+
+.hero-hint {
+  position: absolute;
+  bottom: clamp(1.5rem, 4vh, 2.5rem);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--steel);
+  white-space: nowrap;
+}
+.hero-hint i {
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--citrus-line);
+  border-radius: 2px;
+  display: grid;
+  place-items: center;
+  color: var(--citrus);
+  font-style: normal;
+  font-size: 0.5rem;
+}
+
+/* HUD readouts — tied to pins, not card lists */
+.hud {
+  position: absolute;
+  z-index: 6;
+  pointer-events: none;
+  font-family: var(--font-mono);
+  color: var(--steel);
+  font-size: 0.625rem;
+  letter-spacing: 0.06em;
+  line-height: 1.45;
+  background: rgba(18, 20, 26, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 0.7rem;
+  min-width: 148px;
+  max-width: 190px;
+}
+.hud[data-side="left"] { left: var(--pad); }
+.hud[data-side="right"] { right: var(--pad); }
+.hud-tl { top: calc(var(--nav-h) + 0.85rem); }
+.hud-bl { bottom: clamp(5.5rem, 16vh, 9rem); }
+.hud-tr { top: calc(var(--nav-h) + 0.85rem); }
+.hud-br { bottom: clamp(5.5rem, 16vh, 9rem); }
+
+.hud-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.35rem;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.5625rem;
+}
+.hud-head strong {
+  color: var(--citrus);
+  font-weight: 500;
+}
+.hud-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--ink-2);
+}
+.hud-row span:last-child { color: var(--ink); }
+.hud-row.is-dim span:last-child { color: var(--steel); }
+.hud-bar {
+  margin-top: 0.45rem;
+  height: 2px;
+  background: var(--line-2);
+  border-radius: 1px;
+  overflow: hidden;
+}
+.hud-bar i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--citrus);
+  border-radius: 1px;
+}
+
+.reserve-panel {
+  position: absolute;
+  z-index: 10;
+  left: 50%;
+  bottom: clamp(4.5rem, 10vh, 6.5rem);
+  transform: translateX(-50%) translateY(12px);
+  width: min(340px, calc(100% - 2 * var(--pad)));
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+}
+.reserve-panel.is-open {
+  pointer-events: auto;
+  visibility: visible;
+}
+.reserve-inner {
+  background: rgba(18, 20, 26, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--citrus-line);
+  border-radius: var(--radius-lg);
+  padding: 0.95rem 1rem 1rem;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.35);
+}
+.reserve-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.reserve-site {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  line-height: 1.2;
+}
+.reserve-meta {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--steel);
+  margin-top: 0.25rem;
+}
+.reserve-timer {
+  font-family: var(--font-mono);
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--citrus);
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+.reserve-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--line);
+}
+.reserve-stats div {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.06em;
+  color: var(--steel);
+}
+.reserve-stats strong {
+  display: block;
+  margin-top: 0.2rem;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  text-transform: none;
+}
+.reserve-actions {
+  display: grid;
+  grid-template-columns: 1fr 1.35fr;
+  gap: 0.5rem;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  border-radius: var(--radius);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.875rem;
+  letter-spacing: -0.01em;
+  transition: background 0.2s, color 0.2s, border-color 0.2s, opacity 0.2s;
+}
+.btn-ghost {
+  border: 1px solid var(--line-2);
+  color: var(--ink-2);
+  background: transparent;
+}
+.btn-ghost:hover {
+  border-color: var(--steel);
+  color: var(--ink);
+}
+.btn-citrus {
+  background: var(--citrus);
+  color: var(--graphite);
+  border: 1px solid var(--citrus);
+}
+.btn-citrus:hover { filter: brightness(1.05); }
+.btn-citrus:disabled {
+  opacity: 0.45;
+  filter: none;
+}
+
+/* —— Below-fold: continuous surface, receipt as pricing —— */
+.surface {
+  position: relative;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(200, 245, 66, 0.05), transparent 55%),
+    linear-gradient(180deg, #0E1016 0%, var(--graphite) 18%, var(--graphite) 100%);
+  border-top: 1px solid var(--line);
+}
+
+.section {
+  padding: clamp(4.5rem, 10vw, 7.5rem) var(--pad);
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.sec-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--citrus);
+  margin-bottom: 0.85rem;
+}
+.sec-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.75rem, 3.8vw, 2.75rem);
+  letter-spacing: -0.04em;
+  line-height: 1.12;
+  color: var(--ink);
+  max-width: 16ch;
+  margin-bottom: 0.85rem;
+  text-wrap: balance;
+}
+.sec-lead {
+  max-width: 42ch;
+  color: var(--ink-2);
+  font-size: 1.05rem;
+  margin-bottom: 2.25rem;
+}
+
+/* Telemetry strip — still HUD, not cards */
+.telemetry {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 0;
+}
+.telemetry article {
+  background: var(--graphite-2);
+  padding: 1.15rem 1.1rem 1.25rem;
+}
+.telemetry .t-label {
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--steel);
+  margin-bottom: 0.55rem;
+}
+.telemetry .t-value {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.35rem, 2.5vw, 1.85rem);
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  line-height: 1.1;
+}
+.telemetry .t-unit {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--citrus);
+  margin-top: 0.35rem;
+  letter-spacing: 0.04em;
+}
+
+/* Session receipt — only pricing expression */
+.receipt-wrap {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: clamp(2rem, 5vw, 4rem);
+  align-items: start;
+}
+
+.receipt {
+  position: relative;
+  background: var(--graphite-2);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-lg);
+  padding: 1.35rem 1.35rem 1.25rem;
+  overflow: hidden;
+}
+.receipt::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--citrus);
+  opacity: 0.85;
+}
+.receipt-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px dashed var(--line-2);
+}
+.receipt-brand {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+.receipt-id {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--steel);
+  text-align: right;
+}
+.receipt-id strong {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--ink-2);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  font-size: 0.75rem;
+}
+.receipt-grid {
+  display: grid;
+  gap: 0.65rem;
+  margin-bottom: 1.15rem;
+}
+.receipt-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  font-size: 0.9rem;
+}
+.receipt-row span:first-child {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--steel);
+}
+.receipt-row span:last-child {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.receipt-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1rem;
+  margin-top: 0.25rem;
+  border-top: 1px solid var(--line-2);
+}
+.receipt-total span:first-child {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--steel);
+}
+.receipt-total strong {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: var(--citrus);
+}
+
+.membership {
+  margin-top: 1.15rem;
+  padding-top: 1.1rem;
+  border-top: 1px dashed var(--line-2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.membership-copy {
+  font-size: 0.875rem;
+  color: var(--ink-2);
+  max-width: 28ch;
+}
+.membership-copy strong {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 0.15rem;
+  letter-spacing: -0.02em;
+}
+.toggle {
+  position: relative;
+  width: 44px;
+  height: 26px;
+  border-radius: 999px;
+  background: var(--graphite-3);
+  border: 1px solid var(--line-2);
+  flex-shrink: 0;
+  transition: background 0.2s, border-color 0.2s;
+}
+.toggle::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--steel);
+  transition: transform 0.22s var(--ease), background 0.2s;
+}
+.toggle[aria-pressed="true"] {
+  background: var(--citrus-soft);
+  border-color: var(--citrus-line);
+}
+.toggle[aria-pressed="true"]::after {
+  transform: translateX(18px);
+  background: var(--citrus);
+}
+
+.receipt-aside .sec-kicker { margin-bottom: 0.65rem; }
+.receipt-aside .sec-title { margin-bottom: 0.75rem; }
+.receipt-aside .sec-lead { margin-bottom: 1.5rem; }
+.aside-list {
+  display: grid;
+  gap: 0.85rem;
+}
+.aside-list li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.75rem;
+  align-items: start;
+  font-size: 0.925rem;
+  color: var(--ink-2);
+}
+.aside-list b {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.12em;
+  color: var(--citrus);
+  padding-top: 0.3rem;
+  font-weight: 500;
+}
+
+/* Corridor — path language, not steps */
+.corridor {
+  padding-top: 0;
+}
+.corridor-track {
+  position: relative;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 2.25rem 0;
+  overflow: hidden;
+}
+.corridor-path {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--citrus-line), transparent);
+  transform: translateY(-50%);
+}
+.corridor-nodes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+.corridor-nodes article {
+  text-align: center;
+  padding: 0 0.5rem;
+}
+.corridor-nodes .node {
+  width: 12px;
+  height: 12px;
+  margin: 0 auto 1rem;
+  border: 1.5px solid var(--citrus);
+  border-radius: 2px;
+  background: var(--graphite);
+  box-shadow: 0 0 0 6px rgba(200, 245, 66, 0.08);
+}
+.corridor-nodes h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: 0.35rem;
+}
+.corridor-nodes p {
+  font-size: 0.875rem;
+  color: var(--steel);
+  max-width: 28ch;
+  margin: 0 auto;
+}
+
+/* Closing CTA — still instrument, not readiness meter */
+.close {
+  text-align: center;
+  padding-bottom: clamp(5rem, 12vw, 8rem);
+}
+.close .sec-title {
+  max-width: 18ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+.close .sec-lead {
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 1.75rem;
+}
+.close-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  justify-content: center;
+}
+.close-actions .btn {
+  min-width: 160px;
+  padding: 0 1.25rem;
+  height: 46px;
+}
+.btn-outline {
+  border: 1px solid var(--line-2);
+  color: var(--ink);
+  background: transparent;
+}
+.btn-outline:hover {
+  border-color: var(--citrus-line);
+  color: var(--citrus);
+}
+
+.footer {
+  border-top: 1px solid var(--line);
+  padding: 1.35rem var(--pad) 1.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--steel);
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.footer nav {
+  display: flex;
+  gap: 1.25rem;
+}
+.footer a:hover { color: var(--citrus); }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .nav-dot { animation: none; }
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .hud-tr, .hud-br { display: none; }
+  .telemetry { grid-template-columns: 1fr 1fr; }
+  .receipt-wrap { grid-template-columns: 1fr; }
+  .brand-reticle { width: min(220px, 68vw); }
+  .hero-copy { max-width: 22ch; }
+}
+
+@media (max-width: 640px) {
+  .nav-meta span:not(.live) { display: none; }
+  .hud-bl { display: none; }
+  .hud {
+    max-width: 160px;
+    min-width: 0;
+    padding: 0.45rem 0.55rem;
+  }
+  .corridor-nodes {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+  }
+  .corridor-path { display: none; }
+  .telemetry { grid-template-columns: 1fr 1fr; }
+  .reserve-stats { grid-template-columns: 1fr 1fr 1fr; }
+  .hero-hint { font-size: 0.5625rem; }
+}
+
+@media (max-width: 420px) {
+  .telemetry { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#instrument">Skip to route instrument</a>
+
+<div class="cursor" id="cursor" aria-hidden="true">
+  <span class="cursor-label">HOLD</span>
+</div>
+<div class="cursor-bolt" id="cursorBolt" aria-hidden="true">
+  <svg viewBox="0 0 10 14" fill="currentColor"><path d="M6.2 0L0 7.4h3.4L2.4 14 10 6.6H6.6L6.2 0z"/></svg>
+</div>
+
+<header class="nav" role="banner">
+  <a class="nav-mark" href="#top" aria-label="Citrine home">
+    <svg viewBox="0 0 18 18" fill="none" aria-hidden="true">
+      <path d="M10.4 2L4 9.2h3.2L6.4 16 14 8.8H10.8L10.4 2z" fill="#C8F542"/>
+    </svg>
+    Citrine
+  </a>
+  <div class="nav-meta" aria-hidden="true">
+    <span class="live"><i class="nav-dot"></i> NET LIVE</span>
+    <span>42.7°N · 71.1°W</span>
+  </div>
+  <a class="nav-cta" href="#receipt">Session</a>
+</header>
+
+<main id="top">
+  <section class="hero" id="instrument" aria-label="Citrine route instrument">
+    <div class="instrument" aria-hidden="false">
+      <svg class="map" id="routeMap" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Live charging artery map">
+        <defs>
+          <radialGradient id="vignette" cx="50%" cy="45%" r="65%">
+            <stop offset="0%" stop-color="#12141A" stop-opacity="0"/>
+            <stop offset="70%" stop-color="#12141A" stop-opacity="0.15"/>
+            <stop offset="100%" stop-color="#0A0B0F" stop-opacity="0.85"/>
+          </radialGradient>
+          <linearGradient id="scanGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#C8F542" stop-opacity="0"/>
+            <stop offset="50%" stop-color="#C8F542" stop-opacity="0.07"/>
+            <stop offset="100%" stop-color="#C8F542" stop-opacity="0"/>
+          </linearGradient>
+          <filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur stdDeviation="3" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <rect class="map-bg" width="1440" height="900"/>
+
+        <!-- District plates -->
+        <path class="map-district" d="M120 140h380v220H120z"/>
+        <path class="map-district" d="M560 90h420v260H560z"/>
+        <path class="map-district" d="M180 420h340v280H180z"/>
+        <path class="map-district" d="M620 420h480v300H620z"/>
+        <path class="map-district" d="M1040 160h280v240h-280z"/>
+
+        <!-- Grid -->
+        <g class="map-grid">
+          <path d="M0 90H1440M0 180H1440M0 270H1440M0 360H1440M0 450H1440M0 540H1440M0 630H1440M0 720H1440M0 810H1440"/>
+          <path d="M90 0V900M180 0V900M270 0V900M360 0V900M450 0V900M540 0V900M630 0V900M720 0V900M810 0V900M900 0V900M990 0V900M1080 0V900M1170 0V900M1260 0V900M1350 0V900"/>
+        </g>
+
+        <!-- Arteries (glow underlays + routes) -->
+        <g class="arteries" fill="none">
+          <path class="map-artery-glow" d="M80 720C220 680 280 520 420 480C560 440 620 360 760 340C900 320 980 240 1120 220C1220 205 1320 180 1400 140"/>
+          <path class="map-artery is-live" id="arteryMain" pathLength="100" d="M80 720C220 680 280 520 420 480C560 440 620 360 760 340C900 320 980 240 1120 220C1220 205 1320 180 1400 140"/>
+
+          <path class="map-artery-glow" d="M60 280C180 300 260 380 380 400C520 430 600 520 740 560C880 600 980 680 1180 700C1280 710 1360 740 1420 780"/>
+          <path class="map-artery is-live" id="arterySouth" pathLength="100" d="M60 280C180 300 260 380 380 400C520 430 600 520 740 560C880 600 980 680 1180 700C1280 710 1360 740 1420 780"/>
+
+          <path class="map-artery" d="M200 80C240 200 300 280 360 360C420 440 500 500 580 620C640 710 700 800 760 880"/>
+          <path class="map-artery" d="M900 40C880 160 860 260 920 360C980 460 1080 500 1180 580C1260 640 1320 720 1380 820"/>
+          <path class="map-artery" d="M40 520C160 500 240 460 320 420C400 380 480 300 560 260C640 220 720 200 820 160"/>
+          <path class="map-artery is-live" id="arteryCross" pathLength="100" d="M240 780C360 700 480 640 600 580C720 520 840 480 960 420C1080 360 1200 300 1340 260"/>
+        </g>
+
+        <rect class="map-scan" id="scanLine" x="0" y="0" width="1440" height="120"/>
+        <rect width="1440" height="900" fill="url(#vignette)" pointer-events="none"/>
+
+        <!-- Pins: the UI -->
+        <g id="pins">
+          <!-- Harbor Yard -->
+          <g class="pin is-open" tabindex="0" role="button" aria-label="Harbor Yard, 3 open bays, 150 kW"
+             data-id="harbor" data-name="Harbor Yard" data-kw="150" data-open="3" data-total="6" data-eta="4 min" data-rate="0.38" data-cx="310" data-cy="430" transform="translate(310 430)">
+            <circle class="pin-pulse" r="22"/>
+            <circle class="pin-ring" r="16"/>
+            <circle class="hold-arc" r="20" pathLength="100"/>
+            <circle class="pin-core" r="9"/>
+            <circle class="pin-dot" r="3.2"/>
+            <g class="stamp-bolt" transform="translate(-5 -7) scale(1)">
+              <path d="M6.2 0L0 7.4h3.4L2.4 14 10 6.6H6.6L6.2 0z"/>
+            </g>
+            <text class="pin-label" x="14" y="4">HY-04</text>
+          </g>
+
+          <!-- Civic Spool -->
+          <g class="pin is-open" tabindex="0" role="button" aria-label="Civic Spool, 2 open bays, 350 kW"
+             data-id="civic" data-name="Civic Spool" data-kw="350" data-open="2" data-total="4" data-eta="7 min" data-rate="0.42" data-cx="760" data-cy="340" transform="translate(760 340)">
+            <circle class="pin-pulse" r="22"/>
+            <circle class="pin-ring" r="16"/>
+            <circle class="hold-arc" r="20" pathLength="100"/>
+            <circle class="pin-core" r="9"/>
+            <circle class="pin-dot" r="3.2"/>
+            <g class="stamp-bolt" transform="translate(-5 -7) scale(1)">
+              <path d="M6.2 0L0 7.4h3.4L2.4 14 10 6.6H6.6L6.2 0z"/>
+            </g>
+            <text class="pin-label" x="14" y="4">CS-12</text>
+          </g>
+
+          <!-- Ridge Gate -->
+          <g class="pin is-open" tabindex="0" role="button" aria-label="Ridge Gate, 5 open bays, 150 kW"
+             data-id="ridge" data-name="Ridge Gate" data-kw="150" data-open="5" data-total="8" data-eta="11 min" data-rate="0.36" data-cx="1120" data-cy="220" transform="translate(1120 220)">
+            <circle class="pin-pulse" r="22"/>
+            <circle class="pin-ring" r="16"/>
+            <circle class="hold-arc" r="20" pathLength="100"/>
+            <circle class="pin-core" r="9"/>
+            <circle class="pin-dot" r="3.2"/>
+            <g class="stamp-bolt" transform="translate(-5 -7) scale(1)">
+              <path d="M6.2 0L0 7.4h3.4L2.4 14 10 6.6H6.6L6.2 0z"/>
+            </g>
+            <text class="pin-label" x="14" y="4">RG-02</text>
+          </g>
+
+          <!-- Mill Crossing -->
+          <g class="pin is-busy" tabindex="0" role="button" aria-label="Mill Crossing, all bays occupied, 50 kW"
+             data-id="mill" data-name="Mill Crossing" data-kw="50" data-open="0" data-total="4" data-eta="9 min" data-rate="0.29" data-cx="420" data-cy="620" transform="translate(420 620)">
+            <circle class="pin-pulse" r="22"/>
+            <circle class="pin-ring" r="16"/>
+            <circle class="hold-arc" r="20" pathLength="100"/>
+            <circle class="pin-core" r="9"/>
+            <circle class="pin-dot" r="3.2"/>
+            <g class="stamp-bolt" transform="translate(-5 -7) scale(1)">
+              <path d="M6.2 0L0 7.4h3.4L2.4 14 10 6.6H6.6L6.2 0z"/>
+            </g>
+            <text class="pin-label" x="14" y="4">MC-07</text>
+          </g>
+
+          <!-- Quay North -->
+          <g class="pin is-open" tabindex="0" role="button" aria-label="Quay North, 1 open bay, 350 kW"
+             data-id="quay" data-name="Quay North" data-kw="350" data-open="1" data-total="2" data-eta="14 min" data-rate="0.44" data-cx="980" data-cy="560" transform="translate(980 560)">
+            <circle class="pin-pulse" r="22"/>
+            <circle class="pin-ring" r="16"/>
+            <circle class="hold-arc" r="20" pathLength="100"/>
+            <circle class="pin-core" r="9"/>
+            <circle class="pin-dot" r="3.2"/>
+            <g class="stamp-bolt" transform="translate(-5 -7) scale(1)">
+              <path d="M6.2 0L0 7.4h3.4L2.4 14 10 6.6H6.6L6.2 0z"/>
+            </g>
+            <text class="pin-label" x="14" y="4">QN-01</text>
+          </g>
+
+          <!-- Atlas Spur -->
+          <g class="pin is-open" tabindex="0" role="button" aria-label="Atlas Spur, 4 open bays, 150 kW"
+             data-id="atlas" data-name="Atlas Spur" data-kw="150" data-open="4" data-total="6" data-eta="6 min" data-rate="0.37" data-cx="620" data-cy="200" transform="translate(620 200)">
+            <circle class="pin-pulse" r="22"/>
+            <circle class="pin-ring" r="16"/>
+            <circle class="hold-arc" r="20" pathLength="100"/>
+            <circle class="pin-core" r="9"/>
+            <circle class="pin-dot" r="3.2"/>
+            <g class="stamp-bolt" transform="translate(-5 -7) scale(1)">
+              <path d="M6.2 0L0 7.4h3.4L2.4 14 10 6.6H6.6L6.2 0z"/>
+            </g>
+            <text class="pin-label" x="14" y="4">AS-09</text>
+          </g>
+        </g>
+      </svg>
+    </div>
+
+    <!-- Brand reticle overlay -->
+    <div class="brand-reticle" aria-hidden="true">
+      <svg class="frame" viewBox="0 0 200 200" fill="none">
+        <rect x="8" y="8" width="184" height="184" rx="6" stroke="#C8F542" stroke-opacity="0.35" stroke-width="1"/>
+        <path d="M8 48V28a8 8 0 0 1 8-8h20M192 48V28a8 8 0 0 0-8-8h-20M8 152v20a8 8 0 0 0 8 8h20M192 152v20a8 8 0 0 1-8 8h-20" stroke="#C8F542" stroke-width="1.5" stroke-linecap="square"/>
+        <circle cx="100" cy="100" r="52" stroke="#8B93A7" stroke-opacity="0.25" stroke-width="1" stroke-dasharray="2 6"/>
+        <line x1="100" y1="20" x2="100" y2="40" stroke="#C8F542" stroke-opacity="0.5" stroke-width="1"/>
+        <line x1="100" y1="160" x2="100" y2="180" stroke="#C8F542" stroke-opacity="0.5" stroke-width="1"/>
+        <line x1="20" y1="100" x2="40" y2="100" stroke="#C8F542" stroke-opacity="0.5" stroke-width="1"/>
+        <line x1="160" y1="100" x2="180" y2="100" stroke="#C8F542" stroke-opacity="0.5" stroke-width="1"/>
+      </svg>
+      <div class="brand-name">Vol<em>ta</em></div>
+    </div>
+
+    <div class="hero-copy">
+      <h1>Charge on the artery you already drive.</h1>
+    </div>
+
+    <p class="hero-hint"><i>■</i> Select a pin to hold a bay</p>
+
+    <!-- HUD overlays tied to pins -->
+    <aside class="hud hud-tl" data-side="left" data-pin="harbor" aria-live="polite">
+      <div class="hud-head">HY-04 <strong>OPEN</strong></div>
+      <div class="hud-row"><span>SITE</span><span>Harbor Yard</span></div>
+      <div class="hud-row"><span>BAYS</span><span>3 / 6</span></div>
+      <div class="hud-row"><span>PWR</span><span>150 kW</span></div>
+      <div class="hud-bar"><i style="width:50%"></i></div>
+    </aside>
+
+    <aside class="hud hud-tr" data-side="right" data-pin="ridge" aria-live="polite">
+      <div class="hud-head">RG-02 <strong>OPEN</strong></div>
+      <div class="hud-row"><span>SITE</span><span>Ridge Gate</span></div>
+      <div class="hud-row"><span>BAYS</span><span>5 / 8</span></div>
+      <div class="hud-row"><span>ETA</span><span>11 min</span></div>
+      <div class="hud-bar"><i style="width:62%"></i></div>
+    </aside>
+
+    <aside class="hud hud-bl" data-side="left" data-pin="mill" aria-live="polite">
+      <div class="hud-head">MC-07 <strong style="color:var(--steel)">FULL</strong></div>
+      <div class="hud-row is-dim"><span>SITE</span><span>Mill Crossing</span></div>
+      <div class="hud-row is-dim"><span>BAYS</span><span>0 / 4</span></div>
+      <div class="hud-row is-dim"><span>NEXT</span><span>~18 min</span></div>
+      <div class="hud-bar"><i style="width:0%"></i></div>
+    </aside>
+
+    <aside class="hud hud-br" data-side="right" data-pin="quay" aria-live="polite">
+      <div class="hud-head">QN-01 <strong>OPEN</strong></div>
+      <div class="hud-row"><span>SITE</span><span>Quay North</span></div>
+      <div class="hud-row"><span>BAYS</span><span>1 / 2</span></div>
+      <div class="hud-row"><span>PWR</span><span>350 kW</span></div>
+      <div class="hud-bar"><i style="width:50%"></i></div>
+    </aside>
+
+    <!-- Reserve choreography panel (on the continuous surface) -->
+    <div class="reserve-panel" id="reservePanel" role="dialog" aria-modal="false" aria-labelledby="reserveTitle" hidden>
+      <div class="reserve-inner">
+        <div class="reserve-top">
+          <div>
+            <div class="reserve-site" id="reserveTitle">Harbor Yard</div>
+            <div class="reserve-meta" id="reserveMeta">HY-04 · Bay hold</div>
+          </div>
+          <div class="reserve-timer" id="reserveTimer" aria-live="polite">0:12</div>
+        </div>
+        <div class="reserve-stats">
+          <div>Power<strong id="rKw">150 kW</strong></div>
+          <div>Open<strong id="rOpen">3 / 6</strong></div>
+          <div>ETA<strong id="rEta">4 min</strong></div>
+        </div>
+        <div class="reserve-actions">
+          <button type="button" class="btn btn-ghost" id="cancelHold">Release</button>
+          <button type="button" class="btn btn-citrus" id="confirmHold">Confirm bay</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="surface">
+    <section class="section" aria-labelledby="netTitle">
+      <p class="sec-kicker">Network telemetry</p>
+      <h2 class="sec-title" id="netTitle">The map is the product.</h2>
+      <p class="sec-lead">Citrine treats charging like air traffic — open bays, live load, and holds that expire. No station carousel. No plan ladder. Just the route.</p>
+
+      <div class="telemetry" role="list">
+        <article role="listitem">
+          <div class="t-label">Open bays</div>
+          <div class="t-value" data-count="1842">0</div>
+          <div class="t-unit">across metro mesh</div>
+        </article>
+        <article role="listitem">
+          <div class="t-label">Median hold</div>
+          <div class="t-value">0:42</div>
+          <div class="t-unit">sec to confirm</div>
+        </article>
+        <article role="listitem">
+          <div class="t-label">Peak deliver</div>
+          <div class="t-value" data-count="350">0</div>
+          <div class="t-unit">kW DC fast</div>
+        </article>
+        <article role="listitem">
+          <div class="t-label">Route uptime</div>
+          <div class="t-value">99.4%</div>
+          <div class="t-unit">rolling 30d</div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section corridor" aria-labelledby="flowTitle">
+      <p class="sec-kicker">Reserve choreography</p>
+      <h2 class="sec-title" id="flowTitle">Hold. Confirm. Stamp.</h2>
+      <p class="sec-lead">One continuous surface: the pin pulses, the citrus arc counts down on the map, and a bolt stamps the bay when you commit.</p>
+
+      <div class="corridor-track">
+        <div class="corridor-path" aria-hidden="true"></div>
+        <div class="corridor-nodes">
+          <article>
+            <div class="node" aria-hidden="true"></div>
+            <h3>Select pin</h3>
+            <p>Reticle snaps. Open bay pulse. HUD locks to that site.</p>
+          </article>
+          <article>
+            <div class="node" aria-hidden="true"></div>
+            <h3>Hold bay</h3>
+            <p>Countdown arc draws on the artery. Path strokes toward the pin.</p>
+          </article>
+          <article>
+            <div class="node" aria-hidden="true"></div>
+            <h3>Stamp bolt</h3>
+            <p>Confirm burns the bolt into the pin. You’re on the schedule.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="receipt" aria-labelledby="receiptTitle">
+      <div class="receipt-wrap">
+        <div class="receipt reveal-receipt" aria-label="Sample session receipt">
+          <div class="receipt-head">
+            <div class="receipt-brand">Citrine session</div>
+            <div class="receipt-id">
+              Receipt
+              <strong id="receiptSite">HY-04 · Harbor Yard</strong>
+            </div>
+          </div>
+          <div class="receipt-grid">
+            <div class="receipt-row"><span>Energy</span><span id="rxKwh">28.4 kWh</span></div>
+            <div class="receipt-row"><span>Duration</span><span id="rxTime">22 min</span></div>
+            <div class="receipt-row"><span>Site</span><span id="rxSite">Harbor Yard</span></div>
+            <div class="receipt-row"><span>Rate</span><span id="rxRate">$0.38 / kWh</span></div>
+          </div>
+          <div class="receipt-total">
+            <span>Session total</span>
+            <strong id="rxTotal">$10.79</strong>
+          </div>
+          <div class="membership">
+            <div class="membership-copy">
+              <strong>Citrine Member</strong>
+              Optional. −12% on this receipt when active.
+            </div>
+            <button type="button" class="toggle" id="memberToggle" aria-pressed="false" aria-label="Toggle Citrine membership discount"></button>
+          </div>
+        </div>
+
+        <div class="receipt-aside">
+          <p class="sec-kicker">Access</p>
+          <h2 class="sec-title" id="receiptTitle">Price is a receipt, not a menu.</h2>
+          <p class="sec-lead">You pay for what the bay delivered — kilowatt-hours, time on site, and the pin you held. Membership is a toggle on the same object.</p>
+          <ul class="aside-list">
+            <li><b>01</b><span>No Pass / Drive / Fleet cards. One session object.</span></li>
+            <li><b>02</b><span>Hold expires if you don’t confirm — bays stay honest.</span></li>
+            <li><b>03</b><span>Member discount stamps onto the total, live.</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section close" aria-labelledby="closeTitle">
+      <p class="sec-kicker">Deploy</p>
+      <h2 class="sec-title" id="closeTitle">Put the instrument in the cabin.</h2>
+      <p class="sec-lead">Citrine is the charging network you operate like a route display — arteries, holds, and receipts.</p>
+      <div class="close-actions">
+        <a class="btn btn-citrus" href="#instrument">Open map</a>
+        <a class="btn btn-outline" href="#receipt">View receipt</a>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div>© 2026 Citrine Network</div>
+      <nav aria-label="Footer">
+        <a href="#instrument">Instrument</a>
+        <a href="#receipt">Receipt</a>
+        <a href="#top">Top</a>
+      </nav>
+    </footer>
+  </div>
+</main>
+
+<script>
+(() => {
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const touch = matchMedia("(hover: none), (pointer: coarse)").matches;
+  if (touch) document.body.classList.add("is-touch");
+
+  /* —— Cursor reticle + trailing bolt —— */
+  const cursor = document.getElementById("cursor");
+  const bolt = document.getElementById("cursorBolt");
+  let mx = innerWidth / 2, my = innerHeight / 2;
+  let cx = mx, cy = my;
+  let bx = mx, by = my;
+  let snapPin = null;
+
+  function pinScreenPos(pin) {
+    const svg = document.getElementById("routeMap");
+    const pt = svg.createSVGPoint();
+    pt.x = +pin.dataset.cx;
+    pt.y = +pin.dataset.cy;
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    const sp = pt.matrixTransform(ctm);
+    return { x: sp.x, y: sp.y };
+  }
+
+  function nearestPin(x, y, maxDist = 48) {
+    let best = null, bestD = maxDist;
+    document.querySelectorAll(".pin").forEach((pin) => {
+      const p = pinScreenPos(pin);
+      if (!p) return;
+      const d = Math.hypot(p.x - x, p.y - y);
+      if (d < bestD) { bestD = d; best = pin; }
+    });
+    return best;
+  }
+
+  if (!touch) {
+    window.addEventListener("pointermove", (e) => {
+      mx = e.clientX;
+      my = e.clientY;
+      const near = nearestPin(mx, my);
+      if (near !== snapPin) {
+        snapPin = near;
+        cursor.classList.toggle("is-hold", !!near);
+      }
+      if (near) {
+        const p = pinScreenPos(near);
+        if (p) { mx = p.x; my = p.y; }
+      }
+    }, { passive: true });
+
+    function tickCursor() {
+      cx += (mx - cx) * 0.28;
+      cy += (my - cy) * 0.28;
+      bx += (cx - bx) * 0.12;
+      by += (cy - by) * 0.12;
+      cursor.style.transform = `translate3d(${cx}px,${cy}px,0)`;
+      bolt.style.transform = `translate3d(${bx}px,${by}px,0)`;
+      const dist = Math.hypot(cx - bx, cy - by);
+      bolt.style.opacity = Math.min(0.55, dist / 80);
+      requestAnimationFrame(tickCursor);
+    }
+    requestAnimationFrame(tickCursor);
+  }
+
+  /* —— Boot when libs ready —— */
+  function whenReady(fn) {
+    if (window.gsap && window.ScrollTrigger && window.Lenis) fn();
+    else setTimeout(() => whenReady(fn), 30);
+  }
+
+  whenReady(() => {
+    gsap.registerPlugin(ScrollTrigger);
+
+    const lenis = new Lenis({
+      duration: 1.1,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: !reduce,
+    });
+    lenis.on("scroll", ScrollTrigger.update);
+    gsap.ticker.add((time) => lenis.raf(time * 1000));
+    gsap.ticker.lagSmoothing(0);
+
+    /* Entrances — fromTo opacity 1 */
+    gsap.fromTo(".brand-reticle",
+      { opacity: 0, scale: 0.92 },
+      { opacity: 1, scale: 1, duration: 1.1, ease: "power3.out", delay: 0.15 }
+    );
+    gsap.fromTo(".brand-name",
+      { opacity: 0, y: 18 },
+      { opacity: 1, y: 0, duration: 0.9, ease: "power3.out", delay: 0.35 }
+    );
+    gsap.fromTo(".hero-copy h1",
+      { opacity: 0, y: 24 },
+      { opacity: 1, y: 0, duration: 0.85, ease: "power3.out", delay: 0.55 }
+    );
+    gsap.fromTo(".hero-hint",
+      { opacity: 0 },
+      { opacity: 1, duration: 0.6, delay: 1.0, ease: "power2.out" }
+    );
+    gsap.fromTo(".hud",
+      { opacity: 0, y: 10 },
+      { opacity: 1, y: 0, duration: 0.7, stagger: 0.1, delay: 0.7, ease: "power2.out" }
+    );
+    gsap.fromTo(".nav",
+      { opacity: 0, y: -12 },
+      { opacity: 1, y: 0, duration: 0.7, delay: 0.1, ease: "power2.out" }
+    );
+
+    /* Pin pop */
+    gsap.fromTo(".pin",
+      { opacity: 0, scale: 0.4 },
+      {
+        opacity: 1,
+        scale: 1,
+        duration: 0.55,
+        stagger: { each: 0.08, from: "random" },
+        delay: 0.45,
+        ease: "back.out(1.6)",
+        transformOrigin: "50% 50%",
+      }
+    );
+
+    /* Open-bay pulse loop */
+    if (!reduce) {
+      document.querySelectorAll(".pin.is-open .pin-pulse").forEach((el, i) => {
+        gsap.fromTo(el,
+          { opacity: 0.55, scale: 0.7 },
+          {
+            opacity: 0,
+            scale: 1.65,
+            duration: 2.2,
+            repeat: -1,
+            ease: "power1.out",
+            delay: i * 0.35,
+          }
+        );
+      });
+      document.querySelectorAll(".pin.is-open .pin-ring").forEach((el, i) => {
+        gsap.to(el, {
+          rotation: 360,
+          duration: 14,
+          repeat: -1,
+          ease: "none",
+          delay: i * 0.2,
+        });
+      });
+    }
+
+    /* Scan-line */
+    if (!reduce) {
+      const scan = document.getElementById("scanLine");
+      gsap.fromTo(scan,
+        { attr: { y: -120 }, opacity: 0 },
+        {
+          attr: { y: 900 },
+          opacity: 1,
+          duration: 4.5,
+          repeat: -1,
+          ease: "none",
+          repeatDelay: 1.2,
+        }
+      );
+      gsap.to(scan, {
+        keyframes: [
+          { opacity: 0, duration: 0.2 },
+          { opacity: 0.9, duration: 0.4 },
+          { opacity: 0.9, duration: 3.5 },
+          { opacity: 0, duration: 0.4 },
+        ],
+        repeat: -1,
+        repeatDelay: 1.2,
+      });
+    }
+
+    /* Live artery dash drift */
+    if (!reduce) {
+      document.querySelectorAll(".map-artery.is-live").forEach((path, i) => {
+        gsap.fromTo(path,
+          { strokeDasharray: "8 14", strokeDashoffset: 0 },
+          {
+            strokeDashoffset: -44,
+            duration: 3.5 + i * 0.4,
+            repeat: -1,
+            ease: "none",
+          }
+        );
+      });
+    }
+
+    /* Scroll reveals */
+    gsap.utils.toArray(".sec-kicker, .sec-title, .sec-lead, .telemetry, .corridor-track, .receipt, .receipt-aside, .close-actions").forEach((el) => {
+      gsap.fromTo(el,
+        { opacity: 0, y: 28 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.85,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: el,
+            start: "top 88%",
+            toggleActions: "play none none reverse",
+          },
+        }
+      );
+    });
+
+    /* Count-up telemetry */
+    document.querySelectorAll("[data-count]").forEach((el) => {
+      const target = +el.dataset.count;
+      const obj = { v: 0 };
+      ScrollTrigger.create({
+        trigger: el,
+        start: "top 90%",
+        once: true,
+        onEnter: () => {
+          gsap.to(obj, {
+            v: target,
+            duration: 1.4,
+            ease: "power2.out",
+            onUpdate: () => {
+              el.textContent = Math.round(obj.v).toLocaleString();
+            },
+          });
+        },
+      });
+    });
+
+    /* —— Reserve choreography —— */
+    const panel = document.getElementById("reservePanel");
+    const timerEl = document.getElementById("reserveTimer");
+    const confirmBtn = document.getElementById("confirmHold");
+    const cancelBtn = document.getElementById("cancelHold");
+    let activePin = null;
+    let holdTween = null;
+    let holdSeconds = 12;
+    let holdLeft = 12;
+    let holdRaf = null;
+    let confirmed = false;
+
+    const arteries = [
+      document.getElementById("arteryMain"),
+      document.getElementById("arterySouth"),
+      document.getElementById("arteryCross"),
+    ];
+
+    function formatTime(s) {
+      const m = Math.floor(s / 60);
+      const r = Math.max(0, Math.ceil(s % 60));
+      return `${m}:${String(r).padStart(2, "0")}`;
+    }
+
+    function setReceiptFromPin(pin) {
+      const name = pin.dataset.name;
+      const rate = parseFloat(pin.dataset.rate);
+      const kwh = 28.4;
+      const mins = 22;
+      let total = kwh * rate;
+      const member = document.getElementById("memberToggle").getAttribute("aria-pressed") === "true";
+      if (member) total *= 0.88;
+      document.getElementById("receiptSite").textContent = `${pin.querySelector(".pin-label").textContent} · ${name}`;
+      document.getElementById("rxSite").textContent = name;
+      document.getElementById("rxKwh").textContent = `${kwh} kWh`;
+      document.getElementById("rxTime").textContent = `${mins} min`;
+      document.getElementById("rxRate").textContent = `$${rate.toFixed(2)} / kWh`;
+      document.getElementById("rxTotal").textContent = `$${total.toFixed(2)}`;
+    }
+
+    function strokeToward(pin) {
+      arteries.forEach((a) => {
+        a.classList.remove("is-active");
+        gsap.killTweensOf(a);
+        if (!reduce) {
+          gsap.set(a, { strokeDasharray: "8 14" });
+        }
+      });
+      const target = arteries[Math.floor(Math.random() * arteries.length)];
+      target.classList.add("is-active");
+      const len = target.getTotalLength();
+      gsap.fromTo(target,
+        { strokeDasharray: len, strokeDashoffset: len },
+        {
+          strokeDashoffset: 0,
+          duration: reduce ? 0.01 : 1.35,
+          ease: "power2.inOut",
+        }
+      );
+    }
+
+    function clearHold(keepPin) {
+      if (holdTween) { holdTween.kill(); holdTween = null; }
+      if (holdRaf) { cancelAnimationFrame(holdRaf); holdRaf = null; }
+      arteries.forEach((a) => a.classList.remove("is-active"));
+      document.querySelectorAll(".pin.is-held").forEach((p) => {
+        if (p !== keepPin) {
+          p.classList.remove("is-held");
+          const arc = p.querySelector(".hold-arc");
+          gsap.set(arc, { opacity: 0, strokeDashoffset: 0 });
+        }
+      });
+    }
+
+    function closePanel() {
+      gsap.to(panel, {
+        opacity: 0,
+        y: 12,
+        duration: 0.25,
+        ease: "power2.in",
+        onComplete: () => {
+          panel.classList.remove("is-open");
+          panel.hidden = true;
+        },
+      });
+    }
+
+    function openPanel(pin) {
+      document.getElementById("reserveTitle").textContent = pin.dataset.name;
+      document.getElementById("reserveMeta").textContent =
+        `${pin.querySelector(".pin-label").textContent} · Bay hold`;
+      document.getElementById("rKw").textContent = `${pin.dataset.kw} kW`;
+      document.getElementById("rOpen").textContent = `${pin.dataset.open} / ${pin.dataset.total}`;
+      document.getElementById("rEta").textContent = pin.dataset.eta;
+      timerEl.textContent = formatTime(holdLeft);
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = "Confirm bay";
+      panel.hidden = false;
+      panel.classList.add("is-open");
+      gsap.fromTo(panel,
+        { opacity: 0, y: 16 },
+        { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }
+      );
+    }
+
+    function startHold(pin) {
+      if (pin.classList.contains("is-busy") && !pin.classList.contains("is-confirmed")) {
+        // Allow view but no hold on full sites
+        activePin = pin;
+        holdLeft = 0;
+        openPanel(pin);
+        timerEl.textContent = "FULL";
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = "No bay";
+        strokeToward(pin);
+        return;
+      }
+
+      clearHold(pin);
+      confirmed = false;
+      activePin = pin;
+      pin.classList.add("is-held");
+      holdLeft = holdSeconds;
+      openPanel(pin);
+      strokeToward(pin);
+      setReceiptFromPin(pin);
+
+      const arc = pin.querySelector(".hold-arc");
+      const circ = 2 * Math.PI * 20;
+      gsap.set(arc, {
+        opacity: 1,
+        strokeDasharray: circ,
+        strokeDashoffset: 0,
+        rotation: -90,
+      });
+
+      holdTween = gsap.to(arc, {
+        strokeDashoffset: circ,
+        duration: holdSeconds,
+        ease: "none",
+        onComplete: () => {
+          if (!confirmed) releaseHold("expired");
+        },
+      });
+
+      const t0 = performance.now();
+      const tick = (now) => {
+        holdLeft = Math.max(0, holdSeconds - (now - t0) / 1000);
+        timerEl.textContent = formatTime(holdLeft);
+        if (holdLeft > 0 && !confirmed) holdRaf = requestAnimationFrame(tick);
+      };
+      holdRaf = requestAnimationFrame(tick);
+    }
+
+    function releaseHold(reason) {
+      if (!activePin) return;
+      const pin = activePin;
+      pin.classList.remove("is-held");
+      const arc = pin.querySelector(".hold-arc");
+      gsap.to(arc, { opacity: 0, duration: 0.25 });
+      clearHold(null);
+      closePanel();
+      activePin = null;
+      if (reason === "expired") {
+        gsap.fromTo(pin.querySelector(".pin-core"),
+          { stroke: "#C8F542" },
+          { stroke: pin.classList.contains("is-busy") ? "#8B93A7" : "#C8F542", duration: 0.4 }
+        );
+      }
+    }
+
+    function confirmHold() {
+      if (!activePin || activePin.classList.contains("is-busy")) return;
+      confirmed = true;
+      const pin = activePin;
+      if (holdTween) holdTween.kill();
+      if (holdRaf) cancelAnimationFrame(holdRaf);
+
+      const arc = pin.querySelector(".hold-arc");
+      const stamp = pin.querySelector(".stamp-bolt");
+      const core = pin.querySelector(".pin-core");
+      const dot = pin.querySelector(".pin-dot");
+
+      const tl = gsap.timeline({
+        onComplete: () => {
+          pin.classList.add("is-confirmed");
+          pin.classList.remove("is-held");
+          setReceiptFromPin(pin);
+          confirmBtn.textContent = "Bay stamped";
+          confirmBtn.disabled = true;
+          timerEl.textContent = "LOCK";
+          setTimeout(() => closePanel(), 900);
+        },
+      });
+
+      tl.to(arc, { opacity: 0, duration: 0.2 }, 0)
+        .fromTo(core, { scale: 1 }, { scale: 1.35, duration: 0.22, ease: "power2.out", transformOrigin: "50% 50%" }, 0)
+        .set(dot, { opacity: 0 })
+        .fromTo(stamp,
+          { opacity: 0, scale: 0.2, rotation: -25 },
+          { opacity: 1, scale: 1, rotation: 0, duration: 0.35, ease: "back.out(2)" },
+          0.12
+        )
+        .to(core, { scale: 1, duration: 0.3, ease: "power2.inOut" }, 0.25)
+        .fromTo(pin.querySelector(".pin-pulse"),
+          { opacity: 0.7, scale: 0.8 },
+          { opacity: 0, scale: 2.2, duration: 0.7, ease: "power2.out" },
+          0.1
+        );
+
+      // Flash matching HUD
+      const hud = document.querySelector(`.hud[data-pin="${pin.dataset.id}"]`);
+      if (hud) {
+        gsap.fromTo(hud,
+          { borderColor: "rgba(200,245,66,0.8)" },
+          { borderColor: "rgba(232,236,242,0.14)", duration: 1.2, ease: "power2.out" }
+        );
+        const status = hud.querySelector(".hud-head strong");
+        if (status) status.textContent = "HELD";
+      }
+    }
+
+    document.querySelectorAll(".pin").forEach((pin) => {
+      const activate = (e) => {
+        e.preventDefault();
+        if (pin.classList.contains("is-confirmed")) {
+          setReceiptFromPin(pin);
+          openPanel(pin);
+          timerEl.textContent = "LOCK";
+          confirmBtn.disabled = true;
+          confirmBtn.textContent = "Bay stamped";
+          return;
+        }
+        startHold(pin);
+      };
+      pin.addEventListener("click", activate);
+      pin.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") activate(e);
+      });
+    });
+
+    cancelBtn.addEventListener("click", () => releaseHold("cancel"));
+    confirmBtn.addEventListener("click", confirmHold);
+
+    /* Membership toggle on receipt */
+    const memberToggle = document.getElementById("memberToggle");
+    memberToggle.addEventListener("click", () => {
+      const on = memberToggle.getAttribute("aria-pressed") !== "true";
+      memberToggle.setAttribute("aria-pressed", String(on));
+      const pin = activePin || document.querySelector(".pin.is-confirmed") || document.querySelector(".pin.is-open");
+      if (pin) setReceiptFromPin(pin);
+      else {
+        const base = 10.79;
+        const total = on ? base * 0.88 : base;
+        document.getElementById("rxTotal").textContent = `$${total.toFixed(2)}`;
+      }
+      gsap.fromTo("#rxTotal",
+        { scale: 1.08, color: "#C8F542" },
+        { scale: 1, duration: 0.35, ease: "power2.out" }
+      );
+    });
+
+    /* Highlight HUD when hovering related pin */
+    document.querySelectorAll(".pin").forEach((pin) => {
+      pin.addEventListener("pointerenter", () => {
+        const hud = document.querySelector(`.hud[data-pin="${pin.dataset.id}"]`);
+        if (hud) gsap.to(hud, { borderColor: "rgba(200,245,66,0.45)", duration: 0.2 });
+      });
+      pin.addEventListener("pointerleave", () => {
+        const hud = document.querySelector(`.hud[data-pin="${pin.dataset.id}"]`);
+        if (hud && !pin.classList.contains("is-held") && !pin.classList.contains("is-confirmed")) {
+          gsap.to(hud, { borderColor: "rgba(232,236,242,0.14)", duration: 0.25 });
+        }
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>

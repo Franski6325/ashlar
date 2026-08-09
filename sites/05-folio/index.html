@@ -1,0 +1,2478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Folio Press — Slow reading for a fast century</title>
+<meta name="description" content="Folio Press is an independent digital magazine covering design, technology, cities and the culture of making. Two features a week, one live wire, zero infinite scroll." />
+<meta name="theme-color" content="#f4f1ea" />
+<meta property="og:title" content="Folio Press — Slow reading for a fast century" />
+<meta property="og:description" content="An independent digital magazine on design, technology, cities and the culture of making." />
+<meta property="og:type" content="website" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23111014'/%3E%3Crect x='5' y='6' width='9' height='20' fill='%231b3cff'/%3E%3Crect x='17' y='6' width='10' height='4' fill='%23f4f1ea'/%3E%3Crect x='17' y='14' width='10' height='4' fill='%23f4f1ea'/%3E%3Crect x='17' y='22' width='10' height='4' fill='%23f4f1ea'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+<style>
+/* ============================================================
+   1. TOKENS
+   ============================================================ */
+:root{
+  --paper:#f4f1ea;
+  --paper-2:#ece7db;
+  --paper-3:#e0d9c9;
+  --card:#fbf9f4;
+  --ink:#111014;
+  --ink-2:#38362f;
+  --muted:#75706a;
+  --line:rgba(17,16,20,.14);
+  --line-2:rgba(17,16,20,.26);
+  --line-dark:rgba(244,241,234,.16);
+  --accent:#1b3cff;
+  --accent-2:#7b90ff;
+  --accent-ink:#ffffff;
+  --accent-soft:rgba(27,60,255,.10);
+
+  --font-serif:"Newsreader",Georgia,"Times New Roman",serif;
+  --font-sans:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",monospace;
+
+  --ease:cubic-bezier(.22,1,.36,1);
+  --ease-in-out:cubic-bezier(.65,.05,.36,1);
+
+  --pad:clamp(1rem,3.4vw,2.6rem);
+  --max:1380px;
+  --nav-h:4.25rem;
+  --gap:clamp(.9rem,1.5vw,1.5rem);
+
+  --fs-nano:.625rem;
+  --fs-xs:.72rem;
+  --fs-sm:.86rem;
+  --fs-md:1rem;
+  --fs-lg:clamp(1.08rem,.95rem+.6vw,1.4rem);
+  --fs-xl:clamp(1.5rem,1rem+2.1vw,2.7rem);
+  --fs-2xl:clamp(2rem,1.1rem+3.6vw,4.1rem);
+  --fs-hero:clamp(2.5rem,.9rem+6.6vw,6.6rem);
+}
+
+/* ============================================================
+   2. RESET / BASE
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;border-radius:0}
+html{background:var(--paper);-webkit-text-size-adjust:100%;scroll-behavior:auto}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+.lenis.lenis-stopped{overflow:hidden}
+body{
+  font-family:var(--font-sans);
+  font-size:var(--fs-md);
+  line-height:1.55;
+  color:var(--ink);
+  background:var(--paper);
+  overflow-x:hidden;
+  cursor:none;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  font-synthesis:none;
+}
+body.is-touch,body.is-reduced,body.no-gsap{cursor:auto}
+body.menu-open{overflow:hidden}
+img,svg{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit;background:none;border:none;outline:none;appearance:none;-webkit-appearance:none}
+button{cursor:none}
+body.is-touch button,body.is-reduced button,body.no-gsap button{cursor:pointer}
+ul,ol{list-style:none}
+::selection{background:var(--accent);color:#fff}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.on-dark :focus-visible,.on-accent :focus-visible{outline-color:#fff}
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+/* ============================================================
+   3. TYPE UTILITIES
+   ============================================================ */
+.shell{width:100%;max-width:var(--max);margin-inline:auto;padding-inline:var(--pad)}
+.kicker{
+  font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.16em;
+  text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:.55rem;
+}
+.kicker::before{content:"";width:20px;height:1px;background:var(--accent);flex:none}
+.kicker--bare::before{display:none}
+.kicker--dot::before{width:7px;height:7px;background:var(--accent)}
+.tag{
+  font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink);border:1px solid var(--line-2);padding:.28rem .5rem;display:inline-block;line-height:1;
+}
+.tag--fill{background:var(--accent);border-color:var(--accent);color:#fff}
+.tag--ink{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.mono{font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.08em;color:var(--muted)}
+.serif{font-family:var(--font-serif);font-weight:400}
+em,.it{font-family:var(--font-serif);font-style:italic;color:var(--accent);font-weight:400}
+h1,h2,h3,h4{font-family:var(--font-serif);font-weight:400;line-height:1.02;letter-spacing:-.015em}
+h3,h4{line-height:1.12;letter-spacing:-.01em}
+p{text-wrap:pretty}
+.lede{font-size:var(--fs-lg);color:var(--ink-2);line-height:1.5;max-width:52ch}
+.rule{height:1px;background:var(--line);width:100%}
+
+.sec-head{
+  display:flex;align-items:flex-end;justify-content:space-between;gap:2rem;flex-wrap:wrap;
+  padding-bottom:1.1rem;border-bottom:1px solid var(--line-2);
+}
+.sec-head__title{font-size:var(--fs-2xl);max-width:16ch}
+.sec-head__side{display:flex;align-items:center;gap:1.2rem;flex-wrap:wrap;padding-bottom:.4rem}
+.sec-num{font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.18em;color:var(--muted)}
+
+/* ============================================================
+   4. BUTTONS
+   ============================================================ */
+.btn{
+  position:relative;display:inline-flex;align-items:center;gap:.7rem;
+  font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.14em;text-transform:uppercase;
+  padding:.95rem 1.35rem;border:1px solid var(--ink);overflow:hidden;isolation:isolate;
+  background:transparent;color:var(--ink);will-change:transform;
+}
+.btn::before{
+  content:"";position:absolute;inset:0;background:var(--ink);z-index:-1;
+  transform:scaleX(0);transform-origin:left center;transition:transform .5s var(--ease);
+}
+.btn:hover::before,.btn:focus-visible::before{transform:scaleX(1)}
+.btn:hover,.btn:focus-visible{color:var(--paper)}
+.btn__l{display:inline-block;pointer-events:none}
+.btn__ic{width:13px;height:13px;flex:none;transition:transform .45s var(--ease)}
+.btn:hover .btn__ic{transform:translate(3px,-3px)}
+.btn--accent{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn--accent::before{background:var(--ink)}
+.btn--accent:hover,.btn--accent:focus-visible{color:#fff}
+.btn--ghost{border-color:var(--line-2)}
+.btn--ghost:hover{border-color:var(--ink)}
+.btn--light{border-color:rgba(255,255,255,.4);color:#fff}
+.btn--light::before{background:#fff}
+.btn--light:hover,.btn--light:focus-visible{color:var(--ink);border-color:#fff}
+.btn--solid-ink{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn--solid-ink::before{background:var(--accent)}
+.btn--solid-ink:hover{color:#fff}
+.btn--block{width:100%;justify-content:center}
+
+.linkline{
+  position:relative;display:inline-flex;align-items:center;gap:.5rem;
+  font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.13em;text-transform:uppercase;
+}
+.linkline::after{
+  content:"";position:absolute;left:0;bottom:-4px;width:100%;height:1px;background:currentColor;
+  transform:scaleX(0);transform-origin:right center;transition:transform .45s var(--ease);
+}
+.linkline:hover::after{transform:scaleX(1);transform-origin:left center}
+.linkline svg{width:11px;height:11px;transition:transform .4s var(--ease)}
+.linkline:hover svg{transform:translateX(4px)}
+
+/* ============================================================
+   5. CUSTOM CURSOR — editorial brackets that open on hover
+   ============================================================ */
+.cur{
+  position:fixed;top:0;left:0;z-index:9999;pointer-events:none;
+  display:flex;align-items:center;justify-content:center;gap:0;
+  height:1.15em;margin:-.575em 0 0 0;
+  transform:translate(-50%,-50%);
+  opacity:0;will-change:transform;
+  transition:gap .4s var(--ease), opacity .3s;
+  font-family:var(--font-serif);font-size:1.35rem;line-height:1;font-weight:400;
+  color:var(--ink);letter-spacing:0;
+}
+.cur.is-on{opacity:1}
+.cur__br{
+  display:block;flex:none;
+  font-family:var(--font-serif);font-size:1.35rem;line-height:1;
+  color:var(--ink);font-weight:400;
+  transition:color .3s, transform .4s var(--ease);
+}
+.cur__br--l{transform:translateX(2px)}
+.cur__br--r{transform:translateX(-2px)}
+.cur__lab{
+  font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent);white-space:nowrap;line-height:1;
+  max-width:0;overflow:hidden;opacity:0;
+  transition:max-width .4s var(--ease), opacity .3s, padding .4s var(--ease), color .3s;
+  padding:0;
+}
+.cur.is-open{gap:.15rem}
+.cur.is-open .cur__br--l{transform:translateX(-2px);color:var(--accent)}
+.cur.is-open .cur__br--r{transform:translateX(2px);color:var(--accent)}
+.cur.is-open .cur__lab{
+  max-width:8rem;opacity:1;padding:0 .15rem;
+}
+body.on-dark .cur,body.on-accent .cur{color:#fff}
+body.on-dark .cur__br,body.on-accent .cur__br{color:#fff}
+body.on-dark .cur.is-open .cur__br,body.on-accent .cur.is-open .cur__br{color:#fff}
+body.on-dark .cur__lab{color:var(--accent-2)}
+body.on-accent .cur__lab{color:#fff}
+body.is-touch .cur,body.is-reduced .cur,body.no-gsap .cur{display:none}
+@media (pointer:coarse),(hover:none){.cur{display:none!important}}
+
+/* ============================================================
+   6. PRELOADER
+   ============================================================ */
+#pre{
+  position:fixed;inset:0;z-index:9998;background:var(--ink);color:var(--paper);
+  display:flex;flex-direction:column;justify-content:space-between;padding:var(--pad);
+}
+#pre .pre__cols{position:absolute;inset:0;display:flex;z-index:-1}
+#pre .pre__cols i{flex:1;background:var(--ink);border-right:1px solid rgba(244,241,234,.07)}
+.pre__top{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem}
+.pre__mid{display:flex;align-items:baseline;gap:.6rem;flex-wrap:wrap}
+.pre__word{font-family:var(--font-serif);font-size:clamp(2.4rem,10vw,7rem);line-height:.95;letter-spacing:-.02em}
+.pre__word em{color:var(--accent-2)}
+.pre__ch{display:inline-block}
+.pre__bot{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.14em;text-transform:uppercase;color:rgba(244,241,234,.6)}
+.pre__num{font-family:var(--font-mono);font-size:clamp(2rem,7vw,4.6rem);color:var(--paper);line-height:1}
+.pre__bar{height:1px;background:rgba(244,241,234,.2);width:100%;margin-top:1.1rem;overflow:hidden}
+.pre__bar i{display:block;height:100%;background:var(--accent-2);transform:scaleX(0);transform-origin:left}
+
+/* ============================================================
+   7. NAV
+   ============================================================ */
+.nav{
+  position:fixed;top:0;left:0;width:100%;z-index:900;
+  background:rgba(244,241,234,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);will-change:transform;
+}
+.nav__in{
+  max-width:var(--max);margin-inline:auto;padding:0 var(--pad);height:var(--nav-h);
+  display:flex;align-items:center;justify-content:space-between;gap:1.4rem;
+}
+.brand{display:flex;align-items:center;gap:.7rem;flex:none}
+.brand__mark{width:26px;height:26px;background:var(--ink);position:relative;flex:none;overflow:hidden}
+.brand__mark i{position:absolute;background:var(--accent)}
+.brand__mark i:nth-child(1){left:4px;top:5px;width:7px;height:16px}
+.brand__mark i:nth-child(2){left:14px;top:5px;width:8px;height:3px;background:var(--paper)}
+.brand__mark i:nth-child(3){left:14px;top:11px;width:8px;height:3px;background:var(--paper)}
+.brand__mark i:nth-child(4){left:14px;top:17px;width:8px;height:4px;background:var(--paper)}
+.brand__txt{font-family:var(--font-serif);font-size:1.16rem;letter-spacing:-.01em;line-height:1}
+.brand__txt small{display:block;font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-top:.18rem}
+.nav__links{display:flex;align-items:center;gap:1.6rem}
+.nav__link{
+  position:relative;font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.12em;text-transform:uppercase;padding:.3rem 0;
+}
+.nav__link::after{content:"";position:absolute;left:0;bottom:0;width:100%;height:1px;background:currentColor;transform:scaleX(0);transform-origin:right;transition:transform .4s var(--ease)}
+.nav__link:hover::after,.nav__link[aria-current="true"]::after{transform:scaleX(1);transform-origin:left}
+.nav__right{display:flex;align-items:center;gap:.85rem}
+.nav__clock{font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.1em;color:var(--muted);white-space:nowrap}
+.nav__cta{
+  font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.13em;text-transform:uppercase;
+  background:var(--accent);color:#fff;padding:.62rem .95rem;position:relative;overflow:hidden;isolation:isolate;
+}
+.nav__cta::before{content:"";position:absolute;inset:0;background:var(--ink);z-index:-1;transform:translateY(101%);transition:transform .45s var(--ease)}
+.nav__cta:hover::before{transform:translateY(0)}
+.burger{display:flex;flex-direction:column;justify-content:center;gap:5px;width:42px;height:34px;border:1px solid var(--line-2);align-items:center}
+.burger i{width:16px;height:1px;background:currentColor;display:block;transition:transform .4s var(--ease),width .4s var(--ease)}
+.burger:hover i:nth-child(1){width:20px}
+.burger:hover i:nth-child(2){width:11px}
+.nav__prog{position:absolute;left:0;bottom:-1px;height:2px;width:100%;background:var(--accent);transform:scaleX(0);transform-origin:left}
+body.on-dark .nav,body.on-accent .nav{background:rgba(17,16,20,.72);border-bottom-color:var(--line-dark);color:var(--paper)}
+body.on-dark .nav .brand__txt small,body.on-accent .nav .brand__txt small,
+body.on-dark .nav__clock,body.on-accent .nav__clock{color:rgba(244,241,234,.6)}
+body.on-dark .brand__mark,body.on-accent .brand__mark{background:var(--paper)}
+body.on-dark .brand__mark i:nth-child(n+2),body.on-accent .brand__mark i:nth-child(n+2){background:var(--ink)}
+body.on-dark .burger,body.on-accent .burger{border-color:var(--line-dark)}
+body.on-accent .nav__cta{background:#fff;color:var(--accent)}
+body.on-accent .nav__cta::before{background:var(--ink)}
+body.on-accent .nav__cta:hover{color:#fff}
+
+/* ============================================================
+   8. MENU OVERLAY
+   ============================================================ */
+.menu{position:fixed;inset:0;z-index:950;visibility:hidden;opacity:0;color:var(--paper);display:flex;flex-direction:column}
+.menu__cols{position:absolute;inset:0;display:flex;z-index:0}
+.menu__cols i{flex:1;background:var(--ink);border-right:1px solid rgba(244,241,234,.07);transform:scaleY(0);transform-origin:top center}
+.menu__top{position:relative;z-index:2;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 var(--pad);max-width:var(--max);width:100%;margin-inline:auto;border-bottom:1px solid var(--line-dark)}
+.menu__body{position:relative;z-index:2;flex:1;display:grid;grid-template-columns:1.35fr .65fr;gap:var(--pad);max-width:var(--max);width:100%;margin-inline:auto;padding:clamp(1.6rem,4vw,3.4rem) var(--pad)}
+.menu__list{display:flex;flex-direction:column;justify-content:center;gap:.1rem}
+.menu__item{position:relative;display:flex;align-items:baseline;gap:1.1rem;padding:.5rem 0;border-bottom:1px solid rgba(244,241,234,.1);overflow:hidden}
+.menu__item span.n{font-family:var(--font-mono);font-size:var(--fs-xs);color:rgba(244,241,234,.45);flex:none;width:2.2rem}
+.menu__item span.t{font-family:var(--font-serif);font-size:clamp(1.8rem,5.2vw,4rem);line-height:1.05}
+.menu__item span.d{margin-left:auto;font-family:var(--font-mono);font-size:var(--fs-xs);color:rgba(244,241,234,.4);opacity:0;transition:opacity .45s var(--ease)}
+.menu__item:hover span.d{opacity:1}
+.menu__side{display:flex;flex-direction:column;gap:1.7rem;justify-content:center;border-left:1px solid var(--line-dark);padding-left:clamp(1rem,2.4vw,2.4rem)}
+.menu__side h4{font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.16em;text-transform:uppercase;color:rgba(244,241,234,.45);margin-bottom:.75rem;font-weight:400}
+.menu__side p{color:rgba(244,241,234,.75);font-size:var(--fs-sm)}
+.menu__side a{display:block;padding:.3rem 0;color:rgba(244,241,234,.82);font-size:var(--fs-sm);transition:color .3s}
+.menu__side a:hover{color:var(--accent-2)}
+.menu__feature{border:1px solid var(--line-dark);padding:1.1rem}
+.menu__feature .t{font-family:var(--font-serif);font-size:1.35rem;line-height:1.15;margin:.5rem 0 .6rem}
+
+/* ============================================================
+   9. HERO / BENTO
+   ============================================================ */
+.hero{padding-top:calc(var(--nav-h) + clamp(1.2rem,3vw,2.6rem));padding-bottom:clamp(1.6rem,3vw,2.6rem);position:relative;overflow:hidden}
+.hero__bar{
+  max-width:var(--max);margin:0 auto clamp(.9rem,1.6vw,1.4rem);padding:0 var(--pad);
+  display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;
+}
+.hero__bar .l{display:flex;gap:1.1rem;align-items:center;flex-wrap:wrap}
+.bento{
+  display:grid;grid-template-columns:repeat(12,1fr);gap:1px;background:var(--line-2);
+  border:1px solid var(--line-2);
+}
+.tile{background:var(--card);padding:clamp(1.1rem,1.9vw,1.9rem);position:relative;overflow:hidden;display:flex;flex-direction:column}
+.tile--head{grid-column:1/8;grid-row:1;gap:clamp(1rem,1.8vw,1.6rem);justify-content:center;padding-block:clamp(1.6rem,3.4vw,3rem)}
+.hero__title{font-size:var(--fs-hero);letter-spacing:-.03em;line-height:.94;max-width:14ch}
+.hero__title em{font-weight:300}
+.hero__lede{font-size:var(--fs-lg);color:var(--ink-2);max-width:44ch}
+.hero__actions{display:flex;gap:.7rem;flex-wrap:wrap;align-items:center}
+.hero__meta{display:flex;gap:1.4rem;flex-wrap:wrap;padding-top:.4rem;border-top:1px solid var(--line)}
+.hero__meta li{font-family:var(--font-mono);font-size:var(--fs-xs);color:var(--muted);padding-top:.7rem;display:flex;gap:.45rem;align-items:center}
+.hero__meta li b{color:var(--ink);font-weight:500}
+
+.tile--feature{grid-column:8/13;grid-row:1/3;padding:0;background:var(--ink);color:var(--paper)}
+.feat{position:relative;height:100%;display:flex;flex-direction:column;min-height:clamp(340px,42vw,520px)}
+.feat__art{position:relative;flex:1;min-height:150px;overflow:hidden}
+.feat__body{padding:clamp(1.1rem,1.7vw,1.6rem);display:flex;flex-direction:column;gap:.75rem;border-top:1px solid var(--line-dark)}
+.feat__row{display:flex;justify-content:space-between;align-items:center;gap:1rem}
+.feat__title{font-size:clamp(1.4rem,2.2vw,2.05rem);line-height:1.06;letter-spacing:-.02em}
+.feat__title em{color:var(--accent-2)}
+.feat__dek{font-size:var(--fs-sm);color:rgba(244,241,234,.66);max-width:40ch}
+.feat__foot{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding-top:.7rem;border-top:1px solid var(--line-dark);font-family:var(--font-mono);font-size:var(--fs-xs);color:rgba(244,241,234,.55)}
+.feat__go{width:38px;height:38px;border:1px solid var(--line-dark);display:grid;place-items:center;flex:none;transition:background .4s var(--ease),border-color .4s var(--ease)}
+.feat__go svg{width:13px;height:13px;transition:transform .45s var(--ease)}
+.tile--feature:hover .feat__go{background:var(--accent);border-color:var(--accent)}
+.tile--feature:hover .feat__go svg{transform:translate(3px,-3px)}
+
+.tile--stat{justify-content:space-between;gap:1.2rem;min-height:clamp(150px,15vw,200px)}
+.tile--s1{grid-column:1/3;grid-row:2}
+.tile--s2{grid-column:3/6;grid-row:2}
+.tile--s3{grid-column:6/8;grid-row:2;background:var(--accent);color:#fff}
+.tile--s3 .kicker{color:rgba(255,255,255,.75)}
+.tile--s3 .kicker::before{background:#fff}
+.stat__n{font-family:var(--font-serif);font-size:clamp(2.2rem,4.2vw,3.6rem);line-height:.9;letter-spacing:-.03em;display:flex;align-items:baseline;gap:.15rem}
+.stat__n sup{font-family:var(--font-mono);font-size:.9rem;letter-spacing:0;top:-.9em;position:relative}
+.stat__l{font-size:var(--fs-sm);color:var(--muted);max-width:22ch}
+.tile--s3 .stat__l{color:rgba(255,255,255,.82)}
+.stat__spark{display:flex;align-items:flex-end;gap:3px;height:34px}
+.stat__spark i{width:5px;background:var(--accent);display:block;transform-origin:bottom}
+.tile--s3 .stat__spark i{background:rgba(255,255,255,.85)}
+
+.tile--index{grid-column:1/5;grid-row:3}
+.tile--topics{grid-column:5/9;grid-row:3}
+.tile--live{grid-column:9/13;grid-row:3;background:var(--paper-2)}
+.tile__h{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:1rem;padding-bottom:.65rem;border-bottom:1px solid var(--line)}
+.idx{display:flex;flex-direction:column}
+.idx__row{display:flex;gap:.8rem;align-items:baseline;padding:.5rem 0;border-bottom:1px solid var(--line);position:relative}
+.idx__row:last-child{border-bottom:none}
+.idx__row .n{font-family:var(--font-mono);font-size:var(--fs-nano);color:var(--muted);width:1.6rem;flex:none}
+.idx__row .t{font-family:var(--font-serif);font-size:1.02rem;line-height:1.2;transition:transform .4s var(--ease)}
+.idx__row .c{margin-left:auto;font-family:var(--font-mono);font-size:var(--fs-nano);color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.idx__row:hover .t{transform:translateX(6px);color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem}
+.chip{
+  font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.08em;
+  border:1px solid var(--line-2);padding:.45rem .68rem;line-height:1;transition:all .35s var(--ease);
+}
+.chip:hover{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.chip--on{background:var(--accent);border-color:var(--accent);color:#fff}
+.topics__note{margin-top:auto;padding-top:1rem;font-size:var(--fs-sm);color:var(--muted)}
+.live__list{display:flex;flex-direction:column;gap:.55rem}
+.live__row{display:flex;gap:.6rem;align-items:baseline;font-size:var(--fs-sm)}
+.live__row time{font-family:var(--font-mono);font-size:var(--fs-nano);color:var(--muted);flex:none;width:3.1rem}
+.live__row span{color:var(--ink-2);line-height:1.3}
+.pulse{width:7px;height:7px;background:var(--accent);flex:none}
+
+/* ============================================================
+   10. TICKER
+   ============================================================ */
+.ticker{border-block:1px solid var(--line-2);background:var(--ink);color:var(--paper);overflow:hidden;padding:.85rem 0;position:relative}
+.ticker__track{display:flex;gap:2.6rem;white-space:nowrap;will-change:transform}
+.ticker__i{display:flex;align-items:center;gap:.8rem;font-family:var(--font-serif);font-size:clamp(1rem,1.6vw,1.35rem);letter-spacing:-.01em}
+.ticker__i i{width:7px;height:7px;background:var(--accent-2);flex:none;display:block}
+.ticker__i b{font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.16em;text-transform:uppercase;color:var(--accent-2);font-weight:500}
+
+/* ============================================================
+   11. STORIES
+   ============================================================ */
+.stories{padding:clamp(3rem,7vw,6.5rem) 0 clamp(2.4rem,5vw,4.5rem)}
+.filters{display:flex;gap:.4rem;flex-wrap:wrap;margin:1.6rem 0 clamp(1.4rem,2.6vw,2.2rem)}
+.grid-stories{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--gap)}
+.sc{
+  position:relative;display:flex;flex-direction:column;background:var(--card);
+  border:1px solid var(--line);overflow:hidden;will-change:transform,opacity;
+}
+.sc::after{content:"";position:absolute;left:0;top:0;height:3px;width:100%;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .55s var(--ease);z-index:3}
+.sc:hover::after{transform:scaleX(1)}
+.sc__art{position:relative;overflow:hidden;aspect-ratio:16/9}
+.sc__art .plate{transition:transform .9s var(--ease)}
+.sc:hover .sc__art .plate{transform:scale(1.045)}
+.sc__cat{position:absolute;left:0;top:0;z-index:2}
+.sc__b{padding:clamp(.95rem,1.4vw,1.35rem);display:flex;flex-direction:column;gap:.6rem;flex:1}
+.sc__t{font-size:clamp(1.15rem,1.5vw,1.5rem);line-height:1.1;letter-spacing:-.015em}
+.sc__t em{font-weight:300}
+.sc__t a{
+  background-image:linear-gradient(currentColor,currentColor);background-repeat:no-repeat;
+  background-size:0% 1px;background-position:0 95%;transition:background-size .55s var(--ease);
+}
+.sc:hover .sc__t a{background-size:100% 1px}
+.sc__d{font-size:var(--fs-sm);color:var(--muted);line-height:1.45}
+.sc__f{margin-top:auto;padding-top:.85rem;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:.8rem;font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.sc__arrow{width:26px;height:26px;border:1px solid var(--line-2);display:grid;place-items:center;flex:none;transition:background .4s var(--ease),border-color .4s var(--ease),color .4s var(--ease)}
+.sc__arrow svg{width:11px;height:11px}
+.sc:hover .sc__arrow{background:var(--accent);border-color:var(--accent);color:#fff}
+.sc--lead{grid-column:1/7;grid-row:span 2}
+.sc--lead .sc__art{aspect-ratio:auto;flex:1;min-height:clamp(200px,24vw,330px)}
+.sc--lead .sc__t{font-size:clamp(1.7rem,2.9vw,2.7rem);line-height:1.03}
+.sc--lead .sc__d{font-size:var(--fs-md);max-width:46ch}
+.sc--b{grid-column:7/13}
+.sc--c{grid-column:7/13}
+.sc--split{flex-direction:row}
+.sc--split .sc__art{aspect-ratio:auto;width:40%;flex:none;min-height:160px}
+.sc--split .sc__b{width:60%}
+.sc--d{grid-column:1/5}
+.sc--e{grid-column:5/9}
+.sc--f{grid-column:9/13}
+.sc--archive{grid-column:1/6;background:var(--paper-2)}
+.sc--wide{grid-column:6/13;flex-direction:row}
+.sc--wide .sc__art{aspect-ratio:auto;width:52%;flex:none;min-height:clamp(180px,20vw,260px)}
+.sc--wide .sc__b{width:48%}
+.sc.is-dim{opacity:.16;filter:grayscale(1)}
+.arch{display:flex;flex-direction:column;padding:clamp(.95rem,1.4vw,1.35rem);gap:0;flex:1}
+.arch__row{display:flex;gap:.75rem;align-items:baseline;padding:.62rem 0;border-bottom:1px solid var(--line)}
+.arch__row:last-of-type{border-bottom:none}
+.arch__row .y{font-family:var(--font-mono);font-size:var(--fs-nano);color:var(--accent);width:2.6rem;flex:none;letter-spacing:.08em}
+.arch__row .t{font-family:var(--font-serif);font-size:1.02rem;line-height:1.2;transition:transform .4s var(--ease)}
+.arch__row:hover .t{transform:translateX(6px)}
+
+/* ============================================================
+   12. STATEMENT (SCRUB)
+   ============================================================ */
+.statement{background:var(--ink);color:var(--paper);position:relative;overflow:hidden}
+.statement__inner{
+  min-height:100svh;display:grid;grid-template-columns:.72fr 2fr .95fr;gap:clamp(1.4rem,3vw,3.4rem);
+  padding:calc(var(--nav-h) + 2.2rem) var(--pad) 2.6rem;align-items:start;
+}
+.st__rail{display:flex;flex-direction:column;gap:1.4rem;position:relative}
+.st__rail .kicker{color:rgba(244,241,234,.6)}
+.rail__count{font-family:var(--font-mono);font-size:clamp(2.6rem,5vw,4.4rem);line-height:.9;display:flex;align-items:baseline;gap:.4rem}
+.rail__count small{font-size:var(--fs-xs);color:rgba(244,241,234,.45);letter-spacing:.1em}
+.rail__bar{width:100%;height:2px;background:rgba(244,241,234,.16);overflow:hidden}
+.rail__bar i{display:block;height:100%;background:var(--accent-2);transform:scaleX(0);transform-origin:left}
+.rail__art{position:relative;width:min(100%,190px);aspect-ratio:1;margin-top:1rem}
+.rail__art span{position:absolute;inset:0;border:1px solid rgba(244,241,234,.28)}
+.rail__art span:nth-child(2){inset:16%;border-color:rgba(244,241,234,.2)}
+.rail__art span:nth-child(3){inset:32%;background:var(--accent);border:none}
+.rail__legend{display:flex;flex-direction:column;gap:.5rem;margin-top:auto;padding-top:1.4rem}
+.rail__legend b{font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.16em;text-transform:uppercase;color:rgba(244,241,234,.4);font-weight:400}
+.rail__legend p{font-size:var(--fs-sm);color:rgba(244,241,234,.68);max-width:26ch}
+.st__body{display:flex;flex-direction:column;gap:clamp(1.4rem,2.6vw,2.4rem);padding-top:.4rem}
+.st__text{font-family:var(--font-serif);font-size:clamp(1.6rem,3.3vw,3.15rem);line-height:1.16;letter-spacing:-.02em;color:rgba(244,241,234,.2)}
+.st__text em{font-style:italic;color:var(--accent-2)}
+.st__foot{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;border-top:1px solid var(--line-dark);padding-top:1.3rem}
+.st__foot div b{display:block;font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.16em;text-transform:uppercase;color:var(--accent-2);margin-bottom:.4rem;font-weight:500}
+.st__foot div p{font-size:var(--fs-sm);color:rgba(244,241,234,.68)}
+.st__cards{position:relative;min-height:clamp(300px,34vw,420px);align-self:stretch}
+.pcard{
+  position:absolute;inset:0;border:1px solid var(--line-dark);background:rgba(244,241,234,.035);
+  padding:clamp(1.1rem,1.7vw,1.6rem);display:flex;flex-direction:column;gap:.85rem;
+}
+.pcard__n{font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.16em;color:var(--accent-2)}
+.pcard h3{font-size:clamp(1.3rem,2vw,1.85rem);line-height:1.08}
+.pcard p{font-size:var(--fs-sm);color:rgba(244,241,234,.7);line-height:1.5}
+.pcard ul{margin-top:auto;display:flex;flex-direction:column;gap:.5rem;padding-top:1rem;border-top:1px solid var(--line-dark)}
+.pcard li{display:flex;gap:.6rem;align-items:flex-start;font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.09em;text-transform:uppercase;color:rgba(244,241,234,.62)}
+.pcard li svg{width:10px;height:10px;color:var(--accent-2);flex:none;margin-top:.18rem}
+.pcard__plate{height:64px;position:relative;overflow:hidden;border:1px solid var(--line-dark)}
+.statement.no-pin .statement__inner{min-height:0;padding-block:clamp(3rem,7vw,5rem)}
+.statement.no-pin .st__cards{min-height:0;display:grid;gap:1rem}
+.statement.no-pin .pcard{position:relative;inset:auto;opacity:1!important;transform:none!important}
+.statement.no-pin .st__text{color:var(--paper)}
+
+/* ============================================================
+   13. DIGEST FORM
+   ============================================================ */
+.digest{background:var(--paper-2);padding:clamp(3rem,7vw,6.5rem) 0;border-block:1px solid var(--line-2)}
+.digest__grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:clamp(1.6rem,3.4vw,3.6rem);margin-top:clamp(1.6rem,3vw,2.6rem);align-items:start}
+.digest__left{display:flex;flex-direction:column;gap:1.5rem;position:relative}
+.digest__left h2{font-size:var(--fs-2xl);max-width:12ch}
+.steps{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.steps li{display:flex;gap:1rem;padding:.95rem 0;border-bottom:1px solid var(--line);align-items:flex-start}
+.steps li b{font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.14em;color:var(--accent);flex:none;width:2rem;padding-top:.2rem;font-weight:500}
+.steps li p{font-size:var(--fs-sm);color:var(--ink-2)}
+.steps li p strong{font-weight:600;color:var(--ink)}
+.digest__quote{border-left:2px solid var(--accent);padding:.4rem 0 .4rem 1rem;font-family:var(--font-serif);font-size:1.22rem;line-height:1.35;color:var(--ink-2)}
+.digest__quote cite{display:block;margin-top:.6rem;font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-style:normal}
+.panel{background:var(--card);border:1px solid var(--line-2);position:relative;overflow:hidden}
+.panel__h{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:1rem clamp(1.1rem,1.8vw,1.7rem);border-bottom:1px solid var(--line-2);background:var(--ink);color:var(--paper)}
+.panel__h .kicker{color:rgba(244,241,234,.7)}
+.panel__h .kicker::before{background:var(--accent-2)}
+.panel__b{padding:clamp(1.2rem,2vw,1.9rem);display:flex;flex-direction:column;gap:1.5rem}
+.field{display:flex;flex-direction:column;gap:.55rem}
+.field__lab{font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;gap:1rem}
+.field__lab i{font-style:normal;color:var(--accent);font-size:var(--fs-nano)}
+.inputwrap{position:relative;border-bottom:1px solid var(--line-2)}
+.inputwrap input{width:100%;padding:.75rem 0;font-size:1.05rem;font-family:var(--font-sans);background:transparent}
+.inputwrap input::placeholder{color:rgba(117,112,106,.7)}
+.inputwrap i{position:absolute;left:0;bottom:-1px;height:2px;width:100%;background:var(--accent);transform:scaleX(0);transform-origin:left;display:block}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line-2);position:relative;background:var(--paper)}
+.seg__hl{position:absolute;top:0;left:0;height:100%;width:33.3333%;background:var(--accent);z-index:0}
+.seg label{position:relative;z-index:1;display:flex;flex-direction:column;gap:.2rem;padding:.75rem .8rem;text-align:left;border-right:1px solid var(--line-2);transition:color .35s var(--ease)}
+.seg label:last-child{border-right:none}
+.seg label span{font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.1em;text-transform:uppercase}
+.seg label small{font-size:var(--fs-nano);color:var(--muted);font-family:var(--font-mono);letter-spacing:.06em;transition:color .35s var(--ease)}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg label.on{color:#fff}
+.seg label.on small{color:rgba(255,255,255,.75)}
+.topics{display:flex;flex-wrap:wrap;gap:.45rem}
+.topic{position:relative;display:inline-flex;align-items:center;gap:.5rem;border:1px solid var(--line-2);padding:.5rem .75rem;font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.06em;background:var(--paper);transition:background .3s var(--ease),border-color .3s var(--ease),color .3s var(--ease)}
+.topic input{position:absolute;opacity:0;pointer-events:none}
+.topic .box{width:12px;height:12px;border:1px solid var(--line-2);display:grid;place-items:center;flex:none;transition:all .3s var(--ease)}
+.topic .box svg{width:8px;height:8px;opacity:0;color:#fff}
+.topic.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.topic.on .box{background:#fff;border-color:#fff}
+.topic.on .box svg{opacity:1;color:var(--accent)}
+.topic em{font-style:normal;font-family:var(--font-mono);font-size:var(--fs-nano);opacity:.6;color:inherit}
+.seg input:focus-visible+span,.topic input:focus-visible~.box{outline:2px solid var(--accent);outline-offset:3px}
+.topic.on input:focus-visible~.box{outline-color:#fff}
+.preview{border:1px solid var(--line-2);background:var(--paper-2);padding:1.05rem;display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.preview__c{display:flex;flex-direction:column;gap:.28rem}
+.preview__c b{font-family:var(--font-serif);font-size:clamp(1.5rem,2.4vw,2.1rem);line-height:1;font-weight:400}
+.preview__c span{font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+.preview__note{grid-column:1/-1;border-top:1px solid var(--line);padding-top:.75rem;font-size:var(--fs-sm);color:var(--ink-2)}
+.preview__note b{color:var(--accent);font-weight:600}
+.formfoot{display:flex;gap:1rem;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.formfoot p{font-size:var(--fs-xs);color:var(--muted);max-width:34ch}
+.err{color:#b3261e;font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.1em;text-transform:uppercase;min-height:1rem}
+.done{position:absolute;inset:0;background:var(--accent);color:#fff;display:flex;flex-direction:column;justify-content:center;gap:1rem;padding:clamp(1.4rem,3vw,2.6rem);visibility:hidden;opacity:0;z-index:5}
+.done h3{font-size:clamp(1.7rem,3vw,2.6rem);line-height:1.05}
+.done p{max-width:36ch;color:rgba(255,255,255,.86)}
+.done__meta{display:flex;gap:1.6rem;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.3);padding-top:1rem;margin-top:.4rem}
+.done__meta div b{display:block;font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.14em;text-transform:uppercase;opacity:.7;font-weight:400}
+.done__meta div span{font-family:var(--font-serif);font-size:1.25rem}
+
+/* ============================================================
+   14. WIRE
+   ============================================================ */
+.wire{padding:clamp(3rem,7vw,6.5rem) 0;position:relative}
+.wire__head{display:flex;justify-content:space-between;align-items:flex-end;gap:2rem;flex-wrap:wrap;padding-bottom:1.1rem;border-bottom:1px solid var(--ink)}
+.wire__list{border-top:0}
+.wrow{
+  display:grid;grid-template-columns:3.2rem 4.6rem 7.6rem 1fr 8.6rem 2.4rem;gap:1.05rem;align-items:center;
+  padding:1.05rem .8rem;border-bottom:1px solid var(--line);position:relative;
+}
+.wrow>*{position:relative;z-index:1;transition:color .35s var(--ease)}
+.wrow .n,.wrow time,.wrow .src{font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.wrow .cat{font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.wrow .t{font-family:var(--font-serif);font-size:clamp(1.05rem,1.6vw,1.42rem);line-height:1.15;letter-spacing:-.01em}
+.wrow .go{width:30px;height:30px;border:1px solid var(--line-2);display:grid;place-items:center;flex:none}
+.wrow .go svg{width:11px;height:11px}
+.wrow .uline{position:absolute;left:0;bottom:-1px;height:1px;width:100%;background:var(--ink);transform:scaleX(0);transform-origin:left;z-index:2}
+.wrow:hover .t,.wrow:hover .n,.wrow:hover time,.wrow:hover .src{color:#fff}
+.wrow:hover .cat{color:rgba(255,255,255,.85)}
+.wrow:hover .go{border-color:rgba(255,255,255,.5);color:#fff}
+.wire__peek{
+  position:fixed;top:0;left:0;width:250px;height:170px;z-index:80;pointer-events:none;
+  border:1px solid var(--ink);overflow:hidden;opacity:0;
+}
+.wire__peek .plate{position:absolute;inset:0}
+.wire__peek b{position:absolute;left:0;bottom:0;background:var(--ink);color:var(--paper);font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.12em;text-transform:uppercase;padding:.35rem .5rem;font-weight:400}
+.wire__foot{display:flex;justify-content:space-between;align-items:center;gap:1.4rem;flex-wrap:wrap;padding-top:1.4rem}
+
+/* ============================================================
+   15. MEMBERSHIP CTA
+   ============================================================ */
+.member{background:var(--accent);color:#fff;padding:clamp(3.2rem,7.5vw,7rem) 0;position:relative;overflow:hidden}
+.member__bgtype{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:var(--font-serif);
+  font-size:clamp(9rem,28vw,26rem);line-height:.8;color:rgba(255,255,255,.07);white-space:nowrap;pointer-events:none;user-select:none;
+}
+.member__in{position:relative;z-index:2}
+.member__head{display:grid;grid-template-columns:1.25fr .75fr;gap:clamp(1.6rem,3vw,3rem);align-items:end;padding-bottom:clamp(1.6rem,3vw,2.6rem);border-bottom:1px solid rgba(255,255,255,.3)}
+.member__head .kicker{color:rgba(255,255,255,.8)}
+.member__head .kicker::before{background:#fff}
+.member__title{font-size:var(--fs-2xl);max-width:13ch;color:#fff}
+.member__title em{color:var(--ink);font-weight:300}
+.member__side p{color:rgba(255,255,255,.85);font-size:var(--fs-md);max-width:38ch}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap);margin-top:clamp(1.6rem,3vw,2.6rem)}
+.plan{background:var(--paper);color:var(--ink);border:1px solid rgba(255,255,255,.35);padding:clamp(1.2rem,2vw,1.8rem);display:flex;flex-direction:column;gap:1rem;position:relative;will-change:transform}
+.plan--best{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.plan__tag{position:absolute;right:0;top:0;background:var(--accent);color:#fff;font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.14em;text-transform:uppercase;padding:.35rem .55rem}
+.plan__name{font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.plan--best .plan__name{color:rgba(244,241,234,.6)}
+.plan__price{font-family:var(--font-serif);font-size:clamp(2.1rem,3.4vw,3rem);line-height:.95;display:flex;align-items:baseline;gap:.3rem}
+.plan__price small{font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.1em;color:var(--muted)}
+.plan--best .plan__price small{color:rgba(244,241,234,.55)}
+.plan__d{font-size:var(--fs-sm);color:var(--muted);min-height:2.6em}
+.plan--best .plan__d{color:rgba(244,241,234,.7)}
+.plan ul{display:flex;flex-direction:column;gap:.55rem;padding-top:.9rem;border-top:1px solid var(--line)}
+.plan--best ul{border-top-color:var(--line-dark)}
+.plan li{display:flex;gap:.6rem;align-items:flex-start;font-size:var(--fs-sm)}
+.plan li svg{width:11px;height:11px;color:var(--accent);flex:none;margin-top:.35rem}
+.plan--best li svg{color:var(--accent-2)}
+.plan .btn{margin-top:auto}
+.member__foot{display:flex;justify-content:space-between;align-items:center;gap:1.4rem;flex-wrap:wrap;margin-top:clamp(1.6rem,3vw,2.4rem);padding-top:1.3rem;border-top:1px solid rgba(255,255,255,.3);font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.82)}
+
+/* ============================================================
+   16. FOOTER
+   ============================================================ */
+.foot{background:var(--ink);color:var(--paper);padding:clamp(2.6rem,5.5vw,5rem) 0 1.4rem}
+.foot__grid{display:grid;grid-template-columns:1.55fr .8fr .8fr .8fr 1fr;gap:clamp(1.4rem,2.6vw,2.6rem);padding-bottom:clamp(1.8rem,3.4vw,3rem);border-bottom:1px solid var(--line-dark)}
+.foot__brand{display:flex;flex-direction:column;gap:1rem}
+.foot__logo{font-family:var(--font-serif);font-size:clamp(1.9rem,3.4vw,2.8rem);line-height:1;letter-spacing:-.02em}
+.foot__logo em{color:var(--accent-2)}
+.foot__brand p{color:rgba(244,241,234,.68);font-size:var(--fs-sm);max-width:34ch}
+.foot__addr{font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.11em;text-transform:uppercase;color:rgba(244,241,234,.45);line-height:1.9}
+.foot__col h5{font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.18em;text-transform:uppercase;color:rgba(244,241,234,.42);font-weight:400;margin-bottom:.9rem}
+.foot__col a{display:block;padding:.28rem 0;font-size:var(--fs-sm);color:rgba(244,241,234,.82);position:relative;width:fit-content}
+.foot__col a::after{content:"";position:absolute;left:0;bottom:.18rem;width:100%;height:1px;background:var(--accent-2);transform:scaleX(0);transform-origin:right;transition:transform .4s var(--ease)}
+.foot__col a:hover{color:#fff}
+.foot__col a:hover::after{transform:scaleX(1);transform-origin:left}
+.foot__mini{display:flex;flex-direction:column;gap:.7rem}
+.foot__mini form{display:flex;border:1px solid var(--line-dark)}
+.foot__mini input{flex:1;padding:.7rem .75rem;font-size:var(--fs-sm);color:var(--paper)}
+.foot__mini input::placeholder{color:rgba(244,241,234,.4)}
+.foot__mini button{background:var(--accent);color:#fff;padding:0 .9rem;display:grid;place-items:center;transition:background .35s var(--ease)}
+.foot__mini button:hover{background:#fff;color:var(--accent)}
+.foot__mini button svg{width:13px;height:13px}
+.foot__social{display:flex;gap:.4rem;margin-top:.4rem}
+.foot__social a{width:34px;height:34px;border:1px solid var(--line-dark);display:grid;place-items:center;transition:all .35s var(--ease)}
+.foot__social a::after{display:none}
+.foot__social a:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+.foot__social svg{width:14px;height:14px}
+.foot__bot{display:flex;justify-content:space-between;align-items:center;gap:1.2rem;flex-wrap:wrap;padding-top:1.3rem;font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.12em;text-transform:uppercase;color:rgba(244,241,234,.45)}
+.foot__bot a{color:rgba(244,241,234,.7)}
+.foot__bot a:hover{color:var(--accent-2)}
+.totop{display:flex;align-items:center;gap:.5rem;border:1px solid var(--line-dark);padding:.5rem .75rem;color:rgba(244,241,234,.8)}
+.totop:hover{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+.totop svg{width:11px;height:11px}
+
+/* ============================================================
+   17. CSS-ONLY GRADIENT PLATES (no images)
+   ============================================================ */
+.plate{position:absolute;inset:0;overflow:hidden;background:var(--ink);will-change:transform}
+.plate::before,.plate::after{content:"";position:absolute;inset:0}
+.plate__m{position:absolute;display:block;transition:transform .8s var(--ease)}
+
+/* A — ink field, blue wedge, hairline rules */
+.plate--a{background:linear-gradient(160deg,#161522 0%,#111014 62%,#0c0b10 100%)}
+.plate--a::before{background:repeating-linear-gradient(90deg,transparent 0 13px,rgba(244,241,234,.055) 13px 14px)}
+.plate--a::after{background:linear-gradient(120deg,var(--accent) 0 34%,transparent 34%);opacity:.92;clip-path:polygon(0 100%,0 34%,62% 100%)}
+.plate--a .plate__m{right:8%;top:12%;width:34%;aspect-ratio:1;border:1px solid rgba(244,241,234,.45)}
+.plate--a .plate__m::after{content:"";position:absolute;inset:26%;background:var(--accent-2)}
+
+/* B — accent field, halftone dots, paper bar */
+.plate--b{background:linear-gradient(200deg,#2a4bff 0%,#1b3cff 55%,#0f27c9 100%)}
+.plate--b::before{background-image:radial-gradient(rgba(255,255,255,.34) 1px,transparent 1.3px);background-size:9px 9px;opacity:.75}
+.plate--b::after{background:linear-gradient(0deg,rgba(244,241,234,.94) 0 18%,transparent 18%)}
+.plate--b .plate__m{left:10%;top:16%;width:44%;height:44%;background:var(--paper);clip-path:polygon(0 0,100% 0,0 100%)}
+
+/* C — paper field, ink stack */
+.plate--c{background:linear-gradient(180deg,#efe9dc 0%,#e0d9c9 100%)}
+.plate--c::before{background:repeating-linear-gradient(0deg,transparent 0 11px,rgba(17,16,20,.09) 11px 12px)}
+.plate--c::after{background:linear-gradient(90deg,transparent 0 58%,var(--ink) 58% 72%,transparent 72%)}
+.plate--c .plate__m{left:9%;bottom:12%;width:38%;height:52%;background:var(--accent)}
+
+/* D — blue→ink duotone with chevrons */
+.plate--d{background:linear-gradient(135deg,var(--accent) 0%,#12184f 58%,#111014 100%)}
+.plate--d::before{background:repeating-linear-gradient(45deg,rgba(244,241,234,.11) 0 2px,transparent 2px 12px)}
+.plate--d::after{background:radial-gradient(120% 90% at 12% 88%,rgba(244,241,234,.28) 0%,transparent 55%)}
+.plate--d .plate__m{right:12%;bottom:14%;width:30%;height:8px;background:var(--paper);box-shadow:0 -16px 0 var(--paper),0 -32px 0 rgba(244,241,234,.5)}
+
+/* E — cream with blue grid + ink block */
+.plate--e{background:#f7f4ed}
+.plate--e::before{background-image:linear-gradient(rgba(27,60,255,.22) 1px,transparent 1px),linear-gradient(90deg,rgba(27,60,255,.22) 1px,transparent 1px);background-size:26px 26px}
+.plate--e::after{background:linear-gradient(180deg,transparent 0 62%,var(--ink) 62% 70%,transparent 70%)}
+.plate--e .plate__m{right:14%;top:14%;width:26%;aspect-ratio:1;background:var(--accent);transform:rotate(0deg)}
+
+/* F — concentric ink squares on cream */
+.plate--f{background:linear-gradient(140deg,#e7e1d3 0%,#f2eee4 100%)}
+.plate--f::before{
+  width:56%;height:78%;left:22%;top:11%;right:auto;bottom:auto;background:transparent;
+  border:1px solid rgba(17,16,20,.55);
+  box-shadow:inset 0 0 0 12px transparent,0 0 0 12px rgba(17,16,20,.14),0 0 0 24px rgba(17,16,20,.08);
+}
+.plate--f::after{background:linear-gradient(90deg,var(--accent) 0 6px,transparent 6px)}
+.plate--f .plate__m{left:0;bottom:0;width:100%;height:14%;background:var(--ink)}
+
+/* G — deep ink with blue horizon band */
+.plate--g{background:linear-gradient(180deg,#0d0c11 0%,#171628 100%)}
+.plate--g::before{background:linear-gradient(180deg,transparent 0 46%,var(--accent) 46% 52%,transparent 52%);opacity:.95}
+.plate--g::after{background-image:radial-gradient(rgba(244,241,234,.3) 1px,transparent 1.2px);background-size:14px 14px;opacity:.5}
+.plate--g .plate__m{left:50%;top:50%;width:22%;aspect-ratio:1;margin:-11% 0 0 -11%;border:1px solid var(--accent-2)}
+
+/* H — accent/cream split with rules */
+.plate--h{background:linear-gradient(90deg,var(--accent) 0 46%,#efe9dc 46% 100%)}
+.plate--h::before{background:repeating-linear-gradient(90deg,transparent 0 22px,rgba(17,16,20,.08) 22px 23px)}
+.plate--h::after{background:linear-gradient(0deg,var(--ink) 0 9%,transparent 9%)}
+.plate--h .plate__m{right:10%;top:18%;width:24%;height:64%;background:var(--ink)}
+
+.plate--sm::before{background-size:7px 7px}
+.sc:hover .plate--e .plate__m{transform:rotate(45deg)}
+.sc:hover .plate--a .plate__m{transform:translateY(-8px)}
+.sc:hover .plate--c .plate__m{transform:translateY(-10px)}
+.tile--feature:hover .plate--a .plate__m{transform:rotate(45deg)}
+
+/* ============================================================
+   18. RESPONSIVE
+   ============================================================ */
+@media (max-width:1180px){
+  .statement__inner{grid-template-columns:.8fr 1.6fr;}
+  .st__cards{grid-column:1/-1;min-height:clamp(240px,40vw,340px)}
+  .menu__body{grid-template-columns:1fr}
+  .menu__side{border-left:none;padding-left:0;border-top:1px solid var(--line-dark);padding-top:1.4rem}
+}
+@media (max-width:1024px){
+  .tile--head{grid-column:1/13;grid-row:1}
+  .tile--feature{grid-column:1/13;grid-row:2}
+  .tile--s1{grid-column:1/5;grid-row:3}
+  .tile--s2{grid-column:5/9;grid-row:3}
+  .tile--s3{grid-column:9/13;grid-row:3}
+  .tile--index{grid-column:1/7;grid-row:4}
+  .tile--topics{grid-column:7/13;grid-row:4}
+  .tile--live{grid-column:1/13;grid-row:5}
+  .sc--lead{grid-column:1/13;grid-row:auto}
+  .sc--b,.sc--c{grid-column:1/7}
+  .sc--c{grid-column:7/13}
+  .sc--d{grid-column:1/5}.sc--e{grid-column:5/9}.sc--f{grid-column:9/13}
+  .sc--archive{grid-column:1/13}
+  .sc--wide{grid-column:1/13}
+  .digest__grid{grid-template-columns:1fr}
+  .plans{grid-template-columns:1fr;max-width:560px}
+  .foot__grid{grid-template-columns:1fr 1fr 1fr;gap:2rem}
+  .foot__brand{grid-column:1/-1}
+  .foot__mini{grid-column:1/-1}
+  .wrow{grid-template-columns:2.8rem 4.4rem 7rem 1fr 2.4rem}
+  .wrow .src{display:none}
+}
+@media (max-width:820px){
+  .nav__links{display:none}
+  .nav__clock{display:none}
+  .st__foot{grid-template-columns:1fr}
+  .member__head{grid-template-columns:1fr}
+  .preview{grid-template-columns:1fr 1fr}
+}
+@media (max-width:680px){
+  :root{--nav-h:3.8rem}
+  .tile--s1,.tile--s2,.tile--s3{grid-column:1/13}
+  .tile--s1{grid-row:3}.tile--s2{grid-row:4}.tile--s3{grid-row:5}
+  .tile--index{grid-column:1/13;grid-row:6}
+  .tile--topics{grid-column:1/13;grid-row:7}
+  .tile--live{grid-row:8}
+  .sc--b,.sc--c,.sc--d,.sc--e,.sc--f{grid-column:1/13}
+  .sc--split,.sc--wide{flex-direction:column}
+  .sc--split .sc__art,.sc--wide .sc__art{width:100%;aspect-ratio:16/9;min-height:0}
+  .sc--split .sc__b,.sc--wide .sc__b{width:100%}
+  .statement__inner{grid-template-columns:1fr;padding-top:calc(var(--nav-h) + 1.6rem)}
+  .rail__art{display:none}
+  .seg{grid-template-columns:1fr}
+  .seg label{border-right:none;border-bottom:1px solid var(--line-2)}
+  .seg__hl{width:100%;height:33.3333%}
+  .preview{grid-template-columns:1fr}
+  .wrow{grid-template-columns:2.2rem 3.8rem 1fr 2.2rem;gap:.7rem;padding-inline:.4rem}
+  .wrow .cat{display:none}
+  .foot__grid{grid-template-columns:1fr 1fr}
+  .brand__txt small{display:none}
+}
+
+/* ============================================================
+   19. REDUCED MOTION / NO-JS
+   ============================================================ */
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms!important;transition-duration:.001ms!important}
+  .cur{display:none!important}
+}
+body.no-gsap #pre{display:none}
+body.no-gsap .st__text{color:var(--paper)}
+</style>
+<noscript><style>#pre{display:none}.st__text{color:var(--paper)}</style></noscript>
+</head>
+<body>
+
+<!-- ============================ PRELOADER ============================ -->
+<div id="pre" aria-hidden="true">
+  <div class="pre__cols"><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="pre__top">
+    <div class="kicker" style="color:rgba(244,241,234,.55)">Folio Press — Issue 47</div>
+    <div class="kicker kicker--bare" style="color:rgba(244,241,234,.4)">Est. 2016 · Lisbon / New York</div>
+  </div>
+  <div class="pre__mid">
+    <div class="pre__word" id="preWord">Folio</div>
+    <div class="pre__word" id="preWord2"><em>Press</em></div>
+  </div>
+  <div class="pre__bot">
+    <div>
+      <span>Setting the type</span>
+      <div class="pre__bar"><i id="preBar"></i></div>
+    </div>
+    <div class="pre__num"><span id="preNum">00</span></div>
+  </div>
+</div>
+
+<!-- ============================ CURSOR ============================ -->
+<div class="cur" id="cur" aria-hidden="true">
+  <span class="cur__br cur__br--l">[</span>
+  <span class="cur__lab" id="curLab"></span>
+  <span class="cur__br cur__br--r">]</span>
+</div>
+
+<!-- ============================ NAV ============================ -->
+<header class="nav" id="nav">
+  <div class="nav__in">
+    <a href="#top" class="brand" data-cursor="Home" aria-label="Folio Press — home">
+      <span class="brand__mark"><i></i><i></i><i></i><i></i></span>
+      <span class="brand__txt">Folio Press<small>Issue 47 · Vol. IV</small></span>
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a class="nav__link" href="#stories">Latest</a>
+      <a class="nav__link" href="#ethos">Ethos</a>
+      <a class="nav__link" href="#digest">Digest</a>
+      <a class="nav__link" href="#wire">The Wire</a>
+      <a class="nav__link" href="#member">Membership</a>
+    </nav>
+    <div class="nav__right">
+      <span class="nav__clock" id="clock">--:--:-- LIS</span>
+      <a class="nav__cta" href="#member" data-magnetic data-cursor="Join">Subscribe</a>
+      <button class="burger" id="menuOpen" aria-label="Open menu" aria-expanded="false" data-cursor="Menu"><i></i><i></i></button>
+    </div>
+  </div>
+  <span class="nav__prog" id="navProg"></span>
+</header>
+
+<!-- ============================ MENU ============================ -->
+<div class="menu" id="menu" aria-hidden="true" role="dialog" aria-label="Site menu">
+  <div class="menu__cols"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="menu__top">
+    <div class="brand">
+      <span class="brand__mark" style="background:var(--paper)"><i></i><i style="background:var(--ink)"></i><i style="background:var(--ink)"></i><i style="background:var(--ink)"></i></span>
+      <span class="brand__txt" style="color:var(--paper)">Folio Press<small style="color:rgba(244,241,234,.5)">Index</small></span>
+    </div>
+    <button class="burger" id="menuClose" aria-label="Close menu" style="border-color:rgba(244,241,234,.25);color:var(--paper)">
+      <i style="transform:rotate(45deg) translate(2px,2px)"></i><i style="transform:rotate(-45deg) translate(2px,-2px)"></i>
+    </button>
+  </div>
+  <div class="menu__body">
+    <nav class="menu__list" aria-label="Sections">
+      <a class="menu__item" href="#stories" data-cursor="Go"><span class="n">01</span><span class="t">Latest Stories</span><span class="d">14 new</span></a>
+      <a class="menu__item" href="#stories" data-cursor="Go"><span class="n">02</span><span class="t">Design</span><span class="d">218 pieces</span></a>
+      <a class="menu__item" href="#stories" data-cursor="Go"><span class="n">03</span><span class="t">Technology</span><span class="d">164 pieces</span></a>
+      <a class="menu__item" href="#stories" data-cursor="Go"><span class="n">04</span><span class="t">Cities</span><span class="d">97 pieces</span></a>
+      <a class="menu__item" href="#ethos" data-cursor="Go"><span class="n">05</span><span class="t">Our Ethos</span><span class="d">Manifest</span></a>
+      <a class="menu__item" href="#wire" data-cursor="Go"><span class="n">06</span><span class="t">The Wire</span><span class="d">Live</span></a>
+      <a class="menu__item" href="#digest" data-cursor="Go"><span class="n">07</span><span class="t">Build a Digest</span><span class="d">Free</span></a>
+    </nav>
+    <aside class="menu__side">
+      <div class="menu__feature">
+        <span class="tag tag--fill">Editor's pick</span>
+        <p class="t" style="color:var(--paper)">The Quiet Return of the Load-Bearing Wall</p>
+        <p>Three continents, one heavy idea: engineers are unlearning a century of steel.</p>
+        <a class="linkline" href="#stories" style="margin-top:.8rem;color:var(--accent-2)" data-cursor="Read">Read the feature
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 11 11 1M4 1h7v7"/></svg>
+        </a>
+      </div>
+      <div>
+        <h4>Newsroom</h4>
+        <a href="#ethos">About Folio Press</a>
+        <a href="#ethos">Corrections &amp; standards</a>
+        <a href="#member">Membership</a>
+        <a href="#digest">Newsletters</a>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <p>desk@foliopress.example<br />Rua da Prata 148, Lisboa<br />+351 21 000 0000</p>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<main id="top">
+
+<!-- ============================ HERO BENTO ============================ -->
+<section class="hero">
+  <div class="hero__bar">
+    <div class="l">
+      <span class="kicker kicker--dot">Live from the newsroom</span>
+      <span class="mono" id="todayLine">Saturday · Lisbon</span>
+    </div>
+    <div class="l">
+      <span class="mono">Independent · Reader-funded · No ad tech</span>
+    </div>
+  </div>
+
+  <div class="shell">
+    <div class="bento" id="bento">
+
+      <article class="tile tile--head">
+        <p class="kicker">Issue 47 — Volume IV</p>
+        <h1 class="hero__title" id="heroTitle">Slow reading for a fast, unfinished <em>century</em>.</h1>
+        <p class="hero__lede" id="heroLede">Folio Press publishes long-form journalism on design, technology and the cities we keep rebuilding. Two features a week, one live wire, and absolutely no infinite scroll.</p>
+        <div class="hero__actions" id="heroActions">
+          <a class="btn btn--accent" href="#stories" data-magnetic data-cursor="Read">
+            <span class="btn__l">Start reading</span>
+            <svg class="btn__ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 11 11 1M4 1h7v7"/></svg>
+          </a>
+          <a class="btn btn--ghost" href="#digest" data-magnetic data-cursor="Build">
+            <span class="btn__l">Build your digest</span>
+            <svg class="btn__ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 1v10M1 6h10"/></svg>
+          </a>
+        </div>
+        <ul class="hero__meta">
+          <li><b>2×</b> features weekly</li>
+          <li><b>18 min</b> average read</li>
+          <li><b>0</b> trackers</li>
+          <li><b>100%</b> reader funded</li>
+        </ul>
+      </article>
+
+      <article class="tile tile--feature" data-cursor="Feature">
+        <a class="feat" href="#stories">
+          <div class="feat__art">
+            <span class="plate plate--a"><span class="plate__m"></span></span>
+          </div>
+          <div class="feat__body">
+            <div class="feat__row">
+              <span class="tag tag--fill">The Feature</span>
+              <span class="mono" style="color:rgba(244,241,234,.5)">Architecture</span>
+            </div>
+            <h2 class="feat__title">The Quiet Return of the <em>Load-Bearing</em> Wall</h2>
+            <p class="feat__dek">Across three continents, a generation of engineers is unlearning a century of steel — and discovering that mass, not lightness, may be the cheaper future.</p>
+            <div class="feat__foot">
+              <span>Ines Marchetti · 18 min</span>
+              <span class="feat__go">
+                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 11 11 1M4 1h7v7"/></svg>
+              </span>
+            </div>
+          </div>
+        </a>
+      </article>
+
+      <article class="tile tile--stat tile--s1">
+        <p class="kicker">Published</p>
+        <div>
+          <div class="stat__n"><span data-count="142">0</span></div>
+          <p class="stat__l">issues since 2016, all still readable</p>
+        </div>
+        <div class="stat__spark" data-spark>
+          <i style="height:34%"></i><i style="height:56%"></i><i style="height:42%"></i><i style="height:78%"></i><i style="height:62%"></i><i style="height:100%"></i>
+        </div>
+      </article>
+
+      <article class="tile tile--stat tile--s2">
+        <p class="kicker">Newsroom</p>
+        <div>
+          <div class="stat__n"><span data-count="38">0</span><sup>countries</sup></div>
+          <p class="stat__l">Correspondents filing from 38 countries and 11 time zones — reporting where the story is, not where the office is.</p>
+        </div>
+        <div class="stat__spark" data-spark>
+          <i style="height:44%"></i><i style="height:30%"></i><i style="height:68%"></i><i style="height:52%"></i><i style="height:88%"></i><i style="height:70%"></i><i style="height:100%"></i><i style="height:58%"></i>
+        </div>
+      </article>
+
+      <article class="tile tile--stat tile--s3" data-cursor="Join">
+        <p class="kicker">Members</p>
+        <div>
+          <div class="stat__n"><span data-count="24800">0</span></div>
+          <p class="stat__l">readers pay for this magazine. Nobody else does.</p>
+        </div>
+        <a class="linkline" href="#member" style="color:#fff" data-cursor="Join">Become one
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 11 11 1M4 1h7v7"/></svg>
+        </a>
+      </article>
+
+      <article class="tile tile--index">
+        <div class="tile__h">
+          <span class="kicker kicker--bare">In this issue</span>
+          <span class="mono">05 pieces</span>
+        </div>
+        <div class="idx">
+          <a class="idx__row" href="#stories" data-cursor="Read"><span class="n">01</span><span class="t">What Lisbon Learned From Its Own Flood Maps</span><span class="c">Cities</span></a>
+          <a class="idx__row" href="#stories" data-cursor="Read"><span class="n">02</span><span class="t">The Last Analog Timetable</span><span class="c">Tech</span></a>
+          <a class="idx__row" href="#stories" data-cursor="Read"><span class="n">03</span><span class="t">Nine Grids That Held a Century Together</span><span class="c">Design</span></a>
+          <a class="idx__row" href="#stories" data-cursor="Read"><span class="n">04</span><span class="t">Reading Rooms of the Late Internet</span><span class="c">Culture</span></a>
+          <a class="idx__row" href="#stories" data-cursor="Read"><span class="n">05</span><span class="t">In Praise of the Second Draft</span><span class="c">Essay</span></a>
+        </div>
+      </article>
+
+      <article class="tile tile--topics">
+        <div class="tile__h">
+          <span class="kicker kicker--bare">Desks we keep</span>
+          <span class="mono">08 beats</span>
+        </div>
+        <div class="chips">
+          <span class="chip chip--on">Design</span>
+          <span class="chip">Technology</span>
+          <span class="chip">Cities</span>
+          <span class="chip">Culture</span>
+          <span class="chip">Interviews</span>
+          <span class="chip">Photo essays</span>
+          <span class="chip">Archive</span>
+          <span class="chip">Corrections</span>
+        </div>
+        <p class="topics__note">Every desk is edited by a human being with a name, a phone number and a public correction log. We think that should be unremarkable. It is not.</p>
+      </article>
+
+      <article class="tile tile--live">
+        <div class="tile__h">
+          <span class="kicker kicker--bare" style="display:flex;gap:.5rem;align-items:center"><i class="pulse" id="livePulse"></i> The Wire · live</span>
+          <span class="mono" id="wireAgo">4 min ago</span>
+        </div>
+        <div class="live__list">
+          <div class="live__row"><time>09:41</time><span>Rotterdam approves the first timber-framed transit hall in the Netherlands.</span></div>
+          <div class="live__row"><time>08:12</time><span>A 1974 typeface returns to the Tokyo subway after 30 years off duty.</span></div>
+          <div class="live__row"><time>07:05</time><span>Field notes: how Setúbal rebuilt its market roof for a third of the estimate.</span></div>
+        </div>
+        <a class="linkline" href="#wire" style="margin-top:auto;padding-top:1rem" data-cursor="Open">Open the wire
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 11 11 1M4 1h7v7"/></svg>
+        </a>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================ TICKER ============================ -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker__track" id="tick">
+    <span class="ticker__i"><i></i><b>New</b> The Quiet Return of the Load-Bearing Wall</span>
+    <span class="ticker__i"><i></i><b>Cities</b> What Lisbon learned from its own flood maps</span>
+    <span class="ticker__i"><i></i><b>Wire</b> A 1974 typeface returns to the Tokyo subway</span>
+    <span class="ticker__i"><i></i><b>Design</b> Nine grids that held a century together</span>
+    <span class="ticker__i"><i></i><b>Essay</b> In praise of the second draft</span>
+    <span class="ticker__i"><i></i><b>Members</b> 24,800 readers fund this magazine</span>
+  </div>
+</div>
+
+<!-- ============================ STORIES ============================ -->
+<section class="stories" id="stories">
+  <div class="shell">
+    <div class="sec-head" data-reveal>
+      <div>
+        <p class="kicker">Section 01 — The latest</p>
+        <h2 class="sec-head__title" style="margin-top:.7rem">Eight pieces worth your <em>evening</em>.</h2>
+      </div>
+      <div class="sec-head__side">
+        <span class="sec-num" id="storyCount">08 stories · updated today</span>
+        <a class="linkline" href="#wire" data-cursor="Open">All sections
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 11 11 1M4 1h7v7"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="filters" id="filters" role="group" aria-label="Filter stories by desk">
+      <button class="chip chip--on" data-filter="all" aria-pressed="true">All</button>
+      <button class="chip" data-filter="design" aria-pressed="false">Design</button>
+      <button class="chip" data-filter="tech" aria-pressed="false">Technology</button>
+      <button class="chip" data-filter="cities" aria-pressed="false">Cities</button>
+      <button class="chip" data-filter="culture" aria-pressed="false">Culture</button>
+      <button class="chip" data-filter="essay" aria-pressed="false">Essays</button>
+    </div>
+
+    <div class="grid-stories" id="storyGrid">
+
+      <article class="sc sc--lead" data-cat="cities" data-cursor="Read">
+        <a class="sc__art" href="#stories" aria-label="Read: What Lisbon Learned From Its Own Flood Maps">
+          <span class="plate plate--b"><span class="plate__m"></span></span>
+          <span class="sc__cat tag tag--ink">Cities</span>
+        </a>
+        <div class="sc__b">
+          <h3 class="sc__t"><a href="#stories">What Lisbon Learned From Its Own <em>Flood Maps</em></a></h3>
+          <p class="sc__d">In 2019 the city published a map nobody wanted to look at. Five years and eleven storm drains later, the map has quietly become the most consequential piece of design the municipality has ever commissioned — and a template that four other capitals are now copying, line for line.</p>
+          <div class="sc__f">
+            <span>Words · Rita Almeida</span>
+            <span>22 min</span>
+            <span class="sc__arrow"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 11 11 1M4 1h7v7"/></svg></span>
+          </div>
+        </div>
+      </article>
+
+      <article class="sc sc--b sc--split" data-cat="tech" data-cursor="Read">
+        <a class="sc__art" href="#stories" aria-label="Read: The Last Analog Timetable">
+          <span class="plate plate--g"><span class="plate__m"></span></span>
+        </a>
+        <div class="sc__b">
+          <span class="tag" style="align-self:flex-start">Technology</span>
+          <h3 class="sc__t"><a href="#stories">The Last Analog Timetable</a></h3>
+          <p class="sc__d">A single station in Umbria still flips its departures by hand. We spent a week with the two people who keep it honest.</p>
+          <div class="sc__f"><span>Dario Fenn</span><span>11 min</span>
+            <span class="sc__arrow"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 11 11 1M4 1h7v7"/></svg></span>
+          </div>
+        </div>
+      </article>
+
+      <article class="sc sc--c sc--split" data-cat="design" data-cursor="Read">
+        <a class="sc__art" href="#stories" aria-label="Read: Nine Grids That Held a Century Together">
+          <span class="plate plate--e"><span class="plate__m"></span></span>
+        </a>
+        <div class="sc__b">
+          <span class="tag" style="align-self:flex-start">Design</span>
+          <h3 class="sc__t"><a href="#stories">Nine Grids That Held a Century Together</a></h3>
+          <p class="sc__d">From the Bauhaus ledger to the newspaper column, an argument for the most underrated invention in visual culture.</p>
+          <div class="sc__f"><span>Hanne Vogt</span><span>14 min</span>
+            <span class="sc__arrow"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 11 11 1M4 1h7v7"/></svg></span>
+          </div>
+        </div>
+      </article>
+
+      <article class="sc sc--d" data-cat="culture" data-cursor="Read">
+        <a class="sc__art" href="#stories" aria-label="Read: Reading Rooms of the Late Internet">
+          <span class="plate plate--c"><span class="plate__m"></span></span>
+          <span class="sc__cat tag tag--ink">Culture</span>
+        </a>
+        <div class="sc__b">
+          <h3 class="sc__t"><a href="#stories">Reading Rooms of the Late Internet</a></h3>
+          <p class="sc__d">Group chats, private RSS, printed zines: where careful readers went when the feed stopped being one.</p>
+          <div class="sc__f"><span>Noor Haddad</span><span>9 min</span>
+            <span class="sc__arrow"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 11 11 1M4 1h7v7"/></svg></span>
+          </div>
+        </div>
+      </article>
+
+      <article class="sc sc--e" data-cat="design" data-cursor="Read">
+        <a class="sc__art" href="#stories" aria-label="Read: Mariam Otieno on the Ethics of Repair">
+          <span class="plate plate--d"><span class="plate__m"></span></span>
+          <span class="sc__cat tag tag--ink">Interview</span>
+        </a>
+        <div class="sc__b">
+          <h3 class="sc__t"><a href="#stories">Mariam Otieno on the <em>Ethics</em> of Repair</a></h3>
+          <p class="sc__d">The Nairobi-based designer on warranties as moral documents, and why the repair manual is the real product.</p>
+          <div class="sc__f"><span>Interview · L. Brandt</span><span>16 min</span>
+            <span class="sc__arrow"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 11 11 1M4 1h7v7"/></svg></span>
+          </div>
+        </div>
+      </article>
+
+      <article class="sc sc--f" data-cat="essay" data-cursor="Read">
+        <a class="sc__art" href="#stories" aria-label="Read: In Praise of the Second Draft">
+          <span class="plate plate--f"><span class="plate__m"></span></span>
+          <span class="sc__cat tag tag--ink">Essay</span>
+        </a>
+        <div class="sc__b">
+          <h3 class="sc__t"><a href="#stories">In Praise of the Second Draft</a></h3>
+          <p class="sc__d">Everything good was rewritten. A short defence of the least glamorous hour in any working day.</p>
+          <div class="sc__f"><span>Editorial</span><span>7 min</span>
+            <span class="sc__arrow"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 11 11 1M4 1h7v7"/></svg></span>
+          </div>
+        </div>
+      </article>
+
+      <article class="sc sc--archive" data-cat="all" data-cursor="Browse">
+        <div class="arch">
+          <div class="tile__h" style="margin-bottom:.6rem">
+            <span class="kicker kicker--bare">From the archive</span>
+            <span class="mono">142 issues</span>
+          </div>
+          <a class="arch__row" href="#stories"><span class="y">2023</span><span class="t">The Municipal Bench: a taxonomy</span></a>
+          <a class="arch__row" href="#stories"><span class="y">2022</span><span class="t">Who owns the colour of a city?</span></a>
+          <a class="arch__row" href="#stories"><span class="y">2021</span><span class="t">Twelve hours in a paper mill</span></a>
+          <a class="arch__row" href="#stories"><span class="y">2019</span><span class="t">The last hot-metal print shop in Europe</span></a>
+          <a class="linkline" href="#wire" style="margin-top:1rem" data-cursor="Open">Browse the full archive
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 11 11 1M4 1h7v7"/></svg>
+          </a>
+        </div>
+      </article>
+
+      <article class="sc sc--wide" data-cat="cities" data-cursor="View">
+        <a class="sc__art" href="#stories" aria-label="View photo essay: The Concrete Coast">
+          <span class="plate plate--h"><span class="plate__m"></span></span>
+          <span class="sc__cat tag tag--fill">Photo essay</span>
+        </a>
+        <div class="sc__b">
+          <h3 class="sc__t"><a href="#stories">The Concrete Coast, <em>Fifty Years On</em></a></h3>
+          <p class="sc__d">Between Porto and Aveiro, a strip of 1970s seawalls is being handed back to the water on purpose. Twenty-eight frames from a coastline in managed retreat, with notes from the engineers who drew the line.</p>
+          <div class="sc__f"><span>Pictures · Sofia Renner</span><span>28 frames</span>
+            <span class="sc__arrow"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 11 11 1M4 1h7v7"/></svg></span>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================ STATEMENT / SCRUB ============================ -->
+<section class="statement" id="ethos">
+  <div class="statement__inner shell">
+    <aside class="st__rail">
+      <p class="kicker">Section 02 — Our position</p>
+      <div class="rail__count"><span id="ethosNum">01</span><small>/ 04</small></div>
+      <div class="rail__bar"><i id="ethosBar"></i></div>
+      <div class="rail__art" id="ethosArt"><span></span><span></span><span></span></div>
+      <div class="rail__legend">
+        <b>Colophon</b>
+        <p>Set in Newsreader and Archivo. Printed to screen in Lisbon, four times a week.</p>
+      </div>
+    </aside>
+
+    <div class="st__body">
+      <h2 class="st__text" id="ethosText">A magazine is <em>infrastructure</em>. It should be built to last, maintained in public, and paid for by the people who read it — not by the people who would rather <em>interrupt</em> it.</h2>
+      <div class="st__foot">
+        <div><b>Since 2016</b><p>No programmatic advertising has ever run on this site. Not once, not as a test.</p></div>
+        <div><b>Corrections</b><p>Every correction is dated, signed and left in place. The archive is not quietly edited.</p></div>
+        <div><b>Ownership</b><p>Folio Press is owned by its eleven staff and no one else. There is no holding company.</p></div>
+      </div>
+    </div>
+
+    <aside class="st__cards" id="ethosCards">
+      <article class="pcard" data-step="0">
+        <div class="pcard__plate"><span class="plate plate--g plate--sm"><span class="plate__m"></span></span></div>
+        <span class="pcard__n">Principle 01</span>
+        <h3>Nothing interrupts the reading.</h3>
+        <p>No pop-ups, no auto-play, no consent maze, no newsletter modal three paragraphs in. The page you open is the page you get.</p>
+        <ul>
+          <li><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 6.5 4.5 10 11 2"/></svg> Zero third-party trackers</li>
+          <li><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 6.5 4.5 10 11 2"/></svg> 41 kb median page weight</li>
+        </ul>
+      </article>
+      <article class="pcard" data-step="1">
+        <div class="pcard__plate"><span class="plate plate--d plate--sm"><span class="plate__m"></span></span></div>
+        <span class="pcard__n">Principle 02</span>
+        <h3>The editor's name is on it.</h3>
+        <p>Every piece carries a writer, an editor and a fact-checker. If you disagree with a call we made, you know exactly whose desk to write to.</p>
+        <ul>
+          <li><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 6.5 4.5 10 11 2"/></svg> Three-name byline standard</li>
+          <li><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 6.5 4.5 10 11 2"/></svg> Public editorial guidelines</li>
+        </ul>
+      </article>
+      <article class="pcard" data-step="2">
+        <div class="pcard__plate"><span class="plate plate--b plate--sm"><span class="plate__m"></span></span></div>
+        <span class="pcard__n">Principle 03</span>
+        <h3>Corrections in public, forever.</h3>
+        <p>We publish what we got wrong on the same page, at the same size, with the date we learned it. The archive stays as it was written.</p>
+        <ul>
+          <li><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 6.5 4.5 10 11 2"/></svg> 63 corrections logged</li>
+          <li><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 6.5 4.5 10 11 2"/></svg> Permanent URLs since 2016</li>
+        </ul>
+      </article>
+      <article class="pcard" data-step="3">
+        <div class="pcard__plate"><span class="plate plate--h plate--sm"><span class="plate__m"></span></span></div>
+        <span class="pcard__n">Principle 04</span>
+        <h3>Readers pay. Readers decide.</h3>
+        <p>Membership covers 96% of what it costs to run this magazine. The remaining 4% is print. That arithmetic is the whole editorial policy.</p>
+        <ul>
+          <li><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 6.5 4.5 10 11 2"/></svg> Annual budget published</li>
+          <li><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 6.5 4.5 10 11 2"/></svg> Cancel in one click</li>
+        </ul>
+      </article>
+    </aside>
+  </div>
+</section>
+
+<!-- ============================ DIGEST FORM ============================ -->
+<section class="digest" id="digest">
+  <div class="shell">
+    <div class="sec-head" data-reveal>
+      <div>
+        <p class="kicker">Section 03 — Newsroom digest</p>
+        <h2 class="sec-head__title" style="margin-top:.7rem">Build the edition you'd actually <em>open</em>.</h2>
+      </div>
+      <div class="sec-head__side">
+        <span class="sec-num">Free · unsubscribe in one click</span>
+      </div>
+    </div>
+
+    <div class="digest__grid">
+      <div class="digest__left" data-reveal>
+        <p class="lede">Pick the desks you care about and the rhythm that suits you. We'll assemble a plain-text edition, send it once, and never sell your address to anybody — because there is nobody to sell it to.</p>
+        <ul class="steps">
+          <li><b>01</b><p><strong>Choose your desks.</strong> Design, cities, technology, culture — or all of them, if you're greedy.</p></li>
+          <li><b>02</b><p><strong>Set a cadence.</strong> A daily brief at breakfast, a weekly folio on Sunday, or a monthly review.</p></li>
+          <li><b>03</b><p><strong>Read, then reply.</strong> Every digest comes from a real editor's mailbox. Answers come back.</p></li>
+        </ul>
+        <blockquote class="digest__quote">
+          "The only newsletter I've kept for four years. It's the one that respects the fact that I have a job."
+          <cite>— Reader survey, March</cite>
+        </blockquote>
+      </div>
+
+      <div class="panel" data-reveal>
+        <div class="panel__h">
+          <span class="kicker kicker--bare">Your digest — preview</span>
+          <span class="mono" style="color:rgba(244,241,234,.6)">Step 1 of 1</span>
+        </div>
+        <form class="panel__b" id="digestForm" novalidate>
+          <div class="field">
+            <label class="field__lab" for="email">Email address <i>required</i></label>
+            <div class="inputwrap" data-input>
+              <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email" data-cursor="Type" />
+              <i></i>
+            </div>
+            <span class="err" id="emailErr" role="alert"></span>
+          </div>
+
+          <div class="field">
+            <span class="field__lab">Cadence</span>
+            <div class="seg" id="seg">
+              <span class="seg__hl" id="segHl"></span>
+              <label class="on" data-cad="daily" data-sends="5"><input type="radio" name="cadence" value="daily" checked /><span>Daily brief</span><small>Mon–Fri, 07:00</small></label>
+              <label data-cad="weekly" data-sends="1"><input type="radio" name="cadence" value="weekly" /><span>Weekly folio</span><small>Sundays, 09:00</small></label>
+              <label data-cad="monthly" data-sends="0.25"><input type="radio" name="cadence" value="monthly" /><span>Monthly review</span><small>First Thursday</small></label>
+            </div>
+          </div>
+
+          <div class="field">
+            <span class="field__lab">Desks <i id="topicHint">3 selected</i></span>
+            <div class="topics" id="topics">
+              <label class="topic on" data-w="4"><input type="checkbox" checked value="Design" /><span class="box"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 6.5 4.5 10 11 2"/></svg></span>Design <em>4/wk</em></label>
+              <label class="topic on" data-w="3"><input type="checkbox" checked value="Technology" /><span class="box"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 6.5 4.5 10 11 2"/></svg></span>Technology <em>3/wk</em></label>
+              <label class="topic on" data-w="3"><input type="checkbox" checked value="Cities" /><span class="box"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 6.5 4.5 10 11 2"/></svg></span>Cities <em>3/wk</em></label>
+              <label class="topic" data-w="2"><input type="checkbox" value="Culture" /><span class="box"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 6.5 4.5 10 11 2"/></svg></span>Culture <em>2/wk</em></label>
+              <label class="topic" data-w="2"><input type="checkbox" value="Interviews" /><span class="box"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 6.5 4.5 10 11 2"/></svg></span>Interviews <em>2/wk</em></label>
+              <label class="topic" data-w="1"><input type="checkbox" value="Archive" /><span class="box"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 6.5 4.5 10 11 2"/></svg></span>From the archive <em>1/wk</em></label>
+            </div>
+            <span class="err" id="topicErr" role="alert"></span>
+          </div>
+
+          <div class="preview" id="preview">
+            <div class="preview__c"><b id="pvStories">10</b><span>stories / week</span></div>
+            <div class="preview__c"><b id="pvSends">5</b><span>emails / week</span></div>
+            <div class="preview__c"><b id="pvMins">62</b><span>minutes of reading</span></div>
+            <p class="preview__note">Arriving <b id="pvWhen">weekday mornings at 07:00 WET</b>. Plain text, one column, no images — roughly <b id="pvWeight">18 kb</b> per send.</p>
+          </div>
+
+          <div class="formfoot">
+            <p>By subscribing you agree to receive email from the Folio Press newsroom. That's the entire agreement.</p>
+            <button class="btn btn--accent" type="submit" data-magnetic data-cursor="Send">
+              <span class="btn__l">Start my digest</span>
+              <svg class="btn__ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 11 11 1M4 1h7v7"/></svg>
+            </button>
+          </div>
+        </form>
+
+        <div class="done" id="done" aria-hidden="true">
+          <span class="tag" style="align-self:flex-start;border-color:rgba(255,255,255,.5);color:#fff">Confirmed</span>
+          <h3 class="serif">Your first folio is on its way.</h3>
+          <p>Check your inbox for a one-line confirmation from Ana at the newsroom desk. Reply to it and a human will read what you wrote.</p>
+          <div class="done__meta">
+            <div><b>Cadence</b><span id="doneCad">Daily brief</span></div>
+            <div><b>Desks</b><span id="doneTopics">3</span></div>
+            <div><b>First send</b><span id="doneWhen">Tomorrow, 07:00</span></div>
+          </div>
+          <button class="linkline" id="doneBack" style="align-self:flex-start;margin-top:.4rem" data-cursor="Back">Edit preferences
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M11 6H1M6 1 1 6l5 5"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ WIRE ============================ -->
+<section class="wire" id="wire">
+  <div class="shell">
+    <div class="wire__head" data-reveal>
+      <div>
+        <p class="kicker">Section 04 — The Wire</p>
+        <h2 class="sec-head__title" style="margin-top:.7rem">Everything our editors saved <em>today</em>.</h2>
+      </div>
+      <div class="sec-head__side">
+        <span class="kicker kicker--dot" style="color:var(--ink)">Live · 24 entries</span>
+        <span class="mono" id="wireStamp">Updated 4 min ago</span>
+      </div>
+    </div>
+
+    <div class="wire__list" id="wireList">
+      <a class="wrow" href="#wire" data-plate="d" data-cursor="Open">
+        <span class="n">01</span><time>09:41</time><span class="cat">Cities</span>
+        <span class="t">Rotterdam approves the first timber-framed transit hall in the Netherlands</span>
+        <span class="src">Gemeente · 3 min</span>
+        <span class="go"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 11 11 1M4 1h7v7"/></svg></span>
+        <i class="uline"></i>
+      </a>
+      <a class="wrow" href="#wire" data-plate="e" data-cursor="Open">
+        <span class="n">02</span><time>08:58</time><span class="cat">Design</span>
+        <span class="t">A 1974 typeface returns to the Tokyo subway after thirty years off duty</span>
+        <span class="src">Field note · 4 min</span>
+        <span class="go"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 11 11 1M4 1h7v7"/></svg></span>
+        <i class="uline"></i>
+      </a>
+      <a class="wrow" href="#wire" data-plate="a" data-cursor="Open">
+        <span class="n">03</span><time>08:12</time><span class="cat">Technology</span>
+        <span class="t">The repair index nobody asked for is quietly changing what gets manufactured</span>
+        <span class="src">Analysis · 6 min</span>
+        <span class="go"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 11 11 1M4 1h7v7"/></svg></span>
+        <i class="uline"></i>
+      </a>
+      <a class="wrow" href="#wire" data-plate="c" data-cursor="Open">
+        <span class="n">04</span><time>07:36</time><span class="cat">Cities</span>
+        <span class="t">Setúbal rebuilt its market roof for a third of the estimate. Here is the invoice</span>
+        <span class="src">Documents · 5 min</span>
+        <span class="go"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 11 11 1M4 1h7v7"/></svg></span>
+        <i class="uline"></i>
+      </a>
+      <a class="wrow" href="#wire" data-plate="b" data-cursor="Open">
+        <span class="n">05</span><time>07:05</time><span class="cat">Culture</span>
+        <span class="t">The public library that started lending tools, then lent out a whole workshop</span>
+        <span class="src">Dispatch · 7 min</span>
+        <span class="go"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 11 11 1M4 1h7v7"/></svg></span>
+        <i class="uline"></i>
+      </a>
+      <a class="wrow" href="#wire" data-plate="h" data-cursor="Open">
+        <span class="n">06</span><time>06:44</time><span class="cat">Design</span>
+        <span class="t">Why every wayfinding system in Europe is converging on the same six arrows</span>
+        <span class="src">Essay · 9 min</span>
+        <span class="go"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 11 11 1M4 1h7v7"/></svg></span>
+        <i class="uline"></i>
+      </a>
+      <a class="wrow" href="#wire" data-plate="f" data-cursor="Open">
+        <span class="n">07</span><time>06:20</time><span class="cat">Technology</span>
+        <span class="t">A 40-year-old mainframe still runs the ferries. Its last engineer retires in June</span>
+        <span class="src">Reported · 12 min</span>
+        <span class="go"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 11 11 1M4 1h7v7"/></svg></span>
+        <i class="uline"></i>
+      </a>
+      <a class="wrow" href="#wire" data-plate="g" data-cursor="Open">
+        <span class="n">08</span><time>05:52</time><span class="cat">Archive</span>
+        <span class="t">From 2019: the last hot-metal print shop in Europe, revisited on its closing day</span>
+        <span class="src">Archive · 15 min</span>
+        <span class="go"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 11 11 1M4 1h7v7"/></svg></span>
+        <i class="uline"></i>
+      </a>
+    </div>
+
+    <div class="wire__foot">
+      <p class="mono">The wire is compiled by hand between 05:00 and 10:00 WET. Nothing here is automated.</p>
+      <a class="btn btn--ghost" href="#member" data-magnetic data-cursor="More">
+        <span class="btn__l">Load the full wire</span>
+        <svg class="btn__ic" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 1v10M1 6h10"/></svg>
+      </a>
+    </div>
+  </div>
+  <div class="wire__peek" id="peek" aria-hidden="true"><span class="plate plate--d" id="peekPlate"><span class="plate__m"></span></span><b id="peekLab">Wire</b></div>
+</section>
+
+<!-- ============================ MEMBERSHIP ============================ -->
+<section class="member" id="member">
+  <span class="member__bgtype" aria-hidden="true">Folio</span>
+  <div class="member__in shell">
+    <div class="member__head" data-reveal>
+      <div>
+        <p class="kicker">Section 05 — Membership</p>
+        <h2 class="member__title" style="margin-top:.7rem">Pay for the thing you'd <em>miss</em>.</h2>
+      </div>
+      <div class="member__side">
+        <p>Members keep eleven journalists employed, three correspondents travelling and one very stubborn archive online. No tiers of access, no paywall games — every member reads everything.</p>
+      </div>
+    </div>
+
+    <div class="plans" id="plans">
+      <article class="plan" data-cursor="Choose">
+        <span class="plan__name">Digital</span>
+        <div class="plan__price">€7<small>/ month</small></div>
+        <p class="plan__d">Everything we publish, on every device, with the full 142-issue archive.</p>
+        <ul>
+          <li><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 6.5 4.5 10 11 2"/></svg> All features &amp; essays</li>
+          <li><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 6.5 4.5 10 11 2"/></svg> Full archive access</li>
+          <li><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 6.5 4.5 10 11 2"/></svg> Daily wire digest</li>
+        </ul>
+        <a class="btn btn--ghost btn--block" href="#digest" data-magnetic data-cursor="Choose"><span class="btn__l">Choose digital</span></a>
+      </article>
+
+      <article class="plan plan--best" data-cursor="Choose">
+        <span class="plan__tag">Most chosen</span>
+        <span class="plan__name">Full access</span>
+        <div class="plan__price">€12<small>/ month</small></div>
+        <p class="plan__d">Digital, plus the editors' notebook and a standing invitation to the monthly call.</p>
+        <ul>
+          <li><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 6.5 4.5 10 11 2"/></svg> Everything in Digital</li>
+          <li><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 6.5 4.5 10 11 2"/></svg> Editors' notebook, weekly</li>
+          <li><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 6.5 4.5 10 11 2"/></svg> Monthly newsroom call</li>
+          <li><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 6.5 4.5 10 11 2"/></svg> Vote on two commissions a year</li>
+        </ul>
+        <a class="btn btn--accent btn--block" href="#digest" data-magnetic data-cursor="Join"><span class="btn__l">Become a member</span></a>
+      </article>
+
+      <article class="plan" data-cursor="Choose">
+        <span class="plan__name">Print + digital</span>
+        <div class="plan__price">€19<small>/ month</small></div>
+        <p class="plan__d">The quarterly folio, litho-printed in Porto and posted anywhere we can reach.</p>
+        <ul>
+          <li><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 6.5 4.5 10 11 2"/></svg> Everything in Full access</li>
+          <li><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 6.5 4.5 10 11 2"/></svg> Four printed folios a year</li>
+          <li><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 6.5 4.5 10 11 2"/></svg> Archive prints at cost</li>
+        </ul>
+        <a class="btn btn--ghost btn--block" href="#digest" data-magnetic data-cursor="Choose"><span class="btn__l">Choose print</span></a>
+      </article>
+    </div>
+
+    <div class="member__foot">
+      <span>Cancel in one click · No introductory pricing tricks · Gift memberships available</span>
+      <span>Student &amp; low-income rate: €3 / month, no questions asked</span>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ============================ FOOTER ============================ -->
+<footer class="foot">
+  <div class="shell">
+    <div class="foot__grid">
+      <div class="foot__brand">
+        <div class="foot__logo">Folio <em>Press</em></div>
+        <p>An independent digital magazine on design, technology, cities and the culture of making. Published four times a week since 2016.</p>
+        <div class="foot__addr">
+          Rua da Prata 148 · 1100-052 Lisboa<br />
+          51 Astor Place, 4th Floor · New York<br />
+          desk@foliopress.example
+        </div>
+      </div>
+
+      <div class="foot__col">
+        <h5>Sections</h5>
+        <a href="#stories">Latest</a>
+        <a href="#stories">Design</a>
+        <a href="#stories">Technology</a>
+        <a href="#stories">Cities</a>
+        <a href="#stories">Culture</a>
+        <a href="#wire">The Wire</a>
+      </div>
+
+      <div class="foot__col">
+        <h5>Magazine</h5>
+        <a href="#ethos">About us</a>
+        <a href="#ethos">Editorial standards</a>
+        <a href="#ethos">Corrections log</a>
+        <a href="#member">Membership</a>
+        <a href="#digest">Newsletters</a>
+        <a href="#stories">Archive</a>
+      </div>
+
+      <div class="foot__col">
+        <h5>Editions</h5>
+        <a href="#member">Quarterly folio (print)</a>
+        <a href="#digest">Daily brief</a>
+        <a href="#digest">Weekly folio</a>
+        <a href="#member">Gift membership</a>
+        <a href="#member">Student rate</a>
+      </div>
+
+      <div class="foot__mini">
+        <h5 style="font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.18em;text-transform:uppercase;color:rgba(244,241,234,.42);font-weight:400;margin-bottom:.2rem">The short version</h5>
+        <p style="color:rgba(244,241,234,.68);font-size:var(--fs-sm)">One email, every Sunday, with the three pieces we'd defend in an argument.</p>
+        <form id="footForm" novalidate>
+          <input type="email" id="footEmail" placeholder="Email address" aria-label="Email address" data-cursor="Type" />
+          <button type="submit" aria-label="Subscribe" data-cursor="Send">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 6h9M6 1l5 5-5 5"/></svg>
+          </button>
+        </form>
+        <span class="err" id="footErr" style="color:var(--accent-2)"></span>
+        <div class="foot__social">
+          <a href="#top" aria-label="RSS"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 13h.01M3 8a5 5 0 0 1 5 5M3 3a10 10 0 0 1 10 10"/></svg></a>
+          <a href="#top" aria-label="Newsletter"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1.5" y="3.5" width="13" height="9"/><path d="m1.5 4.5 6.5 4.5 6.5-4.5"/></svg></a>
+          <a href="#top" aria-label="Print edition"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="2" width="12" height="12"/><path d="M5 5h6M5 8h6M5 11h4"/></svg></a>
+          <a href="#top" aria-label="Contact"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="6.2"/><path d="M8 5v3.4l2.2 1.4"/></svg></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="foot__bot">
+      <span>© <span id="year">2026</span> Folio Press Lda. — Owned by its staff</span>
+      <span>Set in Newsreader &amp; Archivo · Built to weigh nothing</span>
+      <span><a href="#ethos">Privacy</a> · <a href="#ethos">Terms</a> · <a href="#ethos">Corrections</a></span>
+      <button class="totop" id="toTop" data-cursor="Top">
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 11V1M1 6l5-5 5 5"/></svg> Back to top
+      </button>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var isTouch = window.matchMedia("(hover: none), (pointer: coarse)").matches;
+  if (reduced) document.body.classList.add("is-reduced");
+  if (isTouch) document.body.classList.add("is-touch");
+
+  var $ = function (s, c) { return (c || document).querySelector(s); };
+  var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
+
+  /* ---------- graceful fallback if CDNs fail ---------- */
+  if (typeof window.gsap === "undefined") {
+    document.body.classList.add("no-gsap");
+    var preEl = $("#pre"); if (preEl) preEl.parentNode.removeChild(preEl);
+    basicsOnly();
+    return;
+  }
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* ============================================================
+     SMOOTH SCROLL
+     ============================================================ */
+  var lenis = null;
+  if (!reduced) {
+    lenis = new Lenis({
+      duration: 1.15,
+      easing: function (t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); },
+      smoothWheel: true,
+      touchMultiplier: 1.6
+    });
+    lenis.on("scroll", ScrollTrigger.update);
+    gsap.ticker.add(function (t) { lenis.raf(t * 1000); });
+    gsap.ticker.lagSmoothing(0);
+  }
+  function scrollToTarget(target) {
+    if (lenis) lenis.scrollTo(target, { offset: -70, duration: 1.25, force: true });
+    else {
+      var el = typeof target === "string" ? document.querySelector(target) : target;
+      if (el && el.scrollIntoView) el.scrollIntoView({ behavior: "smooth" });
+      else window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }
+
+  /* ============================================================
+     WORD SPLITTER (keeps inline <em>)
+     ============================================================ */
+  function splitWords(root, wrapClass, innerClass) {
+    var out = [];
+    function walk(node) {
+      Array.prototype.slice.call(node.childNodes).forEach(function (child) {
+        if (child.nodeType === 3) {
+          var text = child.textContent;
+          if (!text.trim()) return;
+          var frag = document.createDocumentFragment();
+          text.split(/(\s+)/).forEach(function (part) {
+            if (part === "") return;
+            if (!part.trim()) { frag.appendChild(document.createTextNode(part)); return; }
+            var wrap = document.createElement("span");
+            wrap.className = wrapClass;
+            wrap.style.display = "inline-block";
+            if (wrapClass === "w") {
+              wrap.style.overflow = "hidden";
+              wrap.style.verticalAlign = "top";
+              wrap.style.paddingBottom = ".14em";
+              wrap.style.marginBottom = "-.14em";
+            }
+            var inner = document.createElement("span");
+            inner.className = innerClass;
+            inner.style.display = "inline-block";
+            inner.textContent = part;
+            wrap.appendChild(inner);
+            frag.appendChild(wrap);
+            out.push(inner);
+          });
+          node.replaceChild(frag, child);
+        } else if (child.nodeType === 1) {
+          walk(child);
+        }
+      });
+    }
+    walk(root);
+    return out;
+  }
+
+  function splitChars(root) {
+    var out = [];
+    function walk(node) {
+      Array.prototype.slice.call(node.childNodes).forEach(function (child) {
+        if (child.nodeType === 3) {
+          var text = child.textContent;
+          if (!text.trim()) return;
+          var frag = document.createDocumentFragment();
+          text.split("").forEach(function (ch) {
+            if (ch === " ") { frag.appendChild(document.createTextNode(" ")); return; }
+            var wrap = document.createElement("span");
+            wrap.style.display = "inline-block";
+            wrap.style.overflow = "hidden";
+            wrap.style.verticalAlign = "top";
+            wrap.style.paddingBottom = ".1em";
+            wrap.style.marginBottom = "-.1em";
+            var inner = document.createElement("span");
+            inner.className = "pre__ch";
+            inner.textContent = ch;
+            wrap.appendChild(inner);
+            frag.appendChild(wrap);
+            out.push(inner);
+          });
+          node.replaceChild(frag, child);
+        } else if (child.nodeType === 1) {
+          walk(child);
+        }
+      });
+    }
+    walk(root);
+    return out;
+  }
+
+  /* ============================================================
+     CURSOR — typographic brackets
+     ============================================================ */
+  var cur = $("#cur"), curLab = $("#curLab");
+  if (!isTouch && !reduced && cur) {
+    var cx = -200, cy = -200, tx = -200, ty = -200;
+    function tickCur() {
+      cx += (tx - cx) * 0.22;
+      cy += (ty - cy) * 0.22;
+      cur.style.transform = "translate(" + cx + "px," + cy + "px) translate(-50%,-50%)";
+      requestAnimationFrame(tickCur);
+    }
+    requestAnimationFrame(tickCur);
+
+    window.addEventListener("pointermove", function (e) {
+      tx = e.clientX; ty = e.clientY;
+      if (!cur.classList.contains("is-on")) cur.classList.add("is-on");
+    }, { passive: true });
+    window.addEventListener("pointerleave", function () { cur.classList.remove("is-on"); });
+    window.addEventListener("pointerenter", function () { cur.classList.add("is-on"); });
+
+    document.addEventListener("pointerover", function (e) {
+      var t = e.target.closest ? e.target.closest("[data-cursor],a,button") : null;
+      if (!t) return;
+      var label = t.getAttribute("data-cursor");
+      if (!label) {
+        var p = t.closest("[data-cursor]");
+        label = p ? p.getAttribute("data-cursor") : null;
+      }
+      cur.classList.add("is-open");
+      if (label && curLab) curLab.textContent = label;
+      else if (curLab) curLab.textContent = "";
+    });
+    document.addEventListener("pointerout", function (e) {
+      var t = e.target.closest ? e.target.closest("[data-cursor],a,button") : null;
+      if (!t) return;
+      if (e.relatedTarget && t.contains(e.relatedTarget)) return;
+      var next = e.relatedTarget && e.relatedTarget.closest ? e.relatedTarget.closest("[data-cursor],a,button") : null;
+      if (next) return;
+      cur.classList.remove("is-open");
+      if (curLab) curLab.textContent = "";
+    });
+  }
+
+  /* ============================================================
+     MAGNETIC
+     ============================================================ */
+  function magnetise(el) {
+    if (isTouch || reduced) return;
+    var strength = parseFloat(el.getAttribute("data-mag-strength") || ".38");
+    var xTo = gsap.quickTo(el, "x", { duration: .5, ease: "power3" });
+    var yTo = gsap.quickTo(el, "y", { duration: .5, ease: "power3" });
+    var label = el.querySelector(".btn__l");
+    var lxTo = label ? gsap.quickTo(label, "x", { duration: .6, ease: "power3" }) : null;
+    var lyTo = label ? gsap.quickTo(label, "y", { duration: .6, ease: "power3" }) : null;
+
+    el.addEventListener("pointermove", function (e) {
+      var r = el.getBoundingClientRect();
+      var mx = e.clientX - (r.left + r.width / 2);
+      var my = e.clientY - (r.top + r.height / 2);
+      xTo(mx * strength); yTo(my * strength);
+      if (lxTo) { lxTo(mx * strength * .45); lyTo(my * strength * .45); }
+    });
+    el.addEventListener("pointerleave", function () {
+      gsap.to(el, { x: 0, y: 0, duration: .8, ease: "elastic.out(1,.35)" });
+      if (label) gsap.to(label, { x: 0, y: 0, duration: .9, ease: "elastic.out(1,.32)" });
+    });
+  }
+  $$("[data-magnetic]").forEach(magnetise);
+
+  /* ============================================================
+     NAV
+     ============================================================ */
+  var nav = $("#nav"), navProg = $("#navProg");
+  gsap.to(navProg, {
+    scaleX: 1, ease: "none",
+    scrollTrigger: { trigger: document.body, start: "top top", end: "bottom bottom", scrub: .3 }
+  });
+
+  var lastY = 0, navHidden = false;
+  ScrollTrigger.create({
+    start: 0, end: "max",
+    onUpdate: function (self) {
+      var y = self.scroll();
+      if (y > 220 && y > lastY + 6 && !navHidden) {
+        navHidden = true; gsap.to(nav, { yPercent: -110, duration: .45, ease: "power3.out" });
+      } else if ((y < lastY - 6 || y < 160) && navHidden) {
+        navHidden = false; gsap.to(nav, { yPercent: 0, duration: .45, ease: "power3.out" });
+      }
+      lastY = y;
+    }
+  });
+
+  /* scroll colour choreography: invert chrome over dark / accent sections */
+  ["#ethos", ".foot"].forEach(function (sel) {
+    var el = $(sel); if (!el) return;
+    ScrollTrigger.create({
+      trigger: el, start: "top 62", end: "bottom 62",
+      onToggle: function (s) { document.body.classList.toggle("on-dark", s.isActive); }
+    });
+  });
+  var memberEl = $("#member");
+  if (memberEl) {
+    ScrollTrigger.create({
+      trigger: memberEl, start: "top 62", end: "bottom 62",
+      onToggle: function (s) { document.body.classList.toggle("on-accent", s.isActive); }
+    });
+  }
+  /* paper warms slightly as you descend the light half */
+  if (!reduced) {
+    gsap.fromTo("body", { backgroundColor: "#f4f1ea" }, {
+      backgroundColor: "#efeade", ease: "none",
+      scrollTrigger: { trigger: "#stories", start: "top bottom", end: "bottom top", scrub: true }
+    });
+  }
+
+  /* section links */
+  $$('a[href^="#"]').forEach(function (a) {
+    a.addEventListener("click", function (e) {
+      var id = a.getAttribute("href");
+      if (!id || id === "#") return;
+      var target = document.querySelector(id);
+      if (!target) return;
+      e.preventDefault();
+      if (document.body.classList.contains("menu-open")) closeMenu();
+      scrollToTarget(id === "#top" ? 0 : target);
+    });
+  });
+
+  /* nav current-section highlight */
+  $$(".nav__link").forEach(function (link) {
+    var id = link.getAttribute("href");
+    var sec = document.querySelector(id);
+    if (!sec) return;
+    ScrollTrigger.create({
+      trigger: sec, start: "top 45%", end: "bottom 45%",
+      onToggle: function (s) { link.setAttribute("aria-current", s.isActive ? "true" : "false"); }
+    });
+  });
+
+  /* ============================================================
+     MENU OVERLAY
+     ============================================================ */
+  var menu = $("#menu"), menuItems = $$(".menu__item"), menuCols = $$(".menu__cols i");
+  var menuOpenBtn = $("#menuOpen"), menuCloseBtn = $("#menuClose");
+  var menuTl = null;
+
+  function openMenu() {
+    document.body.classList.add("menu-open");
+    menu.setAttribute("aria-hidden", "false");
+    menuOpenBtn.setAttribute("aria-expanded", "true");
+    if (lenis) lenis.stop();
+    if (menuTl) menuTl.kill();
+    menuTl = gsap.timeline()
+      .set(menu, { visibility: "visible", opacity: 1 })
+      .fromTo(menuCols, { scaleY: 0 }, { scaleY: 1, transformOrigin: "top center", duration: .62, stagger: .055, ease: "power4.inOut" }, 0)
+      .fromTo(".menu__top", { y: -18, opacity: 0 }, { y: 0, opacity: 1, duration: .45 }, .34)
+      .fromTo(menuItems.map(function (i) { return i.querySelector(".t"); }), { yPercent: 112, opacity: 0 },
+        { yPercent: 0, opacity: 1, duration: .75, stagger: .055, ease: "power4.out" }, .4)
+      .fromTo(menuItems.map(function (i) { return i.querySelector(".n"); }), { opacity: 0 }, { opacity: 1, duration: .4, stagger: .04 }, .52)
+      .fromTo(".menu__side > *", { y: 26, opacity: 0 }, { y: 0, opacity: 1, duration: .55, stagger: .08, ease: "power3.out" }, .55);
+  }
+  function closeMenu() {
+    if (menuTl) menuTl.kill();
+    menuTl = gsap.timeline({
+      onComplete: function () {
+        gsap.set(menu, { visibility: "hidden" });
+        menu.setAttribute("aria-hidden", "true");
+        menuOpenBtn.setAttribute("aria-expanded", "false");
+        document.body.classList.remove("menu-open");
+        if (lenis) lenis.start();
+      }
+    })
+      .to(menuItems.map(function (i) { return i.querySelector(".t"); }), { yPercent: -95, opacity: 0, duration: .32, stagger: .03, ease: "power3.in" })
+      .to([".menu__side > *", ".menu__top"], { opacity: 0, duration: .22 }, 0)
+      .to(menuCols, { scaleY: 0, transformOrigin: "bottom center", duration: .5, stagger: .045, ease: "power4.inOut" }, .18)
+      .set(menu, { opacity: 0 });
+  }
+  if (menuOpenBtn) menuOpenBtn.addEventListener("click", openMenu);
+  if (menuCloseBtn) menuCloseBtn.addEventListener("click", closeMenu);
+
+  /* menu item hover — driven by GSAP so it survives the entrance transforms */
+  if (!isTouch && !reduced) {
+    menuItems.forEach(function (item) {
+      var t = item.querySelector(".t");
+      item.addEventListener("pointerenter", function () {
+        gsap.to(t, { x: 18, color: "#7b90ff", duration: .45, ease: "power3.out" });
+      });
+      item.addEventListener("pointerleave", function () {
+        gsap.to(t, { x: 0, color: "#f4f1ea", duration: .5, ease: "power3.out" });
+      });
+    });
+  }
+  window.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && document.body.classList.contains("menu-open")) closeMenu();
+  });
+
+  /* ============================================================
+     HERO + BENTO ENTRANCE
+     ============================================================ */
+  var heroWords = splitWords($("#heroTitle"), "w", "w__i");
+  var tiles = $$("#bento .tile");
+  var heroActionKids = $$("#heroActions > *");
+  var heroMeta = $$(".hero__meta li");
+
+  gsap.set(tiles, { opacity: 0, y: 34, clipPath: "inset(0 0 100% 0)" });
+  gsap.set(heroWords, { yPercent: 118, opacity: 0 });
+  gsap.set([$("#heroLede")].concat(heroActionKids, heroMeta), { opacity: 0, y: 18 });
+  gsap.set(".hero__bar > *", { opacity: 0, y: -12 });
+  gsap.set(".ticker__track", { opacity: 0 });
+
+  var heroStarted = false;
+  function heroIn() {
+    if (heroStarted) return null;
+    heroStarted = true;
+    var tl = gsap.timeline({ defaults: { ease: "power3.out" }, onComplete: heroScrollFX });
+    tl.to(".hero__bar > *", { opacity: 1, y: 0, duration: .6, stagger: .1 })
+      .to(tiles, {
+        opacity: 1, y: 0, clipPath: "inset(0 0 0% 0)", duration: 1.05,
+        stagger: { each: .085, from: "start" }, ease: "power4.out"
+      }, .05)
+      .to(heroWords, { yPercent: 0, opacity: 1, duration: 1.05, stagger: .045, ease: "power4.out" }, .3)
+      .to($("#heroLede"), { opacity: 1, y: 0, duration: .8 }, .72)
+      .to(heroActionKids, { opacity: 1, y: 0, duration: .65, stagger: .08 }, .82)
+      .to(heroMeta, { opacity: 1, y: 0, duration: .5, stagger: .06 }, .92)
+      .to(".ticker__track", { opacity: 1, duration: .6 }, .9);
+
+    /* stat spark bars */
+    $$("[data-spark]").forEach(function (sp) {
+      gsap.from(sp.querySelectorAll("i"), {
+        scaleY: 0, transformOrigin: "bottom", duration: .8, stagger: .05, ease: "power3.out",
+        scrollTrigger: { trigger: sp, start: "top 92%", once: true }
+      });
+    });
+    return tl;
+  }
+
+  /* hero parallax + fade — created only after the intro so the scrub
+     never captures mid-entrance opacities as its start state */
+  var heroFXDone = false;
+  function heroScrollFX() {
+    if (heroFXDone || reduced) return;
+    heroFXDone = true;
+    gsap.to(".tile--head > *", {
+      yPercent: -14, opacity: .22, ease: "none",
+      scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: .6 }
+    });
+    gsap.to(".tile--feature .plate", {
+      yPercent: 8, scale: 1.06, ease: "none",
+      scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: .6 }
+    });
+    ScrollTrigger.refresh();
+  }
+
+  /* ============================================================
+     COUNTERS
+     ============================================================ */
+  $$("[data-count]").forEach(function (el) {
+    var end = parseFloat(el.getAttribute("data-count"));
+    var obj = { v: 0 };
+    ScrollTrigger.create({
+      trigger: el, start: "top 92%", once: true,
+      onEnter: function () {
+        gsap.to(obj, {
+          v: end, duration: 1.9, ease: "power3.out",
+          onUpdate: function () {
+            el.textContent = Math.round(obj.v).toLocaleString("en-US");
+          }
+        });
+      }
+    });
+  });
+
+  /* ============================================================
+     TICKER MARQUEE
+     ============================================================ */
+  var track = $("#tick");
+  if (track) {
+    var originals = Array.prototype.slice.call(track.children);
+    for (var r = 0; r < 3; r++) {
+      originals.forEach(function (node) { track.appendChild(node.cloneNode(true)); });
+    }
+    var tx = 0, boost = 0, unitW = 0;
+    function measure() { unitW = track.scrollWidth / 4; }
+    measure();
+    window.addEventListener("resize", measure);
+    window.addEventListener("load", measure);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure).catch(function () {});
+    ScrollTrigger.create({
+      onUpdate: function (self) {
+        boost = gsap.utils.clamp(0, 3.2, Math.abs(self.getVelocity()) / 900);
+      }
+    });
+    if (!reduced) {
+      gsap.ticker.add(function () {
+        tx -= .45 + boost;
+        if (unitW && Math.abs(tx) >= unitW) tx += unitW;
+        track.style.transform = "translate3d(" + tx + "px,0,0)";
+      });
+    }
+  }
+
+  /* ============================================================
+     GENERIC REVEALS
+     ============================================================ */
+  $$("[data-reveal]").forEach(function (el) {
+    gsap.from(el.children.length ? el.children : el, {
+      y: 40, opacity: 0, duration: .95, stagger: .1, ease: "power3.out",
+      scrollTrigger: { trigger: el, start: "top 86%", once: true }
+    });
+  });
+
+  /* ============================================================
+     STORY CARDS
+     ============================================================ */
+  var cards = $$("#storyGrid .sc");
+  gsap.set(cards, { y: 56, opacity: 0, clipPath: "inset(0 0 100% 0)" });
+  ScrollTrigger.batch(cards, {
+    start: "top 90%",
+    onEnter: function (batch) {
+      gsap.to(batch, {
+        y: 0, opacity: 1, clipPath: "inset(0 0 0% 0)", duration: 1.05,
+        stagger: { each: .09 }, ease: "power4.out", overwrite: true
+      });
+    },
+    once: true
+  });
+
+  cards.forEach(function (card) {
+    var arrow = card.querySelector(".sc__arrow svg");
+    if (!arrow || reduced) return;
+    card.addEventListener("pointerenter", function () {
+      gsap.fromTo(arrow, { x: -8, y: 8, opacity: 0 }, { x: 0, y: 0, opacity: 1, duration: .4, ease: "power3.out" });
+    });
+  });
+
+  /* filters */
+  var filterBtns = $$("#filters .chip");
+  var storyCount = $("#storyCount");
+  filterBtns.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var f = btn.getAttribute("data-filter");
+      filterBtns.forEach(function (b) {
+        var on = b === btn;
+        b.classList.toggle("chip--on", on);
+        b.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+      var shown = 0;
+      cards.forEach(function (card) {
+        var cat = card.getAttribute("data-cat");
+        var match = f === "all" || cat === f || cat === "all";
+        if (match) shown++;
+        card.classList.toggle("is-dim", !match);
+        gsap.to(card, {
+          opacity: match ? 1 : .16,
+          scale: match ? 1 : .985,
+          duration: .55, ease: "power3.out", overwrite: "auto"
+        });
+        if (match) {
+          gsap.fromTo(card, { y: 12 }, { y: 0, duration: .6, ease: "power3.out", overwrite: false });
+        }
+      });
+      if (storyCount) {
+        storyCount.textContent = String(shown).padStart(2, "0") + (f === "all" ? " stories · updated today" : " stories in this desk");
+      }
+      ScrollTrigger.refresh();
+    });
+  });
+
+  /* ============================================================
+     STATEMENT — SCRUBBED CHOREOGRAPHY
+     ============================================================ */
+  var stEl = $(".statement");
+  var stWords = splitWords($("#ethosText"), "sw", "sw__i");
+  var pcards = $$("#ethosCards .pcard");
+  var ethosNum = $("#ethosNum"), ethosBar = $("#ethosBar");
+
+  function ethosColor(i, tgt) {
+    var em = tgt.parentNode && tgt.parentNode.parentNode;
+    return em && em.tagName === "EM" ? "#7b90ff" : "#f4f1ea";
+  }
+  var stSpan = stWords.length * .06 + 1;
+
+  if (reduced) {
+    stEl.classList.add("no-pin");
+    gsap.set(stWords, { color: ethosColor });
+    gsap.set(pcards, { opacity: 1, y: 0 });
+    gsap.set(ethosBar, { scaleX: 1 });
+  } else {
+    gsap.matchMedia().add({
+      pinned: "(min-width: 900px) and (min-height: 660px)",
+      flat: "(max-width: 899px), (max-height: 659px)"
+    }, function (ctx) {
+      var pinned = !!ctx.conditions.pinned;
+      stEl.classList.toggle("no-pin", !pinned);
+      gsap.set(stWords, { color: "rgba(244,241,234,0.18)" });
+      if (pinned) {
+        gsap.set(pcards, { opacity: 0, y: 34 });
+        gsap.set(pcards[0], { opacity: 1, y: 0 });
+      } else {
+        gsap.set(pcards, { opacity: 1, y: 0 });
+      }
+
+      var activeStep = 0;
+      if (ethosNum) ethosNum.textContent = "01";
+
+      var tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: stEl,
+          start: pinned ? "top top" : "top 78%",
+          end: pinned ? "+=210%" : "bottom 78%",
+          pin: pinned,
+          scrub: .8,
+          anticipatePin: pinned ? 1 : 0,
+          onUpdate: function (self) {
+            var step = Math.min(3, Math.max(0, Math.floor(self.progress * 4.0001)));
+            if (step === activeStep) return;
+            if (pinned) {
+              var dir = step > activeStep ? 1 : -1;
+              gsap.to(pcards[activeStep], { opacity: 0, y: -30 * dir, duration: .4, ease: "power2.inOut" });
+              gsap.fromTo(pcards[step], { opacity: 0, y: 36 * dir },
+                { opacity: 1, y: 0, duration: .55, ease: "power3.out" });
+            }
+            activeStep = step;
+            if (ethosNum) ethosNum.textContent = String(step + 1).padStart(2, "0");
+          }
+        }
+      });
+
+      tl.to(stWords, { color: ethosColor, duration: 1, stagger: { each: .06 }, ease: "none" }, 0)
+        .to(ethosBar, { scaleX: 1, duration: stSpan, ease: "none" }, 0)
+        .to("#ethosArt span:nth-child(1)", { rotate: 45, duration: stSpan, ease: "none" }, 0)
+        .to("#ethosArt span:nth-child(2)", { rotate: -60, scale: .78, duration: stSpan, ease: "none" }, 0)
+        .to("#ethosArt span:nth-child(3)", { rotate: 135, scale: 1.28, duration: stSpan, ease: "none" }, 0)
+        .from(".st__foot div", { opacity: 0, y: 22, stagger: .28, duration: .9, ease: "power2.out" }, stSpan * .45);
+
+      return function () {
+        gsap.set(stWords, { clearProps: "color" });
+        gsap.set(pcards, { clearProps: "opacity,transform" });
+      };
+    });
+  }
+
+  /* ============================================================
+     DIGEST FORM
+     ============================================================ */
+  var form = $("#digestForm");
+  if (form) {
+    var seg = $("#seg"), segHl = $("#segHl");
+    var segLabels = $$("#seg label");
+    var topicLabels = $$("#topics .topic");
+    var pvStories = $("#pvStories"), pvSends = $("#pvSends"), pvMins = $("#pvMins");
+    var pvWhen = $("#pvWhen"), pvWeight = $("#pvWeight"), topicHint = $("#topicHint");
+    var emailInput = $("#email"), emailErr = $("#emailErr"), topicErr = $("#topicErr");
+    var cadence = "daily";
+
+    var counters = { stories: 10, sends: 5, mins: 62, weight: 18 };
+
+    function moveHighlight(index, animate) {
+      if (!segHl) return;
+      var vertical = window.matchMedia("(max-width:680px)").matches;
+      var props = vertical
+        ? { yPercent: index * 100, xPercent: 0 }
+        : { xPercent: index * 100, yPercent: 0 };
+      if (animate === false) gsap.set(segHl, props);
+      else gsap.to(segHl, Object.assign({ duration: .5, ease: "power3.inOut" }, props));
+    }
+
+    function animateNumber(el, key, target, suffix) {
+      var obj = { v: counters[key] };
+      counters[key] = target;
+      gsap.to(obj, {
+        v: target, duration: .7, ease: "power3.out",
+        onUpdate: function () { el.textContent = Math.round(obj.v) + (suffix || ""); }
+      });
+    }
+
+    function recalc() {
+      var selected = topicLabels.filter(function (l) { return l.classList.contains("on"); });
+      var perWeek = selected.reduce(function (a, l) { return a + parseFloat(l.getAttribute("data-w")); }, 0);
+      var sends = cadence === "daily" ? 5 : cadence === "weekly" ? 1 : 0.25;
+      var minutes = Math.round(perWeek * 6.2);
+      var weight = Math.max(9, Math.round(9 + perWeek * .9));
+
+      animateNumber(pvStories, "stories", perWeek);
+      animateNumber(pvSends, "sends", cadence === "monthly" ? 1 : sends);
+      animateNumber(pvMins, "mins", minutes);
+      animateNumber(pvWeight, "weight", weight, " kb");
+
+      var whenText = cadence === "daily" ? "weekday mornings at 07:00 WET"
+        : cadence === "weekly" ? "Sunday mornings at 09:00 WET"
+          : "the first Thursday of each month";
+      if (pvWhen && pvWhen.textContent !== whenText) {
+        gsap.fromTo(pvWhen, { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: .45, ease: "power2.out" });
+        pvWhen.textContent = whenText;
+      }
+      if (topicHint) topicHint.textContent = selected.length + " selected";
+    }
+
+    segLabels.forEach(function (label, i) {
+      label.querySelector("input").addEventListener("change", function () {
+        cadence = label.getAttribute("data-cad");
+        segLabels.forEach(function (l) { l.classList.toggle("on", l === label); });
+        moveHighlight(i, true);
+        gsap.fromTo(label.querySelector("span"), { y: -7, opacity: .35 }, { y: 0, opacity: 1, duration: .45, ease: "power3.out" });
+        recalc();
+      });
+    });
+    moveHighlight(0, false);
+
+    topicLabels.forEach(function (label) {
+      var input = label.querySelector("input");
+      input.addEventListener("change", function () {
+        label.classList.toggle("on", input.checked);
+        gsap.fromTo(label, { scale: .92 }, { scale: 1, duration: .5, ease: "back.out(2.6)" });
+        if (input.checked) {
+          gsap.fromTo(label.querySelector(".box svg"), { scale: 0 }, { scale: 1, duration: .35, ease: "back.out(3)" });
+        }
+        if (topicErr) topicErr.textContent = "";
+        recalc();
+      });
+    });
+
+    /* input focus flourish */
+    $$("[data-input]").forEach(function (wrap) {
+      var input = wrap.querySelector("input");
+      var bar = wrap.querySelector("i");
+      input.addEventListener("focus", function () {
+        gsap.to(bar, { scaleX: 1, duration: .5, ease: "power3.out", transformOrigin: "left center" });
+      });
+      input.addEventListener("blur", function () {
+        gsap.to(bar, { scaleX: 0, duration: .4, ease: "power3.in", transformOrigin: "right center" });
+      });
+      input.addEventListener("input", function () { if (emailErr) emailErr.textContent = ""; });
+    });
+
+    var doneEl = $("#done");
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var value = (emailInput.value || "").trim();
+      var valid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value);
+      var selected = topicLabels.filter(function (l) { return l.classList.contains("on"); });
+
+      if (!valid) {
+        emailErr.textContent = "Please enter a valid email address";
+        gsap.fromTo(emailInput.parentNode, { x: -8 }, { x: 0, duration: .5, ease: "elastic.out(1,.3)" });
+        emailInput.focus();
+        return;
+      }
+      if (!selected.length) {
+        topicErr.textContent = "Choose at least one desk";
+        gsap.fromTo("#topics", { x: -8 }, { x: 0, duration: .5, ease: "elastic.out(1,.3)" });
+        return;
+      }
+
+      $("#doneCad").textContent = cadence === "daily" ? "Daily brief" : cadence === "weekly" ? "Weekly folio" : "Monthly review";
+      $("#doneTopics").textContent = selected.length + " desks";
+      $("#doneWhen").textContent = cadence === "daily" ? "Tomorrow, 07:00" : cadence === "weekly" ? "Sunday, 09:00" : "First Thursday";
+
+      gsap.timeline()
+        .set(doneEl, { visibility: "visible" })
+        .fromTo(doneEl, { opacity: 0, clipPath: "inset(0 0 100% 0)" },
+          { opacity: 1, clipPath: "inset(0 0 0% 0)", duration: .75, ease: "power4.inOut" })
+        .from("#done > *", { y: 26, opacity: 0, duration: .5, stagger: .07, ease: "power3.out" }, "-=.35");
+      doneEl.setAttribute("aria-hidden", "false");
+    });
+
+    var doneBack = $("#doneBack");
+    if (doneBack) {
+      doneBack.addEventListener("click", function () {
+        gsap.timeline()
+          .to(doneEl, { opacity: 0, clipPath: "inset(0 0 100% 0)", duration: .5, ease: "power4.inOut" })
+          .set(doneEl, { visibility: "hidden" });
+        doneEl.setAttribute("aria-hidden", "true");
+      });
+    }
+
+    window.addEventListener("resize", function () {
+      var idx = segLabels.findIndex(function (l) { return l.classList.contains("on"); });
+      moveHighlight(idx < 0 ? 0 : idx, false);
+    });
+
+    recalc();
+  }
+
+  /* ============================================================
+     WIRE FEED
+     ============================================================ */
+  var wireRows = $$(".wrow");
+  var peek = $("#peek"), peekPlate = $("#peekPlate"), peekLab = $("#peekLab");
+
+  gsap.set(wireRows, { opacity: 0, y: 26 });
+  ScrollTrigger.batch(wireRows, {
+    start: "top 92%",
+    onEnter: function (b) { gsap.to(b, { opacity: 1, y: 0, duration: .8, stagger: .06, ease: "power3.out" }); },
+    once: true
+  });
+
+  if (peek && !isTouch && !reduced) {
+    var px = gsap.quickTo(peek, "x", { duration: .5, ease: "power3" });
+    var py = gsap.quickTo(peek, "y", { duration: .5, ease: "power3" });
+    gsap.set(peek, { xPercent: -50, yPercent: -50, scale: .82 });
+
+    wireRows.forEach(function (row) {
+      var bar = row.querySelector(".uline");
+      var title = row.querySelector(".t");
+      var goIcon = row.querySelector(".go svg");
+      row.addEventListener("pointerenter", function () {
+        var key = row.getAttribute("data-plate") || "d";
+        peekPlate.className = "plate plate--" + key;
+        var cat = row.querySelector(".cat");
+        peekLab.textContent = cat ? cat.textContent : "Wire";
+        gsap.to(peek, { opacity: 1, scale: 1, duration: .45, ease: "power3.out" });
+        gsap.to(title, { x: 10, duration: .5, ease: "power3.out" });
+        gsap.to(row, { backgroundColor: "rgba(27,60,255,1)", duration: .38, ease: "power2.out" });
+        gsap.fromTo(bar, { scaleX: 0, transformOrigin: "left center" }, { scaleX: 1, duration: .55, ease: "power3.out" });
+        gsap.fromTo(goIcon, { x: -6, y: 6, opacity: .3 }, { x: 0, y: 0, opacity: 1, duration: .4, ease: "power3.out" });
+      });
+      row.addEventListener("pointerleave", function () {
+        gsap.to(peek, { opacity: 0, scale: .82, duration: .3, ease: "power2.in" });
+        gsap.to(title, { x: 0, duration: .5, ease: "power3.out" });
+        gsap.to(bar, { scaleX: 0, transformOrigin: "right center", duration: .4, ease: "power3.in" });
+        gsap.to(row, { backgroundColor: "rgba(27,60,255,0)", duration: .35, ease: "power2.in" });
+      });
+    });
+    window.addEventListener("pointermove", function (e) {
+      px(Math.min(e.clientX + 165, window.innerWidth - 140));
+      py(gsap.utils.clamp(100, window.innerHeight - 100, e.clientY));
+    }, { passive: true });
+  }
+
+  /* ============================================================
+     MEMBERSHIP
+     ============================================================ */
+  var plans = $$(".plan");
+  gsap.set(plans, { opacity: 0, y: 60 });
+  ScrollTrigger.create({
+    trigger: "#plans", start: "top 85%", once: true,
+    onEnter: function () {
+      gsap.to(plans, { opacity: 1, y: 0, duration: 1, stagger: .12, ease: "power4.out" });
+    }
+  });
+  if (!reduced) {
+    gsap.to(".member__bgtype", {
+      xPercent: -12, ease: "none",
+      scrollTrigger: { trigger: "#member", start: "top bottom", end: "bottom top", scrub: .8 }
+    });
+    plans.forEach(function (p) {
+      p.addEventListener("pointerenter", function () { gsap.to(p, { y: -8, duration: .5, ease: "power3.out" }); });
+      p.addEventListener("pointerleave", function () { gsap.to(p, { y: 0, duration: .6, ease: "power3.out" }); });
+    });
+  }
+
+  /* ============================================================
+     FOOTER
+     ============================================================ */
+  gsap.from(".foot__grid > *", {
+    y: 40, opacity: 0, duration: .9, stagger: .08, ease: "power3.out",
+    scrollTrigger: { trigger: ".foot", start: "top 88%", once: true }
+  });
+
+  var footForm = $("#footForm"), footErr = $("#footErr");
+  if (footForm) {
+    footForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var v = ($("#footEmail").value || "").trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) {
+        footErr.textContent = "Enter a valid address";
+        gsap.fromTo(footForm, { x: -6 }, { x: 0, duration: .45, ease: "elastic.out(1,.3)" });
+        return;
+      }
+      footErr.textContent = "Thank you — check your inbox";
+      $("#footEmail").value = "";
+      gsap.fromTo(footErr, { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: .4 });
+    });
+  }
+
+  var toTop = $("#toTop");
+  if (toTop) toTop.addEventListener("click", function () {
+    if (lenis) lenis.scrollTo(0, { duration: 1.4 });
+    else window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  /* ============================================================
+     CLOCK / LIVE DETAILS
+     ============================================================ */
+  function tickClock() {
+    var now = new Date();
+    var lis = now;
+    try {
+      var shifted = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Lisbon" }));
+      if (!isNaN(shifted.getTime())) lis = shifted;
+    } catch (err) { /* fall back to local time */ }
+    var pad = function (n) { return String(n).padStart(2, "0"); };
+    var el = $("#clock");
+    if (el) el.textContent = pad(lis.getHours()) + ":" + pad(lis.getMinutes()) + ":" + pad(lis.getSeconds()) + " LIS";
+    var today = $("#todayLine");
+    if (today) {
+      today.textContent = now.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }) + " · Lisbon";
+    }
+  }
+  tickClock(); setInterval(tickClock, 1000);
+  var yearEl = $("#year"); if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+  var pulse = $("#livePulse");
+  if (pulse && !reduced) gsap.to(pulse, { opacity: .18, duration: .85, repeat: -1, yoyo: true, ease: "power1.inOut" });
+
+  var wireMins = 4;
+  setInterval(function () {
+    wireMins++;
+    var a = $("#wireAgo"), b = $("#wireStamp");
+    if (a) a.textContent = wireMins + " min ago";
+    if (b) b.textContent = "Updated " + wireMins + " min ago";
+  }, 60000);
+
+  /* ============================================================
+     PRELOADER → HERO
+     ============================================================ */
+  function runPreloader() {
+    var pre = $("#pre");
+    if (!pre) { heroIn(); return; }
+    var chars = splitChars($("#preWord")).concat(splitChars($("#preWord2")));
+    var num = $("#preNum"), bar = $("#preBar");
+    var counter = { v: 0 };
+
+    gsap.set(chars, { yPercent: 110, opacity: 0 });
+
+    var tl = gsap.timeline({
+      onComplete: function () {
+        pre.parentNode.removeChild(pre);
+        ScrollTrigger.refresh();
+      }
+    });
+    tl.to(chars, { yPercent: 0, opacity: 1, duration: .85, stagger: .045, ease: "power4.out" }, 0)
+      .to(counter, {
+        v: 100, duration: 1.5, ease: "power2.inOut",
+        onUpdate: function () { if (num) num.textContent = String(Math.round(counter.v)).padStart(2, "0"); }
+      }, 0)
+      .to(bar, { scaleX: 1, duration: 1.5, ease: "power2.inOut" }, 0)
+      .to(chars, { yPercent: -110, opacity: 0, duration: .5, stagger: .022, ease: "power3.in" }, 1.55)
+      .to(".pre__top, .pre__bot", { opacity: 0, duration: .35 }, 1.6)
+      .to(".pre__cols i", { yPercent: -101, duration: .75, stagger: .07, ease: "power4.inOut" }, 1.8)
+      .to(pre, { backgroundColor: "rgba(17,16,20,0)", duration: .5 }, 1.85)
+      .add(heroIn(), 2.15);
+    return tl;
+  }
+
+  if (reduced) {
+    var preQuick = $("#pre");
+    if (preQuick) preQuick.parentNode.removeChild(preQuick);
+    gsap.set(tiles, { opacity: 1, y: 0, clipPath: "none" });
+    gsap.set(heroWords, { yPercent: 0, opacity: 1 });
+    gsap.set([$("#heroLede")].concat(heroActionKids, heroMeta, $$(".hero__bar > *")), { opacity: 1, y: 0 });
+    gsap.set(".ticker__track", { opacity: 1 });
+  } else if (document.readyState === "complete") {
+    runPreloader();
+  } else {
+    window.addEventListener("load", runPreloader, { once: true });
+    /* hard safety net if a CDN font/asset stalls */
+    setTimeout(function () {
+      var p = $("#pre");
+      if (p && p.parentNode) { p.parentNode.removeChild(p); heroIn(); }
+    }, 6000);
+  }
+
+  ScrollTrigger.refresh();
+
+  /* ============================================================
+     NO-GSAP FALLBACK BASICS
+     ============================================================ */
+  function basicsOnly() {
+    var y = document.getElementById("year");
+    if (y) y.textContent = new Date().getFullYear();
+    var c = document.getElementById("clock");
+    if (c) {
+      setInterval(function () {
+        var d = new Date();
+        var p = function (n) { return String(n).padStart(2, "0"); };
+        c.textContent = p(d.getHours()) + ":" + p(d.getMinutes()) + ":" + p(d.getSeconds()) + " LIS";
+      }, 1000);
+    }
+  }
+})();
+</script>
+</body>
+</html>

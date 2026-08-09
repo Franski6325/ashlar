@@ -1,0 +1,2168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hypha — Mycology &amp; Biofabrication Research</title>
+<meta name="description" content="Hypha is a mycology and biofabrication research lab growing structural mycelium, living materials, and open strain libraries. Forest dark. Spore mint." />
+<meta name="theme-color" content="#0F1A14" />
+<meta name="color-scheme" content="dark" />
+<meta property="og:title" content="Hypha — Mycology &amp; Biofabrication Research" />
+<meta property="og:description" content="We culture structure from mycelium. Research lab for living materials, strain libraries, and growth protocols." />
+<meta property="og:type" content="website" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230F1A14'/%3E%3Cpath d='M16 4v10M16 14l-7 10M16 14l7 10' fill='none' stroke='%239BE7C4' stroke-width='2' stroke-linecap='square'/%3E%3Ccircle cx='16' cy='4' r='2' fill='%239BE7C4'/%3E%3Ccircle cx='9' cy='24' r='2' fill='%239BE7C4'/%3E%3Ccircle cx='23' cy='24' r='2' fill='%239BE7C4'/%3E%3C/svg%3E" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400;1,9..144,500;1,9..144,600&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+<script>document.documentElement.classList.add('js');</script>
+
+<style>
+/* ============================================================
+   HYPHA — tokens · dark bio / spore mint
+   ============================================================ */
+:root{
+  --bg:        #0F1A14;
+  --bg-1:      #121E18;
+  --bg-2:      #16241C;
+  --bg-3:      #1A2B22;
+  --bg-4:      #1F3328;
+  --ink:       #F3EEE4;
+  --ink-2:     rgba(243,238,228,.78);
+  --ink-3:     rgba(243,238,228,.56);
+  --muted:     rgba(243,238,228,.40);
+  --faint:     rgba(243,238,228,.22);
+  --line:      rgba(155,231,196,.12);
+  --line-2:    rgba(155,231,196,.22);
+  --line-3:    rgba(155,231,196,.38);
+  --ivory:     #F3EEE4;
+  --mint:      #9BE7C4;
+  --mint-2:    #B8F0D6;
+  --mint-3:    rgba(155,231,196,.14);
+  --mint-4:    rgba(155,231,196,.28);
+  --mint-dim:  #5FA88A;
+  --spore:     #6ECFA8;
+  --warn:      #E8C07A;
+  --ok:        #9BE7C4;
+
+  --font-display: "Fraunces", "Times New Roman", Georgia, serif;
+  --font-sans: "Space Grotesk", "DM Sans", system-ui, sans-serif;
+  --font-body: "DM Sans", "Space Grotesk", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --ease: cubic-bezier(.22,1,.36,1);
+  --ease-io: cubic-bezier(.65,.05,.36,1);
+
+  --nav-h: 4.5rem;
+  --pad: clamp(1.1rem, 3.2vw, 2.75rem);
+  --max: 1440px;
+  --gap: clamp(1rem, 2vw, 1.75rem);
+
+  --fs-micro: .62rem;
+  --fs-xs: .72rem;
+  --fs-sm: .84rem;
+  --fs-md: .95rem;
+  --fs-lg: clamp(1.05rem, .96rem + .4vw, 1.25rem);
+  --fs-h3: clamp(1.35rem, 1.05rem + 1.1vw, 2.15rem);
+  --fs-h2: clamp(2.05rem, 1.2rem + 3.2vw, 4.5rem);
+  --fs-hero: clamp(2.8rem, .7rem + 7.2vw, 7.4rem);
+}
+
+/* ============================================================
+   reset · sharp corners always
+   ============================================================ */
+*,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; border-radius:0 !important; }
+html{ background:var(--bg); -webkit-text-size-adjust:100%; scroll-behavior:auto; }
+html.lenis,html.lenis body{ height:auto; }
+.lenis.lenis-smooth{ scroll-behavior:auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent]{ overscroll-behavior:contain; }
+.lenis.lenis-stopped{ overflow:hidden; }
+
+body{
+  font-family:var(--font-body);
+  font-size:var(--fs-md);
+  font-weight:400;
+  line-height:1.55;
+  color:var(--ink-2);
+  background:var(--bg);
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+body.is-locked{ overflow:hidden; }
+body.has-cursor,
+body.has-cursor a,
+body.has-cursor button,
+body.has-cursor input,
+body.has-cursor select,
+body.has-cursor textarea,
+body.has-cursor label,
+body.has-cursor [role="button"]{ cursor:none; }
+
+img,svg{ display:block; max-width:100%; }
+a{ color:inherit; text-decoration:none; }
+button,input,select,textarea{ font:inherit; color:inherit; background:none; border:0; border-radius:0; }
+button{ cursor:pointer; }
+ul,ol{ list-style:none; }
+::selection{ background:var(--mint); color:var(--bg); }
+:focus{ outline:none; }
+:focus-visible{ outline:1px solid var(--mint); outline-offset:3px; }
+
+.skip{
+  position:fixed; top:0; left:0; z-index:500;
+  transform:translateY(-140%);
+  background:var(--mint); color:var(--bg);
+  padding:.7rem 1.1rem;
+  font-family:var(--font-mono); font-size:var(--fs-xs);
+  letter-spacing:.14em; text-transform:uppercase;
+  transition:transform .3s var(--ease);
+}
+.skip:focus{ transform:translateY(0); }
+
+/* ============================================================
+   type
+   ============================================================ */
+.mono{
+  font-family:var(--font-mono);
+  font-size:var(--fs-xs);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  font-weight:500;
+  line-height:1.4;
+}
+.mono--xs{ font-size:var(--fs-micro); letter-spacing:.18em; }
+.dim{ color:var(--muted); }
+.faint{ color:var(--faint); }
+.mint{ color:var(--mint); }
+.ivory{ color:var(--ink); }
+
+.display{
+  font-family:var(--font-display);
+  font-weight:400;
+  line-height:.92;
+  letter-spacing:-.03em;
+  color:var(--ink);
+}
+.display em,
+.italic{
+  font-style:italic;
+  font-weight:300;
+  color:var(--mint);
+}
+.h2{ font-size:var(--fs-h2); }
+.h3{
+  font-family:var(--font-sans);
+  font-size:var(--fs-h3);
+  font-weight:600;
+  line-height:1.08;
+  letter-spacing:-.025em;
+  color:var(--ink);
+}
+.lead{ font-size:var(--fs-lg); line-height:1.5; color:var(--ink-2); max-width:52ch; }
+.small{ font-size:var(--fs-sm); line-height:1.55; color:var(--ink-3); }
+
+/* ============================================================
+   layout
+   ============================================================ */
+.shell{ width:100%; max-width:var(--max); margin-inline:auto; padding-inline:var(--pad); }
+.rule{ height:1px; background:var(--line); width:100%; }
+.section{ position:relative; }
+.section__pad{ padding-block:clamp(4rem, 9vw, 8.5rem); }
+.section__head{
+  display:grid;
+  gap:1.25rem;
+  margin-bottom:clamp(2rem, 4vw, 3.5rem);
+}
+@media (min-width:900px){
+  .section__head{
+    grid-template-columns:minmax(0,1fr) minmax(0,.85fr);
+    align-items:end;
+    gap:2rem;
+  }
+}
+.section__kicker{
+  display:flex; align-items:center; gap:.75rem;
+  margin-bottom:.85rem;
+}
+.section__kicker::before{
+  content:"";
+  width:10px; height:10px;
+  background:var(--mint);
+  flex-shrink:0;
+}
+.section__lead{ max-width:42ch; }
+
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:.65rem;
+  padding:.85rem 1.35rem;
+  font-family:var(--font-sans);
+  font-size:var(--fs-sm);
+  font-weight:600;
+  letter-spacing:.02em;
+  border:1px solid var(--mint);
+  background:var(--mint);
+  color:var(--bg);
+  transition:background .35s var(--ease), color .35s var(--ease), border-color .35s var(--ease);
+}
+.btn:hover{ background:transparent; color:var(--mint); }
+.btn--ghost{
+  background:transparent; color:var(--mint);
+}
+.btn--ghost:hover{ background:var(--mint); color:var(--bg); }
+.btn--ink{
+  background:transparent; color:var(--ink); border-color:var(--line-2);
+}
+.btn--ink:hover{ border-color:var(--mint); color:var(--mint); }
+.btn-row{ display:flex; flex-wrap:wrap; gap:.75rem; }
+
+/* ============================================================
+   custom cursor — branching Y-node
+   ============================================================ */
+.cursor{
+  position:fixed; top:0; left:0; z-index:9999;
+  width:28px; height:28px;
+  pointer-events:none;
+  transform:translate(-50%,-50%);
+  opacity:0;
+  transition:opacity .25s;
+}
+body.has-cursor .cursor{ opacity:1; }
+.cursor svg{ width:100%; height:100%; overflow:visible; }
+.cursor.is-down{ transform:translate(-50%,-50%) scale(.82); }
+.cursor.is-link .cursor__ring{ stroke:var(--mint-2); stroke-width:1.5; }
+.cursor.is-link .cursor__node{ fill:var(--mint-2); }
+
+/* ============================================================
+   preloader
+   ============================================================ */
+.preloader{
+  position:fixed; inset:0; z-index:400;
+  background:var(--bg);
+  display:grid; place-items:center;
+  overflow:hidden;
+}
+.preloader__inner{
+  width:min(420px, 86vw);
+  display:grid; gap:1.75rem;
+  text-align:center;
+}
+.preloader__mark{
+  width:72px; height:72px; margin-inline:auto;
+}
+.preloader__mark svg{ width:100%; height:100%; overflow:visible; }
+.preloader__brand{
+  font-family:var(--font-display);
+  font-size:clamp(2rem, 5vw, 2.8rem);
+  font-weight:400;
+  color:var(--ink);
+  letter-spacing:-.03em;
+}
+.preloader__brand em{ font-style:italic; color:var(--mint); font-weight:300; }
+.preloader__meta{
+  display:flex; justify-content:space-between; align-items:center;
+  gap:1rem; border-top:1px solid var(--line); padding-top:1rem;
+}
+.preloader__bar{
+  height:2px; background:var(--bg-3); position:relative; overflow:hidden;
+}
+.preloader__fill{
+  position:absolute; inset:0 auto 0 0; width:0%;
+  background:var(--mint);
+}
+.preloader.is-done{ pointer-events:none; }
+
+/* ============================================================
+   nav
+   ============================================================ */
+.nav{
+  position:fixed; top:0; left:0; right:0; z-index:300;
+  height:var(--nav-h);
+  display:flex; align-items:center;
+  background:rgba(15,26,20,.72);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+  transform:translateY(-110%);
+}
+.nav__inner{
+  width:100%; max-width:var(--max); margin-inline:auto; padding-inline:var(--pad);
+  display:flex; align-items:center; justify-content:space-between; gap:1rem;
+}
+.nav__logo{
+  display:flex; align-items:center; gap:.7rem;
+  font-family:var(--font-display);
+  font-size:1.35rem;
+  color:var(--ink);
+  letter-spacing:-.02em;
+}
+.nav__logo em{ font-style:italic; color:var(--mint); font-weight:300; }
+.nav__logo-mark{ width:22px; height:22px; }
+.nav__links{
+  display:none; align-items:center; gap:1.75rem;
+}
+@media (min-width:980px){
+  .nav__links{ display:flex; }
+}
+.nav__links a{
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+  transition:color .25s;
+}
+.nav__links a:hover{ color:var(--mint); }
+.nav__actions{ display:flex; align-items:center; gap:.75rem; }
+.nav__cta{
+  display:none;
+  padding:.55rem .9rem;
+  border:1px solid var(--mint);
+  color:var(--mint);
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  transition:background .3s, color .3s;
+}
+.nav__cta:hover{ background:var(--mint); color:var(--bg); }
+@media (min-width:720px){ .nav__cta{ display:inline-flex; } }
+.nav__burger{
+  width:42px; height:42px;
+  border:1px solid var(--line-2);
+  display:grid; place-items:center; gap:5px;
+  padding:0;
+}
+.nav__burger span{
+  display:block; width:16px; height:1.5px; background:var(--ink);
+  transition:transform .35s var(--ease), opacity .25s;
+}
+.nav__burger.is-open span:nth-child(1){ transform:translateY(6.5px) rotate(45deg); }
+.nav__burger.is-open span:nth-child(2){ opacity:0; }
+.nav__burger.is-open span:nth-child(3){ transform:translateY(-6.5px) rotate(-45deg); }
+
+/* full menu */
+.menu{
+  position:fixed; inset:0; z-index:280;
+  background:var(--bg-1);
+  display:grid;
+  grid-template-rows:var(--nav-h) 1fr auto;
+  opacity:0; visibility:hidden; pointer-events:none;
+  transition:opacity .4s, visibility .4s;
+}
+.menu.is-open{ opacity:1; visibility:visible; pointer-events:auto; }
+.menu__body{
+  display:grid;
+  gap:2rem;
+  padding:clamp(1.5rem, 4vw, 3rem) var(--pad);
+  overflow:auto;
+}
+@media (min-width:900px){
+  .menu__body{
+    grid-template-columns:1.2fr .8fr;
+    align-items:center;
+    gap:4rem;
+  }
+}
+.menu__list{ display:grid; gap:.15rem; }
+.menu__link{
+  display:flex; align-items:baseline; gap:1rem;
+  padding:.55rem 0;
+  border-bottom:1px solid var(--line);
+  font-family:var(--font-display);
+  font-size:clamp(2rem, 5vw, 3.8rem);
+  line-height:1.05;
+  letter-spacing:-.03em;
+  color:var(--ink);
+  transition:color .3s;
+}
+.menu__link:hover{ color:var(--mint); }
+.menu__link em{ font-style:italic; font-weight:300; }
+.menu__idx{
+  font-family:var(--font-mono);
+  font-size:var(--fs-xs);
+  letter-spacing:.14em;
+  color:var(--mint);
+  min-width:2.2rem;
+}
+.menu__aside{
+  display:grid; gap:1.5rem;
+  align-content:start;
+  border:1px solid var(--line);
+  padding:1.5rem;
+  background:var(--bg-2);
+}
+.menu__aside h3{
+  font-family:var(--font-display);
+  font-style:italic;
+  font-weight:300;
+  font-size:1.5rem;
+  color:var(--mint);
+}
+.menu__foot{
+  border-top:1px solid var(--line);
+  padding:1rem var(--pad);
+  display:flex; flex-wrap:wrap; justify-content:space-between; gap:1rem;
+}
+
+/* ============================================================
+   hero · culture plate
+   ============================================================ */
+.hero{
+  min-height:100svh;
+  padding-top:calc(var(--nav-h) + 1.5rem);
+  padding-bottom:2.5rem;
+  display:grid;
+  align-items:stretch;
+  position:relative;
+  overflow:hidden;
+}
+.hero__grid{
+  display:grid;
+  gap:2rem;
+  min-height:calc(100svh - var(--nav-h) - 4rem);
+  align-items:center;
+}
+@media (min-width:980px){
+  .hero__grid{
+    grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+    gap:clamp(2rem, 4vw, 4rem);
+  }
+}
+.hero__copy{ display:grid; gap:1.5rem; align-content:center; }
+.hero__eyebrow{
+  display:inline-flex; align-items:center; gap:.6rem;
+  color:var(--mint);
+}
+.hero__title{
+  font-size:var(--fs-hero);
+  max-width:12ch;
+}
+.hero__title .line{ display:block; overflow:hidden; }
+.hero__title .line span{ display:inline-block; }
+.hero__stats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1px;
+  background:var(--line);
+  border:1px solid var(--line);
+  max-width:420px;
+}
+.hero__stat{
+  background:var(--bg);
+  padding:.9rem .85rem;
+  display:grid; gap:.35rem;
+}
+.hero__stat strong{
+  font-family:var(--font-sans);
+  font-size:1.35rem;
+  font-weight:600;
+  color:var(--ink);
+  letter-spacing:-.02em;
+}
+.hero__plate-wrap{
+  position:relative;
+  aspect-ratio:1;
+  max-width:560px;
+  width:100%;
+  margin-inline:auto;
+  border:1px solid var(--line-2);
+  background:
+    radial-gradient(circle at 50% 48%, rgba(155,231,196,.10), transparent 55%),
+    linear-gradient(160deg, var(--bg-2), var(--bg));
+  overflow:hidden;
+}
+.hero__plate-meta{
+  position:absolute; inset:auto 0 0 0;
+  display:flex; justify-content:space-between; gap:1rem;
+  padding:.75rem .9rem;
+  border-top:1px solid var(--line);
+  background:rgba(15,26,20,.82);
+  backdrop-filter:blur(8px);
+  z-index:2;
+}
+.culture-plate{
+  width:100%; height:100%;
+  padding:8% 8% 14%;
+}
+.culture-plate .hypha-branch{ stroke:var(--mint); stroke-width:1.2; fill:none; opacity:.85; }
+.culture-plate .hypha-node{ fill:var(--mint); }
+.culture-plate .plate-ring{ fill:none; stroke:var(--line-2); stroke-width:1; }
+.culture-plate .spore{ fill:var(--mint); opacity:.55; }
+.hero__scroll{
+  position:absolute; bottom:1.25rem; left:var(--pad);
+  display:flex; align-items:center; gap:.65rem;
+  color:var(--muted);
+}
+.hero__scroll-line{
+  width:42px; height:1px; background:var(--mint);
+  transform-origin:left;
+}
+
+/* ============================================================
+   research pillars
+   ============================================================ */
+.pillars__grid{
+  display:grid; gap:1px; background:var(--line);
+  border:1px solid var(--line);
+}
+@media (min-width:800px){
+  .pillars__grid{ grid-template-columns:repeat(2,1fr); }
+}
+@media (min-width:1100px){
+  .pillars__grid{ grid-template-columns:repeat(4,1fr); }
+}
+.pillar{
+  background:var(--bg-1);
+  padding:clamp(1.4rem, 2.5vw, 2rem);
+  display:grid; gap:1.1rem;
+  min-height:280px;
+  transition:background .35s;
+}
+.pillar:hover{ background:var(--bg-2); }
+.pillar__num{
+  font-family:var(--font-mono);
+  font-size:var(--fs-xs);
+  color:var(--mint);
+  letter-spacing:.16em;
+}
+.pillar__icon{ width:48px; height:48px; color:var(--mint); }
+.pillar h3{ font-size:1.25rem; }
+.pillar p{ font-size:var(--fs-sm); color:var(--ink-3); max-width:32ch; }
+.pillar__tags{ display:flex; flex-wrap:wrap; gap:.4rem; margin-top:auto; }
+.tag{
+  border:1px solid var(--line-2);
+  padding:.28rem .45rem;
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+}
+
+/* ============================================================
+   strain library
+   ============================================================ */
+.strains__toolbar{
+  display:flex; flex-wrap:wrap; gap:.5rem;
+  margin-bottom:1.5rem;
+}
+.filter-btn{
+  padding:.55rem .85rem;
+  border:1px solid var(--line-2);
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+  transition:border-color .25s, color .25s, background .25s;
+}
+.filter-btn:hover,
+.filter-btn.is-active{
+  border-color:var(--mint);
+  color:var(--mint);
+  background:var(--mint-3);
+}
+.strains__grid{
+  display:grid; gap:1px; background:var(--line);
+  border:1px solid var(--line);
+}
+@media (min-width:640px){ .strains__grid{ grid-template-columns:repeat(2,1fr); } }
+@media (min-width:1040px){ .strains__grid{ grid-template-columns:repeat(3,1fr); } }
+.strain{
+  background:var(--bg);
+  padding:1.25rem;
+  display:grid; gap:1rem;
+  min-height:260px;
+  transition:background .3s;
+}
+.strain:hover{ background:var(--bg-2); }
+.strain.is-hidden{ display:none; }
+.strain__top{ display:flex; justify-content:space-between; gap:1rem; align-items:start; }
+.strain__id{ color:var(--mint); }
+.strain__status{
+  padding:.2rem .4rem;
+  border:1px solid var(--line-2);
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.strain__status--live{ border-color:var(--mint); color:var(--mint); }
+.strain__status--bank{ color:var(--warn); border-color:rgba(232,192,122,.4); }
+.strain h3{
+  font-family:var(--font-display);
+  font-style:italic;
+  font-weight:400;
+  font-size:1.55rem;
+  color:var(--ink);
+  letter-spacing:-.02em;
+}
+.strain__viz{
+  height:64px;
+  border:1px solid var(--line);
+  background:var(--bg-1);
+  overflow:hidden;
+}
+.strain__viz svg{ width:100%; height:100%; }
+.strain__meta{
+  display:grid; grid-template-columns:1fr 1fr; gap:.75rem;
+  border-top:1px solid var(--line);
+  padding-top:.85rem;
+}
+.strain__meta dt{ color:var(--faint); margin-bottom:.2rem; }
+.strain__meta dd{ color:var(--ink-2); font-size:var(--fs-sm); }
+
+/* ============================================================
+   growth chamber desk
+   ============================================================ */
+.chamber{
+  background:var(--bg-1);
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+}
+.chamber__desk{
+  display:grid; gap:1.5rem;
+}
+@media (min-width:980px){
+  .chamber__desk{
+    grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);
+    gap:2rem;
+    align-items:stretch;
+  }
+}
+.chamber__screen{
+  border:1px solid var(--line-2);
+  background:
+    linear-gradient(180deg, rgba(155,231,196,.04), transparent 40%),
+    var(--bg);
+  min-height:420px;
+  display:grid;
+  grid-template-rows:auto 1fr auto;
+}
+.chamber__screen-bar{
+  display:flex; justify-content:space-between; align-items:center;
+  gap:1rem; flex-wrap:wrap;
+  padding:.85rem 1rem;
+  border-bottom:1px solid var(--line);
+}
+.chamber__viz{
+  position:relative;
+  padding:1.25rem;
+  display:grid; place-items:center;
+  overflow:hidden;
+}
+.chamber__mycelium{
+  width:min(100%, 420px);
+  aspect-ratio:1;
+}
+.chamber__mycelium svg{ width:100%; height:100%; overflow:visible; }
+.chamber__readout{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1px;
+  background:var(--line);
+  border-top:1px solid var(--line);
+}
+.chamber__metric{
+  background:var(--bg-2);
+  padding:1rem;
+  display:grid; gap:.35rem;
+}
+.chamber__metric strong{
+  font-family:var(--font-sans);
+  font-size:1.5rem;
+  font-weight:600;
+  color:var(--ink);
+  letter-spacing:-.02em;
+}
+.chamber__metric strong span{ color:var(--mint); font-size:.85rem; font-weight:500; margin-left:.15rem; }
+.chamber__controls{
+  border:1px solid var(--line-2);
+  background:var(--bg);
+  padding:clamp(1.25rem, 2.5vw, 1.75rem);
+  display:grid; gap:1.5rem;
+  align-content:start;
+}
+.chamber__controls h3{
+  font-family:var(--font-display);
+  font-style:italic;
+  font-weight:300;
+  font-size:1.85rem;
+  color:var(--ink);
+}
+.control{ display:grid; gap:.7rem; }
+.control__head{ display:flex; justify-content:space-between; align-items:baseline; gap:1rem; }
+.control__val{
+  font-family:var(--font-mono);
+  font-size:var(--fs-sm);
+  color:var(--mint);
+  letter-spacing:.08em;
+}
+.slider{
+  -webkit-appearance:none; appearance:none;
+  width:100%; height:2px;
+  background:var(--bg-4);
+  outline:none;
+}
+.slider::-webkit-slider-thumb{
+  -webkit-appearance:none; appearance:none;
+  width:16px; height:16px;
+  background:var(--mint);
+  border:0;
+  cursor:pointer;
+}
+.slider::-moz-range-thumb{
+  width:16px; height:16px;
+  background:var(--mint);
+  border:0;
+  cursor:pointer;
+}
+.chamber__modes{
+  display:grid; grid-template-columns:repeat(3,1fr); gap:.5rem;
+}
+.mode-btn{
+  padding:.7rem .5rem;
+  border:1px solid var(--line-2);
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+  text-align:center;
+  transition:border-color .25s, color .25s, background .25s;
+}
+.mode-btn.is-active,
+.mode-btn:hover{
+  border-color:var(--mint);
+  color:var(--mint);
+  background:var(--mint-3);
+}
+.chamber__log{
+  border:1px solid var(--line);
+  background:var(--bg-1);
+  padding:.9rem;
+  font-family:var(--font-mono);
+  font-size:var(--fs-xs);
+  line-height:1.7;
+  color:var(--ink-3);
+  min-height:110px;
+  max-height:140px;
+  overflow:auto;
+}
+.chamber__log .ok{ color:var(--mint); }
+.chamber__log .warn{ color:var(--warn); }
+
+/* ============================================================
+   lab notes
+   ============================================================ */
+.notes__feed{
+  display:grid; gap:1px; background:var(--line);
+  border:1px solid var(--line);
+}
+.note{
+  background:var(--bg);
+  display:grid; gap:1rem;
+  padding:clamp(1.25rem, 2.5vw, 1.75rem);
+  transition:background .3s;
+}
+.note:hover{ background:var(--bg-1); }
+@media (min-width:820px){
+  .note{
+    grid-template-columns:140px minmax(0,1fr) auto;
+    align-items:start;
+    gap:1.5rem;
+  }
+}
+.note__date{ color:var(--mint); }
+.note h3{
+  font-family:var(--font-display);
+  font-size:clamp(1.25rem, 1rem + 1vw, 1.7rem);
+  font-weight:400;
+  letter-spacing:-.02em;
+  color:var(--ink);
+  margin-bottom:.45rem;
+}
+.note h3 em{ font-style:italic; color:var(--mint); font-weight:300; }
+.note__author{
+  display:flex; flex-direction:column; gap:.35rem;
+  align-items:flex-start;
+  text-align:left;
+}
+@media (min-width:820px){
+  .note__author{ align-items:flex-end; text-align:right; min-width:120px; }
+}
+
+/* ============================================================
+   publications
+   ============================================================ */
+.pubs__list{ display:grid; }
+.pub{
+  display:grid; gap:.75rem;
+  padding:1.35rem 0;
+  border-bottom:1px solid var(--line);
+}
+@media (min-width:900px){
+  .pub{
+    grid-template-columns:80px minmax(0,1.4fr) minmax(0,.7fr) auto;
+    gap:1.5rem;
+    align-items:baseline;
+  }
+}
+.pub__year{ color:var(--mint); }
+.pub__title{
+  font-family:var(--font-sans);
+  font-weight:600;
+  font-size:1.05rem;
+  color:var(--ink);
+  letter-spacing:-.015em;
+  line-height:1.3;
+}
+.pub__meta{ color:var(--ink-3); font-size:var(--fs-sm); }
+.pub__link{
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--mint);
+  border-bottom:1px solid transparent;
+  width:max-content;
+  transition:border-color .25s;
+}
+.pub__link:hover{ border-color:var(--mint); }
+
+/* ============================================================
+   partners / board
+   ============================================================ */
+.partners__grid{
+  display:grid; gap:2.5rem;
+}
+.board{
+  display:grid; gap:1px; background:var(--line);
+  border:1px solid var(--line);
+}
+@media (min-width:720px){ .board{ grid-template-columns:repeat(2,1fr); } }
+@media (min-width:1100px){ .board{ grid-template-columns:repeat(4,1fr); } }
+.board__card{
+  background:var(--bg-1);
+  padding:1.4rem;
+  display:grid; gap:.85rem;
+  min-height:200px;
+}
+.board__avatar{
+  width:48px; height:48px;
+  border:1px solid var(--line-2);
+  display:grid; place-items:center;
+  font-family:var(--font-mono);
+  font-size:var(--fs-xs);
+  color:var(--mint);
+  letter-spacing:.08em;
+}
+.board__card h3{
+  font-family:var(--font-display);
+  font-style:italic;
+  font-weight:400;
+  font-size:1.35rem;
+  color:var(--ink);
+}
+.board__role{ color:var(--mint); }
+.partners__logos{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:1px;
+  background:var(--line);
+  border:1px solid var(--line);
+}
+@media (min-width:700px){ .partners__logos{ grid-template-columns:repeat(4,1fr); } }
+.partner-logo{
+  background:var(--bg);
+  min-height:100px;
+  display:grid; place-items:center;
+  padding:1.25rem;
+  font-family:var(--font-sans);
+  font-weight:600;
+  letter-spacing:-.02em;
+  color:var(--ink-3);
+  transition:color .3s, background .3s;
+}
+.partner-logo:hover{ color:var(--mint); background:var(--bg-2); }
+.partner-logo span{
+  font-family:var(--font-display);
+  font-style:italic;
+  font-weight:300;
+}
+
+/* ============================================================
+   visit / apply form
+   ============================================================ */
+.visit{
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(155,231,196,.08), transparent 50%),
+    var(--bg-1);
+  border-top:1px solid var(--line);
+}
+.visit__grid{
+  display:grid; gap:2rem;
+}
+@media (min-width:960px){
+  .visit__grid{
+    grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);
+    gap:3rem;
+    align-items:start;
+  }
+}
+.visit__info{ display:grid; gap:1.5rem; }
+.visit__addr{
+  border:1px solid var(--line);
+  padding:1.25rem;
+  background:var(--bg);
+  display:grid; gap:.75rem;
+}
+.visit__addr strong{
+  font-family:var(--font-display);
+  font-style:italic;
+  font-weight:300;
+  font-size:1.4rem;
+  color:var(--mint);
+}
+.form{
+  border:1px solid var(--line-2);
+  background:var(--bg);
+  padding:clamp(1.25rem, 2.5vw, 2rem);
+  display:grid; gap:1.1rem;
+}
+.form__row{
+  display:grid; gap:1.1rem;
+}
+@media (min-width:640px){
+  .form__row{ grid-template-columns:1fr 1fr; }
+}
+.field{ display:grid; gap:.45rem; }
+.field label{
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+}
+.field input,
+.field select,
+.field textarea{
+  width:100%;
+  border:1px solid var(--line-2);
+  background:var(--bg-1);
+  padding:.85rem .9rem;
+  color:var(--ink);
+  transition:border-color .25s;
+}
+.field input:focus,
+.field select:focus,
+.field textarea:focus{ border-color:var(--mint); }
+.field textarea{ min-height:130px; resize:vertical; }
+.field select{ appearance:none; background-image:linear-gradient(45deg, transparent 50%, var(--mint) 50%), linear-gradient(135deg, var(--mint) 50%, transparent 50%); background-position:calc(100% - 18px) calc(50% - 3px), calc(100% - 12px) calc(50% - 3px); background-size:6px 6px, 6px 6px; background-repeat:no-repeat; }
+.form__actions{
+  display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1rem;
+  padding-top:.5rem;
+}
+.form__note{ font-size:var(--fs-sm); color:var(--muted); max-width:32ch; }
+.form__success{
+  display:none;
+  border:1px solid var(--mint);
+  background:var(--mint-3);
+  padding:1rem;
+  color:var(--mint);
+  font-family:var(--font-mono);
+  font-size:var(--fs-xs);
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+.form.is-sent .form__success{ display:block; }
+.form.is-sent .form__fields{ display:none; }
+
+/* ============================================================
+   footer
+   ============================================================ */
+.footer{
+  border-top:1px solid var(--line);
+  padding-block:clamp(2.5rem, 5vw, 4rem) 2rem;
+  background:var(--bg);
+}
+.footer__top{
+  display:grid; gap:2rem;
+  margin-bottom:2.5rem;
+}
+@media (min-width:900px){
+  .footer__top{
+    grid-template-columns:1.2fr .8fr .8fr .8fr;
+    gap:2.5rem;
+  }
+}
+.footer__brand{
+  font-family:var(--font-display);
+  font-size:2.4rem;
+  color:var(--ink);
+  letter-spacing:-.03em;
+  margin-bottom:.75rem;
+}
+.footer__brand em{ font-style:italic; color:var(--mint); font-weight:300; }
+.footer__col h4{
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--mint);
+  margin-bottom:1rem;
+}
+.footer__col a,
+.footer__col p{
+  display:block;
+  font-size:var(--fs-sm);
+  color:var(--ink-3);
+  padding:.25rem 0;
+  transition:color .25s;
+}
+.footer__col a:hover{ color:var(--mint); }
+.footer__bottom{
+  display:flex; flex-wrap:wrap; justify-content:space-between; gap:1rem;
+  padding-top:1.25rem;
+  border-top:1px solid var(--line);
+}
+.hypha-bg{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  opacity:.35;
+  overflow:hidden;
+}
+.hypha-bg svg{ width:100%; height:100%; }
+
+/* ============================================================
+   ambient pattern
+   ============================================================ */
+.noise{
+  pointer-events:none;
+  position:fixed; inset:0; z-index:50;
+  opacity:.035;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* reduced motion */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;
+    scroll-behavior:auto !important;
+  }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- custom cursor -->
+<div class="cursor" id="cursor" aria-hidden="true">
+  <svg viewBox="0 0 28 28" fill="none">
+    <circle class="cursor__ring" cx="14" cy="8" r="3.2" stroke="#9BE7C4" stroke-width="1.25"/>
+    <path d="M14 11.2 V16.5" stroke="#9BE7C4" stroke-width="1.25"/>
+    <path d="M14 16.5 L7.5 24.2" stroke="#9BE7C4" stroke-width="1.25"/>
+    <path d="M14 16.5 L20.5 24.2" stroke="#9BE7C4" stroke-width="1.25"/>
+    <circle class="cursor__node" cx="14" cy="8" r="1.4" fill="#9BE7C4"/>
+    <circle class="cursor__node" cx="7.5" cy="24.2" r="1.5" fill="#9BE7C4"/>
+    <circle class="cursor__node" cx="20.5" cy="24.2" r="1.5" fill="#9BE7C4"/>
+  </svg>
+</div>
+
+<!-- PRELOADER -->
+<div class="preloader" id="preloader" role="status" aria-live="polite">
+  <div class="preloader__inner">
+    <div class="preloader__mark" aria-hidden="true">
+      <svg viewBox="0 0 72 72" fill="none">
+        <path class="pl-branch" d="M36 8 V30" stroke="#9BE7C4" stroke-width="1.5"/>
+        <path class="pl-branch" d="M36 30 L16 58" stroke="#9BE7C4" stroke-width="1.5"/>
+        <path class="pl-branch" d="M36 30 L56 58" stroke="#9BE7C4" stroke-width="1.5"/>
+        <path class="pl-branch" d="M16 58 L8 68" stroke="#9BE7C4" stroke-width="1.25" opacity=".7"/>
+        <path class="pl-branch" d="M16 58 L24 68" stroke="#9BE7C4" stroke-width="1.25" opacity=".7"/>
+        <path class="pl-branch" d="M56 58 L48 68" stroke="#9BE7C4" stroke-width="1.25" opacity=".7"/>
+        <path class="pl-branch" d="M56 58 L64 68" stroke="#9BE7C4" stroke-width="1.25" opacity=".7"/>
+        <circle class="pl-node" cx="36" cy="8" r="3" fill="#9BE7C4"/>
+        <circle class="pl-node" cx="36" cy="30" r="2.5" fill="#9BE7C4"/>
+        <circle class="pl-node" cx="16" cy="58" r="2.5" fill="#9BE7C4"/>
+        <circle class="pl-node" cx="56" cy="58" r="2.5" fill="#9BE7C4"/>
+      </svg>
+    </div>
+    <div class="preloader__brand">Hy<em>pha</em></div>
+    <div class="preloader__bar" aria-hidden="true"><div class="preloader__fill" id="preloader-fill"></div></div>
+    <div class="preloader__meta">
+      <span class="mono dim">Inoculating culture</span>
+      <span class="mono mint" id="preloader-pct">0%</span>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<header class="nav" id="nav">
+  <div class="nav__inner">
+    <a class="nav__logo" href="#top" aria-label="Hypha home">
+      <svg class="nav__logo-mark" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+        <path d="M11 2 V9 M11 9 L4 18 M11 9 L18 18" stroke="#9BE7C4" stroke-width="1.4"/>
+        <circle cx="11" cy="2" r="1.6" fill="#9BE7C4"/>
+        <circle cx="4" cy="18" r="1.5" fill="#9BE7C4"/>
+        <circle cx="18" cy="18" r="1.5" fill="#9BE7C4"/>
+      </svg>
+      Hy<em>pha</em>
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="#research">Research</a>
+      <a href="#strains">Strains</a>
+      <a href="#chamber">Chamber</a>
+      <a href="#notes">Notes</a>
+      <a href="#pubs">Publications</a>
+      <a href="#visit">Visit</a>
+    </nav>
+    <div class="nav__actions">
+      <a class="nav__cta" href="#visit">Apply / Visit</a>
+      <button class="nav__burger" id="menu-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- FULL MENU -->
+<div class="menu" id="menu" aria-hidden="true">
+  <div></div>
+  <div class="menu__body shell">
+    <nav class="menu__list" aria-label="Site menu">
+      <a class="menu__link" href="#research"><span class="menu__idx">01</span> Research <em>pillars</em></a>
+      <a class="menu__link" href="#strains"><span class="menu__idx">02</span> Strain <em>library</em></a>
+      <a class="menu__link" href="#chamber"><span class="menu__idx">03</span> Growth <em>chamber</em></a>
+      <a class="menu__link" href="#notes"><span class="menu__idx">04</span> Lab <em>notes</em></a>
+      <a class="menu__link" href="#pubs"><span class="menu__idx">05</span> Publications</a>
+      <a class="menu__link" href="#partners"><span class="menu__idx">06</span> Board &amp; <em>partners</em></a>
+      <a class="menu__link" href="#visit"><span class="menu__idx">07</span> Visit / <em>apply</em></a>
+    </nav>
+    <aside class="menu__aside">
+      <p class="mono mint">Current culture</p>
+      <h3>Plate H-204 · Trametes</h3>
+      <p class="small">Colonization 78%. Substrate: alder sawdust + flax hurds. Protocol G-17 humidic. Next transfer window: 36h.</p>
+      <div class="btn-row">
+        <a class="btn" href="#chamber">Open desk</a>
+        <a class="btn btn--ghost" href="#strains">Browse strains</a>
+      </div>
+    </aside>
+  </div>
+  <div class="menu__foot">
+    <span class="mono dim">Hypha Lab · Cascadia Biome Node</span>
+    <span class="mono mint">hello@hypha.lab</span>
+  </div>
+</div>
+
+<main id="main">
+
+<!-- HERO · culture plate -->
+<section class="hero shell" id="top">
+  <div class="hero__grid">
+    <div class="hero__copy">
+      <p class="hero__eyebrow mono">
+        <span aria-hidden="true">●</span> Mycology / Biofabrication · Est. 2019
+      </p>
+      <h1 class="display hero__title">
+        <span class="line"><span>We culture</span></span>
+        <span class="line"><span><em>structure</em></span></span>
+        <span class="line"><span>from mycelium.</span></span>
+      </h1>
+      <p class="lead">Hypha is a dark-forest research lab growing living materials, open strain libraries, and growth protocols for architects, material scientists, and field biologists.</p>
+      <div class="btn-row">
+        <a class="btn" href="#research">Enter the lab</a>
+        <a class="btn btn--ghost" href="#strains">Strain library</a>
+      </div>
+      <div class="hero__stats" aria-label="Lab metrics">
+        <div class="hero__stat">
+          <span class="mono dim">Strains</span>
+          <strong>148</strong>
+        </div>
+        <div class="hero__stat">
+          <span class="mono dim">Chambers</span>
+          <strong>12</strong>
+        </div>
+        <div class="hero__stat">
+          <span class="mono dim">Papers</span>
+          <strong>37</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero__plate-wrap" aria-label="Interactive culture plate visualization">
+      <svg class="culture-plate" id="culture-plate" viewBox="0 0 400 400" role="img" aria-label="Petri dish with branching hyphae">
+        <defs>
+          <radialGradient id="agar" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#1A2B22"/>
+            <stop offset="70%" stop-color="#121E18"/>
+            <stop offset="100%" stop-color="#0F1A14"/>
+          </radialGradient>
+        </defs>
+        <circle class="plate-ring" cx="200" cy="190" r="168" stroke-width="1.5"/>
+        <circle cx="200" cy="190" r="158" fill="url(#agar)" stroke="rgba(155,231,196,.18)" stroke-width="1"/>
+        <g id="hypha-growth"></g>
+        <g id="spores"></g>
+      </svg>
+      <div class="hero__plate-meta">
+        <span class="mono mint">HYP-PLATE · 09</span>
+        <span class="mono dim" id="plate-status">Colonizing…</span>
+      </div>
+    </div>
+  </div>
+  <div class="hero__scroll mono" aria-hidden="true">
+    <span class="hero__scroll-line"></span>
+    Scroll to inoculate
+  </div>
+</section>
+
+<!-- RESEARCH PILLARS -->
+<section class="section section__pad" id="research">
+  <div class="shell">
+    <div class="section__head">
+      <div>
+        <div class="section__kicker mono mint">01 — Research</div>
+        <h2 class="display h2">Four pillars.<br><em>One living stack.</em></h2>
+      </div>
+      <p class="lead section__lead">From wild isolate to structural panel. Each pillar feeds the next — genetics, substrate chemistry, chamber kinetics, and field deployment.</p>
+    </div>
+    <div class="pillars__grid">
+      <article class="pillar">
+        <span class="pillar__num">P.01</span>
+        <svg class="pillar__icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+          <path d="M24 6v14M24 20L12 38M24 20l12 18" stroke="currentColor" stroke-width="1.5"/>
+          <circle cx="24" cy="6" r="2.5" fill="currentColor"/>
+          <circle cx="12" cy="38" r="2" fill="currentColor"/>
+          <circle cx="36" cy="38" r="2" fill="currentColor"/>
+        </svg>
+        <h3>Strain genetics</h3>
+        <p>Isolate banking, mating-type mapping, and phenotypic screens across Basidiomycota and Ascomycota lineages.</p>
+        <div class="pillar__tags"><span class="tag">ITS seq</span><span class="tag">Phenotype</span></div>
+      </article>
+      <article class="pillar">
+        <span class="pillar__num">P.02</span>
+        <svg class="pillar__icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+          <rect x="8" y="10" width="32" height="28" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M8 20h32M18 10v28M30 10v28" stroke="currentColor" stroke-width="1.25" opacity=".7"/>
+        </svg>
+        <h3>Substrate craft</h3>
+        <p>Agricultural residues engineered as nutrient matrices — flax, alder, hemp, coffee parchment, and mineral blends.</p>
+        <div class="pillar__tags"><span class="tag">Agro-waste</span><span class="tag">C:N</span></div>
+      </article>
+      <article class="pillar">
+        <span class="pillar__num">P.03</span>
+        <svg class="pillar__icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+          <circle cx="24" cy="24" r="14" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M24 14v10l7 7" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <h3>Growth kinetics</h3>
+        <p>Closed-loop chambers with humidity, CO₂, and thermal gradients tuned for density, elasticity, and surface finish.</p>
+        <div class="pillar__tags"><span class="tag">RH%</span><span class="tag">Thermal</span></div>
+      </article>
+      <article class="pillar">
+        <span class="pillar__num">P.04</span>
+        <svg class="pillar__icon" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+          <path d="M8 34 L24 10 L40 34 Z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+          <path d="M16 34 V40 M24 34 V42 M32 34 V40" stroke="currentColor" stroke-width="1.25"/>
+        </svg>
+        <h3>Field materials</h3>
+        <p>Panels, foams, and leather-analogues stress-tested for architecture, packaging, and soft-goods partners.</p>
+        <div class="pillar__tags"><span class="tag">Composites</span><span class="tag">LCA</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- STRAIN LIBRARY -->
+<section class="section section__pad" id="strains" style="background:var(--bg-1); border-top:1px solid var(--line); border-bottom:1px solid var(--line);">
+  <div class="shell">
+    <div class="section__head">
+      <div>
+        <div class="section__kicker mono mint">02 — Library</div>
+        <h2 class="display h2">Open strain<br><em>catalog.</em></h2>
+      </div>
+      <p class="lead section__lead">A living inventory of isolates. Filter by clade, browse growth signatures, request transfers under MTA.</p>
+    </div>
+    <div class="strains__toolbar" role="group" aria-label="Filter strains">
+      <button class="filter-btn is-active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="basidio">Basidiomycota</button>
+      <button class="filter-btn" data-filter="asco">Ascomycota</button>
+      <button class="filter-btn" data-filter="live">Live culture</button>
+      <button class="filter-btn" data-filter="bank">Cryo bank</button>
+    </div>
+    <div class="strains__grid" id="strain-grid">
+      <article class="strain" data-clade="basidio" data-state="live">
+        <div class="strain__top">
+          <span class="mono strain__id">HYP-014</span>
+          <span class="strain__status strain__status--live">Live</span>
+        </div>
+        <h3>Trametes versicolor</h3>
+        <div class="strain__viz" aria-hidden="true">
+          <svg viewBox="0 0 300 64"><path d="M0 50 Q40 48 60 30 T120 28 T180 18 T240 22 T300 8" fill="none" stroke="#9BE7C4" stroke-width="1.2"/><path d="M0 56 Q50 52 90 40 T160 36 T220 30 T300 20" fill="none" stroke="#9BE7C4" stroke-width="1" opacity=".45"/></svg>
+        </div>
+        <dl class="strain__meta">
+          <div><dt class="mono--xs mono">Clade</dt><dd>Basidiomycota</dd></div>
+          <div><dt class="mono--xs mono">Use</dt><dd>Structural foam</dd></div>
+        </dl>
+      </article>
+      <article class="strain" data-clade="basidio" data-state="live">
+        <div class="strain__top">
+          <span class="mono strain__id">HYP-027</span>
+          <span class="strain__status strain__status--live">Live</span>
+        </div>
+        <h3>Ganoderma lucidum</h3>
+        <div class="strain__viz" aria-hidden="true">
+          <svg viewBox="0 0 300 64"><path d="M0 40 Q30 20 70 35 T140 15 T210 28 T300 10" fill="none" stroke="#9BE7C4" stroke-width="1.2"/><circle cx="70" cy="35" r="2" fill="#9BE7C4"/><circle cx="140" cy="15" r="2" fill="#9BE7C4"/></svg>
+        </div>
+        <dl class="strain__meta">
+          <div><dt class="mono--xs mono">Clade</dt><dd>Basidiomycota</dd></div>
+          <div><dt class="mono--xs mono">Use</dt><dd>Dense laminate</dd></div>
+        </dl>
+      </article>
+      <article class="strain" data-clade="basidio" data-state="bank">
+        <div class="strain__top">
+          <span class="mono strain__id">HYP-041</span>
+          <span class="strain__status strain__status--bank">Cryo</span>
+        </div>
+        <h3>Pleurotus ostreatus</h3>
+        <div class="strain__viz" aria-hidden="true">
+          <svg viewBox="0 0 300 64"><path d="M10 55 L40 20 L70 50 L100 12 L130 48 L160 18 L190 44 L220 8 L250 40 L290 16" fill="none" stroke="#9BE7C4" stroke-width="1.1"/></svg>
+        </div>
+        <dl class="strain__meta">
+          <div><dt class="mono--xs mono">Clade</dt><dd>Basidiomycota</dd></div>
+          <div><dt class="mono--xs mono">Use</dt><dd>Fast colonization</dd></div>
+        </dl>
+      </article>
+      <article class="strain" data-clade="asco" data-state="live">
+        <div class="strain__top">
+          <span class="mono strain__id">HYP-058</span>
+          <span class="strain__status strain__status--live">Live</span>
+        </div>
+        <h3>Neurospora crassa</h3>
+        <div class="strain__viz" aria-hidden="true">
+          <svg viewBox="0 0 300 64"><path d="M0 32 H300" stroke="#9BE7C4" stroke-width="1" opacity=".35"/><path d="M20 50 Q60 10 100 40 T180 20 T260 45" fill="none" stroke="#9BE7C4" stroke-width="1.2"/></svg>
+        </div>
+        <dl class="strain__meta">
+          <div><dt class="mono--xs mono">Clade</dt><dd>Ascomycota</dd></div>
+          <div><dt class="mono--xs mono">Use</dt><dd>Model genetics</dd></div>
+        </dl>
+      </article>
+      <article class="strain" data-clade="basidio" data-state="live">
+        <div class="strain__top">
+          <span class="mono strain__id">HYP-073</span>
+          <span class="strain__status strain__status--live">Live</span>
+        </div>
+        <h3>Fomes fomentarius</h3>
+        <div class="strain__viz" aria-hidden="true">
+          <svg viewBox="0 0 300 64"><ellipse cx="150" cy="34" rx="90" ry="18" fill="none" stroke="#9BE7C4" stroke-width="1"/><path d="M60 34 Q150 8 240 34" fill="none" stroke="#9BE7C4" stroke-width="1.2"/></svg>
+        </div>
+        <dl class="strain__meta">
+          <div><dt class="mono--xs mono">Clade</dt><dd>Basidiomycota</dd></div>
+          <div><dt class="mono--xs mono">Use</dt><dd>Textile analog</dd></div>
+        </dl>
+      </article>
+      <article class="strain" data-clade="asco" data-state="bank">
+        <div class="strain__top">
+          <span class="mono strain__id">HYP-089</span>
+          <span class="strain__status strain__status--bank">Cryo</span>
+        </div>
+        <h3>Trichoderma reesei</h3>
+        <div class="strain__viz" aria-hidden="true">
+          <svg viewBox="0 0 300 64"><path d="M0 48 C40 48 40 16 80 16 S120 48 160 48 S200 16 240 16 S280 48 300 48" fill="none" stroke="#9BE7C4" stroke-width="1.2"/></svg>
+        </div>
+        <dl class="strain__meta">
+          <div><dt class="mono--xs mono">Clade</dt><dd>Ascomycota</dd></div>
+          <div><dt class="mono--xs mono">Use</dt><dd>Enzyme suite</dd></div>
+        </dl>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- GROWTH CHAMBER -->
+<section class="section section__pad chamber" id="chamber">
+  <div class="shell">
+    <div class="section__head">
+      <div>
+        <div class="section__kicker mono mint">03 — Chamber</div>
+        <h2 class="display h2">Growth desk.<br><em>Tune the climate.</em></h2>
+      </div>
+      <p class="lead section__lead">Interactive chamber console. Adjust temperature and humidity — watch colonization velocity and density respond in real time.</p>
+    </div>
+    <div class="chamber__desk">
+      <div class="chamber__screen">
+        <div class="chamber__screen-bar">
+          <span class="mono mint">CHAMBER · G-04</span>
+          <span class="mono dim" id="chamber-clock">00:00:00</span>
+          <span class="mono" id="chamber-mode-label">Mode · Vegetative</span>
+        </div>
+        <div class="chamber__viz">
+          <div class="chamber__mycelium" aria-hidden="true">
+            <svg id="chamber-svg" viewBox="0 0 400 400" fill="none">
+              <rect x="1" y="1" width="398" height="398" stroke="rgba(155,231,196,.15)"/>
+              <g id="chamber-branches"></g>
+              <circle cx="200" cy="200" r="4" fill="#9BE7C4"/>
+            </svg>
+          </div>
+        </div>
+        <div class="chamber__readout">
+          <div class="chamber__metric">
+            <span class="mono dim">Temp</span>
+            <strong id="read-temp">24<span>°C</span></strong>
+          </div>
+          <div class="chamber__metric">
+            <span class="mono dim">Humidity</span>
+            <strong id="read-rh">78<span>%</span></strong>
+          </div>
+          <div class="chamber__metric">
+            <span class="mono dim">Growth index</span>
+            <strong id="read-gi">1.42<span>x</span></strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="chamber__controls">
+        <h3>Protocol desk</h3>
+        <p class="small">Set climate targets. The mycelium sketch densifies as the growth index rises — avoid thermal stress above 30°C or RH below 55%.</p>
+
+        <div class="control">
+          <div class="control__head">
+            <label class="mono" for="temp-slider">Temperature</label>
+            <span class="control__val" id="temp-label">24.0 °C</span>
+          </div>
+          <input class="slider" id="temp-slider" type="range" min="12" max="34" step="0.5" value="24" />
+        </div>
+
+        <div class="control">
+          <div class="control__head">
+            <label class="mono" for="rh-slider">Humidity</label>
+            <span class="control__val" id="rh-label">78%</span>
+          </div>
+          <input class="slider" id="rh-slider" type="range" min="40" max="98" step="1" value="78" />
+        </div>
+
+        <div class="chamber__modes" role="group" aria-label="Growth modes">
+          <button class="mode-btn is-active" data-mode="vegetative">Vegetative</button>
+          <button class="mode-btn" data-mode="fruiting">Fruiting</button>
+          <button class="mode-btn" data-mode="rest">Rest</button>
+        </div>
+
+        <div class="chamber__log" id="chamber-log" aria-live="polite">
+          <div class="ok">[ok] Chamber G-04 online</div>
+          <div>[sys] Baseline protocol G-17 loaded</div>
+          <div>[sys] Sensor suite calibrated</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LAB NOTES -->
+<section class="section section__pad" id="notes">
+  <div class="shell">
+    <div class="section__head">
+      <div>
+        <div class="section__kicker mono mint">04 — Notes</div>
+        <h2 class="display h2">Lab notes<br><em>from the bench.</em></h2>
+      </div>
+      <p class="lead section__lead">Field and chamber logs published weekly. Raw observations preferred over polished abstracts.</p>
+    </div>
+    <div class="notes__feed">
+      <article class="note">
+        <time class="mono note__date" datetime="2026-07-28">28 Jul 26</time>
+        <div>
+          <h3>Flax hurds outperform alder at <em>high RH</em></h3>
+          <p class="small">In G-04, T. versicolor on flax reached 92% surface cover in 9 days at 85% RH / 23°C — alder lagged by ~36 hours with denser but slower hyphal fronts.</p>
+        </div>
+        <div class="note__author">
+          <span class="mono mint">N. Okada</span>
+          <span class="mono dim">Substrate</span>
+        </div>
+      </article>
+      <article class="note">
+        <time class="mono note__date" datetime="2026-07-19">19 Jul 26</time>
+        <div>
+          <h3>Night drop protocol reduces <em>contamination</em></h3>
+          <p class="small">A 4°C overnight thermal drop (26→22) cut bacterial blooms on coffee parchment bags without slowing colonization velocity past day 5.</p>
+        </div>
+        <div class="note__author">
+          <span class="mono mint">S. Merle</span>
+          <span class="mono dim">Kinetics</span>
+        </div>
+      </article>
+      <article class="note">
+        <time class="mono note__date" datetime="2026-07-08">08 Jul 26</time>
+        <div>
+          <h3>New isolate from Cascadia nurse log — <em>HYP-112</em></h3>
+          <p class="small">White-rot morphotype collected at 780m. ITS pending. Early plate growth suggests aggressive lignin preference; queued for foam trials.</p>
+        </div>
+        <div class="note__author">
+          <span class="mono mint">A. Ruiz</span>
+          <span class="mono dim">Field</span>
+        </div>
+      </article>
+      <article class="note">
+        <time class="mono note__date" datetime="2026-06-26">26 Jun 26</time>
+        <div>
+          <h3>Leather-analog peel strength hits <em>spec</em></h3>
+          <p class="small">F. fomentarius mat on hemp scrim: peel 2.1 N/cm after 14d press-dry. Soft-goods partner review scheduled for August.</p>
+        </div>
+        <div class="note__author">
+          <span class="mono mint">L. Chen</span>
+          <span class="mono dim">Materials</span>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- PUBLICATIONS -->
+<section class="section section__pad" id="pubs" style="background:var(--bg-1); border-top:1px solid var(--line); border-bottom:1px solid var(--line);">
+  <div class="shell">
+    <div class="section__head">
+      <div>
+        <div class="section__kicker mono mint">05 — Publications</div>
+        <h2 class="display h2">Selected<br><em>papers.</em></h2>
+      </div>
+      <p class="lead section__lead">Peer-reviewed work and open protocols. PDFs on request; preprints mirrored on our archive.</p>
+    </div>
+    <div class="pubs__list">
+      <article class="pub">
+        <span class="mono pub__year">2026</span>
+        <h3 class="pub__title">Humidity gradients as a design tool for mycelium foam anisotropy</h3>
+        <p class="pub__meta">Okada, Merle, Chen · Materials Today Bio</p>
+        <a class="pub__link" href="#visit">Request PDF</a>
+      </article>
+      <article class="pub">
+        <span class="mono pub__year">2025</span>
+        <h3 class="pub__title">Open strain libraries for biofabrication: governance, MTA, and contamination risk</h3>
+        <p class="pub__meta">Ruiz, Okada · Nature Biotechnology Forum</p>
+        <a class="pub__link" href="#visit">Request PDF</a>
+      </article>
+      <article class="pub">
+        <span class="mono pub__year">2025</span>
+        <h3 class="pub__title">Agricultural residue substrates: C:N tuning for structural Trametes composites</h3>
+        <p class="pub__meta">Chen, Merle · ACS Sustainable Chem. Eng.</p>
+        <a class="pub__link" href="#visit">Request PDF</a>
+      </article>
+      <article class="pub">
+        <span class="mono pub__year">2024</span>
+        <h3 class="pub__title">Thermal night drops and bacterial bloom suppression in bag culture</h3>
+        <p class="pub__meta">Merle et al. · Fungal Biology &amp; Biotechnology</p>
+        <a class="pub__link" href="#visit">Request PDF</a>
+      </article>
+      <article class="pub">
+        <span class="mono pub__year">2023</span>
+        <h3 class="pub__title">Fomes fomentarius mats as leather analogues: mechanical characterization</h3>
+        <p class="pub__meta">Chen, Ruiz · Biofabrication</p>
+        <a class="pub__link" href="#visit">Request PDF</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- PARTNERS / BOARD -->
+<section class="section section__pad" id="partners">
+  <div class="shell partners__grid">
+    <div class="section__head" style="margin-bottom:0">
+      <div>
+        <div class="section__kicker mono mint">06 — People</div>
+        <h2 class="display h2">Board &amp;<br><em>partners.</em></h2>
+      </div>
+      <p class="lead section__lead">Scientists, builders, and stewards who keep the culture honest — and the chambers funded.</p>
+    </div>
+
+    <div class="board">
+      <article class="board__card">
+        <div class="board__avatar">NO</div>
+        <h3>Nora Okada</h3>
+        <p class="mono board__role">Scientific Director</p>
+        <p class="small">Mycologist. Strain banking, mating systems, and phenotype pipelines.</p>
+      </article>
+      <article class="board__card">
+        <div class="board__avatar">SM</div>
+        <h3>Silas Merle</h3>
+        <p class="mono board__role">Chamber Lead</p>
+        <p class="small">Environmental control systems and growth kinetics modeling.</p>
+      </article>
+      <article class="board__card">
+        <div class="board__avatar">LC</div>
+        <h3>Lina Chen</h3>
+        <p class="mono board__role">Materials</p>
+        <p class="small">Composites, textiles, and partner pilot lines.</p>
+      </article>
+      <article class="board__card">
+        <div class="board__avatar">AR</div>
+        <h3>Amina Ruiz</h3>
+        <p class="mono board__role">Field &amp; Governance</p>
+        <p class="small">Wild isolates, ethnomycology liaison, open library policy.</p>
+      </article>
+    </div>
+
+    <div>
+      <p class="mono mint" style="margin-bottom:1rem">Research partners</p>
+      <div class="partners__logos">
+        <div class="partner-logo">Cascadia <span>Biome</span></div>
+        <div class="partner-logo">Nordic <span>Timber</span></div>
+        <div class="partner-logo">Atelier <span>Soil</span></div>
+        <div class="partner-logo">Open <span>Mycelia</span></div>
+        <div class="partner-logo">Flax <span>Collective</span></div>
+        <div class="partner-logo">Harbor <span>Materials</span></div>
+        <div class="partner-logo">Verde <span>Foundry</span></div>
+        <div class="partner-logo">Kinetic <span>Forest</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VISIT / APPLY -->
+<section class="section section__pad visit" id="visit">
+  <div class="shell visit__grid">
+    <div class="visit__info">
+      <div>
+        <div class="section__kicker mono mint">07 — Visit</div>
+        <h2 class="display h2">Come to the<br><em>forest node.</em></h2>
+      </div>
+      <p class="lead">Residencies, strain transfer requests, and partner pilots. Tell us what you want to grow — we will reply within five lab days.</p>
+      <div class="visit__addr">
+        <strong>Hypha Cascadia</strong>
+        <p class="small">1847 Nurse Log Road<br>Olympic Peninsula, WA 98362</p>
+        <p class="mono mint">hello@hypha.lab</p>
+        <p class="mono dim">Visits by appointment · Mon–Thu</p>
+      </div>
+    </div>
+
+    <form class="form" id="visit-form" novalidate>
+      <div class="form__success" role="status">Inquiry received — we will culture a reply shortly.</div>
+      <div class="form__fields">
+        <div class="form__row">
+          <div class="field">
+            <label for="name">Name</label>
+            <input id="name" name="name" type="text" autocomplete="name" required placeholder="Your name" />
+          </div>
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" autocomplete="email" required placeholder="you@lab.org" />
+          </div>
+        </div>
+        <div class="form__row">
+          <div class="field">
+            <label for="org">Organization</label>
+            <input id="org" name="org" type="text" autocomplete="organization" placeholder="Studio / lab / solo" />
+          </div>
+          <div class="field">
+            <label for="intent">Intent</label>
+            <select id="intent" name="intent" required>
+              <option value="">Select…</option>
+              <option value="visit">Lab visit</option>
+              <option value="residency">Residency</option>
+              <option value="strain">Strain transfer</option>
+              <option value="partner">Partner pilot</option>
+              <option value="press">Press</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="message">Message</label>
+          <textarea id="message" name="message" required placeholder="What are you trying to grow?"></textarea>
+        </div>
+        <div class="form__actions">
+          <p class="form__note">By submitting you agree to our MTA preview terms for any strain discussion.</p>
+          <button class="btn" type="submit">Send inquiry</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="shell">
+    <div class="footer__top">
+      <div>
+        <div class="footer__brand">Hy<em>pha</em></div>
+        <p class="small" style="max-width:32ch">Mycology and biofabrication research. Living materials grown in the dark forest, documented in the open.</p>
+      </div>
+      <div class="footer__col">
+        <h4>Navigate</h4>
+        <a href="#research">Research</a>
+        <a href="#strains">Strains</a>
+        <a href="#chamber">Chamber</a>
+        <a href="#notes">Notes</a>
+        <a href="#pubs">Publications</a>
+      </div>
+      <div class="footer__col">
+        <h4>Connect</h4>
+        <a href="mailto:hello@hypha.lab">hello@hypha.lab</a>
+        <a href="#visit">Visit / Apply</a>
+        <a href="#partners">Board</a>
+        <p>Olympic Peninsula, WA</p>
+      </div>
+      <div class="footer__col">
+        <h4>Status</h4>
+        <p class="mint" style="color:var(--mint)">Chambers online · 12/12</p>
+        <p>Culture window open</p>
+        <p>Next open lab: Sep 12</p>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span class="mono dim">© 2026 Hypha Research Lab · Fictional demo</span>
+      <span class="mono mint">Spore mint on forest dark</span>
+    </div>
+  </div>
+</footer>
+
+<div class="noise" aria-hidden="true"></div>
+
+<script>
+(() => {
+  'use strict';
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const canHover = window.matchMedia('(hover:hover) and (pointer:fine)').matches;
+
+  /* ---------- helpers ---------- */
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+  const lerp = (a, b, t) => a + (b - a) * t;
+
+  /* ---------- custom Y-node cursor ---------- */
+  const cursor = document.getElementById('cursor');
+  if (canHover && cursor) {
+    document.body.classList.add('has-cursor');
+    let cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+    let tx = cx, ty = cy;
+    window.addEventListener('mousemove', (e) => {
+      tx = e.clientX; ty = e.clientY;
+    });
+    const tickCursor = () => {
+      cx = lerp(cx, tx, 0.28);
+      cy = lerp(cy, ty, 0.28);
+      cursor.style.left = cx + 'px';
+      cursor.style.top = cy + 'px';
+      requestAnimationFrame(tickCursor);
+    };
+    tickCursor();
+    document.addEventListener('mousedown', () => cursor.classList.add('is-down'));
+    document.addEventListener('mouseup', () => cursor.classList.remove('is-down'));
+    document.querySelectorAll('a, button, input, select, textarea, .slider, .filter-btn, .mode-btn').forEach((el) => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('is-link'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('is-link'));
+    });
+  } else if (cursor) {
+    cursor.style.display = 'none';
+  }
+
+  /* ---------- culture plate SVG ---------- */
+  function buildHyphaTree(group, cx, cy, depth, angle, len, branchChance) {
+    if (depth <= 0 || len < 6) return;
+    const rad = (angle * Math.PI) / 180;
+    const x2 = cx + Math.cos(rad) * len;
+    const y2 = cy + Math.sin(rad) * len;
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', `M${cx.toFixed(1)} ${cy.toFixed(1)} L${x2.toFixed(1)} ${y2.toFixed(1)}`);
+    path.setAttribute('class', 'hypha-branch');
+    path.style.opacity = String(0.35 + depth * 0.08);
+    group.appendChild(path);
+    const node = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    node.setAttribute('cx', x2.toFixed(1));
+    node.setAttribute('cy', y2.toFixed(1));
+    node.setAttribute('r', depth > 3 ? 1.8 : 1.2);
+    node.setAttribute('class', 'hypha-node');
+    node.style.opacity = String(0.5 + depth * 0.08);
+    group.appendChild(node);
+    const spread = 28 + Math.random() * 18;
+    buildHyphaTree(group, x2, y2, depth - 1, angle - spread, len * (0.68 + Math.random() * 0.12), branchChance);
+    if (Math.random() < branchChance) {
+      buildHyphaTree(group, x2, y2, depth - 1, angle + spread, len * (0.65 + Math.random() * 0.12), branchChance * 0.9);
+    }
+    if (Math.random() < 0.35 && depth > 2) {
+      buildHyphaTree(group, x2, y2, depth - 2, angle + (Math.random() > 0.5 ? 55 : -55), len * 0.5, 0.4);
+    }
+  }
+
+  function seedCulturePlate() {
+    const g = document.getElementById('hypha-growth');
+    const spores = document.getElementById('spores');
+    if (!g) return;
+    g.innerHTML = '';
+    if (spores) spores.innerHTML = '';
+    // center inoculum
+    const origins = [
+      { x: 200, y: 190, a: -90 },
+      { x: 200, y: 190, a: -40 },
+      { x: 200, y: 190, a: -140 },
+      { x: 200, y: 190, a: 20 },
+      { x: 200, y: 190, a: 160 },
+      { x: 200, y: 190, a: 90 },
+    ];
+    origins.forEach((o) => buildHyphaTree(g, o.x, o.y, 6, o.a, 28 + Math.random() * 10, 0.85));
+    if (spores) {
+      for (let i = 0; i < 28; i++) {
+        const a = Math.random() * Math.PI * 2;
+        const r = 40 + Math.random() * 110;
+        const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        c.setAttribute('class', 'spore');
+        c.setAttribute('cx', (200 + Math.cos(a) * r).toFixed(1));
+        c.setAttribute('cy', (190 + Math.sin(a) * r).toFixed(1));
+        c.setAttribute('r', (0.8 + Math.random() * 1.6).toFixed(1));
+        spores.appendChild(c);
+      }
+    }
+  }
+  seedCulturePlate();
+
+  /* ---------- chamber mycelium ---------- */
+  function buildChamberNetwork(density) {
+    const g = document.getElementById('chamber-branches');
+    if (!g) return;
+    g.innerHTML = '';
+    const branches = Math.floor(8 + density * 18);
+    for (let i = 0; i < branches; i++) {
+      const angle = (i / branches) * 360 + (Math.random() * 20 - 10);
+      buildHyphaTree(g, 200, 200, Math.floor(3 + density * 4), angle - 90, 20 + density * 28, 0.55 + density * 0.3);
+    }
+    g.querySelectorAll('path').forEach((p) => {
+      p.setAttribute('stroke', '#9BE7C4');
+      p.setAttribute('stroke-width', '1.1');
+      p.setAttribute('fill', 'none');
+    });
+    g.querySelectorAll('circle').forEach((c) => {
+      c.setAttribute('fill', '#9BE7C4');
+    });
+  }
+
+  /* ---------- growth chamber logic ---------- */
+  const tempSlider = document.getElementById('temp-slider');
+  const rhSlider = document.getElementById('rh-slider');
+  const tempLabel = document.getElementById('temp-label');
+  const rhLabel = document.getElementById('rh-label');
+  const readTemp = document.getElementById('read-temp');
+  const readRh = document.getElementById('read-rh');
+  const readGi = document.getElementById('read-gi');
+  const chamberLog = document.getElementById('chamber-log');
+  const chamberModeLabel = document.getElementById('chamber-mode-label');
+  let chamberMode = 'vegetative';
+  let lastGi = 1.42;
+
+  function growthIndex(temp, rh, mode) {
+    // optimal vegetative ~23-25C, 75-85% RH
+    const tOpt = mode === 'fruiting' ? 18 : mode === 'rest' ? 16 : 24;
+    const rOpt = mode === 'fruiting' ? 90 : mode === 'rest' ? 65 : 80;
+    const tScore = 1 - Math.min(1, Math.abs(temp - tOpt) / 14);
+    const rScore = 1 - Math.min(1, Math.abs(rh - rOpt) / 40);
+    let gi = 0.35 + tScore * 0.9 + rScore * 0.75;
+    if (temp > 30) gi *= 0.55;
+    if (rh < 55) gi *= 0.6;
+    if (mode === 'rest') gi *= 0.45;
+    return clamp(gi, 0.2, 2.4);
+  }
+
+  function logLine(msg, cls) {
+    if (!chamberLog) return;
+    const div = document.createElement('div');
+    if (cls) div.className = cls;
+    const t = new Date();
+    const stamp = [t.getHours(), t.getMinutes(), t.getSeconds()].map((n) => String(n).padStart(2, '0')).join(':');
+    div.textContent = `[${stamp}] ${msg}`;
+    chamberLog.appendChild(div);
+    chamberLog.scrollTop = chamberLog.scrollHeight;
+    while (chamberLog.children.length > 8) chamberLog.removeChild(chamberLog.firstChild);
+  }
+
+  function updateChamber(silent) {
+    const temp = parseFloat(tempSlider.value);
+    const rh = parseFloat(rhSlider.value);
+    const gi = growthIndex(temp, rh, chamberMode);
+    tempLabel.textContent = temp.toFixed(1) + ' °C';
+    rhLabel.textContent = rh + '%';
+    readTemp.innerHTML = temp.toFixed(1) + '<span>°C</span>';
+    readRh.innerHTML = rh + '<span>%</span>';
+    readGi.innerHTML = gi.toFixed(2) + '<span>x</span>';
+    const density = clamp((gi - 0.2) / 2.2, 0.05, 1);
+    buildChamberNetwork(density);
+    if (!silent && Math.abs(gi - lastGi) > 0.08) {
+      if (gi < 0.7) logLine('Growth stress — adjust climate', 'warn');
+      else if (gi > 1.8) logLine('High colonization velocity', 'ok');
+      else logLine(`Growth index → ${gi.toFixed(2)}x`);
+      lastGi = gi;
+    }
+  }
+
+  if (tempSlider && rhSlider) {
+    tempSlider.addEventListener('input', () => updateChamber(false));
+    rhSlider.addEventListener('input', () => updateChamber(false));
+    updateChamber(true);
+  }
+
+  document.querySelectorAll('.mode-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.mode-btn').forEach((b) => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+      chamberMode = btn.dataset.mode;
+      chamberModeLabel.textContent = 'Mode · ' + chamberMode.charAt(0).toUpperCase() + chamberMode.slice(1);
+      logLine(`Protocol switched → ${chamberMode}`, 'ok');
+      // gentle preset nudges
+      if (chamberMode === 'fruiting') {
+        tempSlider.value = 18; rhSlider.value = 92;
+      } else if (chamberMode === 'rest') {
+        tempSlider.value = 16; rhSlider.value = 62;
+      } else {
+        tempSlider.value = 24; rhSlider.value = 78;
+      }
+      updateChamber(false);
+    });
+  });
+
+  // chamber clock
+  const clockEl = document.getElementById('chamber-clock');
+  const start = Date.now();
+  setInterval(() => {
+    if (!clockEl) return;
+    const s = Math.floor((Date.now() - start) / 1000);
+    const h = String(Math.floor(s / 3600)).padStart(2, '0');
+    const m = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
+    const sec = String(s % 60).padStart(2, '0');
+    clockEl.textContent = `${h}:${m}:${sec}`;
+  }, 1000);
+
+  /* ---------- strain filters ---------- */
+  document.querySelectorAll('.filter-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach((b) => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+      const f = btn.dataset.filter;
+      document.querySelectorAll('.strain').forEach((card) => {
+        const clade = card.dataset.clade;
+        const state = card.dataset.state;
+        let show = f === 'all'
+          || (f === 'basidio' && clade === 'basidio')
+          || (f === 'asco' && clade === 'asco')
+          || (f === 'live' && state === 'live')
+          || (f === 'bank' && state === 'bank');
+        card.classList.toggle('is-hidden', !show);
+      });
+      if (window.ScrollTrigger) ScrollTrigger.refresh();
+    });
+  });
+
+  /* ---------- menu ---------- */
+  const menu = document.getElementById('menu');
+  const menuToggle = document.getElementById('menu-toggle');
+  function setMenu(open) {
+    menu.classList.toggle('is-open', open);
+    menuToggle.classList.toggle('is-open', open);
+    menuToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    menu.setAttribute('aria-hidden', open ? 'false' : 'true');
+    document.body.classList.toggle('is-locked', open);
+    menuToggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    if (window.lenis) {
+      if (open) window.lenis.stop();
+      else window.lenis.start();
+    }
+  }
+  menuToggle.addEventListener('click', () => setMenu(!menu.classList.contains('is-open')));
+  menu.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setMenu(false)));
+
+  /* ---------- form ---------- */
+  const form = document.getElementById('visit-form');
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+      form.classList.add('is-sent');
+    });
+  }
+
+  /* ---------- wait for libs then boot ---------- */
+  function boot() {
+    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined' || typeof Lenis === 'undefined') {
+      requestAnimationFrame(boot);
+      return;
+    }
+    gsap.registerPlugin(ScrollTrigger);
+
+    /* Lenis */
+    const lenis = new Lenis({
+      duration: 1.15,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+    });
+    window.lenis = lenis;
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add((time) => lenis.raf(time * 1000));
+    gsap.ticker.lagSmoothing(0);
+
+    /* Preloader */
+    const pre = document.getElementById('preloader');
+    const fill = document.getElementById('preloader-fill');
+    const pct = document.getElementById('preloader-pct');
+    const nav = document.getElementById('nav');
+
+    const preTl = gsap.timeline({
+      onComplete: () => {
+        gsap.to(pre, {
+          yPercent: -100,
+          duration: reduced ? 0.01 : 0.9,
+          ease: 'power4.inOut',
+          onComplete: () => { pre.classList.add('is-done'); pre.style.display = 'none'; }
+        });
+        gsap.to(nav, { y: 0, duration: 0.8, ease: 'power3.out', delay: 0.15 });
+        heroIn();
+      }
+    });
+
+    preTl.from('.pl-branch', {
+      strokeDasharray: 80,
+      strokeDashoffset: 80,
+      duration: reduced ? 0.01 : 0.7,
+      stagger: 0.06,
+      ease: 'power2.out'
+    }, 0);
+    preTl.from('.pl-node', { scale: 0, transformOrigin: 'center', duration: 0.35, stagger: 0.05 }, 0.2);
+    preTl.to(fill, {
+      width: '100%',
+      duration: reduced ? 0.2 : 1.4,
+      ease: 'power2.inOut',
+      onUpdate: function () {
+        pct.textContent = Math.round(this.progress() * 100) + '%';
+      }
+    }, 0.15);
+    preTl.to({}, { duration: reduced ? 0 : 0.25 });
+
+    function heroIn() {
+      const plateStatus = document.getElementById('plate-status');
+      gsap.from('.hero__title .line span', {
+        yPercent: 120,
+        duration: reduced ? 0.01 : 1.05,
+        stagger: 0.1,
+        ease: 'power4.out'
+      });
+      gsap.from('.hero__copy > *:not(.hero__title)', {
+        y: 28, opacity: 0, duration: 0.8, stagger: 0.08, delay: 0.25, ease: 'power3.out'
+      });
+      gsap.from('.hero__plate-wrap', {
+        scale: 0.92, opacity: 0, duration: 1.1, delay: 0.15, ease: 'power3.out'
+      });
+      const branches = document.querySelectorAll('#hypha-growth .hypha-branch');
+      gsap.from(branches, {
+        strokeDasharray: 120,
+        strokeDashoffset: 120,
+        duration: 1.2,
+        stagger: { amount: 1.4, from: 'start' },
+        ease: 'power1.out',
+        delay: 0.3,
+        onComplete: () => { if (plateStatus) plateStatus.textContent = 'Colonization active'; }
+      });
+      gsap.from('#spores .spore', {
+        scale: 0, opacity: 0, duration: 0.5, stagger: 0.02, delay: 0.8, ease: 'back.out(1.6)'
+      });
+      gsap.to('.hero__scroll-line', {
+        scaleX: 1.4, duration: 1.2, repeat: -1, yoyo: true, ease: 'sine.inOut'
+      });
+    }
+
+    /* Scroll reveals */
+    gsap.utils.toArray('.section__head').forEach((el) => {
+      gsap.from(el.children, {
+        y: 40, opacity: 0, duration: 0.9, stagger: 0.12, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 82%' }
+      });
+    });
+
+    gsap.utils.toArray('.pillar').forEach((el, i) => {
+      gsap.from(el, {
+        y: 48, opacity: 0, duration: 0.85, delay: (i % 4) * 0.08, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 88%' }
+      });
+    });
+
+    gsap.utils.toArray('.strain').forEach((el, i) => {
+      gsap.from(el, {
+        y: 36, opacity: 0, duration: 0.75, delay: (i % 3) * 0.07, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 90%' }
+      });
+    });
+
+    gsap.from('.chamber__screen', {
+      x: -40, opacity: 0, duration: 1, ease: 'power3.out',
+      scrollTrigger: { trigger: '#chamber', start: 'top 70%' }
+    });
+    gsap.from('.chamber__controls', {
+      x: 40, opacity: 0, duration: 1, ease: 'power3.out',
+      scrollTrigger: { trigger: '#chamber', start: 'top 70%' }
+    });
+
+    gsap.utils.toArray('.note').forEach((el) => {
+      gsap.from(el, {
+        y: 30, opacity: 0, duration: 0.7, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 90%' }
+      });
+    });
+
+    gsap.utils.toArray('.pub').forEach((el, i) => {
+      gsap.from(el, {
+        y: 24, opacity: 0, duration: 0.65, delay: i * 0.04, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 92%' }
+      });
+    });
+
+    gsap.utils.toArray('.board__card').forEach((el, i) => {
+      gsap.from(el, {
+        y: 36, opacity: 0, duration: 0.75, delay: (i % 4) * 0.08, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 90%' }
+      });
+    });
+
+    gsap.from('.partner-logo', {
+      y: 20, opacity: 0, duration: 0.55, stagger: 0.05, ease: 'power2.out',
+      scrollTrigger: { trigger: '.partners__logos', start: 'top 85%' }
+    });
+
+    gsap.from('.visit__info > *', {
+      y: 32, opacity: 0, duration: 0.8, stagger: 0.1, ease: 'power3.out',
+      scrollTrigger: { trigger: '#visit', start: 'top 75%' }
+    });
+    gsap.from('.form', {
+      y: 40, opacity: 0, duration: 0.9, ease: 'power3.out',
+      scrollTrigger: { trigger: '#visit', start: 'top 75%' }
+    });
+
+    /* plate parallax */
+    gsap.to('.hero__plate-wrap', {
+      y: 60,
+      ease: 'none',
+      scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true }
+    });
+
+    /* anchor smooth via lenis */
+    document.querySelectorAll('a[href^="#"]').forEach((a) => {
+      a.addEventListener('click', (e) => {
+        const id = a.getAttribute('href');
+        if (!id || id === '#') return;
+        const target = document.querySelector(id);
+        if (!target) return;
+        e.preventDefault();
+        lenis.scrollTo(target, { offset: -70, duration: 1.2 });
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+</body>
+</html>

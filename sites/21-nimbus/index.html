@@ -1,0 +1,2737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Nimbus — Weather Desk · A calm personal cloud for creators</title>
+<meta name="description" content="Nimbus is a Weather Desk for your files — draft fog, review haze, final clear. Soft sync meteorology for creators who keep versions like weather." />
+<meta name="theme-color" content="#F5F8FC" />
+<meta name="robots" content="index,follow" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Nimbus" />
+<meta property="og:title" content="Nimbus — Weather Desk" />
+<meta property="og:description" content="A calm personal cloud for creators. Versions as weather. Sync as pressure. Sky as allotment." />
+<meta property="og:image" content="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 630'%3E%3Crect fill='%23F5F8FC' width='1200' height='630'/%3E%3Ccircle cx='420' cy='280' r='140' fill='%237BA3C9' opacity='.2'/%3E%3Ccircle cx='560' cy='260' r='180' fill='%237BA3C9' opacity='.28'/%3E%3Ccircle cx='720' cy='300' r='120' fill='%237BA3C9' opacity='.18'/%3E%3Ctext x='600' y='520' text-anchor='middle' font-family='Georgia,serif' font-size='56' fill='%230F1419'%3ENimbus%3C/text%3E%3C/svg%3E" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Nimbus — Weather Desk" />
+<meta name="twitter:description" content="Draft fog. Review haze. Final clear. Soft sync for creators." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='22' fill='%23F5F8FC'/%3E%3Ccircle cx='26' cy='36' r='14' fill='%237BA3C9' opacity='.5'/%3E%3Ccircle cx='40' cy='32' r='13' fill='%237BA3C9' opacity='.72'/%3E%3Ccircle cx='34' cy='24' r='11' fill='%237BA3C9' opacity='.88'/%3E%3C/svg%3E" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=IBM+Plex+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+<script>document.documentElement.classList.add("js");</script>
+
+<style>
+/* ============================================================
+   NIMBUS — Weather Desk
+   mist #F5F8FC · sky #7BA3C9 · ink #0F1419
+   ============================================================ */
+:root {
+  --mist: #F5F8FC;
+  --mist-2: #EAF0F7;
+  --mist-3: #DCE6F1;
+  --sky: #7BA3C9;
+  --sky-deep: #5A87B0;
+  --sky-soft: rgba(123, 163, 201, 0.22);
+  --sky-mid: rgba(123, 163, 201, 0.38);
+  --sky-glow: rgba(123, 163, 201, 0.55);
+  --ink: #0F1419;
+  --ink-2: rgba(15, 20, 25, 0.72);
+  --ink-3: rgba(15, 20, 25, 0.48);
+  --ink-faint: rgba(15, 20, 25, 0.08);
+  --ink-line: rgba(15, 20, 25, 0.12);
+  --white: #FFFFFF;
+  --panel: rgba(255, 255, 255, 0.55);
+  --panel-solid: #F0F4F9;
+
+  --font: "Outfit", system-ui, sans-serif;
+  --font-brand: "Fraunces", Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --radius: 28px;
+  --radius-lg: 40px;
+  --radius-xl: 56px;
+  --radius-pill: 999px;
+
+  --pad: clamp(1.15rem, 3.2vw, 2.6rem);
+  --max: 1280px;
+  --nav-h: 4.4rem;
+
+  --fs-xs: 0.68rem;
+  --fs-sm: 0.875rem;
+  --fs-md: 1rem;
+  --fs-lg: clamp(1.05rem, 0.96rem + 0.4vw, 1.2rem);
+  --fs-h3: clamp(1.35rem, 1.1rem + 0.9vw, 1.85rem);
+  --fs-h2: clamp(2.1rem, 1.25rem + 3.1vw, 3.75rem);
+  --fs-h1: clamp(2.4rem, 1.1rem + 5.2vw, 4.6rem);
+  --fs-wm: clamp(5.5rem, 12vw + 2rem, 14rem);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: var(--mist); -webkit-text-size-adjust: 100%; }
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+body {
+  font-family: var(--font);
+  font-size: var(--fs-md);
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--mist);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  font-weight: 400;
+}
+
+@media (pointer: fine) {
+  body.has-cursor,
+  body.has-cursor a,
+  body.has-cursor button,
+  body.has-cursor [data-cursor] { cursor: none !important; }
+}
+
+img, svg { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+ul, ol { list-style: none; }
+::selection { background: var(--sky); color: var(--white); }
+:focus-visible { outline: 2px solid var(--sky-deep); outline-offset: 3px; border-radius: 8px; }
+
+.wrap {
+  width: 100%;
+  max-width: var(--max);
+  margin-inline: auto;
+  padding-inline: var(--pad);
+}
+
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 10100;
+  background: var(--ink);
+  color: var(--mist);
+  padding: 0.7rem 1rem;
+  font: 500 0.8rem/1 var(--font-mono);
+  border-radius: 12px;
+}
+.skip:focus { left: 0.5rem; top: 0.5rem; }
+
+/* Type */
+.mono {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+.label::before {
+  content: "";
+  width: 1.5rem;
+  height: 1px;
+  background: var(--sky);
+  flex: none;
+}
+.h1 {
+  font-family: var(--font-brand);
+  font-size: var(--fs-h1);
+  font-weight: 400;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  font-variation-settings: "opsz" 72;
+}
+.h2 {
+  font-family: var(--font-brand);
+  font-size: var(--fs-h2);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  font-variation-settings: "opsz" 60;
+}
+.h3 {
+  font-family: var(--font-brand);
+  font-size: var(--fs-h3);
+  font-weight: 450;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+}
+.h1 em, .h2 em, .h3 em { font-style: italic; font-weight: 350; }
+.lede {
+  font-size: var(--fs-lg);
+  line-height: 1.55;
+  color: var(--ink-2);
+  max-width: 42ch;
+  font-weight: 300;
+}
+.small { font-size: var(--fs-sm); color: var(--ink-3); line-height: 1.6; }
+.sky-text { color: var(--sky-deep); }
+
+/* Atmosphere grain */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ============================================================
+   Cursor — soft vapor blot
+   ============================================================ */
+.cur {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 10050;
+  transform: translate3d(-200px, -200px, 0);
+  will-change: transform;
+  opacity: 0;
+}
+.cur__blot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 22px;
+  height: 22px;
+  margin: -11px 0 0 -11px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%,
+    rgba(123, 163, 201, 0.55) 0%,
+    rgba(123, 163, 201, 0.28) 45%,
+    rgba(123, 163, 201, 0.08) 70%,
+    transparent 78%);
+  filter: blur(1.5px);
+  transition:
+    width 0.4s var(--ease),
+    height 0.4s var(--ease),
+    margin 0.4s var(--ease),
+    filter 0.35s var(--ease),
+    background 0.35s ease;
+}
+.cur.is-dense .cur__blot {
+  width: 48px;
+  height: 48px;
+  margin: -24px 0 0 -24px;
+  filter: blur(0.5px);
+  background: radial-gradient(circle at 40% 35%,
+    rgba(90, 135, 176, 0.72) 0%,
+    rgba(123, 163, 201, 0.42) 40%,
+    rgba(123, 163, 201, 0.14) 68%,
+    transparent 80%);
+}
+.cur__core {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: var(--sky-deep);
+  opacity: 0.85;
+  transition: transform 0.35s var(--ease), opacity 0.3s;
+}
+.cur.is-dense .cur__core { transform: scale(1.4); opacity: 1; }
+.cur__label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  margin: 18px 0 0 16px;
+  font: 500 0.58rem/1 var(--font-mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink);
+  opacity: 0;
+  white-space: nowrap;
+  transition: opacity 0.25s var(--ease), margin 0.35s var(--ease);
+}
+.cur.is-dense .cur__label { opacity: 0.7; margin: 28px 0 0 26px; }
+
+/* ============================================================
+   Nav
+   ============================================================ */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 800;
+  height: var(--nav-h);
+  display: flex;
+  align-items: center;
+  mix-blend-mode: normal;
+}
+.nav__inner {
+  width: 100%;
+  max-width: var(--max);
+  margin-inline: auto;
+  padding-inline: var(--pad);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.nav__brand {
+  font-family: var(--font-brand);
+  font-size: 1.35rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+.nav__mark {
+  width: 22px;
+  height: 14px;
+  position: relative;
+}
+.nav__mark span {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--sky);
+}
+.nav__mark span:nth-child(1) { width: 12px; height: 10px; left: 0; bottom: 0; opacity: 0.55; }
+.nav__mark span:nth-child(2) { width: 14px; height: 11px; left: 6px; bottom: 1px; opacity: 0.8; }
+.nav__mark span:nth-child(3) { width: 10px; height: 9px; left: 10px; top: 0; opacity: 0.95; }
+
+.nav__links {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 2.5vw, 2rem);
+}
+.nav__links a {
+  font-size: 0.82rem;
+  font-weight: 450;
+  color: var(--ink-2);
+  transition: color 0.25s;
+}
+.nav__links a:hover { color: var(--ink); }
+.nav__seal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.55rem 1.15rem;
+  border-radius: var(--radius-pill);
+  background: var(--ink);
+  color: var(--mist);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  transition: transform 0.35s var(--ease), background 0.25s;
+}
+.nav__seal:hover { transform: translateY(-1px); background: var(--sky-deep); }
+
+.nav__burger {
+  display: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  align-items: center;
+  justify-content: center;
+  background: var(--panel);
+  border: 1px solid var(--ink-faint);
+}
+.nav__burger span {
+  display: block;
+  width: 16px;
+  height: 1.5px;
+  background: var(--ink);
+  position: relative;
+}
+.nav__burger span::before,
+.nav__burger span::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  background: var(--ink);
+}
+.nav__burger span::before { top: -5px; }
+.nav__burger span::after { top: 5px; }
+
+@media (max-width: 760px) {
+  .nav__links { display: none; }
+  .nav__burger { display: flex; }
+}
+
+/* Mobile menu */
+.mnav {
+  position: fixed;
+  inset: 0;
+  z-index: 850;
+  background: rgba(245, 248, 252, 0.96);
+  backdrop-filter: blur(18px);
+  display: flex;
+  flex-direction: column;
+  padding: calc(var(--nav-h) + 1.5rem) var(--pad) 2rem;
+  clip-path: inset(0 0 100% 0);
+  pointer-events: none;
+}
+.mnav.is-open { pointer-events: auto; }
+.mnav a {
+  font-family: var(--font-brand);
+  font-size: clamp(2rem, 8vw, 3rem);
+  padding: 0.6rem 0;
+  letter-spacing: -0.02em;
+  border-bottom: 1px solid var(--ink-faint);
+}
+.mnav__foot {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 2rem;
+}
+
+/* ============================================================
+   HERO — full-bleed sky
+   ============================================================ */
+.hero {
+  position: relative;
+  min-height: 100svh;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.sky {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 0%, #D4E4F2 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 15% 40%, rgba(123, 163, 201, 0.35) 0%, transparent 60%),
+    radial-gradient(ellipse 55% 45% at 88% 55%, rgba(123, 163, 201, 0.22) 0%, transparent 55%),
+    linear-gradient(180deg, #C8DCEC 0%, #E4EEF7 38%, #F5F8FC 78%, #F5F8FC 100%);
+}
+.sky__wash {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 40% 30% at 70% 20%, rgba(255, 255, 255, 0.55), transparent 70%),
+    radial-gradient(ellipse 50% 40% at 30% 70%, rgba(245, 248, 252, 0.4), transparent 65%);
+  pointer-events: none;
+}
+
+.sky__strata {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.stratum {
+  position: absolute;
+  left: -10%;
+  width: 120%;
+  will-change: transform;
+}
+.stratum svg { width: 100%; height: auto; }
+.stratum--far { top: 8%; opacity: 0.35; }
+.stratum--mid { top: 22%; opacity: 0.55; }
+.stratum--near { top: 38%; opacity: 0.75; }
+.stratum--floor { bottom: 18%; opacity: 0.45; }
+
+.hero__wm {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  font-family: var(--font-brand);
+  font-size: var(--fs-wm);
+  font-weight: 300;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+  opacity: 0.06;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  line-height: 1;
+  font-variation-settings: "opsz" 144;
+}
+
+.hero__readout {
+  position: absolute;
+  top: calc(var(--nav-h) + 1.2rem);
+  left: 0;
+  right: 0;
+  z-index: 3;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  pointer-events: none;
+}
+.hero__readout .wrap {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.readout {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.readout b {
+  font-weight: 500;
+  color: var(--ink-2);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+}
+
+.hero__floor {
+  position: relative;
+  z-index: 4;
+  padding: 0 0 clamp(3.5rem, 8vh, 6rem);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.6rem;
+  max-width: 36rem;
+}
+
+.hero__headline {
+  font-family: var(--font-brand);
+  font-size: clamp(1.85rem, 1rem + 3.2vw, 3.1rem);
+  font-weight: 400;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  max-width: 16ch;
+  font-variation-settings: "opsz" 60;
+}
+.hero__headline em {
+  font-style: italic;
+  font-weight: 350;
+  color: var(--sky-deep);
+}
+
+.seal {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.4rem 0.85rem 0.95rem;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(123, 163, 201, 0.35);
+  box-shadow:
+    0 12px 40px rgba(123, 163, 201, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  transition: transform 0.4s var(--ease), box-shadow 0.35s, background 0.3s;
+}
+.seal:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 18px 48px rgba(123, 163, 201, 0.28);
+}
+.seal__orb {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 30%, #A8C5DE, var(--sky) 55%, var(--sky-deep));
+  box-shadow: 0 0 0 4px rgba(123, 163, 201, 0.2);
+  flex: none;
+  position: relative;
+  overflow: hidden;
+}
+.seal__orb::after {
+  content: "";
+  position: absolute;
+  inset: 20% 15% auto auto;
+  width: 40%;
+  height: 35%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45);
+}
+.seal__txt {
+  font-size: 0.92rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.hero__horizon {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 28%;
+  z-index: 2;
+  background: linear-gradient(180deg, transparent, var(--mist) 85%);
+  pointer-events: none;
+}
+
+/* ============================================================
+   Desk strip — instruments
+   ============================================================ */
+.desk {
+  position: relative;
+  z-index: 5;
+  padding: 0 0 clamp(3rem, 6vh, 5rem);
+  margin-top: -1px;
+  background: var(--mist);
+}
+.desk__bar {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  align-items: end;
+  padding: clamp(1.5rem, 3vw, 2.25rem) 0;
+  border-top: 1px solid var(--ink-line);
+  border-bottom: 1px solid var(--ink-line);
+}
+.desk__title {
+  font-family: var(--font-brand);
+  font-size: clamp(1.5rem, 1rem + 1.8vw, 2.2rem);
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  max-width: 12ch;
+}
+.desk__title em { font-style: italic; color: var(--sky-deep); }
+.desk__instruments {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 900px) {
+  .desk__bar { grid-template-columns: 1fr; }
+  .desk__instruments { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .desk__instruments { grid-template-columns: 1fr 1fr; }
+}
+
+.inst {
+  padding: 0.85rem 0;
+  border-left: 1px solid var(--ink-faint);
+  padding-left: 1rem;
+}
+.inst:first-child { border-left: 0; padding-left: 0; }
+@media (max-width: 900px) {
+  .inst { border-left: 0; padding-left: 0; border-top: 1px solid var(--ink-faint); }
+  .inst:nth-child(-n+2) { border-top: 0; }
+}
+.inst__k {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 0.4rem;
+}
+.inst__v {
+  font-family: var(--font-brand);
+  font-size: 1.35rem;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+.inst__s {
+  font-size: 0.78rem;
+  color: var(--ink-3);
+  margin-top: 0.3rem;
+  line-height: 1.4;
+}
+
+.desk__note {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  padding-top: clamp(2rem, 4vh, 3rem);
+  align-items: start;
+}
+@media (max-width: 720px) {
+  .desk__note { grid-template-columns: 1fr; }
+}
+.desk__lede { max-width: 38ch; }
+.desk__spec {
+  display: grid;
+  gap: 0;
+}
+.spec-row {
+  display: grid;
+  grid-template-columns: 7rem 1fr;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--ink-faint);
+  font-size: 0.9rem;
+}
+.spec-row:first-child { border-top: 1px solid var(--ink-faint); }
+.spec-row dt {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  padding-top: 0.2rem;
+}
+.spec-row dd { color: var(--ink-2); line-height: 1.45; }
+
+/* ============================================================
+   Version Weather Map — pinned horizontal
+   ============================================================ */
+.vmap {
+  position: relative;
+  background: var(--mist-2);
+}
+.vmap__pin {
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+}
+.vmap__stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: calc(var(--nav-h) + 0.5rem) 0 1.5rem;
+}
+.vmap__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1.5rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+.vmap__head .h2 { max-width: 14ch; }
+.vmap__meta {
+  text-align: right;
+  max-width: 22ch;
+}
+.vmap__meta p {
+  font-size: 0.85rem;
+  color: var(--ink-3);
+  line-height: 1.45;
+  margin-top: 0.4rem;
+}
+
+.vmap__track-wrap {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 40%, rgba(123, 163, 201, 0.15), transparent 70%),
+    linear-gradient(180deg, #D8E6F2 0%, #EAF1F8 55%, #F0F5FA 100%);
+  border: 1px solid rgba(123, 163, 201, 0.25);
+  box-shadow: inset 0 0 80px rgba(123, 163, 201, 0.08);
+}
+
+.vmap__track {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  width: 300%;
+  height: 100%;
+  will-change: transform;
+}
+
+.layer {
+  position: relative;
+  flex: 0 0 33.333%;
+  width: 33.333%;
+  height: 100%;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+
+.layer__atmos {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.layer--fog .layer__atmos {
+  background:
+    radial-gradient(ellipse 70% 50% at 40% 55%, rgba(255, 255, 255, 0.7), transparent 65%),
+    radial-gradient(ellipse 50% 40% at 70% 40%, rgba(200, 215, 230, 0.5), transparent 60%);
+  filter: blur(2px);
+}
+.layer--haze .layer__atmos {
+  background:
+    radial-gradient(ellipse 60% 45% at 55% 50%, rgba(123, 163, 201, 0.25), transparent 70%),
+    radial-gradient(ellipse 40% 35% at 30% 35%, rgba(255, 255, 255, 0.45), transparent 60%);
+}
+.layer--clear .layer__atmos {
+  background:
+    radial-gradient(ellipse 50% 40% at 50% 30%, rgba(255, 255, 255, 0.5), transparent 65%),
+    linear-gradient(180deg, rgba(180, 210, 235, 0.2), transparent 50%);
+}
+
+.layer__tag {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.layer__name {
+  font-family: var(--font-brand);
+  font-size: clamp(1.6rem, 1rem + 2vw, 2.4rem);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+.layer__name em { font-style: italic; font-weight: 350; }
+.layer__code {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  text-align: right;
+}
+.layer__code b {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--ink-2);
+  letter-spacing: 0.06em;
+  margin-top: 0.25rem;
+  font-weight: 500;
+}
+
+.layer__files {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: grid;
+  place-items: center;
+  min-height: 0;
+}
+.file-field {
+  position: relative;
+  width: min(92%, 520px);
+  height: min(58%, 280px);
+}
+
+.fshape {
+  position: absolute;
+  border-radius: 40% 48% 42% 50% / 48% 40% 52% 44%;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(123, 163, 201, 0.3);
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0.85rem 1rem;
+  box-shadow: 0 16px 40px rgba(90, 135, 176, 0.12);
+  transition: border-radius 0.8s var(--ease);
+  will-change: transform, opacity, clip-path;
+}
+.fshape__name {
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.fshape__meta {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-top: 0.2rem;
+}
+
+.fshape--a { width: 42%; height: 55%; left: 8%; top: 18%; }
+.fshape--b { width: 36%; height: 48%; right: 10%; top: 28%; }
+.fshape--c { width: 30%; height: 40%; left: 38%; bottom: 8%; }
+
+.layer--fog .fshape {
+  border-radius: 48% 42% 55% 40% / 42% 50% 38% 52%;
+  background: rgba(255, 255, 255, 0.35);
+  filter: blur(0.8px);
+  opacity: 0.75;
+}
+.layer--haze .fshape {
+  border-radius: 36% 44% 40% 48% / 44% 38% 48% 40%;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0.88;
+}
+.layer--clear .fshape {
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.78);
+  filter: none;
+  opacity: 1;
+  border-color: rgba(123, 163, 201, 0.4);
+}
+
+.layer__foot {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+}
+.layer__desc {
+  font-size: 0.88rem;
+  color: var(--ink-2);
+  max-width: 32ch;
+  line-height: 1.45;
+  font-weight: 300;
+}
+.layer__gauge {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  text-align: right;
+}
+.layer__gauge span {
+  display: block;
+  font-family: var(--font-brand);
+  font-size: 1.5rem;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  text-transform: none;
+  margin-top: 0.15rem;
+}
+
+.vmap__scrub {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 0 0.15rem;
+}
+.vmap__scrub-bar {
+  flex: 1;
+  height: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--ink-faint);
+  position: relative;
+  overflow: hidden;
+}
+.vmap__scrub-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0%;
+  background: linear-gradient(90deg, var(--sky-soft), var(--sky));
+  border-radius: inherit;
+  will-change: width;
+}
+.vmap__phases {
+  display: flex;
+  gap: clamp(0.75rem, 2vw, 1.5rem);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.vmap__phases li.is-active { color: var(--sky-deep); font-weight: 500; }
+
+/* ============================================================
+   Soft Sync meteorology
+   ============================================================ */
+.sync {
+  padding: clamp(4.5rem, 10vh, 7.5rem) 0;
+  background: var(--mist);
+  position: relative;
+}
+.sync__grid {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: clamp(2rem, 5vw, 4rem);
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .sync__grid { grid-template-columns: 1fr; }
+}
+
+.sync__copy .h2 { margin: 0.75rem 0 1rem; max-width: 12ch; }
+.sync__copy .lede { margin-bottom: 1.75rem; }
+
+.sync__readouts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1.75rem;
+}
+.meter {
+  padding: 1rem 1.1rem;
+  border-radius: var(--radius);
+  background: var(--panel-solid);
+  border: 1px solid var(--ink-faint);
+}
+.meter__k {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 0.45rem;
+}
+.meter__v {
+  font-family: var(--font-mono);
+  font-size: 1.45rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.meter__u {
+  font-size: 0.7rem;
+  color: var(--ink-3);
+  margin-left: 0.25rem;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.sync__steps {
+  display: grid;
+  gap: 0;
+}
+.step {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr;
+  gap: 0.75rem;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--ink-faint);
+}
+.step:first-child { border-top: 1px solid var(--ink-faint); }
+.step__n {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--sky-deep);
+  letter-spacing: 0.08em;
+  padding-top: 0.15rem;
+}
+.step__t { font-weight: 500; font-size: 0.95rem; margin-bottom: 0.2rem; }
+.step__d { font-size: 0.85rem; color: var(--ink-3); line-height: 1.45; }
+
+.pressure {
+  position: relative;
+  aspect-ratio: 1 / 1.05;
+  max-height: 560px;
+  border-radius: var(--radius-xl);
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 45%, rgba(123, 163, 201, 0.18), transparent 65%),
+    linear-gradient(165deg, #E8F0F8 0%, #F5F8FC 50%, #E4ECF4 100%);
+  border: 1px solid rgba(123, 163, 201, 0.28);
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+}
+.pressure__grid {
+  position: absolute;
+  inset: 8%;
+  background-image:
+    radial-gradient(circle, rgba(123, 163, 201, 0.12) 1px, transparent 1.2px);
+  background-size: 18px 18px;
+  border-radius: 50%;
+  opacity: 0.7;
+  pointer-events: none;
+}
+.pressure__ring {
+  position: absolute;
+  left: 50%;
+  top: 48%;
+  transform: translate(-50%, -50%);
+  width: 72%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1px dashed rgba(123, 163, 201, 0.35);
+  pointer-events: none;
+}
+.pressure__ring--2 {
+  width: 48%;
+  border-style: solid;
+  border-color: rgba(123, 163, 201, 0.2);
+}
+.pressure__label {
+  position: absolute;
+  top: 1.1rem;
+  left: 1.25rem;
+  right: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  z-index: 3;
+  pointer-events: none;
+}
+.pressure__hint {
+  position: absolute;
+  bottom: 1.1rem;
+  left: 1.25rem;
+  right: 1.25rem;
+  z-index: 3;
+  font-size: 0.78rem;
+  color: var(--ink-3);
+  text-align: center;
+  pointer-events: none;
+}
+
+.psys {
+  position: absolute;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  touch-action: none;
+  will-change: transform, left, top;
+  box-shadow:
+    0 20px 50px rgba(90, 135, 176, 0.2),
+    inset 0 -8px 24px rgba(90, 135, 176, 0.12),
+    inset 0 8px 20px rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  transition: box-shadow 0.3s;
+  z-index: 2;
+}
+.psys:active { cursor: grabbing; }
+.psys.is-dragging {
+  box-shadow:
+    0 28px 60px rgba(90, 135, 176, 0.32),
+    inset 0 -8px 24px rgba(90, 135, 176, 0.15),
+    inset 0 8px 20px rgba(255, 255, 255, 0.5);
+  z-index: 5;
+}
+.psys__inner {
+  text-align: center;
+  pointer-events: none;
+}
+.psys__name {
+  font-weight: 500;
+  font-size: 0.85rem;
+  letter-spacing: -0.01em;
+}
+.psys__role {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(15, 20, 25, 0.5);
+  margin-top: 0.15rem;
+}
+
+.psys--desk {
+  width: 38%;
+  aspect-ratio: 1;
+  left: 28%;
+  top: 28%;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.85), rgba(123, 163, 201, 0.55) 70%);
+}
+.psys--phone {
+  width: 28%;
+  aspect-ratio: 1;
+  left: 48%;
+  top: 42%;
+  background: radial-gradient(circle at 40% 28%, rgba(255, 255, 255, 0.75), rgba(123, 163, 201, 0.65) 75%);
+}
+.psys--tablet {
+  width: 32%;
+  aspect-ratio: 1;
+  left: 22%;
+  top: 48%;
+  background: radial-gradient(circle at 38% 32%, rgba(255, 255, 255, 0.8), rgba(90, 135, 176, 0.5) 72%);
+}
+
+.conflict {
+  position: absolute;
+  left: 50%;
+  top: 48%;
+  transform: translate(-50%, -50%);
+  width: 18%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(15, 20, 25, 0.12), transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.8;
+  transition: opacity 0.4s, transform 0.5s var(--ease);
+}
+.conflict.is-cleared {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(1.6);
+}
+
+/* ============================================================
+   Ledger — dense atmosphere craft
+   ============================================================ */
+.ledger {
+  padding: clamp(4rem, 9vh, 7rem) 0;
+  background: var(--mist-2);
+  border-top: 1px solid var(--ink-line);
+}
+.ledger__top {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  margin-bottom: clamp(2.5rem, 5vh, 3.5rem);
+  align-items: end;
+}
+@media (max-width: 720px) {
+  .ledger__top { grid-template-columns: 1fr; }
+}
+.ledger__top .h2 { max-width: 14ch; }
+
+.ledger__board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--ink-line);
+  border: 1px solid var(--ink-line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+@media (max-width: 800px) {
+  .ledger__board { grid-template-columns: 1fr; }
+}
+
+.cell {
+  background: var(--mist);
+  padding: clamp(1.25rem, 2.5vw, 1.75rem);
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+}
+.cell__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 1rem;
+}
+.cell__title {
+  font-family: var(--font-brand);
+  font-size: 1.2rem;
+  letter-spacing: -0.02em;
+}
+.cell__id {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.cell__body {
+  flex: 1;
+  font-size: 0.9rem;
+  color: var(--ink-2);
+  line-height: 1.5;
+  font-weight: 300;
+}
+.cell__list {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.45rem;
+}
+.cell__list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--ink-faint);
+}
+.cell__list li span:last-child {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--sky-deep);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.cell--wide {
+  grid-column: span 1;
+}
+.cell__viz {
+  margin-top: 1rem;
+  height: 64px;
+  border-radius: 18px;
+  background: linear-gradient(90deg,
+    rgba(123, 163, 201, 0.15) 0%,
+    rgba(123, 163, 201, 0.45) 35%,
+    rgba(123, 163, 201, 0.2) 55%,
+    rgba(123, 163, 201, 0.6) 78%,
+    rgba(123, 163, 201, 0.25) 100%);
+  position: relative;
+  overflow: hidden;
+}
+.cell__viz::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0 11px,
+    rgba(255, 255, 255, 0.35) 11px 12px
+  );
+}
+.cell__viz-needle {
+  position: absolute;
+  top: 10%;
+  bottom: 10%;
+  width: 2px;
+  background: var(--ink);
+  left: 62%;
+  border-radius: 2px;
+  z-index: 1;
+}
+
+/* ============================================================
+   Sky allotment — not pricing
+   ============================================================ */
+.allot {
+  padding: clamp(4.5rem, 10vh, 7.5rem) 0;
+  background: var(--mist);
+  position: relative;
+}
+.allot__frame {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: clamp(2rem, 5vw, 4rem);
+  align-items: center;
+}
+@media (max-width: 860px) {
+  .allot__frame { grid-template-columns: 1fr; }
+}
+
+.allot__copy .h2 { margin: 0.7rem 0 1rem; max-width: 12ch; }
+.allot__copy .lede { margin-bottom: 1.5rem; }
+.allot__expand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--sky-deep);
+  border-bottom: 1px solid transparent;
+  padding-bottom: 2px;
+  transition: border-color 0.25s, gap 0.3s var(--ease);
+}
+.allot__expand:hover {
+  border-color: var(--sky);
+  gap: 0.7rem;
+}
+.allot__expand svg {
+  width: 14px;
+  height: 14px;
+}
+
+.coverage {
+  position: relative;
+  padding: clamp(1.75rem, 3vw, 2.5rem);
+  border-radius: var(--radius-xl);
+  background:
+    radial-gradient(ellipse 80% 70% at 50% 0%, rgba(123, 163, 201, 0.22), transparent 60%),
+    var(--panel-solid);
+  border: 1px solid rgba(123, 163, 201, 0.28);
+  overflow: hidden;
+}
+.coverage__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.coverage__title {
+  font-family: var(--font-brand);
+  font-size: 1.35rem;
+  letter-spacing: -0.02em;
+}
+.coverage__amt {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.coverage__amt b {
+  color: var(--ink);
+  font-weight: 500;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+}
+
+.coverage__sky {
+  position: relative;
+  height: clamp(140px, 22vw, 200px);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, #B8D0E4 0%, #D4E4F2 40%, #EAF2F8 100%);
+  overflow: hidden;
+  border: 1px solid rgba(123, 163, 201, 0.25);
+}
+.coverage__fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 68%;
+  background:
+    linear-gradient(180deg,
+      rgba(123, 163, 201, 0.15) 0%,
+      rgba(123, 163, 201, 0.45) 100%);
+  will-change: height;
+}
+.coverage__clouds {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.coverage__clouds svg {
+  position: absolute;
+  width: 40%;
+  opacity: 0.7;
+}
+.coverage__clouds svg:nth-child(1) { left: 5%; top: 18%; width: 36%; }
+.coverage__clouds svg:nth-child(2) { right: 8%; top: 28%; width: 28%; opacity: 0.5; }
+.coverage__clouds svg:nth-child(3) { left: 35%; top: 8%; width: 24%; opacity: 0.4; }
+
+.coverage__scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.coverage__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-top: 1.35rem;
+}
+.coverage__stat {
+  padding: 0.75rem 0 0;
+  border-top: 1px solid var(--ink-faint);
+}
+.coverage__stat dt {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 0.3rem;
+}
+.coverage__stat dd {
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+/* ============================================================
+   Quiet doctrine
+   ============================================================ */
+.doctrine {
+  padding: clamp(3.5rem, 8vh, 6rem) 0;
+  background: var(--mist-2);
+  border-top: 1px solid var(--ink-line);
+}
+.doctrine__row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  border-top: 1px solid var(--ink-line);
+  border-bottom: 1px solid var(--ink-line);
+}
+@media (max-width: 800px) {
+  .doctrine__row { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 480px) {
+  .doctrine__row { grid-template-columns: 1fr; }
+}
+.tenet {
+  padding: clamp(1.25rem, 2.5vw, 1.75rem);
+  border-right: 1px solid var(--ink-line);
+}
+.doctrine__row .tenet:last-child { border-right: 0; }
+@media (max-width: 800px) {
+  .tenet:nth-child(2n) { border-right: 0; }
+  .tenet:nth-child(-n+2) { border-bottom: 1px solid var(--ink-line); }
+}
+@media (max-width: 480px) {
+  .tenet { border-right: 0; border-bottom: 1px solid var(--ink-line); }
+  .doctrine__row .tenet:last-child { border-bottom: 0; }
+}
+.tenet__n {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sky-deep);
+  margin-bottom: 0.75rem;
+}
+.tenet__t {
+  font-family: var(--font-brand);
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+}
+.tenet__d {
+  font-size: 0.85rem;
+  color: var(--ink-3);
+  line-height: 1.5;
+  font-weight: 300;
+}
+
+/* ============================================================
+   Close — open sky
+   ============================================================ */
+.close {
+  position: relative;
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 40%, #C5D9EB 0%, transparent 55%),
+    linear-gradient(180deg, var(--mist-2) 0%, #D0E2F0 45%, #B8CFE4 100%);
+  text-align: center;
+  padding: clamp(4rem, 10vh, 7rem) var(--pad);
+}
+.close__wm {
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-brand);
+  font-size: clamp(4rem, 14vw, 12rem);
+  font-weight: 300;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+  opacity: 0.05;
+  white-space: nowrap;
+  pointer-events: none;
+  line-height: 1;
+}
+.close__inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  max-width: 28rem;
+}
+.close__inner .h2 {
+  max-width: 14ch;
+}
+.close__inner .lede {
+  text-align: center;
+  max-width: 34ch;
+}
+.close__clouds {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.close__clouds .stratum { opacity: 0.4; }
+
+/* Footer */
+.foot {
+  padding: 2rem 0 2.5rem;
+  background: var(--mist);
+  border-top: 1px solid var(--ink-line);
+}
+.foot__inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.foot__brand {
+  font-family: var(--font-brand);
+  font-size: 1.1rem;
+  letter-spacing: -0.02em;
+}
+.foot__meta {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+.foot__meta a:hover { color: var(--ink); }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .cur { display: none !important; }
+  body.has-cursor, body.has-cursor * { cursor: auto !important; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="grain" aria-hidden="true"></div>
+
+<!-- Custom vapor cursor -->
+<div class="cur" id="cursor" aria-hidden="true">
+  <div class="cur__blot"></div>
+  <div class="cur__core"></div>
+  <div class="cur__label" id="curLabel">Lift</div>
+</div>
+
+<!-- Nav -->
+<header class="nav" id="nav">
+  <div class="nav__inner">
+    <a class="nav__brand" href="#top" data-cursor="lift" data-cursor-label="Settle">
+      <span class="nav__mark" aria-hidden="true"><span></span><span></span><span></span></span>
+      Nimbus
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="#vmap" data-cursor="lift">Versions</a>
+      <a href="#sync" data-cursor="lift">Sync</a>
+      <a href="#ledger" data-cursor="lift">Ledger</a>
+      <a href="#allot" data-cursor="lift">Sky</a>
+      <a class="nav__seal" href="#close" data-cursor="lift" data-cursor-label="Lift">Open your sky</a>
+    </nav>
+    <button class="nav__burger" id="navBurger" type="button" aria-label="Open menu" data-cursor="lift">
+      <span></span>
+    </button>
+  </div>
+</header>
+
+<div class="mnav" id="mnav" aria-hidden="true">
+  <a href="#vmap" data-mnav>Versions</a>
+  <a href="#sync" data-mnav>Soft Sync</a>
+  <a href="#ledger" data-mnav>Weather Ledger</a>
+  <a href="#allot" data-mnav>Sky Allotment</a>
+  <a href="#close" data-mnav>Open your sky</a>
+  <div class="mnav__foot">
+    <span class="mono">Weather Desk · 51°N</span>
+    <span class="mono">Calm cloud</span>
+  </div>
+</div>
+
+<main id="main">
+<span id="top"></span>
+
+<!-- ======================= HERO ======================= -->
+<section class="hero" id="hero" aria-labelledby="heroHeadline">
+  <div class="sky" id="sky" aria-hidden="true">
+    <div class="sky__wash"></div>
+    <div class="sky__strata" id="skyStrata">
+      <div class="stratum stratum--far" data-depth="0.15">
+        <svg viewBox="0 0 1400 220" preserveAspectRatio="none" fill="none">
+          <path fill="#9BB8D4" fill-opacity=".45" d="M0 140 C80 120 140 90 220 95 C300 100 340 70 420 75 C520 82 580 50 680 60 C780 70 840 40 940 55 C1040 70 1120 45 1220 65 C1300 78 1360 90 1400 100 L1400 220 L0 220 Z"/>
+          <path fill="#B4CCE0" fill-opacity=".5" d="M0 160 C100 145 180 125 280 130 C380 135 440 110 540 118 C640 126 720 95 820 108 C920 121 1000 100 1100 115 C1200 130 1300 118 1400 130 L1400 220 L0 220 Z"/>
+        </svg>
+      </div>
+      <div class="stratum stratum--mid" data-depth="0.35">
+        <svg viewBox="0 0 1400 260" preserveAspectRatio="none" fill="none">
+          <path fill="#8AADCB" fill-opacity=".4" d="M-40 150 C60 130 140 95 240 105 C360 118 420 70 540 85 C680 105 760 55 900 75 C1040 95 1140 60 1280 90 C1360 105 1420 120 1460 135 L1460 260 L-40 260 Z"/>
+          <path fill="#A8C4DC" fill-opacity=".55" d="M0 180 C120 160 200 140 320 148 C450 158 520 125 650 138 C780 151 860 120 980 140 C1100 160 1200 140 1400 160 L1400 260 L0 260 Z"/>
+        </svg>
+      </div>
+      <div class="stratum stratum--near" data-depth="0.55">
+        <svg viewBox="0 0 1400 280" preserveAspectRatio="none" fill="none">
+          <path fill="#7BA3C9" fill-opacity=".5" d="M-60 160 C40 135 130 100 250 115 C400 135 480 75 640 100 C820 130 920 70 1100 105 C1220 128 1320 110 1480 140 L1480 280 L-60 280 Z"/>
+          <path fill="#95B6D2" fill-opacity=".6" d="M0 200 C150 175 260 155 400 168 C560 184 650 145 800 165 C950 185 1060 155 1220 180 C1320 195 1400 190 1400 200 L1400 280 L0 280 Z"/>
+        </svg>
+      </div>
+      <div class="stratum stratum--floor" data-depth="0.8">
+        <svg viewBox="0 0 1400 200" preserveAspectRatio="none" fill="none">
+          <path fill="#FFFFFF" fill-opacity=".55" d="M0 100 C100 80 200 60 340 70 C500 82 580 45 720 60 C880 78 980 40 1140 65 C1260 82 1340 70 1400 80 L1400 200 L0 200 Z"/>
+          <path fill="#E8F0F7" fill-opacity=".7" d="M0 130 C180 110 300 95 460 108 C620 121 720 90 880 110 C1040 130 1160 105 1400 125 L1400 200 L0 200 Z"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero__wm" id="heroWm" aria-hidden="true">Nimbus</div>
+
+  <div class="hero__readout">
+    <div class="wrap">
+      <div class="readout">
+        <span>Station</span>
+        <b>Weather Desk · WD-01</b>
+      </div>
+      <div class="readout" style="text-align:right">
+        <span>Atmosphere</span>
+        <b id="heroAtm">Mist · 1013.2 hPa</b>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero__horizon" aria-hidden="true"></div>
+
+  <div class="wrap" style="position:relative;z-index:4;width:100%">
+    <div class="hero__floor">
+      <h1 class="hero__headline" id="heroHeadline">
+        Keep your work in <em>weather</em>, not folders.
+      </h1>
+      <a class="seal" href="#vmap" data-cursor="lift" data-cursor-label="Lift" id="heroSeal">
+        <span class="seal__orb" aria-hidden="true"></span>
+        <span class="seal__txt">Open your sky</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= DESK ======================= -->
+<section class="desk" id="desk" aria-labelledby="deskTitle">
+  <div class="wrap">
+    <div class="desk__bar">
+      <h2 class="desk__title" id="deskTitle">The <em>Weather Desk</em></h2>
+      <div class="desk__instruments" role="list">
+        <div class="inst" role="listitem">
+          <div class="inst__k">Visibility</div>
+          <div class="inst__v">Draft fog</div>
+          <div class="inst__s">Early states stay soft until you ask for edges.</div>
+        </div>
+        <div class="inst" role="listitem">
+          <div class="inst__k">Ceiling</div>
+          <div class="inst__v">Review haze</div>
+          <div class="inst__s">Shared layers with gentle pressure, not locks.</div>
+        </div>
+        <div class="inst" role="listitem">
+          <div class="inst__k">Clearance</div>
+          <div class="inst__v">Final clear</div>
+          <div class="inst__s">Published weather — stable, addressable, calm.</div>
+        </div>
+        <div class="inst" role="listitem">
+          <div class="inst__k">Isobar</div>
+          <div class="inst__v">Soft sync</div>
+          <div class="inst__s">Devices as pressure systems. Conflicts dissolve.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="desk__note">
+      <div>
+        <p class="label">Doctrine</p>
+        <p class="lede desk__lede" style="margin-top:.85rem">
+          Nimbus is a calm personal cloud for creators. Files don’t live in rigid trees —
+          they weather through states. You read the sky, not a directory dump.
+        </p>
+      </div>
+      <dl class="desk__spec">
+        <div class="spec-row">
+          <dt>Vessel</dt>
+          <dd>Personal sky — one continuous atmosphere for drafts, reviews, and finals.</dd>
+        </div>
+        <div class="spec-row">
+          <dt>Unit</dt>
+          <dd>Version layers as cloud strata. Morph between fog, haze, and clear.</dd>
+        </div>
+        <div class="spec-row">
+          <dt>Signal</dt>
+          <dd>Pressure / sync readouts in monospace. Quiet, never alarming.</dd>
+        </div>
+        <div class="spec-row">
+          <dt>Quota</dt>
+          <dd>Sky allotment — coverage you can feel, not plan tiers.</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= VERSION WEATHER MAP ======================= -->
+<section class="vmap" id="vmap" aria-labelledby="vmapTitle">
+  <div class="vmap__pin" id="vmapPin">
+    <div class="vmap__stage">
+      <div class="wrap" style="width:100%">
+        <div class="vmap__head">
+          <div>
+            <p class="label">Signature instrument</p>
+            <h2 class="h2" id="vmapTitle" style="margin-top:.6rem">Version <em>Weather Map</em></h2>
+          </div>
+          <div class="vmap__meta">
+            <span class="mono">Scrub · 3 strata</span>
+            <p>Scroll to move through file weather. Shapes dissolve as states clear.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="wrap" style="flex:1;min-height:0;display:flex;flex-direction:column;width:100%">
+        <div class="vmap__track-wrap" id="vmapStage">
+          <div class="vmap__track" id="vmapTrack">
+            <!-- Layer 01 — Draft fog -->
+            <article class="layer layer--fog" data-phase="0">
+              <div class="layer__atmos" aria-hidden="true"></div>
+              <div class="layer__tag">
+                <h3 class="layer__name">Draft <em>fog</em></h3>
+                <div class="layer__code">Layer 01<br><b>VIS 0.4 km</b></div>
+              </div>
+              <div class="layer__files">
+                <div class="file-field">
+                  <div class="fshape fshape--a" data-file="a">
+                    <span class="fshape__name">cover-study.psd</span>
+                    <span class="fshape__meta">v0.3 · soft</span>
+                  </div>
+                  <div class="fshape fshape--b" data-file="b">
+                    <span class="fshape__name">type-trail.ai</span>
+                    <span class="fshape__meta">v0.1 · soft</span>
+                  </div>
+                  <div class="fshape fshape--c" data-file="c">
+                    <span class="fshape__name">notes.md</span>
+                    <span class="fshape__meta">v0.8 · soft</span>
+                  </div>
+                </div>
+              </div>
+              <div class="layer__foot">
+                <p class="layer__desc">Edges are optional. Early work drifts as vapor — findable, not fragile.</p>
+                <div class="layer__gauge">Opacity<br><span>38%</span></div>
+              </div>
+            </article>
+
+            <!-- Layer 02 — Review haze -->
+            <article class="layer layer--haze" data-phase="1">
+              <div class="layer__atmos" aria-hidden="true"></div>
+              <div class="layer__tag">
+                <h3 class="layer__name">Review <em>haze</em></h3>
+                <div class="layer__code">Layer 02<br><b>VIS 2.1 km</b></div>
+              </div>
+              <div class="layer__files">
+                <div class="file-field">
+                  <div class="fshape fshape--a" data-file="a">
+                    <span class="fshape__name">cover-study.psd</span>
+                    <span class="fshape__meta">v1.2 · shared</span>
+                  </div>
+                  <div class="fshape fshape--b" data-file="b">
+                    <span class="fshape__name">type-trail.ai</span>
+                    <span class="fshape__meta">v0.9 · shared</span>
+                  </div>
+                  <div class="fshape fshape--c" data-file="c">
+                    <span class="fshape__name">notes.md</span>
+                    <span class="fshape__meta">v1.4 · shared</span>
+                  </div>
+                </div>
+              </div>
+              <div class="layer__foot">
+                <p class="layer__desc">Comments settle as dew. Collaborators read the same humidity, not forks.</p>
+                <div class="layer__gauge">Opacity<br><span>72%</span></div>
+              </div>
+            </article>
+
+            <!-- Layer 03 — Final clear -->
+            <article class="layer layer--clear" data-phase="2">
+              <div class="layer__atmos" aria-hidden="true"></div>
+              <div class="layer__tag">
+                <h3 class="layer__name">Final <em>clear</em></h3>
+                <div class="layer__code">Layer 03<br><b>VIS ∞</b></div>
+              </div>
+              <div class="layer__files">
+                <div class="file-field">
+                  <div class="fshape fshape--a" data-file="a">
+                    <span class="fshape__name">cover-final.psd</span>
+                    <span class="fshape__meta">v2.0 · sealed</span>
+                  </div>
+                  <div class="fshape fshape--b" data-file="b">
+                    <span class="fshape__name">type-lock.ai</span>
+                    <span class="fshape__meta">v1.0 · sealed</span>
+                  </div>
+                  <div class="fshape fshape--c" data-file="c">
+                    <span class="fshape__name">colophon.md</span>
+                    <span class="fshape__meta">v1.0 · sealed</span>
+                  </div>
+                </div>
+              </div>
+              <div class="layer__foot">
+                <p class="layer__desc">Hard edges, soft landing. The clear sky is addressable — a calm permanent.</p>
+                <div class="layer__gauge">Opacity<br><span>100%</span></div>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="vmap__scrub">
+          <div class="vmap__scrub-bar" aria-hidden="true">
+            <div class="vmap__scrub-fill" id="vmapFill"></div>
+          </div>
+          <ul class="vmap__phases" id="vmapPhases">
+            <li class="is-active" data-p="0">Fog</li>
+            <li data-p="1">Haze</li>
+            <li data-p="2">Clear</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= SOFT SYNC ======================= -->
+<section class="sync" id="sync" aria-labelledby="syncTitle">
+  <div class="wrap">
+    <div class="sync__grid">
+      <div class="sync__copy">
+        <p class="label">Meteorology</p>
+        <h2 class="h2" id="syncTitle">Soft Sync as <em>pressure</em></h2>
+        <p class="lede">
+          Each device is a pressure system. When fronts overlap, a quiet conflict forms.
+          Separate them gently — sync settles without alarms.
+        </p>
+
+        <div class="sync__readouts">
+          <div class="meter">
+            <div class="meter__k">Pressure</div>
+            <div class="meter__v" id="pressureVal">1012.4<span class="meter__u">hPa</span></div>
+          </div>
+          <div class="meter">
+            <div class="meter__k">Sync</div>
+            <div class="meter__v" id="syncVal">0.62<span class="meter__u">Δ</span></div>
+          </div>
+        </div>
+
+        <div class="sync__steps">
+          <div class="step">
+            <span class="step__n">01</span>
+            <div>
+              <div class="step__t">Systems form</div>
+              <div class="step__d">Desk, phone, and tablet appear as soft circles — overlapping is natural weather.</div>
+            </div>
+          </div>
+          <div class="step">
+            <span class="step__n">02</span>
+            <div>
+              <div class="step__t">Conflict densifies</div>
+              <div class="step__d">Where circles stack, pressure rises. The blot darkens; readouts climb in mono.</div>
+            </div>
+          </div>
+          <div class="step">
+            <span class="step__n">03</span>
+            <div>
+              <div class="step__t">Separate to settle</div>
+              <div class="step__d">Drag a system aside. Conflict clears. Sync Δ falls. No merge theater.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pressure" id="pressureField" data-cursor="lift" data-cursor-label="Lift" role="application" aria-label="Pressure systems — drag to separate conflicts">
+        <div class="pressure__label">
+          <span class="mono">Field · isobar</span>
+          <span class="mono" id="conflictState">Conflict active</span>
+        </div>
+        <div class="pressure__grid" aria-hidden="true"></div>
+        <div class="pressure__ring" aria-hidden="true"></div>
+        <div class="pressure__ring pressure__ring--2" aria-hidden="true"></div>
+        <div class="conflict" id="conflictBlot" aria-hidden="true"></div>
+
+        <div class="psys psys--desk" id="psysDesk" data-sys="desk" tabindex="0" role="button" aria-label="Desk pressure system">
+          <div class="psys__inner">
+            <div class="psys__name">Desk</div>
+            <div class="psys__role">Primary</div>
+          </div>
+        </div>
+        <div class="psys psys--phone" id="psysPhone" data-sys="phone" tabindex="0" role="button" aria-label="Phone pressure system">
+          <div class="psys__inner">
+            <div class="psys__name">Phone</div>
+            <div class="psys__role">Edge</div>
+          </div>
+        </div>
+        <div class="psys psys--tablet" id="psysTablet" data-sys="tablet" tabindex="0" role="button" aria-label="Tablet pressure system">
+          <div class="psys__inner">
+            <div class="psys__name">Tablet</div>
+            <div class="psys__role">Field</div>
+          </div>
+        </div>
+
+        <p class="pressure__hint" id="pressureHint">Drag systems apart to clear the conflict</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= LEDGER ======================= -->
+<section class="ledger" id="ledger" aria-labelledby="ledgerTitle">
+  <div class="wrap">
+    <div class="ledger__top">
+      <div>
+        <p class="label">Atmosphere ledger</p>
+        <h2 class="h2" id="ledgerTitle" style="margin-top:.6rem">What the sky <em>remembers</em></h2>
+      </div>
+      <p class="lede">
+        Specs without product sheets. The Weather Desk keeps continuity:
+        who touched a layer, when haze lifted, how much sky remains.
+      </p>
+    </div>
+
+    <div class="ledger__board">
+      <article class="cell">
+        <div class="cell__head">
+          <h3 class="cell__title">Strata log</h3>
+          <span class="cell__id">WD-S · 04</span>
+        </div>
+        <p class="cell__body">Every file carries a weather biography — not a changelog dump.</p>
+        <ul class="cell__list">
+          <li><span>Fog entered</span><span>08:14</span></li>
+          <li><span>Haze shared</span><span>11:02</span></li>
+          <li><span>Clear sealed</span><span>16:41</span></li>
+          <li><span>Dew comments</span><span>7</span></li>
+        </ul>
+      </article>
+
+      <article class="cell">
+        <div class="cell__head">
+          <h3 class="cell__title">Humidity</h3>
+          <span class="cell__id">WD-H · 12</span>
+        </div>
+        <p class="cell__body">Collaboration as moisture — present, measurable, never sticky.</p>
+        <div class="cell__viz" aria-hidden="true">
+          <div class="cell__viz-needle" id="humNeedle"></div>
+        </div>
+        <ul class="cell__list">
+          <li><span>Active viewers</span><span>3</span></li>
+          <li><span>Pending dew</span><span>2</span></li>
+          <li><span>Settled</span><span>14</span></li>
+        </ul>
+      </article>
+
+      <article class="cell">
+        <div class="cell__head">
+          <h3 class="cell__title">Fronts</h3>
+          <span class="cell__id">WD-F · 09</span>
+        </div>
+        <p class="cell__body">When two clears collide, Nimbus prefers a soft front over a hard fork.</p>
+        <ul class="cell__list">
+          <li><span>Open fronts</span><span>1</span></li>
+          <li><span>Auto-settled</span><span>28d</span></li>
+          <li><span>Manual lift</span><span>optional</span></li>
+          <li><span>Noise floor</span><span>low</span></li>
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= SKY ALLOTMENT ======================= -->
+<section class="allot" id="allot" aria-labelledby="allotTitle">
+  <div class="wrap">
+    <div class="allot__frame">
+      <div class="allot__copy">
+        <p class="label">Coverage</p>
+        <h2 class="h2" id="allotTitle">One sky. One <em>allotment</em>.</h2>
+        <p class="lede">
+          No Free, Pro, or Enterprise weather. You get a continuous sky —
+          watch how much atmosphere you’re using, expand when the horizon needs room.
+        </p>
+        <a class="allot__expand" href="#close" data-cursor="lift" data-cursor-label="Lift">
+          Expand sky
+          <svg viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M2 12L12 2M5 2h7v7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+
+      <div class="coverage" id="coverage">
+        <div class="coverage__top">
+          <h3 class="coverage__title">Sky allotment</h3>
+          <div class="coverage__amt">Used <b id="coverPct">68%</b> · 136 of 200 GB</div>
+        </div>
+        <div class="coverage__sky" aria-hidden="true">
+          <div class="coverage__fill" id="coverFill"></div>
+          <div class="coverage__clouds">
+            <svg viewBox="0 0 200 80" fill="#fff" fill-opacity=".7">
+              <ellipse cx="60" cy="48" rx="40" ry="22"/>
+              <ellipse cx="95" cy="40" rx="35" ry="26"/>
+              <ellipse cx="130" cy="50" rx="38" ry="20"/>
+            </svg>
+            <svg viewBox="0 0 160 70" fill="#fff" fill-opacity=".55">
+              <ellipse cx="50" cy="42" rx="32" ry="18"/>
+              <ellipse cx="85" cy="36" rx="28" ry="22"/>
+              <ellipse cx="115" cy="44" rx="30" ry="16"/>
+            </svg>
+            <svg viewBox="0 0 120 50" fill="#fff" fill-opacity=".4">
+              <ellipse cx="40" cy="30" rx="28" ry="16"/>
+              <ellipse cx="70" cy="26" rx="24" ry="18"/>
+            </svg>
+          </div>
+        </div>
+        <div class="coverage__scale">
+          <span>Horizon</span>
+          <span>Ceiling</span>
+          <span>Expand</span>
+        </div>
+        <dl class="coverage__stats">
+          <div class="coverage__stat">
+            <dt>Fog archive</dt>
+            <dd>42 GB</dd>
+          </div>
+          <div class="coverage__stat">
+            <dt>Haze live</dt>
+            <dd>51 GB</dd>
+          </div>
+          <div class="coverage__stat">
+            <dt>Clear sealed</dt>
+            <dd>43 GB</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= DOCTRINE ======================= -->
+<section class="doctrine" id="doctrine" aria-label="Weather Desk tenets">
+  <div class="wrap">
+    <div class="doctrine__row">
+      <article class="tenet">
+        <div class="tenet__n">01 · Softness</div>
+        <h3 class="tenet__t">Rounded weather</h3>
+        <p class="tenet__d">Large radii, quiet gradients. The interface should feel like mist under glass — never chrome.</p>
+      </article>
+      <article class="tenet">
+        <div class="tenet__n">02 · Continuity</div>
+        <h3 class="tenet__t">One atmosphere</h3>
+        <p class="tenet__d">Versions aren’t branches you lose. They’re altitudes in the same sky.</p>
+      </article>
+      <article class="tenet">
+        <div class="tenet__n">03 · Quiet sync</div>
+        <h3 class="tenet__t">Pressure, not panic</h3>
+        <p class="tenet__d">Conflicts are meteorological events. Separate systems; the reading falls.</p>
+      </article>
+      <article class="tenet">
+        <div class="tenet__n">04 · Allotment</div>
+        <h3 class="tenet__t">Coverage you feel</h3>
+        <p class="tenet__d">A meter of sky — not a pricing matrix. Expand when the weather needs room.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= CLOSE ======================= -->
+<section class="close" id="close" aria-labelledby="closeTitle">
+  <div class="close__wm" aria-hidden="true">Nimbus</div>
+  <div class="close__clouds" aria-hidden="true">
+    <div class="stratum stratum--mid" style="top:10%;opacity:.3" data-depth="0.2">
+      <svg viewBox="0 0 1400 200" preserveAspectRatio="none">
+        <path fill="#7BA3C9" fill-opacity=".35" d="M0 120 C200 90 400 60 700 80 C1000 100 1200 70 1400 90 L1400 200 L0 200 Z"/>
+      </svg>
+    </div>
+    <div class="stratum stratum--near" style="top:35%;opacity:.4" data-depth="0.45">
+      <svg viewBox="0 0 1400 220" preserveAspectRatio="none">
+        <path fill="#FFFFFF" fill-opacity=".4" d="M0 140 C250 110 500 80 800 100 C1100 120 1300 95 1400 110 L1400 220 L0 220 Z"/>
+      </svg>
+    </div>
+  </div>
+  <div class="close__inner">
+    <p class="label">Arrival</p>
+    <h2 class="h2" id="closeTitle">Your sky is <em>waiting</em>.</h2>
+    <p class="lede">Open a Weather Desk. Bring drafts into fog, share in haze, seal in clear — then sync soft.</p>
+    <a class="seal" href="#top" data-cursor="lift" data-cursor-label="Lift">
+      <span class="seal__orb" aria-hidden="true"></span>
+      <span class="seal__txt">Open your sky</span>
+    </a>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap foot__inner">
+    <div class="foot__brand">Nimbus</div>
+    <div class="foot__meta">
+      <span>Weather Desk · Calm cloud for creators</span>
+      <a href="#desk" data-cursor="lift">Doctrine</a>
+      <a href="#allot" data-cursor="lift">Allotment</a>
+      <span>© 2026</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var finePointer = window.matchMedia("(pointer: fine)").matches;
+
+  /* ---------- Lenis ---------- */
+  var lenis = null;
+  if (!reduceMotion && typeof Lenis !== "undefined") {
+    lenis = new Lenis({
+      duration: 1.15,
+      easing: function (t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); },
+      smoothWheel: true
+    });
+    lenis.on("scroll", ScrollTrigger.update);
+    gsap.ticker.add(function (time) {
+      lenis.raf(time * 1000);
+    });
+    gsap.ticker.lagSmoothing(0);
+  }
+
+  /* ---------- Vapor cursor ---------- */
+  var cur = document.getElementById("cursor");
+  var curLabel = document.getElementById("curLabel");
+  if (finePointer && !reduceMotion && cur) {
+    document.body.classList.add("has-cursor");
+    gsap.set(cur, { opacity: 0 });
+    var cx = -100, cy = -100, tx = -100, ty = -100;
+    var densify = false;
+
+    window.addEventListener("pointermove", function (e) {
+      tx = e.clientX;
+      ty = e.clientY;
+      if (!densify) gsap.to(cur, { opacity: 1, duration: 0.35, overwrite: "auto" });
+    }, { passive: true });
+
+    window.addEventListener("pointerdown", function () {
+      cur.classList.add("is-dense");
+    });
+    window.addEventListener("pointerup", function () {
+      if (!document.querySelector("[data-cursor]:hover")) cur.classList.remove("is-dense");
+    });
+
+    document.querySelectorAll("[data-cursor]").forEach(function (el) {
+      el.addEventListener("pointerenter", function () {
+        densify = true;
+        cur.classList.add("is-dense");
+        var lab = el.getAttribute("data-cursor-label") || (el.getAttribute("data-cursor") === "lift" ? "Lift" : "Settle");
+        curLabel.textContent = lab;
+      });
+      el.addEventListener("pointerleave", function () {
+        densify = false;
+        cur.classList.remove("is-dense");
+        curLabel.textContent = "Settle";
+      });
+    });
+
+    gsap.ticker.add(function () {
+      cx += (tx - cx) * 0.18;
+      cy += (ty - cy) * 0.18;
+      cur.style.transform = "translate3d(" + cx + "px," + cy + "px,0)";
+    });
+  }
+
+  /* ---------- Mobile nav ---------- */
+  var burger = document.getElementById("navBurger");
+  var mnav = document.getElementById("mnav");
+  var mOpen = false;
+  if (burger && mnav) {
+    var openMenu = function () {
+      mOpen = true;
+      mnav.classList.add("is-open");
+      mnav.setAttribute("aria-hidden", "false");
+      burger.setAttribute("aria-label", "Close menu");
+      gsap.fromTo(mnav,
+        { clipPath: "inset(0 0 100% 0)" },
+        { clipPath: "inset(0 0 0% 0)", duration: 0.7, ease: "expo.inOut" }
+      );
+      gsap.fromTo("#mnav a, #mnav .mnav__foot",
+        { opacity: 0, y: 24 },
+        { opacity: 1, y: 0, duration: 0.55, stagger: 0.05, delay: 0.2, ease: "power3.out" }
+      );
+      if (lenis) lenis.stop();
+    };
+    var closeMenu = function () {
+      mOpen = false;
+      gsap.to(mnav, {
+        clipPath: "inset(0 0 100% 0)",
+        duration: 0.55,
+        ease: "expo.inOut",
+        onComplete: function () {
+          mnav.classList.remove("is-open");
+          mnav.setAttribute("aria-hidden", "true");
+        }
+      });
+      burger.setAttribute("aria-label", "Open menu");
+      if (lenis) lenis.start();
+    };
+    burger.addEventListener("click", function () {
+      if (mOpen) closeMenu(); else openMenu();
+    });
+    mnav.querySelectorAll("[data-mnav]").forEach(function (a) {
+      a.addEventListener("click", function () { closeMenu(); });
+    });
+  }
+
+  /* ---------- Hero entrance + mist drift ---------- */
+  var heroTl = gsap.timeline({ defaults: { ease: "power3.out" } });
+  heroTl
+    .fromTo("#heroWm",
+      { opacity: 0, scale: 1.06, y: 30 },
+      { opacity: 0.06, scale: 1, y: 0, duration: 1.6 },
+      0.15
+    )
+    .fromTo(".hero__headline",
+      { opacity: 0, y: 36 },
+      { opacity: 1, y: 0, duration: 1.1 },
+      0.45
+    )
+    .fromTo("#heroSeal",
+      { opacity: 0, y: 20, scale: 0.96 },
+      { opacity: 1, y: 0, scale: 1, duration: 0.9 },
+      0.75
+    )
+    .fromTo(".hero__readout .readout",
+      { opacity: 0, y: -12 },
+      { opacity: 1, y: 0, duration: 0.7, stagger: 0.08 },
+      0.55
+    )
+    .fromTo(".stratum",
+      { opacity: 0, y: 40 },
+      { opacity: function (i, el) {
+          if (el.classList.contains("stratum--far")) return 0.35;
+          if (el.classList.contains("stratum--mid")) return 0.55;
+          if (el.classList.contains("stratum--near")) return 0.75;
+          return 0.45;
+        }, y: 0, duration: 1.4, stagger: 0.12 },
+      0.2
+    );
+
+  /* Mist drift personality — continuous gentle motion */
+  if (!reduceMotion) {
+    gsap.to(".stratum--far", {
+      x: 40,
+      duration: 28,
+      ease: "sine.inOut",
+      yoyo: true,
+      repeat: -1
+    });
+    gsap.to(".stratum--mid", {
+      x: -55,
+      duration: 22,
+      ease: "sine.inOut",
+      yoyo: true,
+      repeat: -1
+    });
+    gsap.to(".stratum--near", {
+      x: 70,
+      duration: 18,
+      ease: "sine.inOut",
+      yoyo: true,
+      repeat: -1
+    });
+    gsap.to(".stratum--floor", {
+      x: -30,
+      duration: 24,
+      ease: "sine.inOut",
+      yoyo: true,
+      repeat: -1
+    });
+
+    /* Seal orb pulse */
+    gsap.to(".seal__orb", {
+      boxShadow: "0 0 0 8px rgba(123,163,201,0.12)",
+      duration: 2.4,
+      ease: "sine.inOut",
+      yoyo: true,
+      repeat: -1
+    });
+  }
+
+  /* Hero parallax on scroll */
+  if (!reduceMotion) {
+    gsap.utils.toArray("#skyStrata .stratum").forEach(function (el) {
+      var depth = parseFloat(el.getAttribute("data-depth") || "0.3");
+      gsap.to(el, {
+        y: depth * 120,
+        ease: "none",
+        scrollTrigger: {
+          trigger: "#hero",
+          start: "top top",
+          end: "bottom top",
+          scrub: true
+        }
+      });
+    });
+    gsap.to("#heroWm", {
+      y: 80,
+      opacity: 0.02,
+      ease: "none",
+      scrollTrigger: {
+        trigger: "#hero",
+        start: "top top",
+        end: "bottom top",
+        scrub: true
+      }
+    });
+  }
+
+  /* ---------- Desk reveal ---------- */
+  gsap.fromTo(".desk__title, .inst, .desk__note > *",
+    { opacity: 0, y: 28 },
+    {
+      opacity: 1,
+      y: 0,
+      duration: 0.9,
+      stagger: 0.06,
+      ease: "power3.out",
+      scrollTrigger: {
+        trigger: "#desk",
+        start: "top 78%",
+        once: true
+      }
+    }
+  );
+
+  /* ---------- Version Weather Map — pinned scrub ---------- */
+  var track = document.getElementById("vmapTrack");
+  var fill = document.getElementById("vmapFill");
+  var phases = document.querySelectorAll("#vmapPhases li");
+  var layers = document.querySelectorAll("#vmapTrack .layer");
+
+  if (track && !reduceMotion) {
+    var vmapTl = gsap.timeline({
+      scrollTrigger: {
+        trigger: "#vmapPin",
+        start: "top top",
+        end: "+=280%",
+        pin: true,
+        scrub: 0.65,
+        anticipatePin: 1,
+        onUpdate: function (self) {
+          var p = self.progress;
+          if (fill) fill.style.width = (p * 100) + "%";
+          var idx = p < 0.33 ? 0 : p < 0.66 ? 1 : 2;
+          phases.forEach(function (li, i) {
+            li.classList.toggle("is-active", i === idx);
+          });
+        }
+      }
+    });
+
+    vmapTl
+      .fromTo(track,
+        { xPercent: 0 },
+        { xPercent: -66.666, ease: "none", duration: 1 },
+        0
+      );
+
+    /* File morph / dissolve across layers via opacity stacks while scrubbing */
+    layers.forEach(function (layer, i) {
+      var shapes = layer.querySelectorAll(".fshape");
+      if (i === 0) {
+        gsap.set(shapes, { opacity: 1 });
+      }
+      vmapTl.fromTo(shapes,
+        {
+          opacity: i === 0 ? 1 : 0.35,
+          scale: i === 0 ? 1 : 0.92,
+          filter: i === 0 ? "blur(0.8px)" : "blur(2px)"
+        },
+        {
+          opacity: 1,
+          scale: 1,
+          filter: i === 2 ? "blur(0px)" : "blur(0.3px)",
+          ease: "none",
+          duration: 0.35,
+          stagger: 0.04
+        },
+        i * 0.32
+      );
+    });
+
+    /* Atmosphere clear personality — wash brightens toward clear */
+    vmapTl.fromTo("#vmapStage",
+      { filter: "saturate(0.85) brightness(0.97)" },
+      { filter: "saturate(1.1) brightness(1.05)", ease: "none", duration: 1 },
+      0
+    );
+  } else if (track) {
+    /* Reduced motion: show clear layer emphasis */
+    gsap.set(track, { xPercent: 0 });
+  }
+
+  /* ---------- Soft Sync — drag pressure systems ---------- */
+  var field = document.getElementById("pressureField");
+  var systems = [
+    document.getElementById("psysDesk"),
+    document.getElementById("psysPhone"),
+    document.getElementById("psysTablet")
+  ].filter(Boolean);
+  var conflict = document.getElementById("conflictBlot");
+  var pressureVal = document.getElementById("pressureVal");
+  var syncVal = document.getElementById("syncVal");
+  var conflictState = document.getElementById("conflictState");
+  var pressureHint = document.getElementById("pressureHint");
+
+  function centerOf(el, parent) {
+    var er = el.getBoundingClientRect();
+    var pr = parent.getBoundingClientRect();
+    return {
+      x: er.left + er.width / 2 - pr.left,
+      y: er.top + er.height / 2 - pr.top,
+      r: er.width / 2
+    };
+  }
+
+  function overlapPair(a, b) {
+    var d = Math.hypot(a.x - b.x, a.y - b.y);
+    return d < (a.r + b.r) * 0.72;
+  }
+
+  function updateMeteorology() {
+    if (!field || systems.length < 2) return;
+    var cs = systems.map(function (s) { return centerOf(s, field); });
+    var overlaps = 0;
+    if (overlapPair(cs[0], cs[1])) overlaps++;
+    if (systems[2] && overlapPair(cs[0], cs[2])) overlaps++;
+    if (systems[2] && overlapPair(cs[1], cs[2])) overlaps++;
+
+    var cleared = overlaps === 0;
+    if (conflict) conflict.classList.toggle("is-cleared", cleared);
+    if (conflictState) conflictState.textContent = cleared ? "Front clear" : "Conflict active";
+    if (pressureHint) {
+      pressureHint.textContent = cleared
+        ? "Settled — pressure systems separated"
+        : "Drag systems apart to clear the conflict";
+    }
+
+    var baseP = 1013.2;
+    var p = baseP + overlaps * 1.8 + (cleared ? -0.8 : 0.4);
+    var sync = cleared ? 0.08 : 0.35 + overlaps * 0.22;
+
+    if (pressureVal) {
+      pressureVal.innerHTML = p.toFixed(1) + '<span class="meter__u">hPa</span>';
+    }
+    if (syncVal) {
+      syncVal.innerHTML = sync.toFixed(2) + '<span class="meter__u">Δ</span>';
+    }
+  }
+
+  systems.forEach(function (sys) {
+    var dragging = false;
+    var startX = 0, startY = 0, origLeft = 0, origTop = 0;
+
+    function onDown(e) {
+      e.preventDefault();
+      dragging = true;
+      sys.classList.add("is-dragging");
+      var pt = e.touches ? e.touches[0] : e;
+      startX = pt.clientX;
+      startY = pt.clientY;
+      origLeft = parseFloat(sys.style.left) || (sys.offsetLeft / field.clientWidth * 100);
+      origTop = parseFloat(sys.style.top) || (sys.offsetTop / field.clientHeight * 100);
+      /* convert computed % if inline not set */
+      if (!sys.style.left) {
+        var fr = field.getBoundingClientRect();
+        var sr = sys.getBoundingClientRect();
+        origLeft = ((sr.left - fr.left) / fr.width) * 100;
+        origTop = ((sr.top - fr.top) / fr.height) * 100;
+        sys.style.left = origLeft + "%";
+        sys.style.top = origTop + "%";
+      }
+    }
+
+    function onMove(e) {
+      if (!dragging) return;
+      var pt = e.touches ? e.touches[0] : e;
+      var fr = field.getBoundingClientRect();
+      var dx = ((pt.clientX - startX) / fr.width) * 100;
+      var dy = ((pt.clientY - startY) / fr.height) * 100;
+      var nl = Math.max(2, Math.min(70, origLeft + dx));
+      var nt = Math.max(12, Math.min(68, origTop + dy));
+      sys.style.left = nl + "%";
+      sys.style.top = nt + "%";
+      updateMeteorology();
+    }
+
+    function onUp() {
+      if (!dragging) return;
+      dragging = false;
+      sys.classList.remove("is-dragging");
+      updateMeteorology();
+    }
+
+    sys.addEventListener("pointerdown", onDown);
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    sys.addEventListener("touchstart", onDown, { passive: false });
+    window.addEventListener("touchmove", onMove, { passive: false });
+    window.addEventListener("touchend", onUp);
+  });
+
+  updateMeteorology();
+
+  gsap.fromTo(".sync__copy > *, .pressure",
+    { opacity: 0, y: 32 },
+    {
+      opacity: 1,
+      y: 0,
+      duration: 0.95,
+      stagger: 0.07,
+      ease: "power3.out",
+      scrollTrigger: {
+        trigger: "#sync",
+        start: "top 72%",
+        once: true
+      }
+    }
+  );
+
+  /* ---------- Ledger ---------- */
+  gsap.fromTo(".ledger__top > *, .cell",
+    { opacity: 0, y: 30 },
+    {
+      opacity: 1,
+      y: 0,
+      duration: 0.85,
+      stagger: 0.08,
+      ease: "power3.out",
+      scrollTrigger: {
+        trigger: "#ledger",
+        start: "top 75%",
+        once: true
+      }
+    }
+  );
+
+  if (!reduceMotion) {
+    gsap.to("#humNeedle", {
+      left: "78%",
+      duration: 2.8,
+      ease: "sine.inOut",
+      yoyo: true,
+      repeat: -1,
+      scrollTrigger: {
+        trigger: "#ledger",
+        start: "top 80%"
+      }
+    });
+  }
+
+  /* ---------- Coverage meter ---------- */
+  gsap.fromTo("#coverFill",
+    { height: "0%" },
+    {
+      height: "68%",
+      duration: 1.4,
+      ease: "power2.out",
+      scrollTrigger: {
+        trigger: "#coverage",
+        start: "top 75%",
+        once: true
+      }
+    }
+  );
+  gsap.fromTo(".allot__copy > *, .coverage",
+    { opacity: 0, y: 28 },
+    {
+      opacity: 1,
+      y: 0,
+      duration: 0.9,
+      stagger: 0.08,
+      ease: "power3.out",
+      scrollTrigger: {
+        trigger: "#allot",
+        start: "top 75%",
+        once: true
+      }
+    }
+  );
+
+  /* ---------- Doctrine + close ---------- */
+  gsap.fromTo(".tenet",
+    { opacity: 0, y: 24 },
+    {
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      stagger: 0.07,
+      ease: "power3.out",
+      scrollTrigger: {
+        trigger: "#doctrine",
+        start: "top 80%",
+        once: true
+      }
+    }
+  );
+
+  gsap.fromTo(".close__inner > *",
+    { opacity: 0, y: 30 },
+    {
+      opacity: 1,
+      y: 0,
+      duration: 1,
+      stagger: 0.1,
+      ease: "power3.out",
+      scrollTrigger: {
+        trigger: "#close",
+        start: "top 70%",
+        once: true
+      }
+    }
+  );
+
+  if (!reduceMotion) {
+    gsap.to(".close__wm", {
+      y: -40,
+      ease: "none",
+      scrollTrigger: {
+        trigger: "#close",
+        start: "top bottom",
+        end: "bottom top",
+        scrub: true
+      }
+    });
+  }
+
+  /* ---------- Smooth anchor links ---------- */
+  document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+    a.addEventListener("click", function (e) {
+      var id = a.getAttribute("href");
+      if (!id || id === "#") return;
+      var target = document.querySelector(id);
+      if (!target) return;
+      e.preventDefault();
+      if (lenis) lenis.scrollTo(target, { offset: 0 });
+      else target.scrollIntoView({ behavior: "smooth" });
+    });
+  });
+
+  /* ---------- Atmosphere readout tick ---------- */
+  if (!reduceMotion) {
+    var atm = document.getElementById("heroAtm");
+    var t0 = performance.now();
+    function tickAtm() {
+      if (!atm) return;
+      var t = (performance.now() - t0) / 1000;
+      var hpa = (1013.2 + Math.sin(t * 0.35) * 0.6).toFixed(1);
+      atm.textContent = "Mist · " + hpa + " hPa";
+      requestAnimationFrame(tickAtm);
+    }
+    requestAnimationFrame(tickAtm);
+  }
+
+  /* Refresh after fonts / layout */
+  window.addEventListener("load", function () {
+    ScrollTrigger.refresh();
+  });
+})();
+</script>
+</body>
+</html>

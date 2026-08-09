@@ -1,0 +1,1974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Atoll — One reef. One house.</title>
+<meta name="description" content="Atoll is a fictional single-property coastal hotel on a quiet lagoon — rooms measured by tide, not stars." />
+<meta name="theme-color" content="#E4E8E6" />
+<meta property="og:title" content="Atoll — One reef. One house." />
+<meta property="og:description" content="A quiet hospitality house on the lagoon rim. Suites, rituals, dining, and still water." />
+<meta property="og:type" content="website" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23E4E8E6'/%3E%3Cline x1='4' y1='16' x2='28' y2='16' stroke='%23163A40' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='2' fill='%23E8A87C'/%3E%3C/svg%3E" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+<script>document.documentElement.classList.add('js');</script>
+
+<style>
+:root{
+  --mist:      #E4E8E6;
+  --mist-2:    #D8DED9;
+  --mist-3:    #CCD4CF;
+  --paper:     #EEF1EF;
+  --sea:       #163A40;
+  --sea-2:     #1F4A52;
+  --sea-3:     #2A5C66;
+  --coral:     #E8A87C;
+  --coral-dim: rgba(232,168,124,.18);
+  --ink:       #163A40;
+  --ink-2:     #2A4A4E;
+  --muted:     #5A6E70;
+  --muted-2:   #7A8C8E;
+  --line:      rgba(22,58,64,.16);
+  --line-2:    rgba(22,58,64,.28);
+  --line-soft: rgba(22,58,64,.07);
+  --ok:        #2A5C66;
+
+  --font-display: "Newsreader", "Times New Roman", Georgia, serif;
+  --font-sans: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --ease: cubic-bezier(.22,1,.36,1);
+  --nav-h: 3.75rem;
+  --pad: clamp(1.1rem, 3.2vw, 2.75rem);
+  --max: 1320px;
+
+  --fs-micro: .62rem;
+  --fs-xs: .72rem;
+  --fs-sm: .84rem;
+  --fs-md: .95rem;
+  --fs-lg: clamp(1.05rem, .95rem + .4vw, 1.25rem);
+  --fs-h3: clamp(1.35rem, 1.1rem + .9vw, 1.95rem);
+  --fs-h2: clamp(2rem, 1.3rem + 2.4vw, 3.75rem);
+  --fs-hero: clamp(2.8rem, 1.2rem + 6vw, 6.8rem);
+}
+
+*,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+html{ background:var(--mist); -webkit-text-size-adjust:100%; }
+html.lenis,html.lenis body{ height:auto; }
+.lenis.lenis-smooth{ scroll-behavior:auto !important; }
+.lenis.lenis-stopped{ overflow:hidden; }
+
+body{
+  font-family:var(--font-sans);
+  font-size:var(--fs-md);
+  font-weight:400;
+  line-height:1.55;
+  color:var(--ink);
+  background:var(--mist);
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+body.has-cursor,
+body.has-cursor a,
+body.has-cursor button,
+body.has-cursor input,
+body.has-cursor select,
+body.has-cursor textarea,
+body.has-cursor label{ cursor:none; }
+
+img,svg{ display:block; max-width:100%; }
+a{ color:inherit; text-decoration:none; }
+button{ font:inherit; color:inherit; background:none; border:0; cursor:pointer; }
+ul,ol{ list-style:none; }
+::selection{ background:var(--sea); color:var(--mist); }
+input,select,textarea{ font:inherit; color:inherit; border-radius:0; }
+
+.hair{ border:0; border-top:1px solid var(--line); }
+.mono{ font-family:var(--font-mono); font-feature-settings:"tnum" 1; }
+.label{
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.sq{ border-radius:0 !important; }
+
+/* —— Preloader —— */
+#preloader{
+  position:fixed; inset:0; z-index:9000;
+  background:var(--mist);
+  display:grid; place-items:center;
+}
+#preloader .pl-inner{
+  width:min(440px, 88vw);
+  display:grid; gap:1.35rem;
+  position:relative; z-index:1;
+}
+#preloader .pl-brand{
+  font-family:var(--font-display);
+  font-weight:400;
+  font-size:clamp(2.6rem, 7vw, 3.6rem);
+  letter-spacing:-.03em;
+  line-height:1;
+  color:var(--sea);
+}
+#preloader .pl-tag{
+  font-family:var(--font-mono);
+  font-size:var(--fs-xs);
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+#preloader .pl-row{
+  display:flex; justify-content:space-between; align-items:baseline;
+  font-family:var(--font-mono);
+  font-size:var(--fs-xs);
+  letter-spacing:.08em;
+  color:var(--muted);
+}
+#preloader .pl-track{
+  height:1px; background:var(--line);
+  position:relative; overflow:hidden;
+}
+#preloader .pl-fill{
+  position:absolute; inset:0 auto 0 0; width:0%;
+  background:var(--sea);
+}
+#preloader .pl-horizon{
+  position:absolute; left:0; right:0; top:52%;
+  height:1px; background:var(--line-2);
+  pointer-events:none;
+}
+#preloader .pl-pip{
+  position:absolute; left:50%; top:52%;
+  width:6px; height:6px;
+  background:var(--coral);
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+}
+
+/* —— Cursor: horizon line + center pip —— */
+.cursor{
+  position:fixed; top:0; left:0; z-index:9500;
+  width:36px; height:12px;
+  pointer-events:none;
+  transform:translate(-50%,-50%);
+  opacity:0;
+  will-change:transform;
+}
+.cursor .c-line{
+  position:absolute; left:0; right:0; top:50%;
+  height:1px; background:var(--sea);
+  transform:translateY(-50%);
+}
+.cursor .c-pip{
+  position:absolute; left:50%; top:50%;
+  width:5px; height:5px;
+  background:var(--coral);
+  transform:translate(-50%,-50%);
+}
+.cursor.is-hover .c-line{ background:var(--coral); }
+.cursor.is-hover .c-pip{ width:7px; height:7px; background:var(--sea); }
+.cursor.is-down{ transform:translate(-50%,-50%) scale(.85); }
+
+/* —— Nav —— */
+#nav{
+  position:fixed; top:0; left:0; right:0; z-index:800;
+  height:var(--nav-h);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 var(--pad);
+  background:rgba(228,232,230,.88);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+  transform:translateY(-100%);
+}
+#nav .nav-brand{
+  font-family:var(--font-display);
+  font-size:1.35rem;
+  font-weight:400;
+  letter-spacing:-.02em;
+  color:var(--sea);
+}
+#nav .nav-mid{
+  display:none;
+  gap:1.75rem;
+  font-size:var(--fs-sm);
+  font-weight:400;
+  color:var(--muted);
+}
+#nav .nav-mid a{ transition:color .25s var(--ease); }
+#nav .nav-mid a:hover{ color:var(--sea); }
+#nav .nav-actions{ display:flex; align-items:center; gap:1rem; }
+#nav .nav-tide{
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--muted);
+  display:none;
+}
+#nav .btn-menu{
+  display:inline-flex; align-items:center; gap:.55rem;
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  padding:.55rem .7rem;
+  border:1px solid var(--line);
+  background:transparent;
+  transition:background .25s, color .25s, border-color .25s;
+}
+#nav .btn-menu:hover{ background:var(--sea); color:var(--mist); border-color:var(--sea); }
+#nav .btn-menu .bars{ display:grid; gap:3px; width:14px; }
+#nav .btn-menu .bars span{ display:block; height:1px; background:currentColor; }
+@media (min-width:900px){
+  #nav .nav-mid{ display:flex; }
+  #nav .nav-tide{ display:block; }
+}
+
+/* —— Full menu —— */
+#menu{
+  position:fixed; inset:0; z-index:850;
+  background:var(--sea);
+  color:var(--mist);
+  display:grid;
+  grid-template-rows:var(--nav-h) 1fr auto;
+  transform:translateY(-101%);
+  visibility:hidden;
+}
+#menu.is-open{ visibility:visible; }
+#menu .menu-top{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 var(--pad);
+  border-bottom:1px solid rgba(228,232,230,.18);
+}
+#menu .menu-brand{
+  font-family:var(--font-display);
+  font-size:1.35rem;
+  letter-spacing:-.02em;
+}
+#menu .menu-close{
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  padding:.55rem .7rem;
+  border:1px solid rgba(228,232,230,.28);
+  transition:background .25s, color .25s;
+}
+#menu .menu-close:hover{ background:var(--mist); color:var(--sea); }
+#menu .menu-body{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:2rem;
+  padding:clamp(2rem,5vw,3.5rem) var(--pad);
+  align-content:center;
+}
+@media (min-width:900px){
+  #menu .menu-body{ grid-template-columns:1.2fr .8fr; gap:3rem; }
+}
+#menu .menu-links{ display:grid; gap:.15rem; }
+#menu .menu-links a{
+  font-family:var(--font-display);
+  font-size:clamp(2rem, 4.5vw, 3.4rem);
+  font-weight:300;
+  letter-spacing:-.03em;
+  line-height:1.15;
+  display:flex; align-items:baseline; gap:1rem;
+  transition:color .25s;
+}
+#menu .menu-links a:hover{ color:var(--coral); }
+#menu .menu-links .n{
+  font-family:var(--font-mono);
+  font-size:var(--fs-xs);
+  letter-spacing:.1em;
+  opacity:.45;
+}
+#menu .menu-aside{
+  display:grid; gap:1.5rem; align-content:end;
+  border-top:1px solid rgba(228,232,230,.18);
+  padding-top:1.5rem;
+}
+@media (min-width:900px){
+  #menu .menu-aside{
+    border-top:0; border-left:1px solid rgba(228,232,230,.18);
+    padding-top:0; padding-left:2rem;
+    align-content:center;
+  }
+}
+#menu .menu-aside p{ font-size:var(--fs-sm); color:rgba(228,232,230,.72); max-width:28ch; line-height:1.6; }
+#menu .menu-meta{
+  font-family:var(--font-mono);
+  font-size:var(--fs-xs);
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:rgba(228,232,230,.5);
+  display:grid; gap:.4rem;
+}
+#menu .menu-foot{
+  padding:1.25rem var(--pad);
+  border-top:1px solid rgba(228,232,230,.18);
+  display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap;
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:rgba(228,232,230,.45);
+}
+
+/* —— Layout helpers —— */
+.wrap{ width:min(100%, var(--max)); margin:0 auto; padding:0 var(--pad); }
+.section{ padding:clamp(4rem, 9vw, 7.5rem) 0; position:relative; }
+.section-head{
+  display:grid; gap:1rem;
+  margin-bottom:clamp(2rem, 4vw, 3.25rem);
+  max-width:48rem;
+}
+.section-head h2{
+  font-family:var(--font-display);
+  font-weight:300;
+  font-size:var(--fs-h2);
+  letter-spacing:-.035em;
+  line-height:1.05;
+  color:var(--sea);
+}
+.section-head p{ color:var(--muted); font-size:var(--fs-lg); max-width:42ch; font-weight:300; }
+.sec-label{ margin-bottom:.35rem; }
+
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:.55rem;
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  padding:.95rem 1.35rem;
+  border:1px solid var(--sea);
+  background:var(--sea);
+  color:var(--mist);
+  transition:background .25s, color .25s, border-color .25s;
+  border-radius:0;
+}
+.btn:hover{ background:transparent; color:var(--sea); }
+.btn-ghost{
+  background:transparent; color:var(--sea);
+}
+.btn-ghost:hover{ background:var(--sea); color:var(--mist); }
+.btn-coral{
+  background:var(--coral); border-color:var(--coral); color:var(--sea);
+}
+.btn-coral:hover{ background:transparent; color:var(--coral); border-color:var(--coral); }
+
+/* —— Hero —— */
+#hero{
+  min-height:100svh;
+  display:grid;
+  grid-template-rows:1fr auto;
+  padding-top:var(--nav-h);
+  position:relative;
+  overflow:hidden;
+  background:
+    linear-gradient(180deg, var(--mist) 0%, var(--mist-2) 55%, #C5D0CC 100%);
+}
+#hero .hero-plate{
+  position:absolute; inset:0;
+  pointer-events:none;
+}
+#hero .hero-plate svg{ width:100%; height:100%; }
+#hero .hero-main{
+  display:grid;
+  align-content:end;
+  padding:clamp(2rem, 6vw, 4.5rem) var(--pad) clamp(1.5rem, 3vw, 2.5rem);
+  position:relative; z-index:1;
+  width:min(100%, var(--max));
+  margin:0 auto;
+}
+#hero .hero-eyebrow{
+  font-family:var(--font-mono);
+  font-size:var(--fs-xs);
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:1.25rem;
+  display:flex; align-items:center; gap:.75rem;
+}
+#hero .hero-eyebrow::before{
+  content:"";
+  width:28px; height:1px; background:var(--coral);
+}
+#hero h1{
+  font-family:var(--font-display);
+  font-weight:300;
+  font-size:var(--fs-hero);
+  letter-spacing:-.04em;
+  line-height:.95;
+  color:var(--sea);
+  max-width:14ch;
+}
+#hero h1 em{
+  font-style:italic;
+  font-weight:300;
+  color:var(--coral);
+}
+#hero .hero-sub{
+  margin-top:1.35rem;
+  max-width:36ch;
+  font-size:var(--fs-lg);
+  font-weight:300;
+  color:var(--muted);
+  line-height:1.55;
+}
+#hero .hero-cta{
+  margin-top:2rem;
+  display:flex; flex-wrap:wrap; gap:.75rem;
+}
+#hero .hero-rail{
+  border-top:1px solid var(--line);
+  display:grid;
+  grid-template-columns:1fr;
+  position:relative; z-index:1;
+  background:rgba(228,232,230,.55);
+}
+@media (min-width:800px){
+  #hero .hero-rail{ grid-template-columns:repeat(4,1fr); }
+}
+#hero .hero-rail .cell{
+  padding:1.1rem var(--pad);
+  border-bottom:1px solid var(--line);
+  display:grid; gap:.35rem;
+}
+@media (min-width:800px){
+  #hero .hero-rail .cell{
+    border-bottom:0;
+    border-right:1px solid var(--line);
+    padding:1.25rem 1.5rem;
+  }
+  #hero .hero-rail .cell:last-child{ border-right:0; }
+}
+#hero .hero-rail .k{
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--muted-2);
+}
+#hero .hero-rail .v{
+  font-family:var(--font-display);
+  font-size:1.15rem;
+  font-weight:400;
+  color:var(--sea);
+}
+
+/* —— Suites —— */
+#plan{ background:var(--mist); }
+.suites-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:1px;
+  background:var(--line);
+  border:1px solid var(--line);
+}
+@media (min-width:720px){ .suites-grid{ grid-template-columns:1fr 1fr; } }
+.suite{
+  background:var(--paper);
+  display:grid;
+  grid-template-rows:auto 1fr;
+  min-height:320px;
+  transition:background .35s var(--ease);
+}
+.suite:hover{ background:var(--mist); }
+.suite-viz{
+  aspect-ratio:16/10;
+  background:var(--mist-2);
+  border-bottom:1px solid var(--line);
+  position:relative;
+  overflow:hidden;
+}
+.suite-viz svg{ width:100%; height:100%; }
+.suite-body{ padding:1.35rem 1.4rem 1.6rem; display:grid; gap:.85rem; align-content:start; }
+.suite-top{
+  display:flex; justify-content:space-between; align-items:baseline; gap:1rem;
+}
+.suite-top h3{
+  font-family:var(--font-display);
+  font-weight:400;
+  font-size:clamp(1.45rem, 1.2rem + .8vw, 1.85rem);
+  letter-spacing:-.02em;
+  color:var(--sea);
+}
+.suite-rate{
+  font-family:var(--font-mono);
+  font-size:var(--fs-xs);
+  letter-spacing:.04em;
+  color:var(--muted);
+  white-space:nowrap;
+}
+.suite-body p{ font-size:var(--fs-sm); color:var(--muted); line-height:1.55; max-width:38ch; }
+.suite-meta{
+  display:flex; flex-wrap:wrap; gap:.5rem .85rem;
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--muted-2);
+  padding-top:.35rem;
+  border-top:1px solid var(--line-soft);
+}
+
+/* —— Rituals —— */
+#rituals{ background:var(--sea); color:var(--mist); }
+#rituals .section-head h2{ color:var(--mist); }
+#rituals .section-head p{ color:rgba(228,232,230,.65); }
+#rituals .label{ color:rgba(228,232,230,.45); }
+.rituals-board{
+  display:grid;
+  grid-template-columns:1fr;
+  border:1px solid rgba(228,232,230,.18);
+}
+@media (min-width:900px){ .rituals-board{ grid-template-columns:repeat(4,1fr); } }
+.ritual{
+  padding:1.75rem 1.5rem 2rem;
+  border-bottom:1px solid rgba(228,232,230,.18);
+  display:grid; gap:1.1rem;
+  min-height:280px;
+  transition:background .3s;
+}
+.ritual:hover{ background:rgba(228,232,230,.04); }
+@media (min-width:900px){
+  .ritual{ border-bottom:0; border-right:1px solid rgba(228,232,230,.18); }
+  .ritual:last-child{ border-right:0; }
+}
+.ritual .r-time{
+  font-family:var(--font-mono);
+  font-size:var(--fs-xs);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--coral);
+}
+.ritual h3{
+  font-family:var(--font-display);
+  font-weight:300;
+  font-size:clamp(1.5rem, 1.2rem + 1vw, 2rem);
+  letter-spacing:-.02em;
+  line-height:1.1;
+}
+.ritual p{ font-size:var(--fs-sm); color:rgba(228,232,230,.65); line-height:1.55; }
+.ritual .r-mark{
+  width:100%; height:48px;
+  margin-top:auto;
+}
+.ritual .r-mark svg{ width:100%; height:100%; }
+
+/* —— Dining —— */
+#dining{ background:var(--mist-2); }
+.dining-layout{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:2rem;
+}
+@media (min-width:960px){
+  .dining-layout{ grid-template-columns:1.05fr .95fr; gap:3rem; align-items:start; }
+}
+.dining-plate{
+  border:1px solid var(--line);
+  background:var(--paper);
+  aspect-ratio:4/5;
+  position:relative;
+  overflow:hidden;
+}
+.dining-plate svg{ width:100%; height:100%; }
+.dining-copy{ display:grid; gap:1.5rem; }
+.dining-copy h2{
+  font-family:var(--font-display);
+  font-weight:300;
+  font-size:var(--fs-h2);
+  letter-spacing:-.035em;
+  line-height:1.05;
+  color:var(--sea);
+}
+.dining-copy .lead{
+  font-size:var(--fs-lg);
+  font-weight:300;
+  color:var(--muted);
+  max-width:40ch;
+}
+.menu-strip{
+  display:grid; gap:0;
+  border:1px solid var(--line);
+  background:var(--mist);
+}
+.menu-strip .row{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:1rem;
+  padding:1.1rem 1.25rem;
+  border-bottom:1px solid var(--line);
+  align-items:start;
+}
+.menu-strip .row:last-child{ border-bottom:0; }
+.menu-strip .dish{
+  font-family:var(--font-display);
+  font-size:1.2rem;
+  letter-spacing:-.015em;
+  color:var(--sea);
+}
+.menu-strip .note{ font-size:var(--fs-sm); color:var(--muted); margin-top:.25rem; }
+.menu-strip .price{
+  font-family:var(--font-mono);
+  font-size:var(--fs-xs);
+  letter-spacing:.04em;
+  color:var(--muted);
+  padding-top:.35rem;
+}
+.dining-hours{
+  display:flex; flex-wrap:wrap; gap:1.5rem 2.5rem;
+  padding-top:.5rem;
+  font-family:var(--font-mono);
+  font-size:var(--fs-xs);
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--muted-2);
+}
+.dining-hours strong{ display:block; color:var(--sea); font-weight:500; margin-bottom:.2rem; letter-spacing:.1em; }
+
+/* —— Spa —— */
+#spa{ background:var(--mist); }
+.spa-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:1px;
+  background:var(--line);
+  border:1px solid var(--line);
+}
+@media (min-width:800px){ .spa-grid{ grid-template-columns:1.2fr 1fr 1fr; } }
+.spa-feat{
+  background:var(--sea);
+  color:var(--mist);
+  padding:clamp(1.75rem, 3vw, 2.5rem);
+  display:grid; gap:1.25rem;
+  min-height:340px;
+  grid-column:1 / -1;
+}
+@media (min-width:800px){ .spa-feat{ grid-column:auto; } }
+.spa-feat h3{
+  font-family:var(--font-display);
+  font-weight:300;
+  font-size:clamp(1.8rem, 1.4rem + 1.2vw, 2.6rem);
+  letter-spacing:-.03em;
+  line-height:1.05;
+  max-width:12ch;
+}
+.spa-feat p{ color:rgba(228,232,230,.68); font-size:var(--fs-sm); max-width:36ch; }
+.spa-feat .spa-svg{ height:100px; margin-top:auto; }
+.spa-feat .spa-svg svg{ width:100%; height:100%; }
+.spa-card{
+  background:var(--paper);
+  padding:1.5rem 1.4rem 1.75rem;
+  display:grid; gap:.9rem;
+  min-height:280px;
+}
+.spa-card h3{
+  font-family:var(--font-display);
+  font-size:1.45rem;
+  font-weight:400;
+  letter-spacing:-.02em;
+  color:var(--sea);
+}
+.spa-card p{ font-size:var(--fs-sm); color:var(--muted); }
+.spa-card .dur{
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--coral);
+  margin-top:auto;
+}
+
+/* —— Location / Map plate —— */
+#location{ background:var(--mist-2); }
+.loc-layout{
+  display:grid;
+  grid-template-columns:1fr;
+  border:1px solid var(--line);
+  background:var(--line);
+  gap:1px;
+}
+@media (min-width:900px){ .loc-layout{ grid-template-columns:1.35fr .85fr; } }
+.loc-map{
+  background:var(--paper);
+  min-height:380px;
+  position:relative;
+  overflow:hidden;
+}
+.loc-map svg{ width:100%; height:100%; min-height:380px; }
+.loc-info{
+  background:var(--mist);
+  padding:clamp(1.5rem, 3vw, 2.25rem);
+  display:grid; gap:1.5rem;
+  align-content:start;
+}
+.loc-info h2{
+  font-family:var(--font-display);
+  font-weight:300;
+  font-size:var(--fs-h3);
+  letter-spacing:-.03em;
+  color:var(--sea);
+}
+.loc-info p{ color:var(--muted); font-size:var(--fs-sm); max-width:36ch; }
+.loc-coords{
+  display:grid; gap:.65rem;
+  padding-top:1rem;
+  border-top:1px solid var(--line);
+}
+.loc-coords .pair{
+  display:flex; justify-content:space-between; gap:1rem;
+  font-family:var(--font-mono);
+  font-size:var(--fs-xs);
+  letter-spacing:.06em;
+}
+.loc-coords .pair span:first-child{ color:var(--muted-2); text-transform:uppercase; letter-spacing:.12em; font-size:var(--fs-micro); }
+.loc-coords .pair span:last-child{ color:var(--sea); }
+
+/* —— Rates desk —— */
+#rates{ background:var(--mist); }
+.rates-desk{
+  border:1px solid var(--line);
+  background:var(--paper);
+}
+.rates-controls{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:1px;
+  background:var(--line);
+  border-bottom:1px solid var(--line);
+}
+@media (min-width:720px){ .rates-controls{ grid-template-columns:repeat(3,1fr); } }
+.rate-field{
+  background:var(--mist);
+  padding:1.15rem 1.25rem;
+  display:grid; gap:.55rem;
+}
+.rate-field label{
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--muted-2);
+}
+.rate-field select,
+.rate-field input{
+  width:100%;
+  background:transparent;
+  border:0;
+  border-bottom:1px solid var(--line);
+  padding:.45rem 0;
+  font-family:var(--font-display);
+  font-size:1.25rem;
+  color:var(--sea);
+  outline:none;
+  border-radius:0;
+  appearance:none;
+  -webkit-appearance:none;
+}
+.rate-field select{ background-image:linear-gradient(45deg, transparent 50%, var(--sea) 50%), linear-gradient(135deg, var(--sea) 50%, transparent 50%); background-position:calc(100% - 10px) calc(50% + 2px), calc(100% - 4px) calc(50% + 2px); background-size:6px 6px, 6px 6px; background-repeat:no-repeat; padding-right:1.5rem; }
+.rates-table{ width:100%; border-collapse:collapse; }
+.rates-table th,
+.rates-table td{
+  text-align:left;
+  padding:1.1rem 1.25rem;
+  border-bottom:1px solid var(--line);
+  vertical-align:middle;
+}
+.rates-table th{
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--muted-2);
+  font-weight:400;
+  background:var(--mist-2);
+}
+.rates-table tr:last-child td{ border-bottom:0; }
+.rates-table .name{
+  font-family:var(--font-display);
+  font-size:1.15rem;
+  color:var(--sea);
+}
+.rates-table .detail{ font-size:var(--fs-sm); color:var(--muted); margin-top:.2rem; }
+.rates-table .amt{
+  font-family:var(--font-mono);
+  font-size:1rem;
+  letter-spacing:.02em;
+  color:var(--sea);
+  font-feature-settings:"tnum" 1;
+}
+.rates-table .sel{
+  width:18px; height:18px;
+  border:1px solid var(--line-2);
+  background:transparent;
+  display:inline-grid; place-items:center;
+  transition:background .2s, border-color .2s;
+}
+.rates-table tr.is-active .sel{ background:var(--coral); border-color:var(--coral); }
+.rates-table tr{ cursor:pointer; transition:background .2s; }
+.rates-table tbody tr:hover{ background:rgba(22,58,64,.03); }
+.rates-table tr.is-active{ background:var(--coral-dim); }
+.rates-foot{
+  display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:1rem;
+  padding:1.25rem 1.35rem;
+  border-top:1px solid var(--line);
+  background:var(--mist);
+}
+.rates-total{
+  display:grid; gap:.2rem;
+}
+.rates-total .t-label{
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--muted-2);
+}
+.rates-total .t-val{
+  font-family:var(--font-mono);
+  font-size:1.45rem;
+  color:var(--sea);
+  font-feature-settings:"tnum" 1;
+}
+
+/* —— Journal —— */
+#journal{ background:var(--mist-2); }
+.journal-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:1px;
+  background:var(--line);
+  border:1px solid var(--line);
+}
+@media (min-width:800px){ .journal-grid{ grid-template-columns:repeat(3,1fr); } }
+.entry{
+  background:var(--paper);
+  padding:1.5rem 1.4rem 1.75rem;
+  display:grid; gap:1rem;
+  min-height:300px;
+  transition:background .3s;
+}
+.entry:hover{ background:var(--mist); }
+.entry .e-meta{
+  display:flex; justify-content:space-between; gap:1rem;
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--muted-2);
+}
+.entry h3{
+  font-family:var(--font-display);
+  font-weight:400;
+  font-size:clamp(1.35rem, 1.15rem + .6vw, 1.7rem);
+  letter-spacing:-.02em;
+  line-height:1.15;
+  color:var(--sea);
+}
+.entry p{ font-size:var(--fs-sm); color:var(--muted); line-height:1.6; }
+.entry .e-line{
+  height:40px;
+  margin-top:auto;
+  opacity:.7;
+}
+.entry .e-line svg{ width:100%; height:100%; }
+
+/* —— Reserve —— */
+#reserve{ background:var(--sea); color:var(--mist); }
+#reserve .section-head h2{ color:var(--mist); }
+#reserve .section-head p{ color:rgba(228,232,230,.65); }
+#reserve .label{ color:rgba(228,232,230,.45); }
+.reserve-layout{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:2.5rem;
+}
+@media (min-width:900px){
+  .reserve-layout{ grid-template-columns:1fr 1.1fr; gap:3.5rem; align-items:start; }
+}
+.reserve-aside{
+  display:grid; gap:1.5rem;
+}
+.reserve-aside .aside-block{
+  border:1px solid rgba(228,232,230,.18);
+  padding:1.35rem 1.4rem;
+  display:grid; gap:.55rem;
+}
+.reserve-aside .aside-block h3{
+  font-family:var(--font-display);
+  font-weight:300;
+  font-size:1.45rem;
+  letter-spacing:-.02em;
+}
+.reserve-aside .aside-block p{ font-size:var(--fs-sm); color:rgba(228,232,230,.65); }
+.reserve-aside .aside-block .mono-line{
+  font-family:var(--font-mono);
+  font-size:var(--fs-xs);
+  letter-spacing:.08em;
+  color:var(--coral);
+}
+.reserve-form{
+  display:grid; gap:1px;
+  background:rgba(228,232,230,.18);
+  border:1px solid rgba(228,232,230,.18);
+}
+.rf-row{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:1px;
+  background:rgba(228,232,230,.18);
+}
+@media (min-width:600px){ .rf-row.two{ grid-template-columns:1fr 1fr; } }
+.rf-field{
+  background:var(--sea-2);
+  padding:1.1rem 1.2rem;
+  display:grid; gap:.45rem;
+}
+.rf-field label{
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:rgba(228,232,230,.45);
+}
+.rf-field input,
+.rf-field select,
+.rf-field textarea{
+  width:100%;
+  background:transparent;
+  border:0;
+  border-bottom:1px solid rgba(228,232,230,.22);
+  padding:.4rem 0;
+  color:var(--mist);
+  outline:none;
+  border-radius:0;
+  font-size:1rem;
+}
+.rf-field textarea{ min-height:100px; resize:vertical; font-family:var(--font-sans); }
+.rf-field select{ appearance:none; -webkit-appearance:none; }
+.rf-field input::placeholder,
+.rf-field textarea::placeholder{ color:rgba(228,232,230,.35); }
+.rf-actions{
+  background:var(--sea-2);
+  padding:1.25rem 1.2rem;
+  display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:1rem;
+}
+.rf-actions .note{
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:rgba(228,232,230,.4);
+  max-width:28ch;
+}
+#reserve .btn{ background:var(--coral); border-color:var(--coral); color:var(--sea); }
+#reserve .btn:hover{ background:transparent; color:var(--coral); }
+.form-ok{
+  display:none;
+  padding:1.5rem;
+  background:var(--sea-2);
+  font-family:var(--font-display);
+  font-size:1.35rem;
+  color:var(--mist);
+}
+.form-ok.is-show{ display:block; }
+
+/* —— Footer —— */
+#footer{
+  background:var(--mist);
+  border-top:1px solid var(--line);
+  padding:clamp(2.5rem, 5vw, 4rem) 0 2rem;
+}
+.footer-top{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:2rem;
+  margin-bottom:2.5rem;
+}
+@media (min-width:800px){
+  .footer-top{ grid-template-columns:1.4fr 1fr 1fr; gap:2.5rem; }
+}
+.footer-brand{
+  font-family:var(--font-display);
+  font-size:clamp(2.2rem, 3vw, 3rem);
+  font-weight:300;
+  letter-spacing:-.03em;
+  color:var(--sea);
+  line-height:1;
+  margin-bottom:.75rem;
+}
+.footer-tag{ color:var(--muted); font-size:var(--fs-sm); max-width:28ch; font-weight:300; }
+.footer-col h4{
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--muted-2);
+  margin-bottom:1rem;
+}
+.footer-col a, .footer-col p{
+  font-size:var(--fs-sm);
+  color:var(--muted);
+  display:block;
+  margin-bottom:.45rem;
+  transition:color .2s;
+}
+.footer-col a:hover{ color:var(--sea); }
+.footer-bottom{
+  display:flex; flex-wrap:wrap; justify-content:space-between; gap:1rem;
+  padding-top:1.5rem;
+  border-top:1px solid var(--line);
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--muted-2);
+}
+.footer-horizon{
+  height:1px;
+  background:var(--line-2);
+  position:relative;
+  margin:2rem 0 1.5rem;
+}
+.footer-horizon::after{
+  content:"";
+  position:absolute; left:50%; top:50%;
+  width:6px; height:6px;
+  background:var(--coral);
+  transform:translate(-50%,-50%);
+}
+
+/* —— Reveal helpers —— */
+.js .reveal{ opacity:0; transform:translateY(28px); }
+.js .reveal-line{ transform:scaleX(0); transform-origin:left center; }
+
+@media (prefers-reduced-motion: reduce){
+  .js .reveal, .js .reveal-line{ opacity:1; transform:none; }
+  .cursor{ display:none !important; }
+  body.has-cursor, body.has-cursor *{ cursor:auto !important; }
+}
+</style>
+</head>
+<body>
+<div id="preloader" aria-hidden="true">
+  <div class="pl-horizon"></div>
+  <div class="pl-pip"></div>
+  <div class="pl-inner">
+    <div class="pl-brand">Atoll</div>
+    <div class="pl-tag">One reef · One house</div>
+    <div class="pl-track"><div class="pl-fill"></div></div>
+    <div class="pl-row"><span>Reading tide</span><span class="pl-pct">0%</span></div>
+  </div>
+</div>
+
+<div class="cursor" aria-hidden="true"><span class="c-line"></span><span class="c-pip"></span></div>
+
+<header id="nav">
+  <a href="#hero" class="nav-brand">Atoll</a>
+  <nav class="nav-mid" aria-label="Primary">
+    <a href="#plan">House plan</a>
+    <a href="#rituals">Tide ledger</a>
+    <a href="#dining">Kitchen</a>
+    <a href="#spa">Cool stone</a>
+    <a href="#rates">Rates</a>
+  </nav>
+  <div class="nav-actions">
+    <span class="nav-tide" id="navTide">Tide · rising</span>
+    <a href="#reserve" class="btn" style="padding:.65rem 1rem;">Reserve</a>
+    <button type="button" class="btn-menu" id="btnMenu" aria-expanded="false" aria-controls="menu">
+      <span class="bars" aria-hidden="true"><span></span><span></span><span></span></span>
+      Menu
+    </button>
+  </div>
+</header>
+
+<div id="menu" role="dialog" aria-modal="true" aria-label="Site menu">
+  <div class="menu-top">
+    <span class="menu-brand">Atoll</span>
+    <button type="button" class="menu-close" id="btnMenuClose">Close</button>
+  </div>
+  <div class="menu-body">
+    <nav class="menu-links" aria-label="Full">
+      <a href="#hero"><span class="n">01</span> Horizon</a>
+      <a href="#plan"><span class="n">02</span> House plan</a>
+      <a href="#rituals"><span class="n">03</span> Tide ledger</a>
+      <a href="#dining"><span class="n">04</span> Kitchen letters</a>
+      <a href="#spa"><span class="n">05</span> Cool stone</a>
+      <a href="#location"><span class="n">06</span> Crossing</a>
+      <a href="#rates"><span class="n">07</span> Rates</a>
+      <a href="#journal"><span class="n">08</span> Journal</a>
+      <a href="#reserve"><span class="n">09</span> Reserve</a>
+    </nav>
+    <aside class="menu-aside">
+      <p>A single-property house on the lagoon rim. No chain. No second address. Rooms face the water; schedules follow the tide.</p>
+      <div class="menu-meta">
+        <span>Lagoon Rim · 24°N</span>
+        <span>desk@atoll.house</span>
+        <span>+1 808 555 0142</span>
+      </div>
+    </aside>
+  </div>
+  <div class="menu-foot">
+    <span>Quiet hospitality</span>
+    <span>Arrive by boat · 18 min</span>
+  </div>
+</div>
+
+<main>
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-plate" aria-hidden="true">
+      <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#E4E8E6"/>
+            <stop offset="55%" stop-color="#D5DDD8"/>
+            <stop offset="100%" stop-color="#B8C6C2"/>
+          </linearGradient>
+        </defs>
+        <rect width="1440" height="900" fill="url(#skyG)"/>
+        <!-- geometric lagoon plates -->
+        <polygon points="0,520 420,480 620,540 0,620" fill="#163A40" opacity=".08"/>
+        <polygon points="380,500 900,460 1100,530 640,580" fill="#163A40" opacity=".11"/>
+        <polygon points="820,490 1440,450 1440,620 980,580" fill="#163A40" opacity=".09"/>
+        <polygon points="0,620 520,580 780,640 0,720" fill="#163A40" opacity=".14"/>
+        <polygon points="480,600 1080,560 1440,620 1440,760 700,700" fill="#163A40" opacity=".16"/>
+        <polygon points="0,720 640,680 1440,760 1440,900 0,900" fill="#163A40" opacity=".22"/>
+        <!-- horizon -->
+        <line class="hz-line" x1="0" y1="500" x2="1440" y2="500" stroke="#163A40" stroke-width="1.25" opacity=".55"/>
+        <circle class="hz-pip" cx="720" cy="500" r="4" fill="#E8A87C"/>
+        <!-- reef marks -->
+        <rect x="180" y="498" width="48" height="4" fill="#163A40" opacity=".35"/>
+        <rect x="1180" y="498" width="64" height="4" fill="#163A40" opacity=".35"/>
+        <rect x="980" y="620" width="120" height="1" fill="#E8A87C" opacity=".4"/>
+      </svg>
+    </div>
+    <div class="hero-main">
+      <div class="hero-eyebrow">Single house · lagoon rim · no road</div>
+      <h1 id="heroTitle">Fourteen rooms<br/><em>above one tide.</em></h1>
+      <p class="hero-sub">Atoll is not a resort grid. It is one house on a reef plate — measured by water, light, and how long the boat takes when the wind turns.</p>
+      <div class="hero-cta">
+        <a href="#reserve" class="btn">Hold dates</a>
+        <a href="#plan" class="btn btn-ghost">Read the house plan</a>
+      </div>
+    </div>
+    <div class="hero-rail">
+      <div class="cell"><span class="k">Rooms</span><span class="v">14</span></div>
+      <div class="cell"><span class="k">Crossing</span><span class="v">18 min boat</span></div>
+      <div class="cell"><span class="k">Kitchen</span><span class="v">Tide-led</span></div>
+      <div class="cell"><span class="k">Desk</span><span class="v">Always ashore</span></div>
+    </div>
+  </section>
+
+  <!-- HOUSE PLAN -->
+  <section id="plan" class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="label sec-label reveal">02 — House plan</span>
+        <h2 class="reveal">Not a room grid.<br/>A sequence along the reef.</h2>
+        <p class="reveal">Guests move west with the light: shade bays first, then the long shutter wing, then the two detached tide houses. Every opening faces water — never the quay.</p>
+      </div>
+      <div class="suites-grid">
+        <article class="suite reveal">
+          <div class="suite-viz" aria-hidden="true">
+            <svg viewBox="0 0 640 400" xmlns="http://www.w3.org/2000/svg">
+              <rect width="640" height="400" fill="#D8DED9"/>
+              <polygon points="0,220 280,190 400,240 0,280" fill="#163A40" opacity=".12"/>
+              <polygon points="240,210 640,170 640,320 360,280" fill="#163A40" opacity=".18"/>
+              <rect x="40" y="80" width="200" height="140" fill="none" stroke="#163A40" stroke-width="1.5" opacity=".5"/>
+              <line x1="0" y1="200" x2="640" y2="200" stroke="#163A40" stroke-width="1" opacity=".4"/>
+              <circle cx="320" cy="200" r="3.5" fill="#E8A87C"/>
+              <rect x="420" y="260" width="160" height="80" fill="#163A40" opacity=".25"/>
+            </svg>
+          </div>
+          <div class="suite-body">
+            <div class="suite-top">
+              <h3>Reef Plate</h3>
+              <span class="suite-rate mono">from 480 / nt</span>
+            </div>
+            <p>Flush with the rim. Deck boards sit almost level with morning water. For guests who swim before coffee exists.</p>
+            <div class="suite-meta"><span>42 m²</span><span>King</span><span>Bay 01–04</span></div>
+          </div>
+        </article>
+        <article class="suite reveal">
+          <div class="suite-viz" aria-hidden="true">
+            <svg viewBox="0 0 640 400" xmlns="http://www.w3.org/2000/svg">
+              <rect width="640" height="400" fill="#CCD4CF"/>
+              <polygon points="0,260 640,220 640,400 0,400" fill="#163A40" opacity=".2"/>
+              <polygon points="80,100 320,60 320,280 80,300" fill="none" stroke="#163A40" stroke-width="1.5" opacity=".55"/>
+              <polygon points="320,80 560,100 560,300 320,280" fill="#163A40" opacity=".1"/>
+              <line x1="0" y1="210" x2="640" y2="210" stroke="#163A40" stroke-width="1" opacity=".45"/>
+              <circle cx="320" cy="210" r="3.5" fill="#E8A87C"/>
+            </svg>
+          </div>
+          <div class="suite-body">
+            <div class="suite-top">
+              <h3>Shutter Wing</h3>
+              <span class="suite-rate mono">from 560 / nt</span>
+            </div>
+            <p>Operable timber that turns afternoon into a dim library. Evening opens the full west cut.</p>
+            <div class="suite-meta"><span>48 m²</span><span>King</span><span>Bay 05–08</span></div>
+          </div>
+        </article>
+        <article class="suite reveal">
+          <div class="suite-viz" aria-hidden="true">
+            <svg viewBox="0 0 640 400" xmlns="http://www.w3.org/2000/svg">
+              <rect width="640" height="400" fill="#D8DED9"/>
+              <rect x="60" y="60" width="520" height="280" fill="none" stroke="#163A40" stroke-width="1.25" opacity=".4"/>
+              <polygon points="60,240 320,200 580,250 580,340 60,340" fill="#163A40" opacity=".16"/>
+              <line x1="60" y1="200" x2="580" y2="200" stroke="#163A40" stroke-width="1" opacity=".5"/>
+              <circle cx="320" cy="200" r="3.5" fill="#E8A87C"/>
+            </svg>
+          </div>
+          <div class="suite-body">
+            <div class="suite-top">
+              <h3>Horizon Cut</h3>
+              <span class="suite-rate mono">from 720 / nt</span>
+            </div>
+            <p>Corner glass, separate sitting bay, desk aimed due west. The room that photographs itself at 18:10.</p>
+            <div class="suite-meta"><span>68 m²</span><span>King</span><span>Bay 09–12</span></div>
+          </div>
+        </article>
+        <article class="suite reveal">
+          <div class="suite-viz" aria-hidden="true">
+            <svg viewBox="0 0 640 400" xmlns="http://www.w3.org/2000/svg">
+              <rect width="640" height="400" fill="#C5D0CC"/>
+              <polygon points="0,180 200,160 200,400 0,400" fill="#163A40" opacity=".22"/>
+              <polygon points="200,160 440,140 440,400 200,400" fill="#163A40" opacity=".14"/>
+              <polygon points="440,140 640,120 640,400 440,400" fill="#163A40" opacity=".1"/>
+              <line x1="0" y1="190" x2="640" y2="190" stroke="#163A40" stroke-width="1.25" opacity=".5"/>
+              <circle cx="320" cy="190" r="3.5" fill="#E8A87C"/>
+            </svg>
+          </div>
+          <div class="suite-body">
+            <div class="suite-top">
+              <h3>Tide House</h3>
+              <span class="suite-rate mono">from 980 / nt</span>
+            </div>
+            <p>Detached pavilion — private plunge, kitchenette, roof edge that tracks evening reef light. Sold as one stay only.</p>
+            <div class="suite-meta"><span>92 m²</span><span>King + daybed</span><span>House A/B</span></div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- TIDE LEDGER -->
+  <section id="rituals" class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="label sec-label reveal">03 — Tide ledger</span>
+        <h2 class="reveal">The house keeps time<br/>by water, not clocks.</h2>
+        <p class="reveal">We publish a simple ledger for the week you arrive — light, wind, and when the kitchen expects the boats. Not a wellness “program.”</p>
+      </div>
+      <div class="rituals-board">
+        <article class="ritual reveal">
+          <span class="r-time">Low · first light</span>
+          <h3>Open water</h3>
+          <p>Swim before wind. Towels on the reef steps. Coffee only after you climb back.</p>
+          <div class="r-mark" aria-hidden="true">
+            <svg viewBox="0 0 280 48" xmlns="http://www.w3.org/2000/svg">
+              <line x1="0" y1="24" x2="280" y2="24" stroke="#E4E8E6" stroke-width="1" opacity=".35"/>
+              <circle cx="40" cy="24" r="3" fill="#E8A87C"/>
+            </svg>
+          </div>
+        </article>
+        <article class="ritual reveal">
+          <span class="r-time">Boats · mid morning</span>
+          <h3>Kitchen opens</h3>
+          <p>Menu written when catch is weighed. If boats are late, breakfast stretches — no apology theatre.</p>
+          <div class="r-mark" aria-hidden="true">
+            <svg viewBox="0 0 280 48" xmlns="http://www.w3.org/2000/svg">
+              <line x1="0" y1="24" x2="280" y2="24" stroke="#E4E8E6" stroke-width="1" opacity=".35"/>
+              <circle cx="120" cy="24" r="3" fill="#E8A87C"/>
+            </svg>
+          </div>
+        </article>
+        <article class="ritual reveal">
+          <span class="r-time">Flat · afternoon</span>
+          <h3>Shade hours</h3>
+          <p>Well room stays cold. Shutters half-drawn. The lagoon goes mirror — reading is the only agenda.</p>
+          <div class="r-mark" aria-hidden="true">
+            <svg viewBox="0 0 280 48" xmlns="http://www.w3.org/2000/svg">
+              <line x1="0" y1="24" x2="280" y2="24" stroke="#E4E8E6" stroke-width="1" opacity=".35"/>
+              <circle cx="180" cy="24" r="3" fill="#E8A87C"/>
+            </svg>
+          </div>
+        </article>
+        <article class="ritual reveal">
+          <span class="r-time">West · last light</span>
+          <h3>One long table</h3>
+          <p>Bitter citrus, local spirit, no playlist louder than water. Seats are not reserved by status — by arrival.</p>
+          <div class="r-mark" aria-hidden="true">
+            <svg viewBox="0 0 280 48" xmlns="http://www.w3.org/2000/svg">
+              <line x1="0" y1="24" x2="280" y2="24" stroke="#E4E8E6" stroke-width="1" opacity=".35"/>
+              <circle cx="240" cy="24" r="3" fill="#E8A87C"/>
+            </svg>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- DINING -->
+  <section id="dining" class="section">
+    <div class="wrap">
+      <div class="dining-layout">
+        <div class="dining-plate reveal" aria-hidden="true">
+          <svg viewBox="0 0 520 650" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+            <rect width="520" height="650" fill="#EEF1EF"/>
+            <polygon points="0,280 260,240 520,300 520,650 0,650" fill="#163A40" opacity=".12"/>
+            <polygon points="0,400 200,370 400,420 520,400 520,650 0,650" fill="#163A40" opacity=".18"/>
+            <rect x="60" y="80" width="400" height="200" fill="none" stroke="#163A40" stroke-width="1.25" opacity=".4"/>
+            <line x1="60" y1="320" x2="460" y2="320" stroke="#163A40" stroke-width="1" opacity=".45"/>
+            <circle cx="260" cy="320" r="4" fill="#E8A87C"/>
+            <rect x="100" y="140" width="140" height="90" fill="#163A40" opacity=".08"/>
+            <rect x="280" y="160" width="140" height="70" fill="#163A40" opacity=".12"/>
+            <text x="60" y="500" font-family="IBM Plex Mono, monospace" font-size="11" fill="#5A6E70" letter-spacing="2">KITCHEN · WEST DECK</text>
+            <text x="60" y="530" font-family="Newsreader, serif" font-size="28" fill="#163A40">Catch of the reef</text>
+            <line x1="60" y1="560" x2="200" y2="560" stroke="#E8A87C" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div class="dining-copy">
+          <span class="label reveal">04 — Kitchen letters</span>
+          <h2 class="reveal">Written when the boats weigh in.</h2>
+          <p class="lead reveal">No printed carte. A short board appears mid-morning and again at dusk. Prices stay honest; portions follow the catch, not the reservation software.</p>
+          <div class="menu-strip reveal">
+            <div class="row">
+              <div>
+                <div class="dish">Citrus reef fish</div>
+                <div class="note">Grilled whole · green chili · lime leaf</div>
+              </div>
+              <span class="price">38</span>
+            </div>
+            <div class="row">
+              <div>
+                <div class="dish">Stone bowl rice</div>
+                <div class="note">Day broth · herbs · soft egg</div>
+              </div>
+              <span class="price">24</span>
+            </div>
+            <div class="row">
+              <div>
+                <div class="dish">Lagoon greens</div>
+                <div class="note">Bitter leaf · coconut · roasted peanut</div>
+              </div>
+              <span class="price">18</span>
+            </div>
+            <div class="row">
+              <div>
+                <div class="dish">Palm sugar ice</div>
+                <div class="note">Shaved · black sesame · sea salt</div>
+              </div>
+              <span class="price">14</span>
+            </div>
+          </div>
+          <div class="dining-hours reveal">
+            <div><strong>Breakfast</strong>07:30 — 10:30</div>
+            <div><strong>Kitchen</strong>12:00 — 21:30</div>
+            <div><strong>Horizon bar</strong>17:00 — late</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SPA / WELL -->
+  <section id="spa" class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="label sec-label reveal">05 — Cool stone</span>
+        <h2 class="reveal">A well room<br/>without mythology.</h2>
+        <p class="reveal">Thick walls on the shaded side. Cold plunge. Treatments that name what they do — salt, pressure, quiet — and stop there.</p>
+      </div>
+      <div class="spa-grid">
+        <article class="spa-feat reveal">
+          <span class="label" style="color:rgba(228,232,230,.45)">House well</span>
+          <h3>Plunge, steam, still air</h3>
+          <p>Open daily to all guests. Book a treatment or simply take the cold plunge between shade hours. No spa music. No scented fog.</p>
+          <div class="spa-svg" aria-hidden="true">
+            <svg viewBox="0 0 400 100" xmlns="http://www.w3.org/2000/svg">
+              <line x1="0" y1="50" x2="400" y2="50" stroke="#E4E8E6" stroke-width="1" opacity=".35"/>
+              <rect x="40" y="20" width="80" height="60" fill="none" stroke="#E4E8E6" stroke-width="1" opacity=".4"/>
+              <rect x="160" y="30" width="80" height="40" fill="#E8A87C" opacity=".35"/>
+              <circle cx="300" cy="50" r="18" fill="none" stroke="#E4E8E6" stroke-width="1" opacity=".4"/>
+              <circle cx="300" cy="50" r="4" fill="#E8A87C"/>
+            </svg>
+          </div>
+        </article>
+        <article class="spa-card reveal">
+          <span class="label">Treatment</span>
+          <h3>Salt scrub</h3>
+          <p>Local salt, coconut oil, long rinse under the outdoor shower court. Skin returns to the lagoon feeling less like travel.</p>
+          <span class="dur">60 min · 120</span>
+        </article>
+        <article class="spa-card reveal">
+          <span class="label">Treatment</span>
+          <h3>Deep quiet</h3>
+          <p>Pressure work focused on neck, hips, and the places boats and flights leave behind. Room stays dim; no conversation required.</p>
+          <span class="dur">90 min · 180</span>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- LOCATION -->
+  <section id="location" class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="label sec-label reveal">06 — The crossing</span>
+        <h2 class="reveal">Eighteen minutes<br/>if the wind agrees.</h2>
+        <p class="reveal">No road ends at Atoll. You leave the mainland quay by boat — flat water most days, a wetter story when the monsoon leans in.</p>
+      </div>
+      <div class="loc-layout reveal">
+        <div class="loc-map" aria-hidden="true">
+          <svg viewBox="0 0 800 480" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+            <rect width="800" height="480" fill="#EEF1EF"/>
+            <!-- grid -->
+            <g stroke="#163A40" stroke-width=".5" opacity=".08">
+              <line x1="0" y1="80" x2="800" y2="80"/><line x1="0" y1="160" x2="800" y2="160"/>
+              <line x1="0" y1="240" x2="800" y2="240"/><line x1="0" y1="320" x2="800" y2="320"/>
+              <line x1="0" y1="400" x2="800" y2="400"/>
+              <line x1="100" y1="0" x2="100" y2="480"/><line x1="200" y1="0" x2="200" y2="480"/>
+              <line x1="300" y1="0" x2="300" y2="480"/><line x1="400" y1="0" x2="400" y2="480"/>
+              <line x1="500" y1="0" x2="500" y2="480"/><line x1="600" y1="0" x2="600" y2="480"/>
+              <line x1="700" y1="0" x2="700" y2="480"/>
+            </g>
+            <!-- mainland -->
+            <polygon points="0,0 280,0 240,120 200,200 0,280" fill="#163A40" opacity=".1"/>
+            <polygon points="0,280 180,220 220,320 0,400" fill="#163A40" opacity=".14"/>
+            <!-- lagoon ring -->
+            <ellipse cx="520" cy="260" rx="220" ry="140" fill="none" stroke="#163A40" stroke-width="1.5" opacity=".35"/>
+            <ellipse cx="520" cy="260" rx="160" ry="95" fill="#163A40" opacity=".08"/>
+            <!-- atoll mark -->
+            <rect x="480" y="230" width="50" height="28" fill="#163A40" opacity=".55"/>
+            <circle cx="505" cy="244" r="4" fill="#E8A87C"/>
+            <!-- boat path -->
+            <path d="M160 300 Q 320 340 480 250" fill="none" stroke="#E8A87C" stroke-width="1.25" stroke-dasharray="6 5" opacity=".7"/>
+            <circle cx="160" cy="300" r="5" fill="none" stroke="#163A40" stroke-width="1.25" opacity=".5"/>
+            <text x="40" y="40" font-family="IBM Plex Mono, monospace" font-size="11" fill="#5A6E70" letter-spacing="2">LAGOON PLATE · SCHEMATIC</text>
+            <text x="40" y="450" font-family="IBM Plex Mono, monospace" font-size="10" fill="#7A8C8E" letter-spacing="1">QUAY → HOUSE · 18 MIN</text>
+            <text x="560" y="244" font-family="Newsreader, serif" font-size="16" fill="#163A40">Atoll</text>
+          </svg>
+        </div>
+        <div class="loc-info">
+          <h2>How you arrive</h2>
+          <p>Mainland quay meets every scheduled ferry and private transfer. Bags go on first; guests sit under the shade canopy. The lagoon is usually glass by late morning.</p>
+          <div class="loc-coords">
+            <div class="pair"><span>Latitude</span><span>24.118° N</span></div>
+            <div class="pair"><span>Longitude</span><span>152.640° E</span></div>
+            <div class="pair"><span>Transfer</span><span>Boat · 18 min</span></div>
+            <div class="pair"><span>Last boat</span><span>21:00 desk time</span></div>
+            <div class="pair"><span>Nearest air</span><span>52 min by road + quay</span></div>
+          </div>
+          <a href="#reserve" class="btn btn-ghost" style="justify-self:start;">Plan transfer</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RATES -->
+  <section id="rates" class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="label sec-label reveal">07 — Rates desk</span>
+        <h2 class="reveal">Transparent nights.<br/>No package fog.</h2>
+        <p class="reveal">Select a suite and length of stay. Rates include breakfast, boat transfer on arrival, and well-room access. Taxes shown separately on confirmation.</p>
+      </div>
+      <div class="rates-desk reveal">
+        <div class="rates-controls">
+          <div class="rate-field">
+            <label for="rateNights">Nights</label>
+            <select id="rateNights">
+              <option value="2">2 nights</option>
+              <option value="3" selected>3 nights</option>
+              <option value="4">4 nights</option>
+              <option value="5">5 nights</option>
+              <option value="7">7 nights</option>
+            </select>
+          </div>
+          <div class="rate-field">
+            <label for="rateSeason">Season</label>
+            <select id="rateSeason">
+              <option value="1" selected>Shoulder · ×1.0</option>
+              <option value="1.15">High water · ×1.15</option>
+              <option value="0.9">Quiet months · ×0.9</option>
+            </select>
+          </div>
+          <div class="rate-field">
+            <label for="rateGuests">Guests</label>
+            <select id="rateGuests">
+              <option value="2" selected>2 adults</option>
+              <option value="1">1 adult</option>
+            </select>
+          </div>
+        </div>
+        <table class="rates-table" id="ratesTable">
+          <thead>
+            <tr>
+              <th style="width:2.5rem"></th>
+              <th>Suite</th>
+              <th>Nightly</th>
+              <th>Stay total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-base="480" class="is-active">
+              <td><span class="sel" aria-hidden="true"></span></td>
+              <td><div class="name">Reef Plate</div><div class="detail">Ground · reef steps</div></td>
+              <td class="amt" data-night>—</td>
+              <td class="amt" data-total>—</td>
+            </tr>
+            <tr data-base="560">
+              <td><span class="sel" aria-hidden="true"></span></td>
+              <td><div class="name">Shutter Wing</div><div class="detail">Upper · shade bay</div></td>
+              <td class="amt" data-night>—</td>
+              <td class="amt" data-total>—</td>
+            </tr>
+            <tr data-base="720">
+              <td><span class="sel" aria-hidden="true"></span></td>
+              <td><div class="name">Horizon Suite</div><div class="detail">Corner · west desk</div></td>
+              <td class="amt" data-night>—</td>
+              <td class="amt" data-total>—</td>
+            </tr>
+            <tr data-base="980">
+              <td><span class="sel" aria-hidden="true"></span></td>
+              <td><div class="name">Tide House</div><div class="detail">Pavilion · plunge</div></td>
+              <td class="amt" data-night>—</td>
+              <td class="amt" data-total>—</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="rates-foot">
+          <div class="rates-total">
+            <span class="t-label">Selected estimate</span>
+            <span class="t-val mono" id="ratesEstimate">—</span>
+          </div>
+          <a href="#reserve" class="btn btn-coral" id="ratesCta">Continue to reserve</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- JOURNAL -->
+  <section id="journal" class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="label sec-label reveal">08 — Guest journal</span>
+        <h2 class="reveal">Notes from the house.</h2>
+        <p class="reveal">Short dispatches from guests and desk — weather, fish, what the lagoon did that week. Not a blog. A log.</p>
+      </div>
+      <div class="journal-grid">
+        <article class="entry reveal">
+          <div class="e-meta"><span>Entry 47</span><span>Mar 12</span></div>
+          <h3>Wind went flat before noon</h3>
+          <p>We swam past the second marker and the water turned glass. Desk says this only happens a few times each shoulder season. Kept the shutters open all afternoon.</p>
+          <div class="e-line" aria-hidden="true">
+            <svg viewBox="0 0 280 40" xmlns="http://www.w3.org/2000/svg">
+              <line x1="0" y1="20" x2="280" y2="20" stroke="#163A40" stroke-width="1" opacity=".25"/>
+              <circle cx="140" cy="20" r="3" fill="#E8A87C"/>
+            </svg>
+          </div>
+        </article>
+        <article class="entry reveal">
+          <div class="e-meta"><span>Entry 48</span><span>Mar 19</span></div>
+          <h3>Kitchen held the boats late</h3>
+          <p>Catch came in after dusk. Citrus fish for twelve at one table. Someone brought a guitar; desk asked them to keep it under the tide of conversation.</p>
+          <div class="e-line" aria-hidden="true">
+            <svg viewBox="0 0 280 40" xmlns="http://www.w3.org/2000/svg">
+              <line x1="0" y1="20" x2="280" y2="20" stroke="#163A40" stroke-width="1" opacity=".25"/>
+              <rect x="100" y="12" width="80" height="16" fill="#163A40" opacity=".1"/>
+              <circle cx="200" cy="20" r="3" fill="#E8A87C"/>
+            </svg>
+          </div>
+        </article>
+        <article class="entry reveal">
+          <div class="e-meta"><span>Entry 49</span><span>Apr 02</span></div>
+          <h3>Well room after the heat</h3>
+          <p>Plunge at 14:10. Stone floor cold enough to wake the feet. Read forty pages without looking at a clock. That is the whole point of this place.</p>
+          <div class="e-line" aria-hidden="true">
+            <svg viewBox="0 0 280 40" xmlns="http://www.w3.org/2000/svg">
+              <line x1="0" y1="20" x2="280" y2="20" stroke="#163A40" stroke-width="1" opacity=".25"/>
+              <circle cx="60" cy="20" r="3" fill="#E8A87C"/>
+              <circle cx="90" cy="20" r="8" fill="none" stroke="#163A40" stroke-width="1" opacity=".3"/>
+            </svg>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESERVE -->
+  <section id="reserve" class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="label sec-label reveal">09 — Reserve</span>
+        <h2 class="reveal">Write the desk.</h2>
+        <p class="reveal">We confirm by hand within one business day. No instant book — the house is small and we prefer the stay to fit.</p>
+      </div>
+      <div class="reserve-layout">
+        <aside class="reserve-aside reveal">
+          <div class="aside-block">
+            <h3>What to include</h3>
+            <p>Preferred suite, arrival window, and whether you need a private boat beyond the scheduled transfer.</p>
+            <span class="mono-line">desk@atoll.house</span>
+          </div>
+          <div class="aside-block">
+            <h3>Hold policy</h3>
+            <p>We hold a provisional date for 48 hours after reply. Deposit due to confirm — details in the confirmation note.</p>
+            <span class="mono-line">+1 808 555 0142</span>
+          </div>
+        </aside>
+        <form class="reserve-form reveal" id="reserveForm" novalidate>
+          <div class="rf-row two">
+            <div class="rf-field">
+              <label for="rfName">Name</label>
+              <input id="rfName" name="name" type="text" autocomplete="name" required placeholder="Full name" />
+            </div>
+            <div class="rf-field">
+              <label for="rfEmail">Email</label>
+              <input id="rfEmail" name="email" type="email" autocomplete="email" required placeholder="you@domain.com" />
+            </div>
+          </div>
+          <div class="rf-row two">
+            <div class="rf-field">
+              <label for="rfArrive">Arrive</label>
+              <input id="rfArrive" name="arrive" type="date" required />
+            </div>
+            <div class="rf-field">
+              <label for="rfDepart">Depart</label>
+              <input id="rfDepart" name="depart" type="date" required />
+            </div>
+          </div>
+          <div class="rf-row two">
+            <div class="rf-field">
+              <label for="rfSuite">Suite</label>
+              <select id="rfSuite" name="suite">
+                <option>Reef Plate</option>
+                <option>Shutter Wing</option>
+                <option>Horizon Suite</option>
+                <option>Tide House</option>
+                <option>Open to suggestion</option>
+              </select>
+            </div>
+            <div class="rf-field">
+              <label for="rfGuests">Guests</label>
+              <select id="rfGuests" name="guests">
+                <option>2 adults</option>
+                <option>1 adult</option>
+                <option>2 adults + child</option>
+              </select>
+            </div>
+          </div>
+          <div class="rf-row">
+            <div class="rf-field">
+              <label for="rfNote">Note to desk</label>
+              <textarea id="rfNote" name="note" placeholder="Transfer timing, celebrations, quiet requests…"></textarea>
+            </div>
+          </div>
+          <div class="rf-actions">
+            <span class="note">Fictional desk — form demonstrates UI only</span>
+            <button type="submit" class="btn">Send request</button>
+          </div>
+          <div class="form-ok" id="formOk" role="status">Request noted. The desk would reply within one day.</div>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer id="footer">
+  <div class="wrap">
+    <div class="footer-horizon" aria-hidden="true"></div>
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand">Atoll</div>
+        <p class="footer-tag">One reef. One house. Quiet hospitality on the lagoon rim.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Visit</h4>
+        <a href="#plan">House plan</a>
+        <a href="#dining">Kitchen</a>
+        <a href="#spa">Cool stone</a>
+        <a href="#rates">Rates</a>
+        <a href="#reserve">Reserve</a>
+      </div>
+      <div class="footer-col">
+        <h4>Desk</h4>
+        <p>desk@atoll.house</p>
+        <p>+1 808 555 0142</p>
+        <p>Lagoon Rim · 24°N</p>
+        <p>Boat transfer · 18 min</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© Atoll House — fictional brand</span>
+      <span>Mist · Sea · Coral sand</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* —— Custom cursor —— */
+  const cursor = document.querySelector('.cursor');
+  const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  if (canHover && cursor && !reduced) {
+    document.body.classList.add('has-cursor');
+    gsap.set(cursor, { opacity: 1 });
+    const pos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    const mouse = { x: pos.x, y: pos.y };
+    window.addEventListener('mousemove', (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    }, { passive: true });
+    gsap.ticker.add(() => {
+      pos.x += (mouse.x - pos.x) * 0.28;
+      pos.y += (mouse.y - pos.y) * 0.28;
+      gsap.set(cursor, { x: pos.x, y: pos.y });
+    });
+    document.querySelectorAll('a, button, input, select, textarea, .rates-table tbody tr').forEach((el) => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('is-hover'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('is-hover'));
+    });
+    window.addEventListener('mousedown', () => cursor.classList.add('is-down'));
+    window.addEventListener('mouseup', () => cursor.classList.remove('is-down'));
+  }
+
+  /* —— Menu —— */
+  const menu = document.getElementById('menu');
+  const btnMenu = document.getElementById('btnMenu');
+  const btnMenuClose = document.getElementById('btnMenuClose');
+  let menuOpen = false;
+  const menuTl = gsap.timeline({ paused: true });
+  menuTl
+    .set(menu, { visibility: 'visible' })
+    .to(menu, { y: 0, duration: 0.7, ease: 'power3.inOut' })
+    .from('#menu .menu-links a', { y: 40, opacity: 0, stagger: 0.05, duration: 0.5, ease: 'power2.out' }, '-=0.35')
+    .from('#menu .menu-aside', { opacity: 0, y: 20, duration: 0.45 }, '-=0.3');
+
+  function openMenu() {
+    menuOpen = true;
+    btnMenu.setAttribute('aria-expanded', 'true');
+    menu.classList.add('is-open');
+    menuTl.play();
+    if (window.lenis) window.lenis.stop();
+  }
+  function closeMenu() {
+    menuOpen = false;
+    btnMenu.setAttribute('aria-expanded', 'false');
+    menuTl.reverse();
+    menuTl.eventCallback('onReverseComplete', () => {
+      menu.classList.remove('is-open');
+      gsap.set(menu, { visibility: 'hidden' });
+    });
+    if (window.lenis) window.lenis.start();
+  }
+  btnMenu.addEventListener('click', () => (menuOpen ? closeMenu() : openMenu()));
+  btnMenuClose.addEventListener('click', closeMenu);
+  menu.querySelectorAll('a').forEach((a) => a.addEventListener('click', closeMenu));
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && menuOpen) closeMenu();
+  });
+
+  /* —— Rates desk —— */
+  const rateNights = document.getElementById('rateNights');
+  const rateSeason = document.getElementById('rateSeason');
+  const ratesTable = document.getElementById('ratesTable');
+  const ratesEstimate = document.getElementById('ratesEstimate');
+  const rfSuite = document.getElementById('rfSuite');
+
+  function fmt(n) {
+    return '$' + Math.round(n).toLocaleString('en-US');
+  }
+  function updateRates() {
+    const nights = Number(rateNights.value);
+    const season = Number(rateSeason.value);
+    let activeTotal = 0;
+    ratesTable.querySelectorAll('tbody tr').forEach((tr) => {
+      const base = Number(tr.dataset.base);
+      const nightly = base * season;
+      const total = nightly * nights;
+      tr.querySelector('[data-night]').textContent = fmt(nightly);
+      tr.querySelector('[data-total]').textContent = fmt(total);
+      if (tr.classList.contains('is-active')) activeTotal = total;
+    });
+    ratesEstimate.textContent = fmt(activeTotal) + ' · ' + nights + ' nt';
+  }
+  ratesTable.querySelectorAll('tbody tr').forEach((tr) => {
+    tr.addEventListener('click', () => {
+      ratesTable.querySelectorAll('tbody tr').forEach((r) => r.classList.remove('is-active'));
+      tr.classList.add('is-active');
+      const name = tr.querySelector('.name').textContent;
+      if (rfSuite) {
+        [...rfSuite.options].forEach((o) => { o.selected = o.text === name; });
+      }
+      updateRates();
+    });
+  });
+  rateNights.addEventListener('change', updateRates);
+  rateSeason.addEventListener('change', updateRates);
+  updateRates();
+
+  /* —— Reserve form —— */
+  const form = document.getElementById('reserveForm');
+  const formOk = document.getElementById('formOk');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    formOk.classList.add('is-show');
+    gsap.fromTo(formOk, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' });
+    form.reset();
+  });
+
+  /* —— Tide label —— */
+  const navTide = document.getElementById('navTide');
+  const tides = ['Tide · rising', 'Tide · high', 'Tide · falling', 'Tide · low'];
+  let ti = 0;
+  setInterval(() => {
+    ti = (ti + 1) % tides.length;
+    if (navTide) navTide.textContent = tides[ti];
+  }, 8000);
+
+  /* —— Preloader then boot —— */
+  const preloader = document.getElementById('preloader');
+  const plFill = preloader.querySelector('.pl-fill');
+  const plPct = preloader.querySelector('.pl-pct');
+  const boot = { n: 0 };
+
+  function initSite() {
+    /* Lenis */
+    if (!reduced && typeof Lenis !== 'undefined') {
+      const lenis = new Lenis({
+        duration: 1.15,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true,
+      });
+      window.lenis = lenis;
+      lenis.on('scroll', ScrollTrigger.update);
+      gsap.ticker.add((time) => lenis.raf(time * 1000));
+      gsap.ticker.lagSmoothing(0);
+    }
+
+    gsap.to('#nav', { y: 0, duration: 0.8, ease: 'power3.out' });
+
+    /* Hero entrance — explicit fromTo so .reveal opacity:0 cannot trap the end state */
+    const heroTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+    heroTl
+      .fromTo('#heroTitle', { y: 42, opacity: 0 }, { y: 0, opacity: 1, duration: 1.05 }, 0)
+      .fromTo('#hero .hero-sub', { y: 22, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7 }, 0.25)
+      .fromTo('#hero .hero-eyebrow', { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55 }, 0.15)
+      .fromTo('#hero .hero-cta', { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.55 }, 0.4)
+      .fromTo('#hero .hero-rail .cell', { y: 18, opacity: 0 }, { y: 0, opacity: 1, stagger: 0.07, duration: 0.55 }, 0.45)
+      .from('#hero .hz-line', { attr: { x2: 0 }, duration: 1.35, ease: 'power2.inOut' }, 0)
+      .from('#hero .hz-pip', { scale: 0, transformOrigin: '50% 50%', duration: 0.5, ease: 'back.out(2)' }, 0.75);
+
+    /* safety net for hero title */
+    setTimeout(() => {
+      gsap.set('#heroTitle, #hero .hero-sub, #hero .hero-eyebrow, #hero .hero-cta, #hero .hero-rail .cell', { opacity: 1, y: 0 });
+    }, 2800);
+
+    /* Parallax plates */
+    if (!reduced) {
+      gsap.to('#hero .hero-plate', {
+        yPercent: 12,
+        ease: 'none',
+        scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true },
+      });
+    }
+
+    /* Section reveals */
+    gsap.utils.toArray('.reveal').forEach((el) => {
+      gsap.to(el, {
+        opacity: 1,
+        y: 0,
+        duration: 0.85,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 88%',
+          toggleActions: 'play none none none',
+        },
+      });
+    });
+
+    /* Ritual cards stagger */
+    ScrollTrigger.batch('.ritual', {
+      start: 'top 85%',
+      onEnter: (batch) => gsap.to(batch, { opacity: 1, y: 0, stagger: 0.1, duration: 0.7, ease: 'power2.out', overwrite: true }),
+    });
+
+    /* Suites hover micro */
+    document.querySelectorAll('.suite').forEach((suite) => {
+      const svg = suite.querySelector('.suite-viz svg');
+      if (!svg) return;
+      suite.addEventListener('mouseenter', () => {
+        gsap.to(svg, { scale: 1.03, duration: 0.6, ease: 'power2.out', transformOrigin: '50% 50%' });
+      });
+      suite.addEventListener('mouseleave', () => {
+        gsap.to(svg, { scale: 1, duration: 0.6, ease: 'power2.out' });
+      });
+    });
+
+    /* Smooth anchor */
+    document.querySelectorAll('a[href^="#"]').forEach((a) => {
+      a.addEventListener('click', (e) => {
+        const id = a.getAttribute('href');
+        if (!id || id === '#') return;
+        const target = document.querySelector(id);
+        if (!target) return;
+        e.preventDefault();
+        if (window.lenis) window.lenis.scrollTo(target, { offset: -20 });
+        else target.scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+
+    ScrollTrigger.refresh();
+  }
+
+  if (reduced) {
+    gsap.set(plFill, { width: '100%' });
+    plPct.textContent = '100%';
+    gsap.to(preloader, {
+      yPercent: -100,
+      duration: 0.6,
+      ease: 'power2.inOut',
+      onComplete: () => { preloader.remove(); initSite(); },
+    });
+  } else {
+    gsap.to(boot, {
+      n: 100,
+      duration: 1.6,
+      ease: 'power2.inOut',
+      onUpdate: () => {
+        const v = Math.round(boot.n);
+        plFill.style.width = v + '%';
+        plPct.textContent = v + '%';
+      },
+      onComplete: () => {
+        const tl = gsap.timeline({ onComplete: initSite });
+        tl.to(preloader.querySelector('.pl-inner'), { opacity: 0, y: -16, duration: 0.4 })
+          .to(preloader, { yPercent: -100, duration: 0.85, ease: 'power3.inOut' })
+          .add(() => preloader.remove());
+      },
+    });
+  }
+})();
+</script>
+</body>
+</html>

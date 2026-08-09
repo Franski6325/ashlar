@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ashlar Lab — Twenty-five planes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fraunces:wght@300;500&display=swap" rel="stylesheet" />
+  <style>
+    :root { --bg:#f3f0e8; --ink:#111; --line:rgba(17,17,17,.14); --accent:#c8f03c; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:"DM Sans",system-ui,sans-serif; background:var(--bg); color:var(--ink); min-height:100svh; padding:clamp(1.5rem,4vw,3rem); }
+    h1 { font-family:"Fraunces",Georgia,serif; font-weight:300; font-size:clamp(2.4rem,5vw,4rem); letter-spacing:-.03em; margin-bottom:.5rem; }
+    p { color:#555; max-width:44rem; margin-bottom:1.25rem; line-height:1.55; }
+    .note { font-size:.85rem; color:#666; max-width:52rem; margin-bottom:2rem; padding:1rem; border:1px solid var(--line); background:#fbfaf6; }
+    .grid { display:grid; gap:1px; background:var(--line); border:1px solid var(--line); }
+    @media (min-width:800px){ .grid { grid-template-columns:repeat(2,1fr); } }
+    @media (min-width:1100px){ .grid { grid-template-columns:repeat(3,1fr); } }
+    a.card {
+      display:grid; gap:.75rem; align-content:start; min-height:160px; padding:1.25rem;
+      background:#fbfaf6; color:inherit; text-decoration:none; border-radius:0;
+      transition:background .25s, color .25s;
+    }
+    a.card:hover { background:#111; color:#f3f0e8; }
+    a.card:hover .tag { border-color:rgba(243,240,232,.35); color:var(--accent); }
+    a.card.is-pending { opacity:.55; pointer-events:none; }
+    .num { font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; opacity:.55; }
+    .name { font-family:"Fraunces",Georgia,serif; font-size:1.65rem; font-weight:300; letter-spacing:-.02em; }
+    .tag { display:inline-block; border:1px solid var(--line); padding:.25rem .45rem; font-size:.65rem; letter-spacing:.12em; text-transform:uppercase; width:max-content; }
+    h2 { font-family:"Fraunces",Georgia,serif; font-weight:300; font-size:1.35rem; margin:2rem 0 1rem; }
+  </style>
+</head>
+<body>
+  <h1>Twenty-five planes.</h1>
+  <p>Original single-file landings — GSAP, ScrollTrigger, Lenis. Batches A–C stay sharp. Batches D–E go modern / soft with varied radius. Unique cursors. No third-party brand cloning.</p>
+  <div class="note">
+    <strong>Rights note:</strong> All brands fictional. Batch D = soft product. Batch E = modern minimal with deliberate roundedness range (ultra-soft → tight → mixed).
+  </div>
+
+  <h2>Batch A</h2>
+  <div class="grid">
+    <a class="card" href="./01-vellum/index.html"><span class="num">01</span><span class="name">Vellum</span><span class="tag">Cream / print atelier</span></a>
+    <a class="card" href="./02-umbra/index.html"><span class="num">02</span><span class="name">Umbra</span><span class="tag">Dark perimeter console</span></a>
+    <a class="card" href="./03-fieldform/index.html"><span class="num">03</span><span class="name">Fieldform</span><span class="tag">White + lime patterns</span></a>
+    <a class="card" href="./04-halcyon/index.html"><span class="num">04</span><span class="name">Halcyon</span><span class="tag">Research lab / mesh</span></a>
+    <a class="card" href="./05-folio/index.html"><span class="num">05</span><span class="name">Folio Press</span><span class="tag">Magazine bento</span></a>
+  </div>
+
+  <h2>Batch B</h2>
+  <div class="grid">
+    <a class="card" href="./06-sonora/index.html"><span class="num">06</span><span class="name">Sonora</span><span class="tag">Navy + copper audio</span></a>
+    <a class="card" href="./07-quarry/index.html"><span class="num">07</span><span class="name">Quarry</span><span class="tag">Concrete architecture</span></a>
+    <a class="card" href="./08-plotline/index.html"><span class="num">08</span><span class="name">Plotline</span><span class="tag">Swiss data editorial</span></a>
+    <a class="card" href="./09-kiln/index.html"><span class="num">09</span><span class="name">Kiln</span><span class="tag">Sage product studio</span></a>
+    <a class="card" href="./10-lumenframe/index.html"><span class="num">10</span><span class="name">Lumenframe</span><span class="tag">B&amp;W imaging + yellow</span></a>
+  </div>
+
+  <h2>Batch C — denser</h2>
+  <div class="grid">
+    <a class="card" href="./11-isobar/index.html"><span class="num">11</span><span class="name">Isobar</span><span class="tag">Sky mist / climate</span></a>
+    <a class="card" href="./12-switchyard/index.html"><span class="num">12</span><span class="name">Switchyard</span><span class="tag">Freight orange ops</span></a>
+    <a class="card" href="./13-hypha/index.html"><span class="num">13</span><span class="name">Hypha</span><span class="tag">Dark bio / mint</span></a>
+    <a class="card" href="./14-slugpress/index.html"><span class="num">14</span><span class="name">Slugpress</span><span class="tag">Type foundry indigo</span></a>
+    <a class="card" href="./15-atoll/index.html"><span class="num">15</span><span class="name">Atoll</span><span class="tag">Coastal hospitality</span></a>
+  </div>
+
+  <h2>Batch D — soft product</h2>
+  <div class="grid">
+    <a class="card" href="./16-solace/index.html"><span class="num">16</span><span class="name">Solace</span><span class="tag">Soft wellbeing · 28px</span></a>
+    <a class="card" href="./17-vector/index.html"><span class="num">17</span><span class="name">Vector</span><span class="tag">Token studio · 14px</span></a>
+    <a class="card" href="./18-cairn/index.html"><span class="num">18</span><span class="name">Cairn</span><span class="tag">Trail GPS · 8px</span></a>
+    <a class="card" href="./19-pulse/index.html"><span class="num">19</span><span class="name">Pulse</span><span class="tag">Recovery wear · soft dark</span></a>
+    <a class="card" href="./20-harbor/index.html"><span class="num">20</span><span class="name">Harbor</span><span class="tag">Calm savings · 26px</span></a>
+  </div>
+
+  <h2>Batch E — modern minimal</h2>
+  <div class="grid">
+    <a class="card" href="./21-nimbus/index.html"><span class="num">21</span><span class="name">Nimbus</span><span class="tag">Personal cloud · ultra-soft</span></a>
+    <a class="card" href="./22-relay/index.html"><span class="num">22</span><span class="name">Relay</span><span class="tag">Studio messaging · 14px</span></a>
+    <a class="card" href="./23-volta/index.html"><span class="num">23</span><span class="name">Volta</span><span class="tag">EV charging · 6px</span></a>
+    <a class="card" href="./24-arc/index.html"><span class="num">24</span><span class="name">Arc</span><span class="tag">Focus timer · pills</span></a>
+    <a class="card" href="./25-facet/index.html"><span class="num">25</span><span class="name">Facet</span><span class="tag">Spatial canvas · mixed</span></a>
+  </div>
+</body>
+</html>

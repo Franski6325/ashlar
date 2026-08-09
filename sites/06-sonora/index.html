@@ -1,0 +1,1667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sonora — Listening Room Mastering</title>
+<meta name="description" content="Sonora is listening-room software for mastering engineers: reference chains, spatial desks, and session memory built for critical listening." />
+<meta name="theme-color" content="#0A1220" />
+<meta name="color-scheme" content="dark" />
+<meta property="og:title" content="Sonora — Listening Room Mastering" />
+<meta property="og:description" content="Reference chains, spatial desks, and session memory for critical listening rooms." />
+<meta property="og:type" content="website" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230A1220'/%3E%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='%23C47A3A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%23C47A3A'/%3E%3C/svg%3E" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Outfit:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js" defer></script>
+
+<style>
+:root{
+  --bg:#0A1220;
+  --bg-1:#0d1626;
+  --bg-2:#111c2e;
+  --bg-3:#152238;
+  --ink:#F4F1EC;
+  --ink-2:rgba(244,241,236,.72);
+  --ink-3:rgba(244,241,236,.48);
+  --muted:rgba(244,241,236,.34);
+  --faint:rgba(244,241,236,.18);
+  --line:rgba(244,241,236,.10);
+  --line-2:rgba(244,241,236,.16);
+  --line-3:rgba(244,241,236,.28);
+  --copper:#C47A3A;
+  --copper-2:#d49255;
+  --copper-dim:rgba(196,122,58,.16);
+  --copper-line:rgba(196,122,58,.42);
+  --font-ui:"Outfit","DM Sans",system-ui,sans-serif;
+  --font-body:"DM Sans","Outfit",system-ui,sans-serif;
+  --font-display:"Instrument Serif",Georgia,serif;
+  --font-mono:"JetBrains Mono",ui-monospace,monospace;
+  --ease:cubic-bezier(.22,1,.36,1);
+  --pad:clamp(1rem,3vw,2.25rem);
+  --maxw:1480px;
+  --nav-h:64px;
+  --fs-micro:.625rem;
+  --fs-mono:.6875rem;
+  --fs-sm:.8125rem;
+  --fs-base:.9375rem;
+  --fs-lead:clamp(1rem,.92rem + .35vw,1.15rem);
+  --fs-h3:clamp(1.25rem,1.05rem + .9vw,1.85rem);
+  --fs-h2:clamp(2rem,1.35rem + 2.8vw,4rem);
+  --fs-h1:clamp(2.75rem,1.1rem + 6.2vw,7.2rem);
+}
+*,*::before,*::after{box-sizing:border-box;border-radius:0!important;}
+html{-webkit-text-size-adjust:100%;scroll-behavior:auto;}
+body,h1,h2,h3,h4,p,ul,ol,li,figure,blockquote,dl,dd{margin:0;padding:0;}
+ul,ol{list-style:none;}
+img,svg{display:block;max-width:100%;}
+button,input,select,textarea{font:inherit;color:inherit;background:none;border:0;border-radius:0!important;}
+button{cursor:pointer;}
+a{color:inherit;text-decoration:none;}
+html,body{background:var(--bg);}
+body{
+  font-family:var(--font-body);
+  font-size:var(--fs-base);
+  font-weight:400;
+  line-height:1.55;
+  color:var(--ink-2);
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+body.is-locked{overflow:hidden;}
+::selection{background:var(--copper);color:var(--bg);}
+:focus-visible{outline:2px solid var(--copper);outline-offset:3px;}
+
+.skip{
+  position:fixed;top:0;left:0;z-index:200;
+  transform:translateY(-140%);
+  background:var(--ink);color:var(--bg);padding:.7rem 1.1rem;
+  font-family:var(--font-ui);font-size:var(--fs-sm);font-weight:600;
+  transition:transform .3s var(--ease);
+}
+.skip:focus{transform:translateY(0);}
+
+/* cursor — copper ring + pip + waveform arc */
+.cursor,.cursor-dot,.cursor-arc,.cursor-label{
+  position:fixed;top:0;left:0;pointer-events:none;z-index:9990;
+  opacity:0;will-change:transform;
+}
+.cursor{
+  width:34px;height:34px;
+  border:1.5px solid var(--copper-line);
+  border-radius:50%!important;
+  transform:translate(-50%,-50%);
+  transition:width .35s var(--ease),height .35s var(--ease),border-color .25s,opacity .3s,box-shadow .35s;
+}
+.cursor.is-hot{
+  width:64px;height:64px;
+  border-color:var(--copper);
+  box-shadow:0 0 0 1px rgba(196,122,58,.12);
+}
+.cursor-dot{
+  width:4px;height:4px;background:var(--copper);
+  border-radius:50%!important;
+  transform:translate(-50%,-50%);
+  transition:width .2s,height .2s,opacity .3s,background .25s;
+}
+.cursor-dot.is-hot{width:3px;height:3px;opacity:.9;}
+.cursor-arc{
+  width:34px;height:34px;
+  border-radius:50%!important;
+  transform:translate(-50%,-50%) rotate(-28deg);
+  background:transparent;
+  border:1.5px solid transparent;
+  border-top-color:var(--copper);
+  border-right-color:rgba(196,122,58,.35);
+  opacity:0;
+  transition:width .35s var(--ease),height .35s var(--ease),opacity .3s,transform .45s var(--ease);
+  box-sizing:border-box;
+}
+body.has-cursor .cursor-arc{opacity:.85;}
+.cursor-arc.is-hot{
+  width:64px;height:64px;
+  opacity:1;
+  transform:translate(-50%,-50%) rotate(18deg);
+  border-top-color:var(--copper-2);
+}
+.cursor-label{
+  font-family:var(--font-mono);font-size:var(--fs-micro);
+  letter-spacing:.14em;text-transform:uppercase;
+  color:var(--copper);white-space:nowrap;
+  transform:translate(-50%,calc(-50% + 38px));
+  transition:opacity .3s,transform .35s var(--ease),color .25s;
+  pointer-events:none;
+}
+.cursor-label.is-on{
+  opacity:1;
+  transform:translate(-50%,calc(-50% + 46px));
+}
+body.has-cursor .cursor,body.has-cursor .cursor-dot{opacity:1;}
+body.has-cursor,
+body.has-cursor a,
+body.has-cursor button,
+body.has-cursor input,
+body.has-cursor [data-cursor]{cursor:none;}
+@media (pointer:coarse),(hover:none){
+  .cursor,.cursor-dot,.cursor-arc,.cursor-label{display:none!important;}
+  body.has-cursor,body.has-cursor *{cursor:auto!important;}
+}
+
+/* preloader */
+.preloader{
+  position:fixed;inset:0;z-index:10000;
+  background:var(--bg);
+  display:grid;place-items:center;
+  transition:opacity .7s var(--ease),visibility .7s;
+}
+.preloader.is-done{opacity:0;visibility:hidden;pointer-events:none;}
+.preloader-inner{width:min(320px,78vw);text-align:center;}
+.preloader-brand{
+  font-family:var(--font-ui);font-weight:600;font-size:1.15rem;
+  letter-spacing:.28em;text-transform:uppercase;color:var(--ink);
+  margin-bottom:1.75rem;
+}
+.preloader-bar{
+  height:1px;background:var(--line);position:relative;overflow:hidden;
+}
+.preloader-fill{
+  position:absolute;inset:0 auto 0 0;width:0%;background:var(--copper);
+}
+.preloader-meta{
+  display:flex;justify-content:space-between;margin-top:.75rem;
+  font-family:var(--font-mono);font-size:var(--fs-mono);
+  color:var(--ink-3);letter-spacing:.04em;
+}
+.preloader-rings{
+  width:88px;height:88px;margin:0 auto 1.5rem;position:relative;
+}
+.preloader-rings span{
+  position:absolute;inset:0;border:1px solid var(--line);
+}
+.preloader-rings span:nth-child(1){inset:0;border-color:var(--copper-line);}
+.preloader-rings span:nth-child(2){inset:14px;border-color:var(--line-2);}
+.preloader-rings span:nth-child(3){inset:28px;background:var(--copper);opacity:.85;}
+
+/* layout */
+.wrap{width:min(100% - (var(--pad) * 2),var(--maxw));margin-inline:auto;}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:.55rem;
+  font-family:var(--font-mono);font-size:var(--fs-mono);
+  letter-spacing:.14em;text-transform:uppercase;color:var(--copper);
+}
+.eyebrow::before{
+  content:"";width:18px;height:1px;background:var(--copper);
+}
+.section-head{display:grid;gap:.85rem;max-width:42rem;margin-bottom:clamp(2rem,4vw,3.25rem);}
+.section-head h2{
+  font-family:var(--font-ui);font-weight:500;font-size:var(--fs-h2);
+  line-height:1.05;letter-spacing:-.03em;color:var(--ink);
+}
+.section-head p{font-size:var(--fs-lead);color:var(--ink-2);max-width:36rem;}
+.rule{height:1px;background:var(--line);border:0;margin:0;}
+
+/* nav */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  height:var(--nav-h);
+  border-bottom:1px solid transparent;
+  transition:background .35s,border-color .35s,backdrop-filter .35s;
+}
+.nav.is-scrolled{
+  background:rgba(10,18,32,.88);
+  border-bottom-color:var(--line);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+}
+.nav-inner{
+  height:100%;width:min(100% - (var(--pad) * 2),var(--maxw));margin-inline:auto;
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;
+}
+.logo{
+  font-family:var(--font-ui);font-weight:600;font-size:.95rem;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--ink);
+  display:inline-flex;align-items:center;gap:.55rem;
+}
+.logo-mark{
+  width:18px;height:18px;position:relative;flex-shrink:0;
+}
+.logo-mark i{
+  position:absolute;inset:0;border:1px solid var(--copper);
+}
+.logo-mark i:nth-child(2){inset:4px;border-color:var(--ink-3);}
+.logo-mark i:nth-child(3){inset:7px;background:var(--copper);border:0;}
+.nav-links{display:none;align-items:center;gap:1.75rem;}
+@media (min-width:880px){.nav-links{display:flex;}}
+.nav-links a{
+  font-family:var(--font-ui);font-size:var(--fs-sm);font-weight:500;
+  color:var(--ink-3);letter-spacing:.04em;
+  transition:color .25s;
+}
+.nav-links a:hover{color:var(--ink);}
+.nav-cta{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:.65rem 1.1rem;
+  border:1px solid var(--copper);
+  background:var(--copper);color:var(--bg);
+  font-family:var(--font-ui);font-size:var(--fs-sm);font-weight:600;
+  letter-spacing:.06em;text-transform:uppercase;
+  transition:background .25s,color .25s,border-color .25s,transform .25s;
+}
+.nav-cta:hover{background:transparent;color:var(--copper);}
+.nav-toggle{
+  display:grid;gap:5px;width:28px;padding:.35rem 0;
+}
+@media (min-width:880px){.nav-toggle{display:none;}}
+.nav-toggle span{display:block;height:1px;background:var(--ink);transition:transform .3s,opacity .3s;}
+.nav-toggle.is-open span:nth-child(1){transform:translateY(6px) rotate(45deg);}
+.nav-toggle.is-open span:nth-child(2){opacity:0;}
+.nav-toggle.is-open span:nth-child(3){transform:translateY(-6px) rotate(-45deg);}
+.nav-mobile{
+  position:fixed;inset:var(--nav-h) 0 0 0;z-index:99;
+  background:rgba(10,18,32,.97);
+  display:grid;align-content:start;gap:0;padding:1.5rem var(--pad);
+  transform:translateY(-108%);opacity:0;pointer-events:none;
+  transition:transform .45s var(--ease),opacity .35s;
+  border-top:1px solid var(--line);
+}
+.nav-mobile.is-open{transform:translateY(0);opacity:1;pointer-events:auto;}
+.nav-mobile a{
+  padding:1rem 0;border-bottom:1px solid var(--line);
+  font-family:var(--font-ui);font-size:1.35rem;font-weight:500;color:var(--ink);
+}
+
+/* buttons */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:.6rem;
+  min-height:48px;padding:.85rem 1.35rem;
+  font-family:var(--font-ui);font-size:var(--fs-sm);font-weight:600;
+  letter-spacing:.08em;text-transform:uppercase;
+  border:1px solid transparent;
+  transition:background .25s,color .25s,border-color .25s,transform .25s;
+  will-change:transform;
+}
+.btn-primary{background:var(--copper);color:var(--bg);border-color:var(--copper);}
+.btn-primary:hover{background:transparent;color:var(--copper);}
+.btn-ghost{background:transparent;color:var(--ink);border-color:var(--line-2);}
+.btn-ghost:hover{border-color:var(--copper);color:var(--copper);}
+.btn-row{display:flex;flex-wrap:wrap;gap:.75rem;}
+
+/* hero */
+.hero{
+  position:relative;min-height:100svh;
+  padding:calc(var(--nav-h) + clamp(2rem,5vw,4rem)) 0 clamp(3rem,6vw,5rem);
+  display:grid;align-items:center;
+  overflow:hidden;
+}
+.hero-grid{
+  display:grid;gap:clamp(2rem,5vw,3.5rem);
+  align-items:end;
+}
+@media (min-width:980px){
+  .hero-grid{grid-template-columns:1.05fr .95fr;align-items:center;}
+}
+.hero-copy{position:relative;z-index:2;}
+.hero-kicker{margin-bottom:1.25rem;}
+.hero h1{
+  font-family:var(--font-display);font-weight:400;
+  font-size:var(--fs-h1);line-height:.95;letter-spacing:-.02em;
+  color:var(--ink);margin-bottom:1.25rem;
+  max-width:11ch;
+}
+.hero h1 em{
+  font-style:italic;color:var(--copper);
+}
+.hero-lead{
+  font-size:var(--fs-lead);max-width:32rem;margin-bottom:1.75rem;
+  color:var(--ink-2);
+}
+.hero-meta{
+  display:flex;flex-wrap:wrap;gap:1.5rem 2rem;margin-top:2rem;
+  padding-top:1.25rem;border-top:1px solid var(--line);
+}
+.hero-meta div{display:grid;gap:.2rem;}
+.hero-meta dt{
+  font-family:var(--font-mono);font-size:var(--fs-mono);
+  letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+}
+.hero-meta dd{
+  font-family:var(--font-ui);font-size:var(--fs-sm);font-weight:500;color:var(--ink);
+}
+
+/* waveform plate */
+.wave-plate{
+  position:relative;
+  background:var(--bg-1);
+  border:1px solid var(--line);
+  min-height:min(62vh,520px);
+  display:grid;grid-template-rows:auto 1fr auto;
+  overflow:hidden;
+}
+.wave-plate-head{
+  display:flex;justify-content:space-between;align-items:center;gap:1rem;
+  padding:.85rem 1rem;border-bottom:1px solid var(--line);
+}
+.wave-plate-head span{
+  font-family:var(--font-mono);font-size:var(--fs-mono);
+  letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);
+}
+.wave-plate-head .live{
+  display:inline-flex;align-items:center;gap:.45rem;color:var(--copper);
+}
+.wave-plate-head .live::before{
+  content:"";width:6px;height:6px;background:var(--copper);
+  animation:pulse 1.4s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.wave-canvas-wrap{position:relative;min-height:280px;}
+#waveCanvas{position:absolute;inset:0;width:100%;height:100%;}
+.wave-rings{
+  position:absolute;inset:0;pointer-events:none;
+  display:grid;place-items:center;
+}
+.wave-rings svg{width:min(70%,340px);height:auto;opacity:.55;}
+.wave-plate-foot{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  border-top:1px solid var(--line);
+}
+.wave-stat{
+  padding:.8rem 1rem;border-right:1px solid var(--line);
+}
+.wave-stat:last-child{border-right:0;}
+.wave-stat b{
+  display:block;font-family:var(--font-mono);font-size:var(--fs-sm);
+  color:var(--ink);font-weight:500;
+}
+.wave-stat span{
+  font-family:var(--font-mono);font-size:var(--fs-micro);
+  letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+}
+.hero-bg-rings{
+  position:absolute;right:-8%;top:12%;width:min(48vw,560px);aspect-ratio:1;
+  pointer-events:none;opacity:.22;z-index:0;
+}
+.hero-bg-rings span{
+  position:absolute;inset:0;border:1px solid var(--line-2);
+}
+.hero-bg-rings span:nth-child(2){inset:12%;}
+.hero-bg-rings span:nth-child(3){inset:24%;border-color:var(--copper-line);}
+.hero-bg-rings span:nth-child(4){inset:36%;}
+.hero-bg-rings span:nth-child(5){inset:48%;border-color:var(--copper-line);opacity:.7;}
+
+/* session desk */
+.desk{
+  padding:clamp(4rem,9vw,7.5rem) 0;
+  border-top:1px solid var(--line);
+}
+.desk-layout{
+  display:grid;gap:1px;background:var(--line);
+  border:1px solid var(--line);
+}
+@media (min-width:1020px){
+  .desk-layout{grid-template-columns:1.15fr .85fr;}
+}
+.desk-panel{background:var(--bg);padding:clamp(1.25rem,2.5vw,2rem);}
+.desk-panel h3{
+  font-family:var(--font-ui);font-weight:500;font-size:var(--fs-h3);
+  color:var(--ink);letter-spacing:-.02em;margin-bottom:.35rem;
+}
+.desk-sub{font-size:var(--fs-sm);color:var(--ink-3);margin-bottom:1.5rem;}
+.fader-row{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(.5rem,1.5vw,1rem);
+  margin-bottom:1.75rem;
+}
+.fader{
+  display:grid;justify-items:center;gap:.65rem;
+  user-select:none;
+}
+.fader-track{
+  position:relative;width:28px;height:180px;
+  background:var(--bg-2);border:1px solid var(--line);
+  cursor:ns-resize;touch-action:none;
+}
+.fader-fill{
+  position:absolute;left:0;right:0;bottom:0;
+  background:linear-gradient(to top,var(--copper-dim),var(--copper));
+  pointer-events:none;
+}
+.fader-thumb{
+  position:absolute;left:50%;width:34px;height:10px;
+  background:var(--ink);border:1px solid var(--copper);
+  transform:translate(-50%,50%);
+  pointer-events:none;
+}
+.fader-label{
+  font-family:var(--font-mono);font-size:var(--fs-micro);
+  letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);
+  text-align:center;
+}
+.fader-val{
+  font-family:var(--font-mono);font-size:var(--fs-mono);color:var(--copper);
+}
+.param-grid{display:grid;gap:1rem;}
+.param{
+  display:grid;gap:.55rem;
+  padding-bottom:1rem;border-bottom:1px solid var(--line);
+}
+.param:last-child{border-bottom:0;padding-bottom:0;}
+.param-top{
+  display:flex;justify-content:space-between;align-items:baseline;gap:1rem;
+}
+.param-top label{
+  font-family:var(--font-ui);font-size:var(--fs-sm);font-weight:500;color:var(--ink);
+}
+.param-top output{
+  font-family:var(--font-mono);font-size:var(--fs-mono);color:var(--copper);
+}
+.slider{
+  -webkit-appearance:none;appearance:none;
+  width:100%;height:2px;background:var(--line-2);
+  outline:none;cursor:pointer;
+}
+.slider::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:14px;height:14px;background:var(--copper);border:0;cursor:pointer;
+}
+.slider::-moz-range-thumb{
+  width:14px;height:14px;background:var(--copper);border:0;cursor:pointer;
+}
+.meter-bank{
+  display:grid;grid-template-columns:repeat(32,1fr);gap:3px;
+  height:72px;align-items:end;margin-top:1.5rem;
+  padding:1rem;background:var(--bg-1);border:1px solid var(--line);
+}
+.meter-bar{
+  background:var(--line-2);height:20%;
+  transform-origin:bottom;
+}
+.meter-bar.is-hot{background:var(--copper);}
+.desk-readout{
+  display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);
+  margin-top:1.25rem;border:1px solid var(--line);
+}
+.desk-readout article{
+  background:var(--bg-1);padding:1rem;
+}
+.desk-readout dt{
+  font-family:var(--font-mono);font-size:var(--fs-micro);
+  letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.35rem;
+}
+.desk-readout dd{
+  font-family:var(--font-mono);font-size:1rem;color:var(--ink);font-weight:500;
+}
+.transport{
+  display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.25rem;
+}
+.transport button{
+  min-width:44px;height:40px;padding:0 .9rem;
+  border:1px solid var(--line-2);
+  font-family:var(--font-mono);font-size:var(--fs-mono);
+  color:var(--ink-2);transition:border-color .2s,color .2s,background .2s;
+}
+.transport button.is-active,.transport button:hover{
+  border-color:var(--copper);color:var(--copper);background:var(--copper-dim);
+}
+.clock-display{
+  font-family:var(--font-mono);font-size:1.35rem;color:var(--ink);
+  letter-spacing:.06em;margin-top:.35rem;
+}
+
+/* masters */
+.masters{
+  padding:clamp(4rem,9vw,7.5rem) 0;
+  border-top:1px solid var(--line);
+}
+.masters-grid{
+  display:grid;gap:1px;background:var(--line);
+  border:1px solid var(--line);
+}
+@media (min-width:720px){.masters-grid{grid-template-columns:1fr 1fr;}}
+@media (min-width:1100px){.masters-grid{grid-template-columns:repeat(3,1fr);}}
+.master-card{
+  background:var(--bg);padding:clamp(1.25rem,2.2vw,1.75rem);
+  display:grid;gap:1.1rem;min-height:280px;
+  transition:background .3s;
+  position:relative;overflow:hidden;
+}
+.master-card:hover{background:var(--bg-1);}
+.master-card-top{
+  display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;
+}
+.master-idx{
+  font-family:var(--font-mono);font-size:var(--fs-mono);
+  color:var(--copper);letter-spacing:.08em;
+}
+.master-tag{
+  font-family:var(--font-mono);font-size:var(--fs-micro);
+  letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-3);border:1px solid var(--line);padding:.3rem .45rem;
+}
+.master-card h3{
+  font-family:var(--font-ui);font-weight:500;font-size:1.35rem;
+  color:var(--ink);letter-spacing:-.02em;
+}
+.master-card p{font-size:var(--fs-sm);color:var(--ink-3);max-width:28ch;}
+.master-viz{
+  margin-top:auto;height:56px;display:flex;align-items:flex-end;gap:2px;
+}
+.master-viz i{
+  flex:1;background:var(--line-2);height:var(--h,40%);
+  transition:background .25s,height .4s var(--ease);
+}
+.master-card:hover .master-viz i{background:var(--copper);}
+.master-meta{
+  display:flex;justify-content:space-between;gap:1rem;
+  font-family:var(--font-mono);font-size:var(--fs-mono);color:var(--muted);
+  padding-top:.85rem;border-top:1px solid var(--line);
+}
+
+/* principles */
+.principles{
+  padding:clamp(4rem,9vw,7.5rem) 0;
+  border-top:1px solid var(--line);
+}
+.principles-layout{
+  display:grid;gap:clamp(2rem,5vw,4rem);
+}
+@media (min-width:960px){
+  .principles-layout{grid-template-columns:.9fr 1.1fr;align-items:start;}
+}
+.principle-list{display:grid;gap:0;border-top:1px solid var(--line);}
+.principle{
+  display:grid;gap:.75rem;
+  padding:1.35rem 0;border-bottom:1px solid var(--line);
+  grid-template-columns:auto 1fr;
+  align-items:start;
+}
+@media (min-width:640px){
+  .principle{grid-template-columns:4.5rem 1fr auto;align-items:center;gap:1.25rem;}
+}
+.principle-num{
+  font-family:var(--font-mono);font-size:var(--fs-mono);
+  color:var(--copper);letter-spacing:.08em;
+}
+.principle h3{
+  font-family:var(--font-ui);font-weight:500;font-size:1.15rem;
+  color:var(--ink);letter-spacing:-.015em;margin-bottom:.25rem;
+}
+.principle p{font-size:var(--fs-sm);color:var(--ink-3);max-width:42ch;}
+.principle-note{
+  font-family:var(--font-mono);font-size:var(--fs-mono);
+  color:var(--muted);justify-self:end;
+}
+.vinyl-stage{
+  position:relative;
+  aspect-ratio:1;max-width:460px;width:100%;margin-inline:auto;
+  display:grid;place-items:center;
+}
+.vinyl-stage svg{width:100%;height:auto;}
+.principles-aside{
+  position:sticky;top:calc(var(--nav-h) + 1.5rem);
+}
+
+/* CTA */
+.cta{
+  padding:clamp(4rem,9vw,7.5rem) 0;
+  border-top:1px solid var(--line);
+}
+.cta-panel{
+  border:1px solid var(--line);
+  background:
+    linear-gradient(135deg,var(--copper-dim),transparent 42%),
+    var(--bg-1);
+  padding:clamp(2rem,5vw,4rem);
+  display:grid;gap:1.5rem;
+  position:relative;overflow:hidden;
+}
+@media (min-width:900px){
+  .cta-panel{grid-template-columns:1.2fr .8fr;align-items:end;}
+}
+.cta-panel h2{
+  font-family:var(--font-display);font-weight:400;
+  font-size:clamp(2.2rem,1.4rem + 3vw,4.2rem);
+  line-height:1;letter-spacing:-.02em;color:var(--ink);
+  max-width:14ch;margin:.5rem 0 1rem;
+}
+.cta-panel p{max-width:34rem;color:var(--ink-2);font-size:var(--fs-lead);}
+.cta-side{
+  display:grid;gap:1rem;justify-items:start;
+}
+.cta-side .spec{
+  width:100%;display:grid;gap:.35rem;
+  padding:1rem;border:1px solid var(--line);background:rgba(10,18,32,.45);
+}
+.cta-side .spec b{
+  font-family:var(--font-mono);font-size:var(--fs-mono);color:var(--copper);
+  letter-spacing:.08em;text-transform:uppercase;font-weight:500;
+}
+.cta-side .spec span{font-size:var(--fs-sm);color:var(--ink-2);}
+.cta-freq{
+  position:absolute;right:0;bottom:0;left:55%;height:88px;
+  display:flex;align-items:flex-end;gap:3px;opacity:.35;pointer-events:none;
+  padding:0 1.5rem 1.5rem 0;
+}
+.cta-freq i{flex:1;background:var(--copper);height:var(--h,30%);}
+
+/* footer */
+.footer{
+  border-top:1px solid var(--line);
+  padding:clamp(2.5rem,5vw,4rem) 0 1.5rem;
+}
+.footer-top{
+  display:grid;gap:2rem;
+  padding-bottom:2rem;border-bottom:1px solid var(--line);
+  margin-bottom:1.25rem;
+}
+@media (min-width:800px){
+  .footer-top{grid-template-columns:1.2fr 1fr 1fr;align-items:start;}
+}
+.footer-brand{
+  font-family:var(--font-ui);font-weight:600;font-size:1rem;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--ink);
+  margin-bottom:.75rem;
+}
+.footer p{font-size:var(--fs-sm);color:var(--ink-3);max-width:28ch;}
+.footer h4{
+  font-family:var(--font-mono);font-size:var(--fs-micro);
+  letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+  margin-bottom:.85rem;
+}
+.footer-links{display:grid;gap:.55rem;}
+.footer-links a{
+  font-size:var(--fs-sm);color:var(--ink-2);transition:color .2s;
+}
+.footer-links a:hover{color:var(--copper);}
+.footer-clock-block{
+  display:grid;gap:.35rem;justify-items:start;
+}
+.footer-clock{
+  font-family:var(--font-mono);font-size:clamp(1.4rem,1rem + 1.5vw,2rem);
+  color:var(--ink);letter-spacing:.08em;font-variant-numeric:tabular-nums;
+}
+.footer-clock-label{
+  font-family:var(--font-mono);font-size:var(--fs-micro);
+  letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+}
+.footer-bottom{
+  display:flex;flex-wrap:wrap;justify-content:space-between;gap:1rem;
+  font-family:var(--font-mono);font-size:var(--fs-mono);color:var(--muted);
+}
+
+/* reveal helpers */
+.reveal{opacity:0;transform:translateY(28px);}
+.reveal-line{transform:scaleX(0);transform-origin:left;}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.01ms!important;
+    scroll-behavior:auto!important;
+  }
+  .reveal{opacity:1;transform:none;}
+  .cursor,.cursor-dot,.cursor-arc,.cursor-label{display:none!important;}
+  .preloader-rings span:nth-child(3){animation:none;}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="cursor" aria-hidden="true"></div>
+<div class="cursor-arc" aria-hidden="true"></div>
+<div class="cursor-dot" aria-hidden="true"></div>
+<div class="cursor-label" aria-hidden="true"></div>
+
+<div class="preloader" id="preloader" role="status" aria-live="polite">
+  <div class="preloader-inner">
+    <div class="preloader-rings" aria-hidden="true"><span></span><span></span><span></span></div>
+    <div class="preloader-brand">Sonora</div>
+    <div class="preloader-bar"><div class="preloader-fill" id="preloaderFill"></div></div>
+    <div class="preloader-meta">
+      <span>Calibrating room</span>
+      <span id="preloaderPct">0%</span>
+    </div>
+  </div>
+</div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#top" class="logo" data-magnetic>
+      <span class="logo-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+      Sonora
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#desk">Session Desk</a>
+      <a href="#masters">Masters</a>
+      <a href="#principles">Principles</a>
+      <a href="#cta">Access</a>
+    </nav>
+    <a class="nav-cta" href="#cta" data-magnetic data-cursor="hot">Request seat</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+<nav class="nav-mobile" id="navMobile" aria-label="Mobile">
+  <a href="#desk">Session Desk</a>
+  <a href="#masters">Masters</a>
+  <a href="#principles">Principles</a>
+  <a href="#cta">Access</a>
+</nav>
+
+<main id="main">
+  <section class="hero" id="top">
+    <div class="hero-bg-rings" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow hero-kicker reveal">Listening-room software</p>
+        <h1 class="reveal">Master in the <em>room</em>, not the meter.</h1>
+        <p class="hero-lead reveal">Sonora is a spatial mastering desk for critical listening rooms — reference chains, stereo image memory, and session recall tuned to how engineers actually hear.</p>
+        <div class="btn-row reveal">
+          <a class="btn btn-primary" href="#desk" data-magnetic data-cursor="hot">Open session desk</a>
+          <a class="btn btn-ghost" href="#masters" data-magnetic data-cursor="hot">Selected masters</a>
+        </div>
+        <dl class="hero-meta reveal">
+          <div><dt>Latency</dt><dd>&lt; 2.4 ms round-trip</dd></div>
+          <div><dt>Format</dt><dd>PCM / DSD / immersive</dd></div>
+          <div><dt>Rooms</dt><dd>Calibrated profiles</dd></div>
+        </dl>
+      </div>
+
+      <div class="wave-plate reveal" data-cursor="hot">
+        <div class="wave-plate-head">
+          <span class="live">Live plate</span>
+          <span id="heroTimecode">00:00:00.00</span>
+        </div>
+        <div class="wave-canvas-wrap">
+          <canvas id="waveCanvas" aria-hidden="true"></canvas>
+          <div class="wave-rings" aria-hidden="true">
+            <svg viewBox="0 0 200 200" fill="none">
+              <circle cx="100" cy="100" r="92" stroke="rgba(244,241,236,.12)" stroke-width="1"/>
+              <circle cx="100" cy="100" r="68" stroke="rgba(196,122,58,.35)" stroke-width="1"/>
+              <circle cx="100" cy="100" r="44" stroke="rgba(244,241,236,.16)" stroke-width="1"/>
+              <circle cx="100" cy="100" r="18" stroke="rgba(196,122,58,.55)" stroke-width="1"/>
+              <circle cx="100" cy="100" r="4" fill="#C47A3A"/>
+            </svg>
+          </div>
+        </div>
+        <div class="wave-plate-foot">
+          <div class="wave-stat"><span>Peak</span><b id="statPeak">−0.8 dBTP</b></div>
+          <div class="wave-stat"><span>LUFS-I</span><b id="statLufs">−14.2</b></div>
+          <div class="wave-stat"><span>Width</span><b id="statWidth">68%</b></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="desk" id="desk">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow reveal">01 — Session desk</p>
+        <h2 class="reveal">Five stems. One listening plane.</h2>
+        <p class="reveal">Drag the faders, shape the chain, and watch the frequency bank respond. Sonora keeps parameter state in the room profile — not buried in plugin menus.</p>
+      </div>
+
+      <div class="desk-layout reveal">
+        <div class="desk-panel">
+          <h3>Stem balance</h3>
+          <p class="desk-sub">Interactive gain trim for the active listening chain.</p>
+          <div class="fader-row" id="faderRow" role="group" aria-label="Stem faders">
+            <div class="fader" data-label="Bass" data-value="72">
+              <div class="fader-track" tabindex="0" role="slider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="72" aria-label="Bass">
+                <div class="fader-fill" style="height:72%"></div>
+                <div class="fader-thumb" style="bottom:72%"></div>
+              </div>
+              <span class="fader-val">−2.8</span>
+              <span class="fader-label">Bass</span>
+            </div>
+            <div class="fader" data-label="Mid" data-value="64">
+              <div class="fader-track" tabindex="0" role="slider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="64" aria-label="Mid">
+                <div class="fader-fill" style="height:64%"></div>
+                <div class="fader-thumb" style="bottom:64%"></div>
+              </div>
+              <span class="fader-val">−4.1</span>
+              <span class="fader-label">Mid</span>
+            </div>
+            <div class="fader" data-label="Air" data-value="58">
+              <div class="fader-track" tabindex="0" role="slider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="58" aria-label="Air">
+                <div class="fader-fill" style="height:58%"></div>
+                <div class="fader-thumb" style="bottom:58%"></div>
+              </div>
+              <span class="fader-val">−5.0</span>
+              <span class="fader-label">Air</span>
+            </div>
+            <div class="fader" data-label="Bus" data-value="80">
+              <div class="fader-track" tabindex="0" role="slider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="80" aria-label="Bus">
+                <div class="fader-fill" style="height:80%"></div>
+                <div class="fader-thumb" style="bottom:80%"></div>
+              </div>
+              <span class="fader-val">−1.6</span>
+              <span class="fader-label">Bus</span>
+            </div>
+            <div class="fader" data-label="Room" data-value="46">
+              <div class="fader-track" tabindex="0" role="slider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="46" aria-label="Room">
+                <div class="fader-fill" style="height:46%"></div>
+                <div class="fader-thumb" style="bottom:46%"></div>
+              </div>
+              <span class="fader-val">−6.8</span>
+              <span class="fader-label">Room</span>
+            </div>
+          </div>
+
+          <div class="meter-bank" id="meterBank" aria-hidden="true"></div>
+
+          <div class="transport" role="group" aria-label="Transport">
+            <button type="button" id="btnPlay" class="is-active" data-magnetic>PLAY</button>
+            <button type="button" id="btnA" data-magnetic>A</button>
+            <button type="button" id="btnB" data-magnetic>B</button>
+            <button type="button" id="btnMono" data-magnetic>MONO</button>
+            <button type="button" id="btnDim" data-magnetic>DIM</button>
+          </div>
+        </div>
+
+        <div class="desk-panel">
+          <h3>Listening chain</h3>
+          <p class="desk-sub">Shape the reference path without leaving the desk.</p>
+          <div class="param-grid">
+            <div class="param">
+              <div class="param-top">
+                <label for="pTilt">Tilt EQ</label>
+                <output id="oTilt" for="pTilt">+0.8 dB</output>
+              </div>
+              <input class="slider" id="pTilt" type="range" min="-30" max="30" value="8" />
+            </div>
+            <div class="param">
+              <div class="param-top">
+                <label for="pWidth">Image width</label>
+                <output id="oWidth" for="pWidth">68%</output>
+              </div>
+              <input class="slider" id="pWidth" type="range" min="0" max="100" value="68" />
+            </div>
+            <div class="param">
+              <div class="param-top">
+                <label for="pDepth">Depth field</label>
+                <output id="oDepth" for="pDepth">42%</output>
+              </div>
+              <input class="slider" id="pDepth" type="range" min="0" max="100" value="42" />
+            </div>
+            <div class="param">
+              <div class="param-top">
+                <label for="pGloss">Transient gloss</label>
+                <output id="oGloss" for="pGloss">0.35</output>
+              </div>
+              <input class="slider" id="pGloss" type="range" min="0" max="100" value="35" />
+            </div>
+          </div>
+
+          <div class="desk-readout">
+            <article>
+              <dt>Session clock</dt>
+              <dd class="clock-display" id="sessionClock">00:12:47.18</dd>
+            </article>
+            <article>
+              <dt>Room profile</dt>
+              <dd id="roomProfile">Studio North · A3</dd>
+            </article>
+            <article>
+              <dt>Compare</dt>
+              <dd id="compareState">Chain A active</dd>
+            </article>
+            <article>
+              <dt>Headroom</dt>
+              <dd id="headroom">−0.8 dBTP</dd>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="masters" id="masters">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow reveal">02 — Selected masters</p>
+        <h2 class="reveal">Cuts finished in Sonora rooms.</h2>
+        <p class="reveal">A quiet grid of sessions — genre, loudness target, and the listening profile that locked the final print.</p>
+      </div>
+      <div class="masters-grid">
+        <article class="master-card reveal">
+          <div class="master-card-top">
+            <span class="master-idx">SN–014</span>
+            <span class="master-tag">Ambient</span>
+          </div>
+          <div>
+            <h3>Glass Harbor</h3>
+            <p>Long decays held against a narrow image. Printed at streaming and vinyl gain stages.</p>
+          </div>
+          <div class="master-viz" aria-hidden="true">
+            <i style="--h:28%"></i><i style="--h:44%"></i><i style="--h:62%"></i><i style="--h:38%"></i><i style="--h:71%"></i>
+            <i style="--h:55%"></i><i style="--h:48%"></i><i style="--h:80%"></i><i style="--h:36%"></i><i style="--h:58%"></i>
+            <i style="--h:42%"></i><i style="--h:67%"></i><i style="--h:51%"></i><i style="--h:33%"></i><i style="--h:74%"></i>
+            <i style="--h:46%"></i><i style="--h:60%"></i><i style="--h:29%"></i><i style="--h:68%"></i><i style="--h:41%"></i>
+          </div>
+          <div class="master-meta"><span>−16.0 LUFS</span><span>Room B2</span></div>
+        </article>
+        <article class="master-card reveal">
+          <div class="master-card-top">
+            <span class="master-idx">SN–027</span>
+            <span class="master-tag">Jazz</span>
+          </div>
+          <div>
+            <h3>Copper Quartet</h3>
+            <p>Brush kit and upright bass with deliberate mono fold for radio edit delivery.</p>
+          </div>
+          <div class="master-viz" aria-hidden="true">
+            <i style="--h:52%"></i><i style="--h:34%"></i><i style="--h:78%"></i><i style="--h:45%"></i><i style="--h:61%"></i>
+            <i style="--h:39%"></i><i style="--h:70%"></i><i style="--h:28%"></i><i style="--h:84%"></i><i style="--h:47%"></i>
+            <i style="--h:56%"></i><i style="--h:31%"></i><i style="--h:66%"></i><i style="--h:49%"></i><i style="--h:73%"></i>
+            <i style="--h:40%"></i><i style="--h:58%"></i><i style="--h:35%"></i><i style="--h:69%"></i><i style="--h:43%"></i>
+          </div>
+          <div class="master-meta"><span>−14.5 LUFS</span><span>Room A3</span></div>
+        </article>
+        <article class="master-card reveal">
+          <div class="master-card-top">
+            <span class="master-idx">SN–041</span>
+            <span class="master-tag">Electronic</span>
+          </div>
+          <div>
+            <h3>Night Transit</h3>
+            <p>Sub weight retained under a hard ceiling. Dual-chain compare locked the club print.</p>
+          </div>
+          <div class="master-viz" aria-hidden="true">
+            <i style="--h:80%"></i><i style="--h:55%"></i><i style="--h:92%"></i><i style="--h:48%"></i><i style="--h:76%"></i>
+            <i style="--h:63%"></i><i style="--h:88%"></i><i style="--h:41%"></i><i style="--h:70%"></i><i style="--h:54%"></i>
+            <i style="--h:85%"></i><i style="--h:37%"></i><i style="--h:79%"></i><i style="--h:60%"></i><i style="--h:94%"></i>
+            <i style="--h:50%"></i><i style="--h:72%"></i><i style="--h:44%"></i><i style="--h:81%"></i><i style="--h:57%"></i>
+          </div>
+          <div class="master-meta"><span>−9.2 LUFS</span><span>Room C1</span></div>
+        </article>
+        <article class="master-card reveal">
+          <div class="master-card-top">
+            <span class="master-idx">SN–053</span>
+            <span class="master-tag">Score</span>
+          </div>
+          <div>
+            <h3>Atlas Field</h3>
+            <p>Orchestral stem stem-bus with immersive fold-down checks for theatrical delivery.</p>
+          </div>
+          <div class="master-viz" aria-hidden="true">
+            <i style="--h:36%"></i><i style="--h:58%"></i><i style="--h:47%"></i><i style="--h:75%"></i><i style="--h:32%"></i>
+            <i style="--h:64%"></i><i style="--h:51%"></i><i style="--h:82%"></i><i style="--h:40%"></i><i style="--h:69%"></i>
+            <i style="--h:45%"></i><i style="--h:77%"></i><i style="--h:53%"></i><i style="--h:30%"></i><i style="--h:71%"></i>
+            <i style="--h:49%"></i><i style="--h:62%"></i><i style="--h:38%"></i><i style="--h:86%"></i><i style="--h:54%"></i>
+          </div>
+          <div class="master-meta"><span>−18.0 LUFS</span><span>Room A1</span></div>
+        </article>
+        <article class="master-card reveal">
+          <div class="master-card-top">
+            <span class="master-idx">SN–066</span>
+            <span class="master-tag">Folk</span>
+          </div>
+          <div>
+            <h3>Cedar Line</h3>
+            <p>Vocal-forward acoustic set. Gentle tilt and room return for vinyl shoulder.</p>
+          </div>
+          <div class="master-viz" aria-hidden="true">
+            <i style="--h:42%"></i><i style="--h:55%"></i><i style="--h:33%"></i><i style="--h:67%"></i><i style="--h:48%"></i>
+            <i style="--h:59%"></i><i style="--h:36%"></i><i style="--h:74%"></i><i style="--h:45%"></i><i style="--h:61%"></i>
+            <i style="--h:39%"></i><i style="--h:70%"></i><i style="--h:52%"></i><i style="--h:44%"></i><i style="--h:66%"></i>
+            <i style="--h:35%"></i><i style="--h:58%"></i><i style="--h:47%"></i><i style="--h:63%"></i><i style="--h:41%"></i>
+          </div>
+          <div class="master-meta"><span>−15.0 LUFS</span><span>Room B1</span></div>
+        </article>
+        <article class="master-card reveal">
+          <div class="master-card-top">
+            <span class="master-idx">SN–078</span>
+            <span class="master-tag">Hip-hop</span>
+          </div>
+          <div>
+            <h3>Low Gate</h3>
+            <p>Punch-forward bus with controlled width for car and club translation checks.</p>
+          </div>
+          <div class="master-viz" aria-hidden="true">
+            <i style="--h:88%"></i><i style="--h:42%"></i><i style="--h:76%"></i><i style="--h:51%"></i><i style="--h:90%"></i>
+            <i style="--h:38%"></i><i style="--h:69%"></i><i style="--h:84%"></i><i style="--h:46%"></i><i style="--h:73%"></i>
+            <i style="--h:57%"></i><i style="--h:91%"></i><i style="--h:40%"></i><i style="--h:78%"></i><i style="--h:53%"></i>
+            <i style="--h:86%"></i><i style="--h:49%"></i><i style="--h:72%"></i><i style="--h:61%"></i><i style="--h:80%"></i>
+          </div>
+          <div class="master-meta"><span>−10.5 LUFS</span><span>Room C2</span></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="principles" id="principles">
+    <div class="wrap principles-layout">
+      <div class="principles-aside">
+        <div class="section-head" style="margin-bottom:1.5rem;">
+          <p class="eyebrow reveal">03 — Listening principles</p>
+          <h2 class="reveal">How Sonora keeps the room honest.</h2>
+          <p class="reveal">Not a plugin stack. A discipline for critical listening — calibrated, comparable, and remembered.</p>
+        </div>
+        <div class="vinyl-stage reveal" aria-hidden="true">
+          <svg viewBox="0 0 420 420" fill="none">
+            <circle cx="210" cy="210" r="198" stroke="rgba(244,241,236,.10)" stroke-width="1"/>
+            <circle cx="210" cy="210" r="168" stroke="rgba(196,122,58,.28)" stroke-width="1"/>
+            <circle cx="210" cy="210" r="138" stroke="rgba(244,241,236,.12)" stroke-width="1"/>
+            <circle cx="210" cy="210" r="108" stroke="rgba(196,122,58,.40)" stroke-width="1"/>
+            <circle cx="210" cy="210" r="78" stroke="rgba(244,241,236,.14)" stroke-width="1"/>
+            <circle cx="210" cy="210" r="48" stroke="rgba(196,122,58,.55)" stroke-width="1"/>
+            <circle cx="210" cy="210" r="18" fill="#C47A3A"/>
+            <circle cx="210" cy="210" r="6" fill="#0A1220"/>
+            <path d="M210 12 L214 48 L210 44 L206 48 Z" fill="#C47A3A" opacity=".7"/>
+            <g stroke="rgba(244,241,236,.08)" stroke-width="1">
+              <line x1="210" y1="42" x2="210" y2="378"/>
+              <line x1="42" y1="210" x2="378" y2="210"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+      <div class="principle-list">
+        <article class="principle reveal">
+          <span class="principle-num">01</span>
+          <div>
+            <h3>Calibrate before color</h3>
+            <p>Room profiles load first. Tone decisions happen after the listening plane is known and stable.</p>
+          </div>
+          <span class="principle-note">ROOM</span>
+        </article>
+        <article class="principle reveal">
+          <span class="principle-num">02</span>
+          <div>
+            <h3>Compare in place</h3>
+            <p>A/B chains sit on the same desk. No window hopping — just flip and listen with identical gain staging.</p>
+          </div>
+          <span class="principle-note">CHAIN</span>
+        </article>
+        <article class="principle reveal">
+          <span class="principle-num">03</span>
+          <div>
+            <h3>Remember the image</h3>
+            <p>Stereo width and depth fields store with the session so tomorrow’s ears match today’s print.</p>
+          </div>
+          <span class="principle-note">IMAGE</span>
+        </article>
+        <article class="principle reveal">
+          <span class="principle-num">04</span>
+          <div>
+            <h3>Protect the ceiling</h3>
+            <p>True-peak headroom is always visible. Loudness targets never erase translation checks.</p>
+          </div>
+          <span class="principle-note">LIMIT</span>
+        </article>
+        <article class="principle reveal">
+          <span class="principle-num">05</span>
+          <div>
+            <h3>Print with intent</h3>
+            <p>Delivery formats inherit room metadata — streaming, vinyl, and immersive leave with the same story.</p>
+          </div>
+          <span class="principle-note">PRINT</span>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta" id="cta">
+    <div class="wrap">
+      <div class="cta-panel reveal">
+        <div>
+          <p class="eyebrow">04 — Access</p>
+          <h2>Reserve a seat in the listening room.</h2>
+          <p>Sonora is offered to mastering houses and private rooms. Early access includes room calibration, dual-chain desks, and session memory.</p>
+          <div class="btn-row" style="margin-top:1.5rem;">
+            <a class="btn btn-primary" href="mailto:rooms@sonora.audio" data-magnetic data-cursor="hot">Request access</a>
+            <a class="btn btn-ghost" href="#desk" data-magnetic data-cursor="hot">Return to desk</a>
+          </div>
+        </div>
+        <div class="cta-side">
+          <div class="spec"><b>Includes</b><span>Room profiles · A/B chains · Print metadata</span></div>
+          <div class="spec"><b>Platforms</b><span>macOS · Windows · dedicated DSP</span></div>
+          <div class="spec"><b>Support</b><span>On-site calibration available</span></div>
+        </div>
+        <div class="cta-freq" aria-hidden="true" id="ctaFreq"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand">Sonora</div>
+        <p>Listening-room software for mastering engineers who trust their ears first.</p>
+      </div>
+      <div>
+        <h4>Navigate</h4>
+        <div class="footer-links">
+          <a href="#desk">Session desk</a>
+          <a href="#masters">Selected masters</a>
+          <a href="#principles">Principles</a>
+          <a href="#cta">Access</a>
+        </div>
+      </div>
+      <div class="footer-clock-block">
+        <h4>Room clock</h4>
+        <div class="footer-clock" id="footerClock">00:00:00</div>
+        <span class="footer-clock-label" id="footerZone">Local listening time</span>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Sonora Listening Systems</span>
+      <span>Built for quiet rooms</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const body = document.body;
+
+  /* ---------- helpers ---------- */
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const fmtDb = (v) => {
+    const db = ((v / 100) * 24) - 18;
+    return (db >= 0 ? '+' : '') + db.toFixed(1);
+  };
+  const pad2 = (n) => String(n).padStart(2, '0');
+
+  /* ---------- meter bank ---------- */
+  const meterBank = document.getElementById('meterBank');
+  const meters = [];
+  for (let i = 0; i < 32; i++) {
+    const el = document.createElement('div');
+    el.className = 'meter-bar';
+    meterBank.appendChild(el);
+    meters.push(el);
+  }
+
+  const ctaFreq = document.getElementById('ctaFreq');
+  for (let i = 0; i < 48; i++) {
+    const el = document.createElement('i');
+    el.style.setProperty('--h', (18 + Math.random() * 72) + '%');
+    ctaFreq.appendChild(el);
+  }
+
+  /* ---------- preloader ---------- */
+  const preloader = document.getElementById('preloader');
+  const preFill = document.getElementById('preloaderFill');
+  const prePct = document.getElementById('preloaderPct');
+  body.classList.add('is-locked');
+
+  function finishPreloader() {
+    preloader.classList.add('is-done');
+    body.classList.remove('is-locked');
+    initApp();
+  }
+
+  if (reduced) {
+    preFill.style.width = '100%';
+    prePct.textContent = '100%';
+    setTimeout(finishPreloader, 200);
+  } else {
+    let p = 0;
+    const tick = () => {
+      p = Math.min(100, p + (p < 70 ? 2.2 : p < 90 ? 1.1 : 0.55));
+      preFill.style.width = p + '%';
+      prePct.textContent = Math.floor(p) + '%';
+      if (p < 100) requestAnimationFrame(tick);
+      else setTimeout(finishPreloader, 280);
+    };
+    requestAnimationFrame(tick);
+  }
+
+  /* ---------- clocks ---------- */
+  const footerClock = document.getElementById('footerClock');
+  const footerZone = document.getElementById('footerZone');
+  const heroTimecode = document.getElementById('heroTimecode');
+  const sessionClock = document.getElementById('sessionClock');
+  let sessionMs = 12 * 60 * 1000 + 47 * 1000 + 180;
+  let playing = true;
+
+  function updateClocks() {
+    const now = new Date();
+    footerClock.textContent =
+      pad2(now.getHours()) + ':' + pad2(now.getMinutes()) + ':' + pad2(now.getSeconds());
+    try {
+      footerZone.textContent = Intl.DateTimeFormat().resolvedOptions().timeZone + ' · local';
+    } catch (_) {}
+
+    if (playing) sessionMs += 40;
+    const total = Math.floor(sessionMs);
+    const h = Math.floor(total / 3600000);
+    const m = Math.floor((total % 3600000) / 60000);
+    const s = Math.floor((total % 60000) / 1000);
+    const cs = Math.floor((total % 1000) / 10);
+    const tc = pad2(h) + ':' + pad2(m) + ':' + pad2(s) + '.' + pad2(cs);
+    heroTimecode.textContent = tc;
+    sessionClock.textContent = tc;
+  }
+  setInterval(updateClocks, 40);
+  updateClocks();
+
+  /* ---------- live waveform ---------- */
+  const canvas = document.getElementById('waveCanvas');
+  const ctx = canvas.getContext('2d');
+  let wavePhase = 0;
+  let waveEnergy = 0.72;
+
+  function resizeCanvas() {
+    const rect = canvas.parentElement.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.floor(rect.width * dpr);
+    canvas.height = Math.floor(rect.height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function drawWave() {
+    const w = canvas.parentElement.clientWidth;
+    const h = canvas.parentElement.clientHeight;
+    ctx.clearRect(0, 0, w, h);
+
+    ctx.strokeStyle = 'rgba(244,241,236,0.06)';
+    ctx.lineWidth = 1;
+    for (let y = 0; y < h; y += 28) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+    }
+    for (let x = 0; x < w; x += 40) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+    }
+
+    const mid = h * 0.5;
+    const amp = h * 0.28 * waveEnergy * (playing ? 1 : 0.25);
+
+    function path(offset, color, width, gain) {
+      ctx.beginPath();
+      for (let x = 0; x <= w; x += 2) {
+        const t = x / w;
+        const y =
+          mid +
+          Math.sin(t * Math.PI * 6 + wavePhase + offset) * amp * gain +
+          Math.sin(t * Math.PI * 13.5 + wavePhase * 1.4 + offset) * amp * 0.35 * gain +
+          Math.sin(t * Math.PI * 2.2 - wavePhase * 0.6) * amp * 0.2 * gain;
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width;
+      ctx.stroke();
+    }
+
+    path(0, 'rgba(196,122,58,0.25)', 6, 1);
+    path(0.2, '#C47A3A', 1.5, 1);
+    path(1.1, 'rgba(244,241,236,0.35)', 1, 0.55);
+
+    const peak = -0.4 - Math.random() * 0.9 * waveEnergy;
+    const lufs = -13.4 - (1 - waveEnergy) * 3 + (Math.random() - 0.5) * 0.2;
+    const widthPct = Math.round(55 + waveEnergy * 30 + (Math.random() - 0.5) * 2);
+    document.getElementById('statPeak').textContent = peak.toFixed(1) + ' dBTP';
+    document.getElementById('statLufs').textContent = lufs.toFixed(1);
+    document.getElementById('statWidth').textContent = widthPct + '%';
+    document.getElementById('headroom').textContent = peak.toFixed(1) + ' dBTP';
+
+    if (!reduced) wavePhase += playing ? 0.045 : 0.008;
+  }
+
+  function animateWave() {
+    drawWave();
+    requestAnimationFrame(animateWave);
+  }
+
+  /* ---------- meters animation ---------- */
+  function animateMeters() {
+    const base = waveEnergy * (playing ? 1 : 0.2);
+    meters.forEach((el, i) => {
+      const n =
+        0.15 +
+        base * (0.35 + 0.65 * Math.abs(Math.sin(wavePhase * 2 + i * 0.35))) *
+        (0.6 + 0.4 * Math.sin(i * 0.5 + wavePhase));
+      const h = clamp(n * 100, 8, 100);
+      el.style.height = h + '%';
+      el.classList.toggle('is-hot', h > 62);
+    });
+  }
+
+  /* ---------- faders ---------- */
+  function setFader(fader, value) {
+    value = clamp(value, 0, 100);
+    fader.dataset.value = String(Math.round(value));
+    const track = fader.querySelector('.fader-track');
+    const fill = fader.querySelector('.fader-fill');
+    const thumb = fader.querySelector('.fader-thumb');
+    const val = fader.querySelector('.fader-val');
+    fill.style.height = value + '%';
+    thumb.style.bottom = value + '%';
+    track.setAttribute('aria-valuenow', String(Math.round(value)));
+    val.textContent = fmtDb(value);
+    updateEnergyFromFaders();
+  }
+
+  function updateEnergyFromFaders() {
+    const faders = [...document.querySelectorAll('.fader')];
+    const avg = faders.reduce((s, f) => s + Number(f.dataset.value), 0) / faders.length;
+    waveEnergy = clamp(avg / 100, 0.2, 1);
+  }
+
+  function bindFader(fader) {
+    const track = fader.querySelector('.fader-track');
+    let dragging = false;
+
+    function fromEvent(e) {
+      const rect = track.getBoundingClientRect();
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      const ratio = 1 - (clientY - rect.top) / rect.height;
+      setFader(fader, ratio * 100);
+    }
+
+    track.addEventListener('pointerdown', (e) => {
+      dragging = true;
+      track.setPointerCapture(e.pointerId);
+      fromEvent(e);
+    });
+    track.addEventListener('pointermove', (e) => { if (dragging) fromEvent(e); });
+    track.addEventListener('pointerup', () => { dragging = false; });
+    track.addEventListener('pointercancel', () => { dragging = false; });
+
+    track.addEventListener('keydown', (e) => {
+      let v = Number(fader.dataset.value);
+      if (e.key === 'ArrowUp' || e.key === 'ArrowRight') { v += 2; e.preventDefault(); }
+      if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') { v -= 2; e.preventDefault(); }
+      if (e.key === 'Home') { v = 100; e.preventDefault(); }
+      if (e.key === 'End') { v = 0; e.preventDefault(); }
+      setFader(fader, v);
+    });
+  }
+
+  document.querySelectorAll('.fader').forEach((f) => {
+    bindFader(f);
+    setFader(f, Number(f.dataset.value));
+  });
+
+  /* ---------- params ---------- */
+  const pTilt = document.getElementById('pTilt');
+  const pWidth = document.getElementById('pWidth');
+  const pDepth = document.getElementById('pDepth');
+  const pGloss = document.getElementById('pGloss');
+  const oTilt = document.getElementById('oTilt');
+  const oWidth = document.getElementById('oWidth');
+  const oDepth = document.getElementById('oDepth');
+  const oGloss = document.getElementById('oGloss');
+
+  function syncParams() {
+    const tilt = Number(pTilt.value) / 10;
+    oTilt.textContent = (tilt >= 0 ? '+' : '') + tilt.toFixed(1) + ' dB';
+    oWidth.textContent = pWidth.value + '%';
+    oDepth.textContent = pDepth.value + '%';
+    oGloss.textContent = (Number(pGloss.value) / 100).toFixed(2);
+    document.getElementById('statWidth').textContent = pWidth.value + '%';
+  }
+  [pTilt, pWidth, pDepth, pGloss].forEach((el) => el.addEventListener('input', syncParams));
+  syncParams();
+
+  /* ---------- transport ---------- */
+  const btnPlay = document.getElementById('btnPlay');
+  const btnA = document.getElementById('btnA');
+  const btnB = document.getElementById('btnB');
+  const btnMono = document.getElementById('btnMono');
+  const btnDim = document.getElementById('btnDim');
+  const compareState = document.getElementById('compareState');
+  let chain = 'A';
+  let mono = false;
+  let dim = false;
+
+  btnPlay.addEventListener('click', () => {
+    playing = !playing;
+    btnPlay.classList.toggle('is-active', playing);
+    btnPlay.textContent = playing ? 'PLAY' : 'PAUSE';
+  });
+  btnA.addEventListener('click', () => {
+    chain = 'A';
+    btnA.classList.add('is-active');
+    btnB.classList.remove('is-active');
+    compareState.textContent = 'Chain A active';
+  });
+  btnB.addEventListener('click', () => {
+    chain = 'B';
+    btnB.classList.add('is-active');
+    btnA.classList.remove('is-active');
+    compareState.textContent = 'Chain B active';
+  });
+  btnA.classList.add('is-active');
+  btnMono.addEventListener('click', () => {
+    mono = !mono;
+    btnMono.classList.toggle('is-active', mono);
+    if (mono) pWidth.value = '0';
+    else pWidth.value = '68';
+    syncParams();
+  });
+  btnDim.addEventListener('click', () => {
+    dim = !dim;
+    btnDim.classList.toggle('is-active', dim);
+    waveEnergy = dim ? 0.28 : clamp(
+      [...document.querySelectorAll('.fader')].reduce((s, f) => s + Number(f.dataset.value), 0) /
+      (document.querySelectorAll('.fader').length * 100),
+      0.2, 1
+    );
+  });
+
+  /* ---------- nav ---------- */
+  const nav = document.getElementById('nav');
+  const navToggle = document.getElementById('navToggle');
+  const navMobile = document.getElementById('navMobile');
+
+  navToggle.addEventListener('click', () => {
+    const open = !navMobile.classList.contains('is-open');
+    navMobile.classList.toggle('is-open', open);
+    navToggle.classList.toggle('is-open', open);
+    navToggle.setAttribute('aria-expanded', String(open));
+    body.classList.toggle('is-locked', open && preloader.classList.contains('is-done'));
+  });
+  navMobile.querySelectorAll('a').forEach((a) => {
+    a.addEventListener('click', () => {
+      navMobile.classList.remove('is-open');
+      navToggle.classList.remove('is-open');
+      navToggle.setAttribute('aria-expanded', 'false');
+      body.classList.remove('is-locked');
+    });
+  });
+
+  /* ---------- custom cursor ---------- */
+  const cursor = document.querySelector('.cursor');
+  const cursorDot = document.querySelector('.cursor-dot');
+  const cursorArc = document.querySelector('.cursor-arc');
+  const cursorLabel = document.querySelector('.cursor-label');
+  let cx = 0, cy = 0, tx = 0, ty = 0;
+  let lx = 0, ly = 0;
+  let cursorOn = false;
+  const canCursor = !reduced && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+  function onPointerMove(e) {
+    if (!canCursor) return;
+    tx = e.clientX; ty = e.clientY;
+    if (!cursorOn) {
+      cursorOn = true;
+      body.classList.add('has-cursor');
+      cx = tx; cy = ty; lx = tx; ly = ty;
+    }
+  }
+  window.addEventListener('pointermove', onPointerMove, { passive: true });
+
+  function setCursorHot(on, labelText) {
+    if (!canCursor) return;
+    cursor.classList.toggle('is-hot', on);
+    cursorDot.classList.toggle('is-hot', on);
+    if (cursorArc) cursorArc.classList.toggle('is-hot', on);
+    if (cursorLabel) {
+      if (on && labelText) {
+        cursorLabel.textContent = labelText;
+        cursorLabel.classList.add('is-on');
+      } else {
+        cursorLabel.classList.remove('is-on');
+        cursorLabel.textContent = '';
+      }
+    }
+  }
+
+  function cursorLabelFor(el) {
+    const raw = el.getAttribute('data-cursor');
+    if (raw && raw !== 'hot') return raw;
+    if (el.matches('.wave-plate, #waveCanvas, .master-card')) return 'Listen';
+    if (el.matches('.fader-track, .slider')) return 'Trim';
+    if (el.matches('a, button')) {
+      const t = (el.textContent || '').trim().split(/\s+/).slice(0, 2).join(' ');
+      return t ? t.slice(0, 14) : 'Open';
+    }
+    return 'Open';
+  }
+
+  if (canCursor) {
+    document.querySelectorAll('[data-cursor="hot"], a, button, .fader-track, .slider, .master-card').forEach((el) => {
+      el.addEventListener('pointerenter', () => setCursorHot(true, cursorLabelFor(el)));
+      el.addEventListener('pointerleave', () => setCursorHot(false));
+    });
+  }
+
+  function tickCursor() {
+    if (canCursor) {
+      cx = lerp(cx, tx, 0.16);
+      cy = lerp(cy, ty, 0.16);
+      lx = lerp(lx, tx, 0.22);
+      ly = lerp(ly, ty, 0.22);
+      cursor.style.transform = 'translate(' + cx + 'px,' + cy + 'px) translate(-50%,-50%)';
+      cursorDot.style.transform = 'translate(' + tx + 'px,' + ty + 'px) translate(-50%,-50%)';
+      if (cursorArc) {
+        const rot = cursorArc.classList.contains('is-hot') ? 18 : -28;
+        cursorArc.style.transform = 'translate(' + cx + 'px,' + cy + 'px) translate(-50%,-50%) rotate(' + rot + 'deg)';
+      }
+      if (cursorLabel) {
+        const oy = cursorLabel.classList.contains('is-on') ? 46 : 38;
+        cursorLabel.style.transform = 'translate(' + lx + 'px,' + ly + 'px) translate(-50%,calc(-50% + ' + oy + 'px))';
+      }
+    }
+    animateMeters();
+    requestAnimationFrame(tickCursor);
+  }
+
+  /* ---------- magnetic buttons ---------- */
+  function bindMagnetic(el) {
+    const strength = 18;
+    el.addEventListener('pointermove', (e) => {
+      if (reduced) return;
+      const r = el.getBoundingClientRect();
+      const x = e.clientX - (r.left + r.width / 2);
+      const y = e.clientY - (r.top + r.height / 2);
+      el.style.transform = 'translate(' + (x / r.width) * strength + 'px,' + (y / r.height) * strength + 'px)';
+    });
+    el.addEventListener('pointerleave', () => {
+      el.style.transform = 'translate(0,0)';
+    });
+  }
+
+  /* ---------- app init (after libs + preloader) ---------- */
+  function initApp() {
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    requestAnimationFrame(animateWave);
+    requestAnimationFrame(tickCursor);
+    document.querySelectorAll('[data-magnetic]').forEach(bindMagnetic);
+
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('is-scrolled', window.scrollY > 24);
+    }, { passive: true });
+
+    const waitLibs = () => {
+      if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined' || typeof Lenis === 'undefined') {
+        requestAnimationFrame(waitLibs);
+        return;
+      }
+      gsap.registerPlugin(ScrollTrigger);
+
+      if (reduced) {
+        gsap.set('.reveal', { clearProps: 'all', opacity: 1, y: 0 });
+        return;
+      }
+
+      const lenis = new Lenis({
+        duration: 1.15,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true
+      });
+      lenis.on('scroll', ScrollTrigger.update);
+      gsap.ticker.add((time) => { lenis.raf(time * 1000); });
+      gsap.ticker.lagSmoothing(0);
+
+      document.querySelectorAll('a[href^="#"]').forEach((a) => {
+        a.addEventListener('click', (e) => {
+          const id = a.getAttribute('href');
+          if (!id || id === '#') return;
+          const target = document.querySelector(id);
+          if (!target) return;
+          e.preventDefault();
+          lenis.scrollTo(target, { offset: -72 });
+        });
+      });
+
+      gsap.fromTo('.hero-copy .reveal',
+        { opacity: 0, y: 36 },
+        { opacity: 1, y: 0, duration: 1, stagger: 0.1, ease: 'power3.out', delay: 0.05 }
+      );
+      gsap.fromTo('.wave-plate',
+        { opacity: 0, y: 40 },
+        { opacity: 1, y: 0, duration: 1.1, ease: 'power3.out', delay: 0.2 }
+      );
+      gsap.to('.hero-bg-rings span', {
+        rotation: (i) => (i % 2 === 0 ? 360 : -360),
+        duration: (i) => 40 + i * 12,
+        repeat: -1,
+        ease: 'none',
+        transformOrigin: '50% 50%'
+      });
+      gsap.to('.vinyl-stage svg', {
+        rotation: 360,
+        duration: 48,
+        repeat: -1,
+        ease: 'none',
+        transformOrigin: '50% 50%',
+        scrollTrigger: { trigger: '#principles', start: 'top 80%' }
+      });
+
+      gsap.utils.toArray('.desk .reveal, .masters .reveal, .principles .reveal, .cta .reveal').forEach((el) => {
+        gsap.fromTo(el,
+          { opacity: 0, y: 32 },
+          {
+            opacity: 1, y: 0, duration: 0.9, ease: 'power3.out',
+            scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none none' }
+          }
+        );
+      });
+
+      gsap.utils.toArray('.master-card').forEach((card) => {
+        const bars = card.querySelectorAll('.master-viz i');
+        gsap.from(bars, {
+          scaleY: 0.2,
+          transformOrigin: 'bottom',
+          duration: 0.8,
+          stagger: 0.02,
+          ease: 'power2.out',
+          scrollTrigger: { trigger: card, start: 'top 85%' }
+        });
+      });
+    };
+    waitLibs();
+  }
+})();
+</script>
+</body>
+</html>

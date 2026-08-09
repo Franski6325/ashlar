@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Plotline — Charts that carry the story</title>
+<meta name="description" content="Plotline is a data journalism charting platform for newsrooms. Draft, annotate, and publish charts that hold the narrative — not just the numbers." />
+<meta name="theme-color" content="#FAFAFA" />
+<meta property="og:title" content="Plotline — Charts that carry the story" />
+<meta property="og:description" content="A Swiss-sharp charting desk for data journalists. Live figures, annotated frames, publish-ready graphics." />
+<meta property="og:type" content="website" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23FAFAFA'/%3E%3Crect x='4' y='4' width='2' height='24' fill='%23111111'/%3E%3Crect x='9' y='18' width='4' height='10' fill='%23111111'/%3E%3Crect x='15' y='12' width='4' height='16' fill='%23E10600'/%3E%3Crect x='21' y='8' width='4' height='20' fill='%23111111'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,300;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+<style>
+/* ============================================================
+   PLOTLINE — Swiss news / data desk
+   ============================================================ */
+:root{
+  --bg:#FAFAFA;
+  --bg-2:#F0F0F0;
+  --ink:#111111;
+  --ink-2:#2A2A2A;
+  --muted:#6B6B6B;
+  --line:rgba(17,17,17,.12);
+  --line-2:rgba(17,17,17,.22);
+  --line-3:rgba(17,17,17,.38);
+  --accent:#E10600;
+  --accent-soft:rgba(225,6,0,.08);
+  --white:#FFFFFF;
+
+  --font-serif:"Newsreader",Georgia,"Times New Roman",serif;
+  --font-sans:"DM Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",monospace;
+
+  --ease:cubic-bezier(.22,1,.36,1);
+  --pad:clamp(1rem,3.2vw,2.4rem);
+  --max:1440px;
+  --nav-h:3.75rem;
+  --col-gap:0;
+  --rule:1px solid var(--line-2);
+
+  --fs-nano:.625rem;
+  --fs-xs:.72rem;
+  --fs-sm:.875rem;
+  --fs-md:1rem;
+  --fs-lg:clamp(1.05rem,.95rem+.5vw,1.25rem);
+  --fs-xl:clamp(1.45rem,1rem+1.8vw,2.2rem);
+  --fs-2xl:clamp(2rem,1rem+3.2vw,3.6rem);
+  --fs-hero:clamp(2.6rem,.6rem+7vw,6.4rem);
+  --tnum:tabular-nums;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;border-radius:0!important}
+html{background:var(--bg);-webkit-text-size-adjust:100%;scroll-behavior:auto}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+.lenis.lenis-stopped{overflow:hidden}
+body{
+  font-family:var(--font-sans);
+  font-size:var(--fs-md);
+  line-height:1.5;
+  color:var(--ink);
+  background:var(--bg);
+  overflow-x:hidden;
+  cursor:none;
+  -webkit-font-smoothing:antialiased;
+  font-variant-numeric:var(--tnum);
+  font-feature-settings:"tnum" 1,"ss01" 1;
+}
+body.is-touch,body.is-reduced,body.no-gsap{cursor:auto}
+body.is-loading{overflow:hidden}
+img,svg{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit;background:none;border:none;outline:none;appearance:none;-webkit-appearance:none}
+button{cursor:none}
+body.is-touch button,body.is-reduced button{cursor:pointer}
+ul,ol{list-style:none}
+::selection{background:var(--accent);color:#fff}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+/* ---- utilities ---- */
+.shell{width:100%;max-width:var(--max);margin-inline:auto;padding-inline:var(--pad)}
+.kicker{
+  font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted);display:inline-flex;align-items:center;gap:.5rem;
+}
+.kicker::before{content:"";width:18px;height:2px;background:var(--accent);flex:none}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.num{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+.serif{font-family:var(--font-serif)}
+em,.it{font-family:var(--font-serif);font-style:italic;font-weight:400}
+h1,h2,h3,h4{font-family:var(--font-serif);font-weight:400;line-height:.98;letter-spacing:-.02em}
+p{text-wrap:pretty}
+.lede{font-size:var(--fs-lg);color:var(--ink-2);line-height:1.45;max-width:48ch}
+.rule{height:1px;background:var(--line-2);width:100%}
+.rule--thick{height:2px;background:var(--ink)}
+.rule--accent{height:2px;background:var(--accent)}
+
+.tag{
+  font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.14em;text-transform:uppercase;
+  border:1px solid var(--line-2);padding:.3rem .5rem;display:inline-block;line-height:1;color:var(--ink);
+}
+.tag--fill{background:var(--accent);border-color:var(--accent);color:#fff}
+.tag--ink{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+
+.btn{
+  position:relative;display:inline-flex;align-items:center;gap:.65rem;
+  font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.12em;text-transform:uppercase;
+  padding:.9rem 1.25rem;border:1px solid var(--ink);overflow:hidden;isolation:isolate;
+  background:transparent;color:var(--ink);transition:color .35s var(--ease);
+}
+.btn::before{
+  content:"";position:absolute;inset:0;background:var(--ink);z-index:-1;
+  transform:scaleX(0);transform-origin:left;transition:transform .45s var(--ease);
+}
+.btn:hover::before,.btn:focus-visible::before{transform:scaleX(1)}
+.btn:hover,.btn:focus-visible{color:var(--bg)}
+.btn--accent{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn--accent::before{background:var(--ink)}
+.btn--accent:hover{color:#fff}
+.btn--ghost{border-color:var(--line-2)}
+.btn--ghost:hover{border-color:var(--ink)}
+.btn__ic{width:12px;height:12px;flex:none;transition:transform .4s var(--ease)}
+.btn:hover .btn__ic{transform:translate(2px,-2px)}
+
+/* ============================================================
+   PRELOADER
+   ============================================================ */
+.preloader{
+  position:fixed;inset:0;z-index:10000;background:var(--bg);
+  display:grid;grid-template-rows:auto 1fr auto;
+  padding:var(--pad);border-bottom:2px solid var(--ink);
+}
+.preloader__top{
+  display:flex;justify-content:space-between;align-items:baseline;
+  padding-bottom:.85rem;border-bottom:1px solid var(--line-2);
+  font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.12em;text-transform:uppercase;
+}
+.preloader__mark{font-family:var(--font-serif);font-size:1.15rem;letter-spacing:-.02em;text-transform:none}
+.preloader__mark span{color:var(--accent)}
+.preloader__mid{
+  display:grid;place-items:center;gap:1.5rem;text-align:center;
+}
+.preloader__title{
+  font-size:clamp(2.4rem,8vw,5.5rem);max-width:14ch;line-height:.95;
+}
+.preloader__title .it{color:var(--accent)}
+.preloader__bar-wrap{
+  width:min(420px,78vw);height:2px;background:var(--line);position:relative;overflow:hidden;
+}
+.preloader__bar{position:absolute;inset:0 auto 0 0;width:0%;background:var(--accent)}
+.preloader__pct{
+  font-family:var(--font-mono);font-size:var(--fs-sm);font-variant-numeric:tabular-nums;
+  letter-spacing:.08em;min-width:4ch;text-align:right;
+}
+.preloader__bot{
+  display:flex;justify-content:space-between;align-items:flex-end;
+  padding-top:.85rem;border-top:1px solid var(--line-2);
+  font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+}
+.preloader.is-done{pointer-events:none}
+
+/* ============================================================
+   CURSOR — red plus-cross
+   ============================================================ */
+.cursor{
+  position:fixed;top:0;left:0;width:28px;height:28px;margin:-14px 0 0 -14px;
+  pointer-events:none;z-index:9999;
+  will-change:transform;
+}
+.cursor__h,.cursor__v{
+  position:absolute;background:#E10600;
+  transition:width .22s var(--ease),height .22s var(--ease),left .22s var(--ease),top .22s var(--ease);
+}
+.cursor__h{left:0;top:50%;width:28px;height:1px;margin-top:-.5px}
+.cursor__v{top:0;left:50%;width:1px;height:28px;margin-left:-.5px}
+.cursor__dot{
+  position:absolute;left:50%;top:50%;width:4px;height:4px;
+  margin:-2px 0 0 -2px;background:#111111;
+  transition:width .22s var(--ease),height .22s var(--ease),margin .22s var(--ease);
+}
+.cursor__label{
+  position:absolute;left:50%;top:calc(50% + 16px);transform:translateX(-50%);
+  font-family:var(--font-mono);font-size:8px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink);opacity:0;white-space:nowrap;pointer-events:none;
+  transition:opacity .2s;
+}
+.cursor.is-hover .cursor__h{height:2px;margin-top:-1px}
+.cursor.is-hover .cursor__v{width:2px;margin-left:-1px}
+.cursor.is-hover .cursor__dot{width:5px;height:5px;margin:-2.5px 0 0 -2.5px}
+.cursor.is-hover .cursor__label{opacity:1}
+.cursor.is-down .cursor__h{width:20px;left:4px}
+.cursor.is-down .cursor__v{height:20px;top:4px}
+body.is-touch .cursor,body.is-reduced .cursor,body.no-gsap .cursor{display:none}
+
+/* ============================================================
+   NAV
+   ============================================================ */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:900;height:var(--nav-h);
+  background:rgba(250,250,250,.92);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line-2);
+  transform:translateY(-100%);
+}
+.nav__inner{
+  height:100%;max-width:var(--max);margin:0 auto;padding:0 var(--pad);
+  display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem;
+}
+.nav__brand{
+  font-family:var(--font-serif);font-size:1.35rem;letter-spacing:-.02em;display:inline-flex;align-items:baseline;gap:.15rem;
+}
+.nav__brand span{color:var(--accent);font-size:.55em;position:relative;top:-.35em}
+.nav__links{display:none;gap:1.5rem;justify-content:center}
+@media(min-width:900px){.nav__links{display:flex}}
+.nav__links a{
+  font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-2);position:relative;padding:.25rem 0;
+}
+.nav__links a::after{
+  content:"";position:absolute;left:0;bottom:0;width:100%;height:1px;background:var(--accent);
+  transform:scaleX(0);transform-origin:left;transition:transform .35s var(--ease);
+}
+.nav__links a:hover::after,.nav__links a:focus-visible::after{transform:scaleX(1)}
+.nav__right{display:flex;justify-content:flex-end;align-items:center;gap:1rem}
+.nav__live{
+  display:none;align-items:center;gap:.4rem;
+  font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+}
+@media(min-width:700px){.nav__live{display:inline-flex}}
+.nav__live i{
+  width:7px;height:7px;background:var(--accent);display:block;
+  animation:pulse 1.4s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.nav__cta{padding:.55rem .9rem;font-size:10px}
+.nav__burger{
+  display:flex;flex-direction:column;gap:5px;width:28px;padding:.4rem 0;
+}
+@media(min-width:900px){.nav__burger{display:none}}
+.nav__burger span{display:block;height:1.5px;background:var(--ink);width:100%}
+
+/* mobile menu */
+.mnav{
+  position:fixed;inset:0;z-index:880;background:var(--bg);
+  display:flex;flex-direction:column;padding:calc(var(--nav-h) + 1.5rem) var(--pad) var(--pad);
+  transform:translateX(100%);visibility:hidden;
+}
+.mnav.is-open{visibility:visible}
+.mnav a{
+  font-family:var(--font-serif);font-size:clamp(2rem,8vw,3.2rem);
+  padding:1rem 0;border-bottom:1px solid var(--line);letter-spacing:-.02em;
+}
+.mnav a:hover{color:var(--accent)}
+
+/* ============================================================
+   HERO — multi-column news desk
+   ============================================================ */
+.hero{
+  padding-top:calc(var(--nav-h) + 1.25rem);
+  border-bottom:2px solid var(--ink);
+}
+.hero__mast{
+  display:grid;grid-template-columns:1fr auto 1fr;align-items:end;gap:1rem;
+  padding-bottom:.75rem;border-bottom:1px solid var(--line-2);
+  margin-bottom:0;
+}
+.hero__edition{
+  font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+}
+.hero__logo{
+  font-family:var(--font-serif);font-size:clamp(2.4rem,6vw,4.2rem);letter-spacing:-.03em;line-height:1;text-align:center;
+}
+.hero__logo span{color:var(--accent)}
+.hero__meta{text-align:right;font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+
+.hero__grid{
+  display:grid;
+  border-top:2px solid var(--ink);
+  border-bottom:1px solid var(--line-2);
+}
+@media(min-width:960px){
+  .hero__grid{grid-template-columns:1.15fr 1px 1fr 1px .85fr}
+}
+.hero__col{padding:clamp(1.25rem,2.5vw,2rem);display:flex;flex-direction:column;gap:1.1rem;min-width:0}
+.hero__vline{display:none;background:var(--line-2);width:1px}
+@media(min-width:960px){.hero__vline{display:block}}
+@media(max-width:959px){
+  .hero__col{border-bottom:1px solid var(--line-2)}
+  .hero__col:last-child{border-bottom:none}
+}
+
+.hero__eyebrow{
+  display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;
+}
+.hero__h1{
+  font-size:var(--fs-hero);max-width:11ch;line-height:.92;
+}
+.hero__h1 .line{display:block;overflow:hidden}
+.hero__h1 .line span{display:inline-block}
+.hero__h1 .it{color:var(--accent)}
+.hero__copy{color:var(--ink-2);max-width:38ch;font-size:var(--fs-lg);line-height:1.45}
+.hero__actions{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:.25rem}
+.hero__stats{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:0;
+  border-top:1px solid var(--line-2);margin-top:auto;padding-top:1rem;
+}
+.hero__stat{padding:.5rem .75rem .25rem 0;border-right:1px solid var(--line)}
+.hero__stat:last-child{border-right:none;padding-right:0}
+.hero__stat b{
+  display:block;font-family:var(--font-mono);font-size:clamp(1.2rem,2.5vw,1.65rem);
+  font-variant-numeric:tabular-nums;letter-spacing:-.02em;line-height:1.1;
+}
+.hero__stat span{
+  font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+}
+
+/* live chart panel */
+.chart-panel{
+  display:flex;flex-direction:column;gap:.85rem;height:100%;
+  background:var(--white);border:1px solid var(--line-2);padding:1rem;
+}
+.chart-panel__head{
+  display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;
+  padding-bottom:.65rem;border-bottom:1px solid var(--line);
+}
+.chart-panel__title{font-family:var(--font-serif);font-size:1.15rem;letter-spacing:-.015em;line-height:1.15}
+.chart-panel__live{
+  font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.12em;text-transform:uppercase;
+  color:var(--accent);display:inline-flex;align-items:center;gap:.35rem;white-space:nowrap;
+}
+.chart-panel__live::before{content:"";width:6px;height:6px;background:var(--accent);animation:pulse 1.2s ease-in-out infinite}
+.chart-svg{width:100%;height:auto;overflow:visible}
+.chart-svg .grid-line{stroke:var(--line);stroke-width:1}
+.chart-svg .axis{stroke:var(--ink);stroke-width:1.25}
+.chart-svg .bar{fill:var(--ink);transform-origin:bottom;transform-box:fill-box}
+.chart-svg .bar.is-hot{fill:var(--accent)}
+.chart-svg .label{font-family:var(--font-mono);font-size:9px;fill:var(--muted);letter-spacing:.04em}
+.chart-svg .val{font-family:var(--font-mono);font-size:10px;fill:var(--ink);font-variant-numeric:tabular-nums}
+.chart-panel__foot{
+  display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+  font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+  padding-top:.5rem;border-top:1px solid var(--line);
+}
+.chart-panel__delta{color:var(--accent)}
+
+.hero__side-list{display:flex;flex-direction:column;gap:0;flex:1}
+.hero__side-item{
+  padding:1rem 0;border-bottom:1px solid var(--line);display:grid;gap:.4rem;
+  transition:background .3s;
+}
+.hero__side-item:first-child{padding-top:0}
+.hero__side-item:last-child{border-bottom:none}
+.hero__side-item:hover .hero__side-t{color:var(--accent)}
+.hero__side-k{
+  font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+  display:flex;justify-content:space-between;
+}
+.hero__side-t{font-family:var(--font-serif);font-size:1.05rem;letter-spacing:-.015em;line-height:1.2;transition:color .3s}
+.hero__side-d{font-size:var(--fs-sm);color:var(--muted);line-height:1.4}
+
+.hero__ticker{
+  display:flex;overflow:hidden;border-bottom:1px solid var(--line-2);
+  font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.08em;text-transform:uppercase;
+}
+.hero__ticker-track{
+  display:flex;gap:2.5rem;padding:.7rem 0;white-space:nowrap;will-change:transform;
+}
+.hero__ticker-track span{display:inline-flex;align-items:center;gap:.55rem;color:var(--ink-2)}
+.hero__ticker-track b{color:var(--ink);font-weight:500}
+.hero__ticker-track .up{color:var(--accent)}
+.hero__ticker-track .dot{width:4px;height:4px;background:var(--accent);flex:none}
+
+/* ============================================================
+   SECTION CHROME
+   ============================================================ */
+.sec{padding:clamp(3.5rem,8vw,6.5rem) 0;border-bottom:1px solid var(--line-2)}
+.sec--tight{padding:clamp(2.5rem,5vw,4rem) 0}
+.sec-head{
+  display:grid;gap:1rem;margin-bottom:clamp(1.75rem,4vw,2.75rem);
+  padding-bottom:1rem;border-bottom:2px solid var(--ink);
+}
+@media(min-width:800px){
+  .sec-head{grid-template-columns:1fr auto;align-items:end}
+}
+.sec-head__left{display:grid;gap:.65rem}
+.sec-head__title{font-size:var(--fs-2xl);max-width:16ch}
+.sec-head__side{
+  font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+  display:flex;align-items:center;gap:1rem;
+}
+.sec-num{color:var(--accent)}
+
+/* ============================================================
+   STORY DESK — filters + cards
+   ============================================================ */
+.desk__filters{
+  display:flex;flex-wrap:wrap;gap:0;border:1px solid var(--line-2);margin-bottom:0;
+}
+.filter-btn{
+  font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.1em;text-transform:uppercase;
+  padding:.85rem 1.15rem;border-right:1px solid var(--line-2);color:var(--muted);
+  transition:background .25s,color .25s;position:relative;
+}
+.filter-btn:last-child{border-right:none}
+.filter-btn:hover{color:var(--ink);background:var(--bg-2)}
+.filter-btn.is-active{color:#fff;background:var(--ink)}
+.filter-btn.is-active::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--accent);
+}
+
+.desk__grid{
+  display:grid;border:1px solid var(--line-2);border-top:none;
+}
+@media(min-width:720px){.desk__grid{grid-template-columns:1fr 1fr}}
+@media(min-width:1100px){.desk__grid{grid-template-columns:repeat(3,1fr)}}
+
+.story{
+  display:grid;grid-template-rows:auto 1fr auto;gap:1rem;
+  padding:1.35rem;border-right:1px solid var(--line-2);border-bottom:1px solid var(--line-2);
+  background:var(--bg);transition:background .3s;min-height:280px;
+  opacity:1;transform:none;
+}
+.story:nth-child(3n){border-right:none}
+@media(max-width:1099px) and (min-width:720px){
+  .story:nth-child(3n){border-right:1px solid var(--line-2)}
+  .story:nth-child(2n){border-right:none}
+}
+@media(max-width:719px){.story{border-right:none}}
+.story:hover{background:var(--white)}
+.story.is-hidden{display:none}
+.story__top{display:flex;justify-content:space-between;align-items:flex-start;gap:.75rem}
+.story__cat{color:var(--accent)}
+.story__time{font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.story__title{font-family:var(--font-serif);font-size:clamp(1.25rem,1rem+1vw,1.55rem);letter-spacing:-.02em;line-height:1.15}
+.story:hover .story__title{color:var(--accent)}
+.story__excerpt{font-size:var(--fs-sm);color:var(--muted);line-height:1.45;max-width:36ch}
+.story__spark{height:48px;margin-top:.25rem}
+.story__spark svg{width:100%;height:100%}
+.story__bot{
+  display:flex;justify-content:space-between;align-items:center;
+  padding-top:.85rem;border-top:1px solid var(--line);
+  font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+}
+.story__link{color:var(--ink);display:inline-flex;align-items:center;gap:.4rem}
+.story__link:hover{color:var(--accent)}
+
+/* ============================================================
+   CHART GALLERY
+   ============================================================ */
+.gallery__rail{
+  display:grid;gap:0;border:1px solid var(--line-2);
+}
+@media(min-width:900px){.gallery__rail{grid-template-columns:1.2fr 1fr}}
+
+.gal-card{
+  padding:clamp(1.25rem,2.5vw,1.75rem);background:var(--white);
+  border-bottom:1px solid var(--line-2);display:grid;gap:1rem;
+  min-height:0;
+}
+@media(min-width:900px){
+  .gal-card:nth-child(odd){border-right:1px solid var(--line-2)}
+  .gal-card:nth-last-child(-n+2){border-bottom:none}
+}
+@media(max-width:899px){.gal-card:last-child{border-bottom:none}}
+
+.gal-card__meta{
+  display:flex;justify-content:space-between;align-items:center;gap:1rem;
+  font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+}
+.gal-card__title{font-family:var(--font-serif);font-size:clamp(1.35rem,1rem+1.4vw,1.85rem);letter-spacing:-.02em;line-height:1.1;max-width:22ch}
+.gal-card__desc{font-size:var(--fs-sm);color:var(--muted);max-width:42ch;line-height:1.45}
+.gal-viz{
+  border:1px solid var(--line);background:var(--bg);padding:1rem .75rem .5rem;
+  min-height:180px;display:grid;align-items:end;
+}
+.gal-viz svg{width:100%;height:auto}
+.gal-bars{display:flex;align-items:flex-end;gap:6px;height:140px;padding:0 .25rem}
+.gal-bars span{
+  flex:1;background:var(--ink);min-width:0;transform-origin:bottom;
+  transition:background .3s;
+}
+.gal-bars span.hot{background:var(--accent)}
+.gal-bars span:hover{background:var(--accent)}
+.gal-line path{fill:none;stroke:var(--ink);stroke-width:1.75;stroke-linejoin:round;stroke-linecap:round}
+.gal-line path.accent{stroke:var(--accent);stroke-width:2}
+.gal-line .area{fill:var(--accent-soft);stroke:none}
+.gal-scatter circle{fill:var(--ink);stroke:none}
+.gal-scatter circle.hot{fill:var(--accent)}
+.gal-heat{display:grid;grid-template-columns:repeat(12,1fr);gap:3px}
+.gal-heat i{aspect-ratio:1;background:var(--bg-2);display:block}
+.gal-heat i[data-v="1"]{background:rgba(17,17,17,.15)}
+.gal-heat i[data-v="2"]{background:rgba(17,17,17,.35)}
+.gal-heat i[data-v="3"]{background:rgba(17,17,17,.55)}
+.gal-heat i[data-v="4"]{background:var(--ink)}
+.gal-heat i[data-v="5"]{background:var(--accent)}
+
+/* ============================================================
+   METHODOLOGY ACCORDION
+   ============================================================ */
+.method{
+  display:grid;gap:0;
+}
+@media(min-width:960px){
+  .method{grid-template-columns:.9fr 1.4fr;gap:0;border:1px solid var(--line-2)}
+}
+.method__intro{
+  padding:clamp(1.25rem,2.5vw,2rem);
+  border:1px solid var(--line-2);background:var(--ink);color:var(--bg);
+}
+@media(min-width:960px){.method__intro{border:none;border-right:1px solid rgba(250,250,250,.12)}}
+.method__intro .kicker{color:rgba(250,250,250,.55)}
+.method__intro .kicker::before{background:var(--accent)}
+.method__intro h3{font-size:clamp(1.8rem,3vw,2.6rem);margin:.75rem 0 1rem;color:#fff;max-width:12ch}
+.method__intro p{color:rgba(250,250,250,.72);font-size:var(--fs-sm);line-height:1.5;max-width:34ch}
+.method__intro .stat-row{
+  display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(250,250,250,.12);
+  margin-top:2rem;border:1px solid rgba(250,250,250,.12);
+}
+.method__intro .stat-row div{background:var(--ink);padding:1rem .9rem}
+.method__intro .stat-row b{
+  display:block;font-family:var(--font-mono);font-size:1.5rem;font-variant-numeric:tabular-nums;color:#fff;
+}
+.method__intro .stat-row span{
+  font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.12em;text-transform:uppercase;color:rgba(250,250,250,.5);
+}
+
+.accordion{border:1px solid var(--line-2);border-top:none}
+@media(min-width:960px){.accordion{border:none}}
+.acc-item{border-bottom:1px solid var(--line-2)}
+.acc-item:last-child{border-bottom:none}
+.acc-btn{
+  width:100%;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:1rem;
+  padding:1.15rem 1.25rem;text-align:left;transition:background .25s;
+}
+.acc-btn:hover{background:var(--white)}
+.acc-num{
+  font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.1em;color:var(--accent);font-variant-numeric:tabular-nums;
+}
+.acc-title{font-family:var(--font-serif);font-size:clamp(1.15rem,1rem+.8vw,1.45rem);letter-spacing:-.015em;line-height:1.15}
+.acc-icon{
+  width:28px;height:28px;border:1px solid var(--line-2);display:grid;place-items:center;position:relative;
+  transition:border-color .25s,background .25s;
+}
+.acc-icon::before,.acc-icon::after{
+  content:"";position:absolute;background:var(--ink);transition:transform .35s var(--ease);
+}
+.acc-icon::before{width:12px;height:1.5px}
+.acc-icon::after{width:1.5px;height:12px}
+.acc-item.is-open .acc-icon{background:var(--accent);border-color:var(--accent)}
+.acc-item.is-open .acc-icon::before,.acc-item.is-open .acc-icon::after{background:#fff}
+.acc-item.is-open .acc-icon::after{transform:scaleY(0)}
+.acc-panel{display:grid;grid-template-rows:0fr;transition:grid-template-rows .45s var(--ease)}
+.acc-item.is-open .acc-panel{grid-template-rows:1fr}
+.acc-panel__inner{overflow:hidden}
+.acc-body{
+  padding:0 1.25rem 1.35rem calc(1.25rem + 2.5rem);color:var(--muted);
+  font-size:var(--fs-sm);line-height:1.55;max-width:58ch;
+}
+.acc-body ul{margin-top:.75rem;display:grid;gap:.4rem}
+.acc-body li{padding-left:1rem;position:relative}
+.acc-body li::before{content:"";position:absolute;left:0;top:.55em;width:6px;height:1.5px;background:var(--accent)}
+
+/* ============================================================
+   SUBSCRIBE CTA
+   ============================================================ */
+.subscribe{
+  padding:clamp(3.5rem,8vw,6rem) 0;
+  background:var(--bg);
+  border-bottom:2px solid var(--ink);
+}
+.sub__frame{
+  border:2px solid var(--ink);display:grid;
+}
+@media(min-width:900px){.sub__frame{grid-template-columns:1.2fr 1fr}}
+.sub__copy{
+  padding:clamp(1.75rem,4vw,3rem);
+  border-bottom:1px solid var(--line-2);
+  display:grid;gap:1rem;align-content:center;
+}
+@media(min-width:900px){.sub__copy{border-bottom:none;border-right:1px solid var(--line-2)}}
+.sub__copy h2{font-size:clamp(2.2rem,4.5vw,4rem);max-width:12ch;line-height:.95}
+.sub__copy h2 .it{color:var(--accent)}
+.sub__copy p{color:var(--ink-2);max-width:40ch;font-size:var(--fs-lg)}
+.sub__form{
+  padding:clamp(1.75rem,4vw,3rem);display:grid;gap:1.25rem;align-content:center;background:var(--white);
+}
+.sub__form label{
+  font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+  display:block;margin-bottom:.45rem;
+}
+.sub__row{display:grid;gap:.75rem}
+@media(min-width:500px){.sub__row{grid-template-columns:1fr auto}}
+.sub__input{
+  border:1px solid var(--line-2);padding:.95rem 1rem;
+  font-family:var(--font-mono);font-size:var(--fs-sm);background:var(--bg);
+  transition:border-color .25s;
+}
+.sub__input:focus{border-color:var(--ink)}
+.sub__input::placeholder{color:var(--muted)}
+.sub__note{
+  font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+  display:flex;gap:1.5rem;flex-wrap:wrap;
+}
+.sub__note b{color:var(--ink);font-weight:500}
+.sub__msg{
+  font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.08em;color:var(--accent);
+  min-height:1.2em;opacity:0;transition:opacity .3s;
+}
+.sub__msg.is-on{opacity:1}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.footer{
+  background:var(--ink);color:var(--bg);padding:clamp(2.5rem,5vw,4rem) 0 0;
+}
+.footer__grid{
+  display:grid;gap:2rem;padding-bottom:2.5rem;
+  border-bottom:1px solid rgba(250,250,250,.14);
+}
+@media(min-width:800px){.footer__grid{grid-template-columns:1.4fr 1fr 1fr 1fr;gap:2.5rem}}
+.footer__brand{font-family:var(--font-serif);font-size:2rem;letter-spacing:-.02em;color:#fff}
+.footer__brand span{color:var(--accent)}
+.footer__tag{margin-top:.75rem;color:rgba(250,250,250,.55);font-size:var(--fs-sm);max-width:28ch;line-height:1.45}
+.footer h4{
+  font-family:var(--font-mono);font-size:var(--fs-nano);letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(250,250,250,.4);margin-bottom:1rem;font-weight:500;
+}
+.footer__links{display:grid;gap:.55rem}
+.footer__links a{
+  font-size:var(--fs-sm);color:rgba(250,250,250,.78);transition:color .25s;
+}
+.footer__links a:hover{color:var(--accent)}
+.footer__bot{
+  display:flex;flex-wrap:wrap;justify-content:space-between;gap:1rem;
+  padding:1.25rem 0;font-family:var(--font-mono);font-size:var(--fs-nano);
+  letter-spacing:.1em;text-transform:uppercase;color:rgba(250,250,250,.4);
+}
+.footer__bot a:hover{color:#fff}
+
+/* ============================================================
+   REVEAL HELPERS
+   ============================================================ */
+[data-reveal]{opacity:0;transform:translateY(28px)}
+.progress-bar{
+  position:fixed;top:0;left:0;height:2px;width:0%;background:var(--accent);z-index:950;transform-origin:left;
+}
+
+/* reduced motion */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  [data-reveal]{opacity:1;transform:none}
+}
+</style>
+</head>
+<body class="is-loading">
+
+<!-- PRELOADER -->
+<div class="preloader" id="preloader" aria-hidden="false">
+  <div class="preloader__top">
+    <div class="preloader__mark">Plot<span>line</span></div>
+    <div>Desk / 08</div>
+    <div class="preloader__pct" id="prePct">000%</div>
+  </div>
+  <div class="preloader__mid">
+    <h1 class="preloader__title">Charts that carry the <span class="it">story</span>.</h1>
+    <div class="preloader__bar-wrap"><div class="preloader__bar" id="preBar"></div></div>
+  </div>
+  <div class="preloader__bot">
+    <span>Newsroom charting platform</span>
+    <span>Loading figure set</span>
+  </div>
+</div>
+
+<!-- CURSOR -->
+<div class="cursor" id="cursor" aria-hidden="true">
+  <span class="cursor__h"></span>
+  <span class="cursor__v"></span>
+  <span class="cursor__dot"></span>
+  <span class="cursor__label" id="cursorLabel"></span>
+</div>
+<div class="progress-bar" id="progressBar" aria-hidden="true"></div>
+
+<!-- NAV -->
+<header class="nav" id="nav">
+  <div class="nav__inner">
+    <a href="#top" class="nav__brand" data-cursor="Home">Plot<span>line</span></a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="#desk" data-cursor="Jump">Story desk</a>
+      <a href="#gallery" data-cursor="Jump">Gallery</a>
+      <a href="#method" data-cursor="Jump">Method</a>
+      <a href="#subscribe" data-cursor="Jump">Subscribe</a>
+    </nav>
+    <div class="nav__right">
+      <span class="nav__live"><i></i> Live desk</span>
+      <a href="#subscribe" class="btn btn--accent nav__cta" data-cursor="Join">Start free</a>
+      <button class="nav__burger" id="burger" aria-label="Open menu" data-cursor="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<nav class="mnav" id="mnav" aria-label="Mobile">
+  <a href="#desk">Story desk</a>
+  <a href="#gallery">Chart gallery</a>
+  <a href="#method">Methodology</a>
+  <a href="#subscribe">Subscribe</a>
+</nav>
+
+<main id="top">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="shell">
+    <div class="hero__mast">
+      <div class="hero__edition">Vol. 08 · Data desk</div>
+      <div class="hero__logo">Plot<span>line</span></div>
+      <div class="hero__meta" id="heroClock">Sat · 20:00 CET</div>
+    </div>
+  </div>
+
+  <div class="hero__ticker" aria-hidden="true">
+    <div class="hero__ticker-track" id="tickerTrack">
+      <span><i class="dot"></i><b>CPI</b> +2.4% <span class="up">▲</span></span>
+      <span><i class="dot"></i><b>Housing starts</b> 1.42M</span>
+      <span><i class="dot"></i><b>Grid load</b> 91.2 GW</span>
+      <span><i class="dot"></i><b>Transit ridership</b> +6.8% <span class="up">▲</span></span>
+      <span><i class="dot"></i><b>Wildfire acres</b> 2.18M</span>
+      <span><i class="dot"></i><b>Bond yields</b> 4.31%</span>
+      <span><i class="dot"></i><b>Port throughput</b> −1.2%</span>
+      <span><i class="dot"></i><b>Labor force</b> 62.7%</span>
+      <span><i class="dot"></i><b>CPI</b> +2.4% <span class="up">▲</span></span>
+      <span><i class="dot"></i><b>Housing starts</b> 1.42M</span>
+      <span><i class="dot"></i><b>Grid load</b> 91.2 GW</span>
+      <span><i class="dot"></i><b>Transit ridership</b> +6.8% <span class="up">▲</span></span>
+      <span><i class="dot"></i><b>Wildfire acres</b> 2.18M</span>
+      <span><i class="dot"></i><b>Bond yields</b> 4.31%</span>
+      <span><i class="dot"></i><b>Port throughput</b> −1.2%</span>
+      <span><i class="dot"></i><b>Labor force</b> 62.7%</span>
+    </div>
+  </div>
+
+  <div class="shell">
+    <div class="hero__grid">
+      <div class="hero__col">
+        <div class="hero__eyebrow">
+          <span class="tag tag--fill">New</span>
+          <span class="tag">Newsroom OS</span>
+          <span class="kicker kicker--bare" style="margin-left:.25rem">Edition 2026.1</span>
+        </div>
+        <h1 class="hero__h1">
+          <span class="line"><span>Publish the</span></span>
+          <span class="line"><span class="it">figure</span><span>,</span></span>
+          <span class="line"><span>not the fog.</span></span>
+        </h1>
+        <p class="hero__copy">Plotline is the charting desk for data journalists — draft, annotate, and ship graphics that hold the narrative under deadline pressure.</p>
+        <div class="hero__actions">
+          <a href="#subscribe" class="btn btn--accent" data-cursor="Start">
+            <span class="btn__l">Open the desk</span>
+            <svg class="btn__ic" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2 10L10 2M10 2H4M10 2V8" stroke="currentColor" stroke-width="1.5"/></svg>
+          </a>
+          <a href="#gallery" class="btn btn--ghost" data-cursor="View">See gallery</a>
+        </div>
+        <div class="hero__stats">
+          <div class="hero__stat"><b class="num" data-count="1840">0</b><span>Charts / wk</span></div>
+          <div class="hero__stat"><b class="num" data-count="62">0</b><span>Newsrooms</span></div>
+          <div class="hero__stat"><b class="num" data-count="11">0</b><span>ms publish</span></div>
+        </div>
+      </div>
+
+      <div class="hero__vline" aria-hidden="true"></div>
+
+      <div class="hero__col">
+        <div class="chart-panel" data-reveal>
+          <div class="chart-panel__head">
+            <div>
+              <div class="chart-panel__title">Weekly story velocity</div>
+              <div class="mono" style="font-size:var(--fs-nano);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:.35rem">Frames shipped · last 12 weeks</div>
+            </div>
+            <div class="chart-panel__live">Live</div>
+          </div>
+          <svg class="chart-svg" id="liveChart" viewBox="0 0 420 220" role="img" aria-label="Bar chart of weekly story velocity">
+            <defs>
+              <pattern id="hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                <line x1="0" y1="0" x2="0" y2="4" stroke="rgba(17,17,17,.08)" stroke-width="1"/>
+              </pattern>
+            </defs>
+            <!-- grid -->
+            <line class="grid-line" x1="40" y1="20" x2="400" y2="20"/>
+            <line class="grid-line" x1="40" y1="60" x2="400" y2="60"/>
+            <line class="grid-line" x1="40" y1="100" x2="400" y2="100"/>
+            <line class="grid-line" x1="40" y1="140" x2="400" y2="140"/>
+            <line class="grid-line" x1="40" y1="180" x2="400" y2="180"/>
+            <text class="label" x="36" y="24" text-anchor="end">200</text>
+            <text class="label" x="36" y="64" text-anchor="end">150</text>
+            <text class="label" x="36" y="104" text-anchor="end">100</text>
+            <text class="label" x="36" y="144" text-anchor="end">50</text>
+            <text class="label" x="36" y="184" text-anchor="end">0</text>
+            <!-- bars group -->
+            <g id="liveBars"></g>
+            <line class="axis" x1="40" y1="180" x2="400" y2="180"/>
+            <line class="axis" x1="40" y1="20" x2="40" y2="180"/>
+          </svg>
+          <div class="chart-panel__foot">
+            <span>Source: Plotline desk telemetry</span>
+            <span class="chart-panel__delta" id="chartDelta">Δ +12.4% vs prior</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero__vline" aria-hidden="true"></div>
+
+      <div class="hero__col">
+        <div class="kicker">On the wire</div>
+        <div class="hero__side-list">
+          <article class="hero__side-item" data-reveal>
+            <div class="hero__side-k"><span>01 · Climate</span><span>4m</span></div>
+            <h3 class="hero__side-t">Heat maps that refuse to soft-pedal extremes</h3>
+            <p class="hero__side-d">Annotation layers for threshold days, not averages.</p>
+          </article>
+          <article class="hero__side-item" data-reveal>
+            <div class="hero__side-k"><span>02 · Economy</span><span>11m</span></div>
+            <h3 class="hero__side-t">Wage charts with unit-aware footnotes</h3>
+            <p class="hero__side-d">Tabular figures, locked scales, export to print.</p>
+          </article>
+          <article class="hero__side-item" data-reveal>
+            <div class="hero__side-k"><span>03 · Elections</span><span>28m</span></div>
+            <h3 class="hero__side-t">Margin plots under embargo lock</h3>
+            <p class="hero__side-d">Publish windows with dual-key release.</p>
+          </article>
+          <article class="hero__side-item" data-reveal>
+            <div class="hero__side-k"><span>04 · Cities</span><span>1h</span></div>
+            <h3 class="hero__side-t">Transit ridership, stripped of vanity axes</h3>
+            <p class="hero__side-d">Zero-baseline enforcement for honest bars.</p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STORY DESK -->
+<section class="sec" id="desk">
+  <div class="shell">
+    <div class="sec-head" data-reveal>
+      <div class="sec-head__left">
+        <span class="kicker">Story desk</span>
+        <h2 class="sec-head__title">Briefs waiting for a chart</h2>
+      </div>
+      <div class="sec-head__side">
+        <span class="sec-num">02 / 06</span>
+        <span>Filter by beat</span>
+      </div>
+    </div>
+
+    <div class="desk__filters" role="tablist" aria-label="Story filters" data-reveal>
+      <button class="filter-btn is-active" data-filter="all" role="tab" aria-selected="true">All</button>
+      <button class="filter-btn" data-filter="climate" role="tab">Climate</button>
+      <button class="filter-btn" data-filter="economy" role="tab">Economy</button>
+      <button class="filter-btn" data-filter="politics" role="tab">Politics</button>
+      <button class="filter-btn" data-filter="cities" role="tab">Cities</button>
+    </div>
+
+    <div class="desk__grid" id="deskGrid">
+      <article class="story" data-cat="climate" data-reveal>
+        <div class="story__top">
+          <span class="tag story__cat">Climate</span>
+          <span class="story__time">Today · 09:14</span>
+        </div>
+        <div>
+          <h3 class="story__title">River basins crossing 30-year flood marks</h3>
+          <p class="story__excerpt">Need a small-multiples map of crest heights vs. historical medians — print and mobile.</p>
+          <div class="story__spark" aria-hidden="true">
+            <svg viewBox="0 0 200 48" preserveAspectRatio="none"><polyline fill="none" stroke="#E10600" stroke-width="1.5" points="0,36 20,32 40,34 60,22 80,28 100,14 120,18 140,10 160,16 180,8 200,12"/></svg>
+          </div>
+        </div>
+        <div class="story__bot">
+          <span>Desk · Mira Chen</span>
+          <a href="#gallery" class="story__link" data-cursor="Open">Open frame →</a>
+        </div>
+      </article>
+
+      <article class="story" data-cat="economy" data-reveal>
+        <div class="story__top">
+          <span class="tag story__cat">Economy</span>
+          <span class="story__time">Today · 08:02</span>
+        </div>
+        <div>
+          <h3 class="story__title">Real wages vs. shelter costs, 2010–2026</h3>
+          <p class="story__excerpt">Dual-axis forbidden — need indexed dual series with annotation on 2022 spike.</p>
+          <div class="story__spark" aria-hidden="true">
+            <svg viewBox="0 0 200 48" preserveAspectRatio="none"><polyline fill="none" stroke="#111" stroke-width="1.5" points="0,40 25,38 50,36 75,30 100,28 125,22 150,18 175,12 200,8"/><polyline fill="none" stroke="#E10600" stroke-width="1.5" points="0,42 25,40 50,38 75,36 100,30 125,20 150,14 175,10 200,6"/></svg>
+          </div>
+        </div>
+        <div class="story__bot">
+          <span>Desk · Jonas Reed</span>
+          <a href="#gallery" class="story__link" data-cursor="Open">Open frame →</a>
+        </div>
+      </article>
+
+      <article class="story" data-cat="politics" data-reveal>
+        <div class="story__top">
+          <span class="tag story__cat">Politics</span>
+          <span class="story__time">Yesterday · 21:40</span>
+        </div>
+        <div>
+          <h3 class="story__title">Primary turnout by precinct density</h3>
+          <p class="story__excerpt">Hexbin or cartogram — embargo until 06:00. Need dual-key unlock.</p>
+          <div class="story__spark" aria-hidden="true">
+            <svg viewBox="0 0 200 48"><rect x="4" y="20" width="14" height="24" fill="#111"/><rect x="24" y="12" width="14" height="32" fill="#111"/><rect x="44" y="8" width="14" height="36" fill="#E10600"/><rect x="64" y="16" width="14" height="28" fill="#111"/><rect x="84" y="22" width="14" height="22" fill="#111"/><rect x="104" y="6" width="14" height="38" fill="#E10600"/><rect x="124" y="14" width="14" height="30" fill="#111"/><rect x="144" y="18" width="14" height="26" fill="#111"/><rect x="164" y="10" width="14" height="34" fill="#111"/><rect x="184" y="24" width="14" height="20" fill="#111"/></svg>
+          </div>
+        </div>
+        <div class="story__bot">
+          <span>Desk · Asha Okonkwo</span>
+          <a href="#gallery" class="story__link" data-cursor="Open">Open frame →</a>
+        </div>
+      </article>
+
+      <article class="story" data-cat="cities" data-reveal>
+        <div class="story__top">
+          <span class="tag story__cat">Cities</span>
+          <span class="story__time">Yesterday · 16:12</span>
+        </div>
+        <div>
+          <h3 class="story__title">Night bus routes that actually run</h3>
+          <p class="story__excerpt">Scheduled vs. observed headways — strip chart per corridor.</p>
+          <div class="story__spark" aria-hidden="true">
+            <svg viewBox="0 0 200 48" preserveAspectRatio="none"><polyline fill="none" stroke="#111" stroke-width="1.5" stroke-dasharray="3 3" points="0,24 200,24"/><polyline fill="none" stroke="#E10600" stroke-width="1.75" points="0,30 30,28 60,32 90,18 120,22 150,14 180,20 200,16"/></svg>
+          </div>
+        </div>
+        <div class="story__bot">
+          <span>Desk · Eli Vargas</span>
+          <a href="#gallery" class="story__link" data-cursor="Open">Open frame →</a>
+        </div>
+      </article>
+
+      <article class="story" data-cat="climate" data-reveal>
+        <div class="story__top">
+          <span class="tag story__cat">Climate</span>
+          <span class="story__time">Wed · 14:05</span>
+        </div>
+        <div>
+          <h3 class="story__title">Crop yield anomalies after late frost</h3>
+          <p class="story__excerpt">County-level diverging bars; red only for losses beyond −15%.</p>
+          <div class="story__spark" aria-hidden="true">
+            <svg viewBox="0 0 200 48"><rect x="10" y="8" width="10" height="16" fill="#111"/><rect x="30" y="24" width="10" height="16" fill="#E10600"/><rect x="50" y="12" width="10" height="12" fill="#111"/><rect x="70" y="24" width="10" height="20" fill="#E10600"/><rect x="90" y="6" width="10" height="18" fill="#111"/><rect x="110" y="24" width="10" height="12" fill="#E10600"/><rect x="130" y="10" width="10" height="14" fill="#111"/><rect x="150" y="24" width="10" height="18" fill="#E10600"/><line x1="0" y1="24" x2="200" y2="24" stroke="#111" stroke-width="1"/></svg>
+          </div>
+        </div>
+        <div class="story__bot">
+          <span>Desk · Mira Chen</span>
+          <a href="#gallery" class="story__link" data-cursor="Open">Open frame →</a>
+        </div>
+      </article>
+
+      <article class="story" data-cat="economy" data-reveal>
+        <div class="story__top">
+          <span class="tag story__cat">Economy</span>
+          <span class="story__time">Tue · 11:30</span>
+        </div>
+        <div>
+          <h3 class="story__title">Small business credit tightening</h3>
+          <p class="story__excerpt">Survey microdata — need confidence bands and refusal rates.</p>
+          <div class="story__spark" aria-hidden="true">
+            <svg viewBox="0 0 200 48" preserveAspectRatio="none"><path d="M0,20 L40,18 L80,22 L120,16 L160,24 L200,28" fill="none" stroke="#111" stroke-width="1.5"/><path d="M0,12 L40,10 L80,14 L120,8 L160,16 L200,20 L200,36 L160,32 L120,24 L80,30 L40,26 L0,28 Z" fill="rgba(225,6,0,.12)" stroke="none"/></svg>
+          </div>
+        </div>
+        <div class="story__bot">
+          <span>Desk · Jonas Reed</span>
+          <a href="#gallery" class="story__link" data-cursor="Open">Open frame →</a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- CHART GALLERY -->
+<section class="sec" id="gallery">
+  <div class="shell">
+    <div class="sec-head" data-reveal>
+      <div class="sec-head__left">
+        <span class="kicker">Chart gallery</span>
+        <h2 class="sec-head__title">Frames built for the page</h2>
+      </div>
+      <div class="sec-head__side">
+        <span class="sec-num">03 / 06</span>
+        <span>Original graphics</span>
+      </div>
+    </div>
+
+    <div class="gallery__rail">
+      <article class="gal-card" data-reveal>
+        <div class="gal-card__meta"><span>01 · Column</span><span>Print + web</span></div>
+        <h3 class="gal-card__title">Regional grid strain, peak hours</h3>
+        <p class="gal-card__desc">Flat bars, zero baseline, single red accent on the breach hour. No gradients, no 3D.</p>
+        <div class="gal-viz">
+          <div class="gal-bars" id="galBars">
+            <span style="height:42%"></span><span style="height:55%"></span><span style="height:48%"></span>
+            <span style="height:62%"></span><span style="height:71%"></span><span style="height:68%" class="hot"></span>
+            <span style="height:88%" class="hot"></span><span style="height:94%" class="hot"></span>
+            <span style="height:76%"></span><span style="height:58%"></span><span style="height:51%"></span><span style="height:44%"></span>
+          </div>
+        </div>
+      </article>
+
+      <article class="gal-card" data-reveal>
+        <div class="gal-card__meta"><span>02 · Line</span><span>Scrolly frame</span></div>
+        <h3 class="gal-card__title">Shelter share of median income</h3>
+        <p class="gal-card__desc">Two series: national trend in ink, metro outlier in red. Annotation callouts locked to years.</p>
+        <div class="gal-viz">
+          <svg class="gal-line" viewBox="0 0 400 160" aria-hidden="true">
+            <line x1="20" y1="20" x2="380" y2="20" stroke="rgba(17,17,17,.12)"/>
+            <line x1="20" y1="60" x2="380" y2="60" stroke="rgba(17,17,17,.12)"/>
+            <line x1="20" y1="100" x2="380" y2="100" stroke="rgba(17,17,17,.12)"/>
+            <line x1="20" y1="140" x2="380" y2="140" stroke="#111" stroke-width="1.25"/>
+            <path class="area" d="M20,110 L70,105 L120,100 L170,92 L220,88 L270,78 L320,70 L380,58 L380,140 L20,140 Z"/>
+            <path d="M20,110 L70,105 L120,100 L170,92 L220,88 L270,78 L320,70 L380,58" pathLength="1"/>
+            <path class="accent" d="M20,120 L70,118 L120,112 L170,98 L220,90 L270,72 L320,55 L380,40" pathLength="1"/>
+          </svg>
+        </div>
+      </article>
+
+      <article class="gal-card" data-reveal>
+        <div class="gal-card__meta"><span>03 · Scatter</span><span>Explainer</span></div>
+        <h3 class="gal-card__title">Turnout vs. commute time</h3>
+        <p class="gal-card__desc">Each precinct a point. Hot dots mark districts under recount watch.</p>
+        <div class="gal-viz">
+          <svg class="gal-scatter" viewBox="0 0 400 160" aria-hidden="true" id="galScatter">
+            <line x1="30" y1="20" x2="30" y2="140" stroke="#111" stroke-width="1.25"/>
+            <line x1="30" y1="140" x2="380" y2="140" stroke="#111" stroke-width="1.25"/>
+          </svg>
+        </div>
+      </article>
+
+      <article class="gal-card" data-reveal>
+        <div class="gal-card__meta"><span>04 · Heat</span><span>Weekend desk</span></div>
+        <h3 class="gal-card__title">Weekend desk load calendar</h3>
+        <p class="gal-card__desc">Twelve weeks × seven days. Red cells are deadline collisions — two packages, one slot.</p>
+        <div class="gal-viz">
+          <div class="gal-heat" id="galHeat" aria-hidden="true"></div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- METHODOLOGY -->
+<section class="sec" id="method">
+  <div class="shell">
+    <div class="sec-head" data-reveal>
+      <div class="sec-head__left">
+        <span class="kicker">Methodology</span>
+        <h2 class="sec-head__title">How Plotline stays honest</h2>
+      </div>
+      <div class="sec-head__side">
+        <span class="sec-num">04 / 06</span>
+        <span>Standards</span>
+      </div>
+    </div>
+
+    <div class="method" data-reveal>
+      <div class="method__intro">
+        <span class="kicker">Newsroom rules</span>
+        <h3>Charts fail when the story cheats.</h3>
+        <p>Plotline encodes editorial standards into the frame: zero baselines for bars, labeled uncertainty, source lines that survive export.</p>
+        <div class="stat-row">
+          <div><b class="num">0</b><span>Truncated bars</span></div>
+          <div><b class="num">100%</b><span>Source stamped</span></div>
+          <div><b class="num">2</b><span>Key embargo</span></div>
+          <div><b class="num">12</b><span>Export formats</span></div>
+        </div>
+      </div>
+
+      <div class="accordion" id="accordion">
+        <div class="acc-item is-open">
+          <button class="acc-btn" aria-expanded="true" data-cursor="Toggle">
+            <span class="acc-num">01</span>
+            <span class="acc-title">Zero-baseline enforcement</span>
+            <span class="acc-icon" aria-hidden="true"></span>
+          </button>
+          <div class="acc-panel">
+            <div class="acc-panel__inner">
+              <div class="acc-body">
+                Column and bar charts start at zero unless an editor explicitly overrides with a documented reason. Overrides stamp a red note on the exported frame.
+                <ul>
+                  <li>Automatic lint on truncated axes</li>
+                  <li>Print proofing checklist before ship</li>
+                  <li>Audit log retained for 18 months</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-btn" aria-expanded="false" data-cursor="Toggle">
+            <span class="acc-num">02</span>
+            <span class="acc-title">Uncertainty is a first-class layer</span>
+            <span class="acc-icon" aria-hidden="true"></span>
+          </button>
+          <div class="acc-panel">
+            <div class="acc-panel__inner">
+              <div class="acc-body">
+                Confidence bands, margins of error, and sample notes sit on the canvas — not buried in a caption CMS field. Readers see the fog with the figure.
+                <ul>
+                  <li>Survey MOE templates</li>
+                  <li>Model uncertainty presets</li>
+                  <li>Footnote sync to CMS slug</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-btn" aria-expanded="false" data-cursor="Toggle">
+            <span class="acc-num">03</span>
+            <span class="acc-title">Embargo & dual-key publish</span>
+            <span class="acc-icon" aria-hidden="true"></span>
+          </button>
+          <div class="acc-panel">
+            <div class="acc-panel__inner">
+              <div class="acc-body">
+                Election night and earnings desks can lock a frame under embargo. Two editors must confirm before the public CDN path opens — no accidental early posts.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <button class="acc-btn" aria-expanded="false" data-cursor="Toggle">
+            <span class="acc-num">04</span>
+            <span class="acc-title">Typography that survives print</span>
+            <span class="acc-icon" aria-hidden="true"></span>
+          </button>
+          <div class="acc-panel">
+            <div class="acc-panel__inner">
+              <div class="acc-body">
+                Tabular figures, locked leading, and column-rule layouts export to PDF without reflow surprises. Mono labels stay mono; serif titles stay serif.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SUBSCRIBE -->
+<section class="subscribe" id="subscribe">
+  <div class="shell">
+    <div class="sec-head" data-reveal style="border-bottom-color:var(--ink)">
+      <div class="sec-head__left">
+        <span class="kicker">Subscribe</span>
+        <h2 class="sec-head__title">Put Plotline on your desk</h2>
+      </div>
+      <div class="sec-head__side">
+        <span class="sec-num">05 / 06</span>
+        <span>14-day trial</span>
+      </div>
+    </div>
+
+    <div class="sub__frame" data-reveal>
+      <div class="sub__copy">
+        <h2>One desk. Every <span class="it">figure</span>.</h2>
+        <p>Join 62 newsrooms shipping annotated charts under deadline — Swiss-sharp frames, source-stamped exports, no decorative fog.</p>
+        <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.5rem">
+          <span class="tag">Editors</span>
+          <span class="tag">Graphics</span>
+          <span class="tag">Data</span>
+        </div>
+      </div>
+      <form class="sub__form" id="subForm" novalidate>
+        <div>
+          <label for="email">Work email</label>
+          <div class="sub__row">
+            <input class="sub__input" type="email" id="email" name="email" placeholder="you@newsroom.org" required autocomplete="email" data-cursor="Type" />
+            <button type="submit" class="btn btn--accent" data-cursor="Send">
+              <span class="btn__l">Request access</span>
+              <svg class="btn__ic" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2 10L10 2M10 2H4M10 2V8" stroke="currentColor" stroke-width="1.5"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="sub__msg" id="subMsg" role="status" aria-live="polite"></div>
+        <div class="sub__note">
+          <span><b>No card</b> for trial</span>
+          <span><b>SSO</b> ready</span>
+          <span><b>GDPR</b> desk</span>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="footer" id="footer">
+  <div class="shell">
+    <div class="footer__grid">
+      <div>
+        <div class="footer__brand">Plot<span>line</span></div>
+        <p class="footer__tag">Charts that carry the story — a fictional newsroom charting platform for Ashlar lab.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <ul class="footer__links">
+          <li><a href="#gallery">Chart gallery</a></li>
+          <li><a href="#desk">Story desk</a></li>
+          <li><a href="#method">Methodology</a></li>
+          <li><a href="#subscribe">Pricing</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Newsroom</h4>
+        <ul class="footer__links">
+          <li><a href="#method">Style guide</a></li>
+          <li><a href="#method">Embargo protocol</a></li>
+          <li><a href="#desk">Beat templates</a></li>
+          <li><a href="#subscribe">Training</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <ul class="footer__links">
+          <li><a href="mailto:desk@plotline.news">desk@plotline.news</a></li>
+          <li><a href="#subscribe">Press kit</a></li>
+          <li><a href="#top">Status</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bot">
+      <span>© 2026 Plotline · Fictional brand</span>
+      <span>Swiss news · #E10600</span>
+      <a href="#top" data-cursor="Top">Back to masthead ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(() => {
+  'use strict';
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const touch = matchMedia('(hover: none), (pointer: coarse)').matches;
+  if (reduced) document.body.classList.add('is-reduced');
+  if (touch) document.body.classList.add('is-touch');
+  if (typeof gsap === 'undefined') document.body.classList.add('no-gsap');
+
+  /* ---------- clock ---------- */
+  const clockEl = document.getElementById('heroClock');
+  function tickClock(){
+    const d = new Date();
+    const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const hh = String(d.getHours()).padStart(2,'0');
+    const mm = String(d.getMinutes()).padStart(2,'0');
+    if (clockEl) clockEl.textContent = `${days[d.getDay()]} · ${hh}:${mm} local`;
+  }
+  tickClock();
+  setInterval(tickClock, 30000);
+
+  /* ---------- live chart SVG ---------- */
+  const barData = [72, 96, 88, 110, 124, 118, 142, 156, 148, 168, 174, 190];
+  const labels = ['W01','W02','W03','W04','W05','W06','W07','W08','W09','W10','W11','W12'];
+  const barsG = document.getElementById('liveBars');
+  if (barsG) {
+    const max = 200, baseY = 180, chartH = 160, gap = 8;
+    const startX = 52, usable = 340;
+    const bw = (usable - gap * (barData.length - 1)) / barData.length;
+    barData.forEach((v, i) => {
+      const h = (v / max) * chartH;
+      const x = startX + i * (bw + gap);
+      const y = baseY - h;
+      const hot = i >= barData.length - 3;
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('class', hot ? 'bar is-hot' : 'bar');
+      rect.setAttribute('x', x);
+      rect.setAttribute('y', y);
+      rect.setAttribute('width', bw);
+      rect.setAttribute('height', h);
+      rect.setAttribute('data-h', h);
+      rect.setAttribute('data-y', y);
+      barsG.appendChild(rect);
+      const lab = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      lab.setAttribute('class', 'label');
+      lab.setAttribute('x', x + bw / 2);
+      lab.setAttribute('y', 196);
+      lab.setAttribute('text-anchor', 'middle');
+      lab.textContent = labels[i];
+      barsG.appendChild(lab);
+      if (i === barData.length - 1) {
+        const val = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        val.setAttribute('class', 'val');
+        val.setAttribute('x', x + bw / 2);
+        val.setAttribute('y', y - 6);
+        val.setAttribute('text-anchor', 'middle');
+        val.textContent = v;
+        barsG.appendChild(val);
+      }
+    });
+  }
+
+  /* ---------- scatter ---------- */
+  const scatter = document.getElementById('galScatter');
+  if (scatter) {
+    const pts = [
+      [50,120],[70,100],[90,110],[110,85],[130,95],[150,70],[170,80],
+      [190,60],[210,75],[230,55],[250,90],[270,45],[290,65],[310,40],
+      [330,50],[350,35],[80,70],[140,50],[200,100],[260,110],[320,90]
+    ];
+    pts.forEach((p, i) => {
+      const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      c.setAttribute('cx', p[0]);
+      c.setAttribute('cy', p[1]);
+      c.setAttribute('r', i % 5 === 0 ? 5 : 3.5);
+      if (i % 5 === 0) c.setAttribute('class', 'hot');
+      scatter.appendChild(c);
+    });
+  }
+
+  /* ---------- heat ---------- */
+  const heat = document.getElementById('galHeat');
+  if (heat) {
+    for (let i = 0; i < 84; i++) {
+      const v = [0,1,1,2,2,3,3,4,5,2,1,4][Math.floor(Math.random() * 12)];
+      const el = document.createElement('i');
+      el.dataset.v = String(v);
+      heat.appendChild(el);
+    }
+  }
+
+  /* ---------- filters ---------- */
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const stories = document.querySelectorAll('.story');
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => {
+        b.classList.remove('is-active');
+        b.setAttribute('aria-selected', 'false');
+      });
+      btn.classList.add('is-active');
+      btn.setAttribute('aria-selected', 'true');
+      const f = btn.dataset.filter;
+      stories.forEach(s => {
+        const show = f === 'all' || s.dataset.cat === f;
+        s.classList.toggle('is-hidden', !show);
+      });
+      if (window.ScrollTrigger) ScrollTrigger.refresh();
+    });
+  });
+
+  /* ---------- accordion ---------- */
+  document.querySelectorAll('.acc-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = btn.closest('.acc-item');
+      const open = item.classList.contains('is-open');
+      document.querySelectorAll('.acc-item').forEach(i => {
+        i.classList.remove('is-open');
+        i.querySelector('.acc-btn').setAttribute('aria-expanded', 'false');
+      });
+      if (!open) {
+        item.classList.add('is-open');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+      if (window.ScrollTrigger) setTimeout(() => ScrollTrigger.refresh(), 480);
+    });
+  });
+
+  /* ---------- subscribe ---------- */
+  const form = document.getElementById('subForm');
+  const msg = document.getElementById('subMsg');
+  if (form) {
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const email = form.email.value.trim();
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        msg.textContent = 'Enter a valid newsroom email.';
+        msg.classList.add('is-on');
+        return;
+      }
+      msg.textContent = 'Request queued — desk will reply within one business day.';
+      msg.classList.add('is-on');
+      form.reset();
+    });
+  }
+
+  /* ---------- mobile nav ---------- */
+  const burger = document.getElementById('burger');
+  const mnav = document.getElementById('mnav');
+  if (burger && mnav) {
+    burger.addEventListener('click', () => {
+      const open = mnav.classList.toggle('is-open');
+      document.body.classList.toggle('menu-open', open);
+      if (open && window.gsap) gsap.to(mnav, { x: 0, duration: 0.45, ease: 'power3.out' });
+      else if (window.gsap) gsap.to(mnav, { x: '100%', duration: 0.4, ease: 'power3.in' });
+      else mnav.style.transform = open ? 'translateX(0)' : 'translateX(100%)';
+    });
+    mnav.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => {
+        mnav.classList.remove('is-open');
+        document.body.classList.remove('menu-open');
+        if (window.gsap) gsap.to(mnav, { x: '100%', duration: 0.35, ease: 'power3.in' });
+      });
+    });
+  }
+
+  /* ---------- cursor ---------- */
+  const cursor = document.getElementById('cursor');
+  const cursorLabel = document.getElementById('cursorLabel');
+  let cx = 0, cy = 0, tx = 0, ty = 0;
+  if (cursor && !touch && !reduced) {
+    window.addEventListener('mousemove', e => {
+      tx = e.clientX; ty = e.clientY;
+    });
+    const loop = () => {
+      cx += (tx - cx) * 0.22;
+      cy += (ty - cy) * 0.22;
+      cursor.style.transform = `translate3d(${cx}px,${cy}px,0)`;
+      requestAnimationFrame(loop);
+    };
+    loop();
+    document.querySelectorAll('a,button,[data-cursor]').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        cursor.classList.add('is-hover');
+        cursorLabel.textContent = el.getAttribute('data-cursor') || '';
+      });
+      el.addEventListener('mouseleave', () => {
+        cursor.classList.remove('is-hover');
+        cursorLabel.textContent = '';
+      });
+    });
+    window.addEventListener('mousedown', () => cursor.classList.add('is-down'));
+    window.addEventListener('mouseup', () => cursor.classList.remove('is-down'));
+  }
+
+  /* ---------- preloader + main motion ---------- */
+  function initMotion() {
+    if (typeof gsap === 'undefined') {
+      document.body.classList.remove('is-loading');
+      document.getElementById('preloader')?.remove();
+      document.querySelectorAll('[data-reveal]').forEach(el => {
+        el.style.opacity = 1; el.style.transform = 'none';
+      });
+      document.getElementById('nav').style.transform = 'none';
+      return;
+    }
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    /* Lenis */
+    let lenis;
+    if (!reduced && typeof Lenis !== 'undefined') {
+      lenis = new Lenis({
+        duration: 1.15,
+        easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true
+      });
+      lenis.on('scroll', ScrollTrigger.update);
+      gsap.ticker.add(time => lenis.raf(time * 1000));
+      gsap.ticker.lagSmoothing(0);
+    }
+
+    /* progress */
+    const prog = document.getElementById('progressBar');
+    ScrollTrigger.create({
+      start: 0,
+      end: 'max',
+      onUpdate: self => { if (prog) prog.style.width = (self.progress * 100) + '%'; }
+    });
+
+    /* ticker */
+    const track = document.getElementById('tickerTrack');
+    if (track && !reduced) {
+      gsap.to(track, { xPercent: -50, duration: 28, ease: 'none', repeat: -1 });
+    }
+
+    /* preloader */
+    const pre = document.getElementById('preloader');
+    const bar = document.getElementById('preBar');
+    const pct = document.getElementById('prePct');
+    const preObj = { v: 0 };
+
+    const boot = gsap.timeline({
+      onComplete: () => {
+        document.body.classList.remove('is-loading');
+        intro();
+      }
+    });
+
+    if (reduced) {
+      boot.set(pre, { autoAlpha: 0 });
+      document.body.classList.remove('is-loading');
+      intro();
+    } else {
+      boot.to(preObj, {
+        v: 100,
+        duration: 1.6,
+        ease: 'power2.inOut',
+        onUpdate: () => {
+          const n = Math.round(preObj.v);
+          if (bar) bar.style.width = n + '%';
+          if (pct) pct.textContent = String(n).padStart(3, '0') + '%';
+        }
+      });
+      boot.to(pre, {
+        yPercent: -100,
+        duration: 0.85,
+        ease: 'power4.inOut'
+      }, '+=0.15');
+      boot.set(pre, { display: 'none' });
+    }
+
+    function intro() {
+      const nav = document.getElementById('nav');
+      gsap.to(nav, { y: 0, duration: 0.8, ease: 'power3.out' });
+
+      const lines = document.querySelectorAll('.hero__h1 .line span');
+      gsap.from(lines, {
+        yPercent: 110,
+        duration: 1.05,
+        stagger: 0.1,
+        ease: 'power4.out',
+        delay: 0.05
+      });
+
+      gsap.from('.hero__copy, .hero__actions, .hero__eyebrow', {
+        y: 24, opacity: 0, duration: 0.8, stagger: 0.08, ease: 'power3.out', delay: 0.25
+      });
+
+      /* count up */
+      document.querySelectorAll('[data-count]').forEach(el => {
+        const target = +el.dataset.count;
+        const obj = { v: 0 };
+        gsap.to(obj, {
+          v: target,
+          duration: 1.6,
+          delay: 0.5,
+          ease: 'power2.out',
+          onUpdate: () => {
+            el.textContent = target >= 100 ? Math.round(obj.v).toLocaleString() : Math.round(obj.v);
+          }
+        });
+      });
+
+      /* live bars grow */
+      const rects = document.querySelectorAll('#liveBars .bar');
+      rects.forEach(r => {
+        const h = +r.getAttribute('data-h');
+        const y = +r.getAttribute('data-y');
+        gsap.fromTo(r,
+          { attr: { height: 0, y: 180 } },
+          { attr: { height: h, y: y }, duration: 1.1, ease: 'power3.out', delay: 0.45 + Math.random() * 0.25 }
+        );
+      });
+
+      /* subtle live refresh */
+      if (!reduced) {
+        setInterval(() => {
+          const last = rects[rects.length - 1];
+          if (!last) return;
+          const cur = +last.getAttribute('height');
+          const next = Math.max(120, Math.min(195, cur + (Math.random() * 16 - 8)));
+          const ny = 180 - next;
+          gsap.to(last, { attr: { height: next, y: ny }, duration: 0.8, ease: 'power2.inOut' });
+          const delta = document.getElementById('chartDelta');
+          if (delta) {
+            const d = ((next / barData[barData.length - 2] - 1) * 100).toFixed(1);
+            delta.textContent = `Δ ${d >= 0 ? '+' : ''}${d}% vs prior`;
+          }
+        }, 4200);
+      }
+
+      /* scroll reveals */
+      gsap.utils.toArray('[data-reveal]').forEach(el => {
+        gsap.to(el, {
+          opacity: 1,
+          y: 0,
+          duration: 0.9,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: el,
+            start: 'top 88%',
+            toggleActions: 'play none none none'
+          }
+        });
+      });
+
+      /* gallery bar scrub */
+      gsap.from('#galBars span', {
+        scaleY: 0,
+        duration: 0.9,
+        stagger: 0.04,
+        ease: 'power3.out',
+        scrollTrigger: { trigger: '#galBars', start: 'top 80%' }
+      });
+
+      /* line draw */
+      document.querySelectorAll('.gal-line path[pathLength]').forEach(path => {
+        gsap.fromTo(path,
+          { strokeDasharray: 1, strokeDashoffset: 1 },
+          {
+            strokeDashoffset: 0,
+            duration: 1.4,
+            ease: 'power2.inOut',
+            scrollTrigger: { trigger: path.closest('.gal-card'), start: 'top 75%' }
+          }
+        );
+      });
+
+      /* heat stagger */
+      gsap.from('#galHeat i', {
+        opacity: 0,
+        duration: 0.35,
+        stagger: { each: 0.008, from: 'start' },
+        scrollTrigger: { trigger: '#galHeat', start: 'top 85%' }
+      });
+
+      /* section heads */
+      gsap.utils.toArray('.sec-head__title').forEach(t => {
+        gsap.from(t, {
+          y: 40, opacity: 0, duration: 0.9, ease: 'power3.out',
+          scrollTrigger: { trigger: t, start: 'top 90%' }
+        });
+      });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMotion);
+  } else {
+    initMotion();
+  }
+})();
+</script>
+</body>
+</html>

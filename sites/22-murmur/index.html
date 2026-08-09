@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Murmur — Calm async messaging for design studios</title>
+<meta name="description" content="Murmur is calm async messaging for design studios. Threads that wait. Decisions that pin. Context that stays in the margin." />
+<meta name="theme-color" content="#F6F7F9" />
+<meta property="og:title" content="Murmur — Calm async messaging" />
+<meta property="og:description" content="Async messaging built for studios that think between replies." />
+<meta property="og:type" content="website" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23111827'/%3E%3Cpath d='M8 11h12a3 3 0 0 1 3 3v5a3 3 0 0 1-3 3h-3l-3.5 3.5V22H8a3 3 0 0 1-3-3v-5a3 3 0 0 1 3-3z' fill='%23E07A5F'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+<style>
+/* ============================================================
+   MURMUR — Thread Architecture
+   ============================================================ */
+:root{
+  --bg:#F6F7F9;
+  --bg-2:#EEF0F4;
+  --bg-3:#E4E7ED;
+  --ink:#111827;
+  --ink-2:#374151;
+  --muted:#6B7280;
+  --faint:#9CA3AF;
+  --line:rgba(17,24,39,.10);
+  --line-2:rgba(17,24,39,.18);
+  --line-3:rgba(17,24,39,.28);
+  --coral:#E07A5F;
+  --coral-2:#c9654b;
+  --coral-soft:rgba(224,122,95,.12);
+  --coral-mid:rgba(224,122,95,.22);
+  --paper:#FFFFFF;
+  --paper-2:#FAFBFC;
+
+  --font:"Manrope",system-ui,-apple-system,sans-serif;
+  --display:"Space Grotesk",system-ui,sans-serif;
+
+  --ease:cubic-bezier(.22,1,.36,1);
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  --ease-io:cubic-bezier(.65,.05,.36,1);
+
+  --pad:clamp(1.1rem,3.2vw,2.6rem);
+  --max:1280px;
+  --nav-h:4.25rem;
+  --r:12px;
+  --r-sm:10px;
+  --r-lg:14px;
+
+  --fs-micro:.625rem;
+  --fs-xs:.72rem;
+  --fs-sm:.875rem;
+  --fs-md:1rem;
+  --fs-lg:clamp(1.05rem,.95rem + .4vw,1.25rem);
+  --fs-h3:clamp(1.25rem,1.05rem + .9vw,1.75rem);
+  --fs-h2:clamp(1.85rem,1.2rem + 2.6vw,3.4rem);
+  --fs-h1:clamp(2.4rem,.85rem + 5.8vw,5.6rem);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg);-webkit-text-size-adjust:100%}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto !important}
+.lenis.lenis-stopped{overflow:hidden}
+
+body{
+  font-family:var(--font);
+  font-size:var(--fs-md);
+  font-weight:400;
+  line-height:1.55;
+  color:var(--ink);
+  background:var(--bg);
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+body.has-cursor,
+body.has-cursor a,
+body.has-cursor button,
+body.has-cursor label,
+body.has-cursor input,
+body.has-cursor textarea,
+body.has-cursor [data-cursor]{cursor:none}
+
+img,svg{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button,input,textarea{font:inherit;color:inherit;background:none;border:0;outline:0}
+button{cursor:pointer}
+ul,ol{list-style:none}
+::selection{background:var(--coral);color:#fff}
+:focus-visible{outline:2px solid var(--coral);outline-offset:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+.shell{width:100%;max-width:var(--max);margin-inline:auto;padding-inline:var(--pad)}
+.mono{
+  font-family:var(--display);
+  font-size:var(--fs-xs);
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  font-weight:500;
+}
+.dim{color:var(--muted)}
+.faint{color:var(--faint)}
+.coral{color:var(--coral)}
+.display{font-family:var(--display);font-weight:500;letter-spacing:-.03em;line-height:1.02}
+.rule{height:1px;background:var(--line);width:100%}
+
+/* Atmosphere — cool wash + soft grid, not flat */
+.atmos{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 80% 50% at 12% -10%, rgba(224,122,95,.08), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 90% 20%, rgba(17,24,39,.04), transparent 50%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 48%, var(--bg) 100%);
+}
+.atmos__grid{
+  position:absolute;inset:0;opacity:.35;
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size:72px 72px;
+  mask-image:radial-gradient(ellipse 70% 60% at 50% 30%, #000 20%, transparent 75%);
+}
+.grain{
+  position:fixed;inset:0;z-index:9000;pointer-events:none;opacity:.035;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ============================================================
+   Cursor — message-notch square
+   ============================================================ */
+.cur{
+  position:fixed;top:0;left:0;z-index:10050;pointer-events:none;
+  transform:translate3d(-120px,-120px,0);will-change:transform;opacity:0;
+}
+.cur__box{
+  position:absolute;top:0;left:0;width:18px;height:18px;margin:-9px 0 0 -9px;
+  background:var(--ink);border-radius:5px;
+  transition:width .28s var(--ease),height .28s var(--ease),margin .28s var(--ease),
+    background .25s var(--ease),border-radius .25s var(--ease);
+}
+.cur__box::after{
+  content:"";position:absolute;right:-2px;bottom:-2px;
+  width:7px;height:7px;background:var(--coral);
+  clip-path:polygon(0 0,100% 0,100% 100%);
+  border-radius:1px;
+  transition:transform .28s var(--ease),background .25s;
+}
+.cur__label{
+  position:absolute;left:0;top:0;margin:14px 0 0 14px;
+  font-family:var(--display);font-size:.58rem;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ink);
+  opacity:0;white-space:nowrap;pointer-events:none;
+  transition:opacity .22s var(--ease),margin .28s var(--ease),color .25s;
+}
+.cur.is-hover .cur__box{width:26px;height:26px;margin:-13px 0 0 -13px;background:var(--coral)}
+.cur.is-hover .cur__box::after{background:var(--ink);transform:scale(1.15)}
+.cur.is-hover .cur__label{opacity:1;margin:18px 0 0 18px}
+.cur.is-reply .cur__label::before{content:"Reply"}
+.cur.is-pin .cur__label::before{content:"Pin"}
+.cur.is-archive .cur__label::before{content:"Archive"}
+.cur.is-down .cur__box{transform:scale(.85)}
+
+body.is-touch .cur,body.is-reduced .cur{display:none !important}
+body.is-touch,body.is-reduced,
+body.is-touch a,body.is-reduced a,
+body.is-touch button,body.is-reduced button{cursor:auto}
+
+/* ============================================================
+   Nav
+   ============================================================ */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  height:var(--nav-h);display:flex;align-items:center;
+  mix-blend-mode:normal;
+}
+.nav__inner{
+  width:100%;max-width:var(--max);margin-inline:auto;padding-inline:var(--pad);
+  display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem;
+}
+.nav__brand{
+  font-family:var(--display);font-weight:600;font-size:1.05rem;
+  letter-spacing:-.03em;display:inline-flex;align-items:center;gap:.55rem;
+  justify-self:start;
+}
+.nav__mark{
+  width:22px;height:22px;border-radius:6px;background:var(--ink);position:relative;flex:none;
+}
+.nav__mark::after{
+  content:"";position:absolute;right:-1px;bottom:-1px;
+  width:8px;height:8px;background:var(--coral);
+  clip-path:polygon(0 0,100% 0,100% 100%);
+}
+.nav__links{
+  display:flex;gap:clamp(1rem,2.5vw,1.8rem);justify-content:center;
+}
+.nav__links a{
+  font-family:var(--display);font-size:var(--fs-xs);font-weight:500;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);
+  transition:color .25s;
+}
+.nav__links a:hover{color:var(--coral)}
+.nav__cta{
+  justify-self:end;
+  font-family:var(--display);font-size:var(--fs-xs);font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;
+  padding:.65rem 1rem;border-radius:var(--r-sm);
+  background:var(--ink);color:var(--bg);
+  transition:background .3s var(--ease),transform .3s var(--ease);
+}
+.nav__cta:hover{background:var(--coral)}
+.nav__progress{
+  position:absolute;bottom:0;left:0;height:2px;width:100%;
+  background:transparent;transform-origin:left center;transform:scaleX(0);
+  background:var(--coral);
+}
+
+@media (max-width:720px){
+  .nav__links{display:none}
+  .nav__inner{grid-template-columns:1fr auto}
+}
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+.btn{
+  position:relative;display:inline-flex;align-items:center;gap:.7rem;
+  font-family:var(--display);font-size:var(--fs-xs);font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;
+  padding:1rem 1.4rem;border-radius:var(--r);
+  background:var(--ink);color:var(--bg);border:1px solid var(--ink);
+  overflow:hidden;isolation:isolate;transition:color .35s var(--ease);
+}
+.btn::before{
+  content:"";position:absolute;inset:0;z-index:-1;
+  background:var(--coral);transform:scaleX(0);transform-origin:left center;
+  transition:transform .5s var(--ease);
+}
+.btn:hover::before,.btn:focus-visible::before{transform:scaleX(1)}
+.btn:hover,.btn:focus-visible{color:#fff}
+.btn__ic{width:14px;height:14px;transition:transform .4s var(--ease)}
+.btn:hover .btn__ic{transform:translate(2px,-2px)}
+.btn--ghost{
+  background:transparent;color:var(--ink);border-color:var(--line-2);
+}
+.btn--ghost::before{background:var(--ink)}
+.btn--ghost:hover{color:var(--bg);border-color:var(--ink)}
+
+/* ============================================================
+   HERO — the page IS one calm thread (full-bleed)
+   ============================================================ */
+.hero{
+  position:relative;z-index:1;
+  min-height:100vh;min-height:100dvh;
+  padding:calc(var(--nav-h) + 2.5rem) var(--pad) 4rem;
+  display:flex;flex-direction:column;
+}
+.hero__rail{
+  position:absolute;left:clamp(1.1rem,8vw,7.5rem);top:calc(var(--nav-h) + 1.5rem);bottom:2rem;
+  width:1px;background:var(--line-2);
+}
+.hero__rail::before{
+  content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:9px;height:9px;border-radius:50%;background:var(--coral);
+  box-shadow:0 0 0 4px var(--coral-soft);
+}
+.hero__rail-fill{
+  position:absolute;top:0;left:0;width:100%;height:0%;
+  background:linear-gradient(180deg,var(--coral),transparent);
+  transform-origin:top;
+}
+
+.thread{
+  position:relative;z-index:2;
+  width:100%;max-width:720px;
+  margin:0 auto 0 clamp(2.5rem,12vw,9rem);
+  display:flex;flex-direction:column;gap:clamp(1.4rem,3vw,2.2rem);
+  flex:1;
+}
+.msg{
+  position:relative;
+  opacity:0;
+  max-width:min(100%,540px);
+}
+.msg--self{align-self:flex-end;max-width:min(100%,480px)}
+.msg--brand{max-width:min(100%,580px)}
+
+.msg__meta{
+  display:flex;align-items:baseline;gap:.65rem;flex-wrap:wrap;
+  margin-bottom:.45rem;padding-inline:.15rem;
+}
+.msg__who{
+  font-family:var(--display);font-weight:600;font-size:var(--fs-sm);
+  letter-spacing:-.02em;
+}
+.msg__who--brand{
+  font-size:clamp(1.35rem,1rem + 1.8vw,2.1rem);
+  letter-spacing:-.04em;color:var(--ink);
+}
+.msg__when{
+  font-family:var(--display);font-size:var(--fs-micro);
+  letter-spacing:.14em;text-transform:uppercase;color:var(--faint);
+}
+.msg__chan{
+  font-family:var(--display);font-size:var(--fs-micro);
+  letter-spacing:.1em;text-transform:uppercase;color:var(--coral);
+  padding:.15rem .4rem;border-radius:6px;background:var(--coral-soft);
+}
+
+.msg__body{
+  position:relative;
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:var(--r-lg) var(--r-lg) var(--r-lg) 4px;
+  padding:1.15rem 1.3rem 1.25rem;
+  box-shadow:0 1px 0 rgba(17,24,39,.03);
+}
+.msg--self .msg__body{
+  background:var(--ink);color:var(--bg);
+  border-color:var(--ink);
+  border-radius:var(--r-lg) var(--r-lg) 4px var(--r-lg);
+}
+.msg--brand .msg__body{
+  background:transparent;border:0;box-shadow:none;padding:0;
+}
+.msg__text{
+  font-size:var(--fs-lg);line-height:1.45;letter-spacing:-.015em;
+  color:var(--ink-2);max-width:42ch;
+}
+.msg--self .msg__text{color:rgba(246,247,249,.88)}
+.msg--brand .msg__text{
+  font-family:var(--display);
+  font-size:clamp(1.65rem,1.1rem + 2.4vw,2.85rem);
+  font-weight:500;letter-spacing:-.035em;line-height:1.12;
+  color:var(--ink);max-width:18ch;
+}
+.msg__support{
+  margin-top:.85rem;
+  font-size:var(--fs-md);color:var(--muted);max-width:36ch;line-height:1.5;
+}
+.msg__actions{margin-top:1.35rem}
+
+.msg__tail{
+  position:absolute;left:10px;bottom:-1px;width:14px;height:14px;
+  background:var(--paper);border-left:1px solid var(--line);border-bottom:1px solid var(--line);
+  transform:rotate(45deg);transform-origin:center;
+}
+.msg--self .msg__tail{
+  left:auto;right:10px;
+  background:var(--ink);border-color:var(--ink);
+}
+
+.msg__pin-dot{
+  position:absolute;left:-1.65rem;top:1.35rem;
+  width:8px;height:8px;border-radius:50%;
+  background:var(--bg);border:2px solid var(--line-2);
+}
+.msg.is-in .msg__pin-dot{border-color:var(--coral);background:var(--coral)}
+
+.hero__aside{
+  position:absolute;right:var(--pad);top:calc(var(--nav-h) + 3rem);
+  width:min(200px,22vw);text-align:right;
+  opacity:0;
+}
+.hero__aside .mono{color:var(--faint);margin-bottom:.5rem}
+.hero__aside p{
+  font-size:var(--fs-sm);color:var(--muted);line-height:1.45;
+  border-right:2px solid var(--coral);padding-right:.75rem;
+}
+
+@media (max-width:900px){
+  .hero__aside{display:none}
+  .thread{margin-left:1.75rem;max-width:100%}
+  .hero__rail{left:1.15rem}
+}
+@media (max-width:560px){
+  .msg--brand .msg__text{max-width:100%}
+}
+
+/* ============================================================
+   SCORE — Channel as spatial score (Mon / Tue / Wed lanes)
+   ============================================================ */
+.score{
+  position:relative;z-index:1;
+  padding:clamp(5rem,10vw,9rem) 0 clamp(4rem,8vw,7rem);
+}
+.score__head{
+  max-width:var(--max);margin:0 auto;padding-inline:var(--pad);
+  display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);
+  gap:2rem;align-items:end;margin-bottom:clamp(2.5rem,5vw,4rem);
+}
+.score__kicker{
+  display:flex;align-items:center;gap:.6rem;margin-bottom:1rem;
+  font-family:var(--display);font-size:var(--fs-xs);font-weight:500;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+}
+.score__kicker::before{
+  content:"";width:18px;height:2px;background:var(--coral);flex:none;
+}
+.score__title{
+  font-family:var(--display);font-size:var(--fs-h2);font-weight:500;
+  letter-spacing:-.035em;line-height:1.05;max-width:14ch;
+}
+.score__lede{
+  font-size:var(--fs-lg);color:var(--ink-2);line-height:1.45;max-width:34ch;
+  justify-self:end;padding-bottom:.35rem;
+}
+
+.scoreboard{
+  position:relative;
+  max-width:var(--max);margin:0 auto;padding-inline:var(--pad);
+}
+.scoreboard__staff{
+  display:grid;
+  grid-template-columns:48px repeat(3,minmax(0,1fr));
+  gap:0;
+  min-height:clamp(520px,70vh,780px);
+  border-top:1px solid var(--line-2);
+  border-bottom:1px solid var(--line-2);
+}
+.scoreboard__time{
+  display:flex;flex-direction:column;justify-content:space-between;
+  padding:1rem 0;border-right:1px solid var(--line);
+  font-family:var(--display);font-size:var(--fs-micro);
+  letter-spacing:.1em;text-transform:uppercase;color:var(--faint);
+}
+.lane{
+  position:relative;
+  border-right:1px solid var(--line);
+  padding:1.25rem .85rem 1.5rem;
+  background:
+    repeating-linear-gradient(
+      180deg,
+      transparent 0,
+      transparent calc(25% - 1px),
+      var(--line) calc(25% - 1px),
+      var(--line) 25%
+    );
+}
+.lane:last-child{border-right:0}
+.lane__day{
+  position:sticky;top:calc(var(--nav-h) + .75rem);z-index:2;
+  display:inline-flex;align-items:center;gap:.4rem;
+  font-family:var(--display);font-weight:600;font-size:var(--fs-sm);
+  letter-spacing:-.02em;margin-bottom:1.5rem;
+  padding:.35rem .55rem;border-radius:8px;
+  background:var(--bg);border:1px solid var(--line);
+  width:fit-content;
+}
+.lane__day span{
+  width:6px;height:6px;border-radius:50%;background:var(--coral);flex:none;
+}
+.lane--tue .lane__day span{background:var(--ink)}
+.lane--wed .lane__day span{background:var(--faint)}
+
+/* Notation marks = messages on the staff */
+.note{
+  position:absolute;left:.85rem;right:.85rem;
+  opacity:0;
+}
+.note__bar{
+  display:flex;align-items:flex-start;gap:.55rem;
+}
+.note__head{
+  width:14px;height:14px;flex:none;margin-top:.2rem;
+  border-radius:3px;background:var(--ink);
+  position:relative;
+}
+.note__head::after{
+  content:"";position:absolute;right:-2px;bottom:-2px;
+  width:6px;height:6px;background:var(--coral);
+  clip-path:polygon(0 0,100% 0,100% 100%);
+}
+.note--soft .note__head{background:var(--coral)}
+.note--soft .note__head::after{background:var(--ink)}
+.note--ghost .note__head{
+  background:transparent;border:1.5px solid var(--line-2);
+}
+.note--ghost .note__head::after{display:none}
+.note__stem{
+  width:1.5px;height:28px;background:var(--ink);margin-left:6px;margin-top:-2px;opacity:.35;
+}
+.note__copy{
+  flex:1;min-width:0;
+  background:var(--paper);border:1px solid var(--line);
+  border-radius:var(--r-sm);padding:.7rem .8rem;
+}
+.note__copy strong{
+  display:block;font-family:var(--display);font-size:var(--fs-xs);
+  font-weight:600;letter-spacing:.04em;margin-bottom:.25rem;
+}
+.note__copy p{font-size:var(--fs-sm);color:var(--ink-2);line-height:1.4}
+
+.note--n1{top:12%}
+.note--n2{top:38%}
+.note--n3{top:62%}
+.note--n4{top:18%}
+.note--n5{top:48%}
+.note--n6{top:72%}
+.note--n7{top:28%}
+.note--n8{top:58%}
+
+/* Marginalia — context artifacts */
+.margin{
+  position:relative;z-index:1;
+  max-width:var(--max);margin:clamp(2.5rem,5vw,4rem) auto 0;
+  padding-inline:var(--pad);
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr) minmax(0,1fr);
+  gap:clamp(1rem,3vw,2.5rem);align-items:start;
+}
+.marginalia{
+  position:relative;
+  padding:1rem 0 1rem 1rem;
+  border-left:1px dashed var(--line-2);
+  opacity:0;
+}
+.marginalia--right{
+  border-left:0;border-right:1px dashed var(--line-2);
+  padding:1rem 1rem 1rem 0;text-align:right;
+}
+.marginalia__tag{
+  font-family:var(--display);font-size:var(--fs-micro);
+  letter-spacing:.16em;text-transform:uppercase;color:var(--coral);
+  margin-bottom:.45rem;
+}
+.marginalia h3{
+  font-family:var(--display);font-size:var(--fs-h3);font-weight:500;
+  letter-spacing:-.03em;line-height:1.15;margin-bottom:.5rem;
+}
+.marginalia p{font-size:var(--fs-sm);color:var(--muted);line-height:1.5}
+.marginalia__file{
+  display:inline-flex;align-items:center;gap:.45rem;margin-top:.85rem;
+  font-family:var(--display);font-size:var(--fs-xs);font-weight:500;
+  letter-spacing:.06em;text-transform:uppercase;
+  padding:.4rem .65rem;border-radius:8px;
+  background:var(--bg-2);border:1px solid var(--line);
+  color:var(--ink-2);
+}
+.marginalia__file i{
+  width:8px;height:8px;border-radius:2px;background:var(--coral);flex:none;
+}
+.margin__center{
+  padding:1.5rem 0;text-align:center;
+}
+.margin__center p{
+  font-family:var(--display);font-size:clamp(1.1rem,.9rem + 1vw,1.45rem);
+  font-weight:500;letter-spacing:-.025em;line-height:1.3;color:var(--ink);
+  max-width:28ch;margin-inline:auto;
+}
+
+@media (max-width:900px){
+  .score__head{grid-template-columns:1fr;gap:1rem}
+  .score__lede{justify-self:start}
+  .scoreboard__staff{grid-template-columns:36px repeat(3,minmax(0,1fr));min-height:480px}
+  .note__copy p{display:none}
+  .margin{grid-template-columns:1fr;gap:1.5rem}
+  .marginalia--right{border-right:0;border-left:1px dashed var(--line-2);text-align:left;padding:1rem 0 1rem 1rem}
+}
+@media (max-width:640px){
+  .scoreboard__staff{grid-template-columns:1fr;min-height:auto}
+  .scoreboard__time{display:none}
+  .lane{
+    border-right:0;border-bottom:1px solid var(--line);
+    min-height:220px;padding-bottom:2.5rem;
+    background:
+      repeating-linear-gradient(
+        180deg,
+        transparent 0,
+        transparent calc(33.333% - 1px),
+        var(--line) calc(33.333% - 1px),
+        var(--line) 33.333%
+      );
+  }
+  .lane:last-child{border-bottom:0}
+  .note{position:relative;left:0;right:0;top:auto !important;margin-bottom:1rem;opacity:1}
+  .note__stem{display:none}
+}
+
+/* ============================================================
+   DECISIONS — sticky pin bars (Umbra evidence energy)
+   ============================================================ */
+.decisions{
+  position:relative;z-index:1;
+  padding:clamp(4rem,8vw,7rem) 0;
+  background:linear-gradient(180deg,transparent,var(--bg-2) 12%,var(--bg-2) 88%,transparent);
+}
+.decisions__intro{
+  max-width:var(--max);margin:0 auto;padding-inline:var(--pad);
+  margin-bottom:clamp(2rem,4vw,3.5rem);
+}
+.decisions__intro .score__kicker{margin-bottom:.85rem}
+.decisions__intro h2{
+  font-family:var(--display);font-size:var(--fs-h2);font-weight:500;
+  letter-spacing:-.035em;max-width:16ch;
+}
+
+.pin-track{
+  position:relative;
+  max-width:var(--max);margin:0 auto;padding-inline:var(--pad);
+}
+.pin-stage{
+  position:relative;
+  display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.15fr);
+  gap:clamp(1.5rem,4vw,3.5rem);align-items:start;
+  min-height:180vh;
+}
+.pin-rail{
+  position:relative;
+}
+.pin-bar{
+  background:var(--paper);border:1px solid var(--line-2);
+  border-radius:var(--r-lg);padding:1.35rem 1.4rem 1.5rem;
+  box-shadow:0 12px 40px rgba(17,24,39,.04);
+  border-left:3px solid var(--coral);
+}
+.pin-bar__top{
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  margin-bottom:1rem;
+}
+.pin-bar__badge{
+  display:inline-flex;align-items:center;gap:.4rem;
+  font-family:var(--display);font-size:var(--fs-micro);font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--coral);
+}
+.pin-bar__badge::before{
+  content:"";width:8px;height:8px;background:var(--coral);
+  clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);
+}
+.pin-bar__status{
+  font-family:var(--display);font-size:var(--fs-micro);
+  letter-spacing:.12em;text-transform:uppercase;color:var(--faint);
+}
+.pin-bar h3{
+  font-family:var(--display);font-size:clamp(1.2rem,1rem + .8vw,1.55rem);
+  font-weight:600;letter-spacing:-.03em;line-height:1.2;margin-bottom:.65rem;
+}
+.pin-bar__body{font-size:var(--fs-sm);color:var(--ink-2);line-height:1.5;max-width:42ch}
+.pin-bar__evidence{
+  margin-top:1.15rem;padding-top:1rem;border-top:1px solid var(--line);
+  display:flex;flex-wrap:wrap;gap:.5rem;
+}
+.ev{
+  font-family:var(--display);font-size:var(--fs-micro);font-weight:500;
+  letter-spacing:.08em;text-transform:uppercase;
+  padding:.35rem .55rem;border-radius:7px;
+  background:var(--bg);border:1px solid var(--line);color:var(--muted);
+}
+.ev--on{background:var(--coral-soft);border-color:var(--coral-mid);color:var(--coral-2)}
+
+.pin-thread{
+  position:relative;padding-left:1.25rem;
+}
+.pin-thread::before{
+  content:"";position:absolute;left:0;top:.5rem;bottom:.5rem;width:1px;
+  background:var(--line-2);
+}
+.pt-msg{
+  position:relative;margin-bottom:1.75rem;opacity:0;
+  padding:.95rem 1.05rem;
+  background:var(--paper);border:1px solid var(--line);
+  border-radius:var(--r) var(--r) var(--r) 4px;
+}
+.pt-msg::before{
+  content:"";position:absolute;left:-1.25rem;top:1.15rem;
+  width:8px;height:8px;border-radius:50%;
+  background:var(--bg);border:2px solid var(--line-2);
+  transform:translateX(-50%);
+}
+.pt-msg.is-decision::before{background:var(--coral);border-color:var(--coral)}
+.pt-msg__meta{
+  display:flex;gap:.6rem;align-items:baseline;margin-bottom:.4rem;
+  font-family:var(--display);font-size:var(--fs-micro);
+  letter-spacing:.1em;text-transform:uppercase;color:var(--faint);
+}
+.pt-msg__meta strong{color:var(--ink);letter-spacing:-.01em;text-transform:none;font-size:var(--fs-sm)}
+.pt-msg p{font-size:var(--fs-sm);color:var(--ink-2);line-height:1.45}
+
+@media (max-width:860px){
+  .pin-stage{grid-template-columns:1fr;min-height:auto}
+  .pin-rail{position:relative !important;top:auto !important}
+}
+
+/* ============================================================
+   ACCESS — Open a practice (chair marks, not pricing)
+   ============================================================ */
+.access{
+  position:relative;z-index:1;
+  padding:clamp(5rem,10vw,8.5rem) 0 clamp(4rem,7vw,6rem);
+}
+.access__grid{
+  max-width:var(--max);margin:0 auto;padding-inline:var(--pad);
+  display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+  gap:clamp(2.5rem,6vw,5rem);align-items:center;
+}
+.access__kicker{margin-bottom:1rem}
+.access h2{
+  font-family:var(--display);font-size:var(--fs-h2);font-weight:500;
+  letter-spacing:-.035em;line-height:1.05;max-width:12ch;margin-bottom:1rem;
+}
+.access__lede{
+  font-size:var(--fs-lg);color:var(--ink-2);line-height:1.45;max-width:36ch;
+  margin-bottom:2rem;
+}
+
+.chairs{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:.75rem;margin-bottom:1.75rem;
+}
+.chair{
+  aspect-ratio:1;border-radius:var(--r);
+  border:1.5px dashed var(--line-2);
+  background:transparent;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.45rem;
+  transition:border-color .3s,background .3s,transform .35s var(--ease);
+  position:relative;
+}
+.chair__glyph{
+  width:28px;height:22px;position:relative;
+}
+.chair__glyph::before{
+  content:"";position:absolute;left:50%;top:0;transform:translateX(-50%);
+  width:18px;height:10px;border:1.5px solid var(--faint);border-bottom:0;
+  border-radius:6px 6px 0 0;
+}
+.chair__glyph::after{
+  content:"";position:absolute;left:2px;right:2px;bottom:0;height:10px;
+  border:1.5px solid var(--faint);border-top:0;
+  border-radius:0 0 3px 3px;
+}
+.chair__n{
+  font-family:var(--display);font-size:var(--fs-micro);
+  letter-spacing:.12em;text-transform:uppercase;color:var(--faint);
+}
+.chair:hover,.chair.is-claimed{
+  border-style:solid;border-color:var(--coral);
+  background:var(--coral-soft);transform:translateY(-3px);
+}
+.chair.is-claimed .chair__glyph::before,
+.chair.is-claimed .chair__glyph::after,
+.chair:hover .chair__glyph::before,
+.chair:hover .chair__glyph::after{border-color:var(--coral)}
+.chair.is-claimed .chair__n,
+.chair:hover .chair__n{color:var(--coral-2)}
+.chair.is-claimed::after{
+  content:"yours";position:absolute;top:.4rem;right:.45rem;
+  font-family:var(--display);font-size:.5rem;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--coral);
+}
+.chairs__hint{
+  font-size:var(--fs-sm);color:var(--muted);margin-bottom:1.5rem;
+}
+
+.practice{
+  background:var(--paper);border:1px solid var(--line);
+  border-radius:var(--r-lg);padding:clamp(1.4rem,3vw,2rem);
+  position:relative;overflow:hidden;
+}
+.practice::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--coral),transparent 70%);
+}
+.practice__label{
+  font-family:var(--display);font-size:var(--fs-xs);font-weight:500;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+  margin-bottom:1.35rem;
+}
+.practice__field{margin-bottom:1.1rem}
+.practice__field label{
+  display:block;font-family:var(--display);font-size:var(--fs-micro);
+  letter-spacing:.12em;text-transform:uppercase;color:var(--faint);
+  margin-bottom:.4rem;
+}
+.practice__field input,
+.practice__field textarea{
+  width:100%;padding:.85rem 1rem;
+  border:1px solid var(--line);border-radius:var(--r-sm);
+  background:var(--bg);color:var(--ink);
+  transition:border-color .25s,background .25s;
+}
+.practice__field input:focus,
+.practice__field textarea:focus{
+  border-color:var(--coral);background:var(--paper);
+}
+.practice__field textarea{min-height:90px;resize:vertical}
+.practice__row{
+  display:grid;grid-template-columns:1fr 1fr;gap:.85rem;
+}
+.practice .btn{width:100%;justify-content:center;margin-top:.35rem}
+.practice__note{
+  margin-top:1rem;font-size:var(--fs-sm);color:var(--muted);text-align:center;
+}
+
+@media (max-width:860px){
+  .access__grid{grid-template-columns:1fr}
+  .chairs{grid-template-columns:repeat(4,1fr)}
+}
+@media (max-width:480px){
+  .practice__row{grid-template-columns:1fr}
+  .chairs{grid-template-columns:repeat(2,1fr)}
+}
+
+/* ============================================================
+   Footer
+   ============================================================ */
+.foot{
+  position:relative;z-index:1;
+  border-top:1px solid var(--line);
+  padding:2.5rem 0 2rem;
+}
+.foot__inner{
+  max-width:var(--max);margin:0 auto;padding-inline:var(--pad);
+  display:grid;grid-template-columns:1fr auto 1fr;gap:1.5rem;align-items:center;
+}
+.foot__brand{
+  font-family:var(--display);font-weight:600;letter-spacing:-.03em;
+  display:inline-flex;align-items:center;gap:.5rem;
+}
+.foot__mark{
+  width:18px;height:18px;border-radius:5px;background:var(--ink);position:relative;
+}
+.foot__mark::after{
+  content:"";position:absolute;right:-1px;bottom:-1px;
+  width:6px;height:6px;background:var(--coral);
+  clip-path:polygon(0 0,100% 0,100% 100%);
+}
+.foot__mid{
+  font-family:var(--display);font-size:var(--fs-xs);
+  letter-spacing:.1em;text-transform:uppercase;color:var(--faint);text-align:center;
+}
+.foot__right{
+  justify-self:end;display:flex;gap:1.25rem;
+}
+.foot__right a{
+  font-family:var(--display);font-size:var(--fs-xs);font-weight:500;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+  transition:color .25s;
+}
+.foot__right a:hover{color:var(--coral)}
+
+@media (max-width:640px){
+  .foot__inner{grid-template-columns:1fr;text-align:center;justify-items:center}
+  .foot__right{justify-self:center}
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion:reduce){
+  .msg,.note,.marginalia,.pt-msg,.hero__aside{opacity:1 !important}
+}
+</style>
+</head>
+<body>
+<a class="sr" href="#thread">Skip to thread</a>
+<div class="atmos" aria-hidden="true"><div class="atmos__grid"></div></div>
+<div class="grain" aria-hidden="true"></div>
+
+<!-- Custom cursor -->
+<div class="cur" id="cur" aria-hidden="true">
+  <div class="cur__box"></div>
+  <div class="cur__label"></div>
+</div>
+
+<!-- Nav -->
+<header class="nav" id="nav">
+  <div class="nav__inner">
+    <a class="nav__brand" href="#top" data-cursor="archive">
+      <span class="nav__mark" aria-hidden="true"></span>
+      Murmur
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="#score" data-cursor="pin">Score</a>
+      <a href="#decisions" data-cursor="pin">Decisions</a>
+      <a href="#access" data-cursor="reply">Practice</a>
+    </nav>
+    <a class="nav__cta" href="#access" data-cursor="reply">Open a practice</a>
+  </div>
+  <div class="nav__progress" id="progress" aria-hidden="true"></div>
+</header>
+
+<main id="top">
+  <!-- ============================================================
+       HERO = one calm thread (full-bleed, not stage-card)
+       ============================================================ -->
+  <section class="hero" aria-label="Opening thread">
+    <div class="hero__rail" aria-hidden="true">
+      <div class="hero__rail-fill" id="heroRail"></div>
+    </div>
+
+    <aside class="hero__aside" data-reveal-aside>
+      <div class="mono">Channel · Studio</div>
+      <p>Replies arrive when thinking finishes — not when a badge blinks.</p>
+    </aside>
+
+    <div class="thread" id="thread">
+      <!-- Brand locks into first message meta -->
+      <article class="msg msg--brand" data-msg>
+        <div class="msg__pin-dot" aria-hidden="true"></div>
+        <header class="msg__meta">
+          <span class="msg__who msg__who--brand">Murmur</span>
+          <span class="msg__when">Mon · 09:14</span>
+          <span class="msg__chan">#atelier</span>
+        </header>
+        <div class="msg__body">
+          <p class="msg__text">Threads that wait for the room to think.</p>
+          <p class="msg__support">Calm async messaging for design studios — decisions pin, context stays in the margin.</p>
+          <div class="msg__actions">
+            <a class="btn" href="#access" data-cursor="reply">
+              Open a practice
+              <svg class="btn__ic" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 11L11 3M11 3H5M11 3v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="square"/></svg>
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <article class="msg" data-msg>
+        <div class="msg__pin-dot" aria-hidden="true"></div>
+        <header class="msg__meta">
+          <span class="msg__who">Mira · Design lead</span>
+          <span class="msg__when">Mon · 11:42</span>
+        </header>
+        <div class="msg__body">
+          <div class="msg__tail" aria-hidden="true"></div>
+          <p class="msg__text">Leaving the type samples overnight. No rush — pin what holds when you have it.</p>
+        </div>
+      </article>
+
+      <article class="msg msg--self" data-msg>
+        <div class="msg__pin-dot" aria-hidden="true"></div>
+        <header class="msg__meta">
+          <span class="msg__who">You · Studio</span>
+          <span class="msg__when">Tue · 08:05</span>
+        </header>
+        <div class="msg__body">
+          <div class="msg__tail" aria-hidden="true"></div>
+          <p class="msg__text">Pinned: keep the coral only on decision markers. Everything else stays cool gray.</p>
+        </div>
+      </article>
+
+      <article class="msg" data-msg>
+        <div class="msg__pin-dot" aria-hidden="true"></div>
+        <header class="msg__meta">
+          <span class="msg__who">Jonah · Art direction</span>
+          <span class="msg__when">Wed · 16:20</span>
+        </header>
+        <div class="msg__body">
+          <div class="msg__tail" aria-hidden="true"></div>
+          <p class="msg__text">Agreed. Dropping the deck in the margin — not the thread.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SCORE — Channel as spatial score
+       ============================================================ -->
+  <section class="score" id="score" aria-label="Channel as spatial score">
+    <div class="score__head">
+      <div>
+        <div class="score__kicker">Signature · Channel score</div>
+        <h2 class="score__title">Read the week as notation.</h2>
+      </div>
+      <p class="score__lede">Three vertical time lanes. Messages sit like marks on a staff — density you can see before you open a single reply.</p>
+    </div>
+
+    <div class="scoreboard">
+      <div class="scoreboard__staff" role="img" aria-label="Weekly channel score with Monday, Tuesday, and Wednesday lanes">
+        <div class="scoreboard__time" aria-hidden="true">
+          <span>09</span><span>12</span><span>15</span><span>18</span>
+        </div>
+
+        <div class="lane lane--mon">
+          <div class="lane__day"><span></span> Mon</div>
+          <div class="note note--n1 note--soft" data-note>
+            <div class="note__bar">
+              <div>
+                <div class="note__head"></div>
+                <div class="note__stem"></div>
+              </div>
+              <div class="note__copy">
+                <strong>Brief landed</strong>
+                <p>Client tone: quieter than last round.</p>
+              </div>
+            </div>
+          </div>
+          <div class="note note--n2" data-note>
+            <div class="note__bar">
+              <div>
+                <div class="note__head"></div>
+                <div class="note__stem"></div>
+              </div>
+              <div class="note__copy">
+                <strong>Type lock?</strong>
+                <p>Space Grotesk for marks only.</p>
+              </div>
+            </div>
+          </div>
+          <div class="note note--n3 note--ghost" data-note>
+            <div class="note__bar">
+              <div>
+                <div class="note__head"></div>
+                <div class="note__stem"></div>
+              </div>
+              <div class="note__copy">
+                <strong>Idle · thinking</strong>
+                <p>No ping. Room is open.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lane lane--tue">
+          <div class="lane__day"><span></span> Tue</div>
+          <div class="note note--n4" data-note>
+            <div class="note__bar">
+              <div>
+                <div class="note__head"></div>
+                <div class="note__stem"></div>
+              </div>
+              <div class="note__copy">
+                <strong>Decision pin</strong>
+                <p>Coral reserved for pins.</p>
+              </div>
+            </div>
+          </div>
+          <div class="note note--n5 note--soft" data-note>
+            <div class="note__bar">
+              <div>
+                <div class="note__head"></div>
+                <div class="note__stem"></div>
+              </div>
+              <div class="note__copy">
+                <strong>Margin file</strong>
+                <p>deck_v3.pdf attached aside.</p>
+              </div>
+            </div>
+          </div>
+          <div class="note note--n6 note--ghost" data-note>
+            <div class="note__bar">
+              <div>
+                <div class="note__head"></div>
+                <div class="note__stem"></div>
+              </div>
+              <div class="note__copy">
+                <strong>Held</strong>
+                <p>Waiting on print proofs.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lane lane--wed">
+          <div class="lane__day"><span></span> Wed</div>
+          <div class="note note--n7" data-note>
+            <div class="note__bar">
+              <div>
+                <div class="note__head"></div>
+                <div class="note__stem"></div>
+              </div>
+              <div class="note__copy">
+                <strong>Close loop</strong>
+                <p>Ship without another stand-up.</p>
+              </div>
+            </div>
+          </div>
+          <div class="note note--n8 note--soft" data-note>
+            <div class="note__bar">
+              <div>
+                <div class="note__head"></div>
+                <div class="note__stem"></div>
+              </div>
+              <div class="note__copy">
+                <strong>Archive cue</strong>
+                <p>Thread cools. Keep the pin.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Marginalia annotations -->
+    <div class="margin">
+      <aside class="marginalia" data-marginalia>
+        <div class="marginalia__tag">Artifact · Left</div>
+        <h3>Context lives beside the talk.</h3>
+        <p>Specs, comps, and client notes hang as marginalia — readable without flooding the thread body.</p>
+        <div class="marginalia__file"><i></i> brand_notes.md</div>
+      </aside>
+      <div class="margin__center">
+        <p>Magazine energy in the margins. Studio calm in the lane.</p>
+      </div>
+      <aside class="marginalia marginalia--right" data-marginalia>
+        <div class="marginalia__tag">Artifact · Right</div>
+        <h3>Files never become chat.</h3>
+        <p>Drop a deck once. Annotate it. Everyone sees the same edge — not twelve re-uploads.</p>
+        <div class="marginalia__file"><i></i> proof_sheet_04.pdf</div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       DECISIONS — sticky pins while thread scrolls
+       ============================================================ -->
+  <section class="decisions" id="decisions" aria-label="Decision pins">
+    <div class="decisions__intro">
+      <div class="score__kicker">Pinned · Evidence</div>
+      <h2>Decisions stay while the thread keeps moving.</h2>
+    </div>
+
+    <div class="pin-track">
+      <div class="pin-stage" id="pinStage">
+        <div class="pin-rail" id="pinRail">
+          <div class="pin-bar" data-cursor="pin">
+            <div class="pin-bar__top">
+              <div class="pin-bar__badge">Decision pin</div>
+              <div class="pin-bar__status">Locked · Tue 08:05</div>
+            </div>
+            <h3>Coral only on markers that change the work.</h3>
+            <p class="pin-bar__body">Accent is scarce on purpose. If it is coral, it is a decision — not decoration, not unread noise.</p>
+            <div class="pin-bar__evidence">
+              <span class="ev ev--on">Vote · 4 / 4</span>
+              <span class="ev">Mira</span>
+              <span class="ev">Jonah</span>
+              <span class="ev">Leah</span>
+              <span class="ev">You</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pin-thread" id="pinThread">
+          <article class="pt-msg" data-pt>
+            <div class="pt-msg__meta"><strong>Mira</strong> <span>Mon 14:10</span></div>
+            <p>Can we keep accent off the chrome? It starts looking like alerts.</p>
+          </article>
+          <article class="pt-msg" data-pt>
+            <div class="pt-msg__meta"><strong>Jonah</strong> <span>Mon 17:48</span></div>
+            <p>Same concern. Pins should be the only warm signal in the channel.</p>
+          </article>
+          <article class="pt-msg is-decision" data-pt>
+            <div class="pt-msg__meta"><strong>You</strong> <span>Tue 08:05 · pinned</span></div>
+            <p>Locking it. Coral = decision markers only. Updating the lane legend.</p>
+          </article>
+          <article class="pt-msg" data-pt>
+            <div class="pt-msg__meta"><strong>Leah</strong> <span>Tue 09:22</span></div>
+            <p>Noted on the print side. Spec sheet moved to the right margin.</p>
+          </article>
+          <article class="pt-msg" data-pt>
+            <div class="pt-msg__meta"><strong>Mira</strong> <span>Tue 11:01</span></div>
+            <p>Thread can cool now. Pin stays visible when we scroll past the chatter.</p>
+          </article>
+          <article class="pt-msg" data-pt>
+            <div class="pt-msg__meta"><strong>Jonah</strong> <span>Wed 10:40</span></div>
+            <p>Shipping the revised covers. No new stand-up needed — pin carried us.</p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       ACCESS — Open a practice (chairs, not pricing)
+       ============================================================ -->
+  <section class="access" id="access" aria-label="Open a practice">
+    <div class="access__grid">
+      <div>
+        <div class="score__kicker access__kicker">Access · Not a plan grid</div>
+        <h2>Open a practice.</h2>
+        <p class="access__lede">Claim a quiet seat for your studio. No tiers, no feature matrix — just room to think in threads that wait.</p>
+
+        <div class="chairs" id="chairs" role="group" aria-label="Studio seats">
+          <button type="button" class="chair" data-chair data-cursor="reply" aria-pressed="false" aria-label="Claim seat 01">
+            <span class="chair__glyph" aria-hidden="true"></span>
+            <span class="chair__n">01</span>
+          </button>
+          <button type="button" class="chair" data-chair data-cursor="reply" aria-pressed="false" aria-label="Claim seat 02">
+            <span class="chair__glyph" aria-hidden="true"></span>
+            <span class="chair__n">02</span>
+          </button>
+          <button type="button" class="chair" data-chair data-cursor="reply" aria-pressed="false" aria-label="Claim seat 03">
+            <span class="chair__glyph" aria-hidden="true"></span>
+            <span class="chair__n">03</span>
+          </button>
+          <button type="button" class="chair" data-chair data-cursor="reply" aria-pressed="false" aria-label="Claim seat 04">
+            <span class="chair__glyph" aria-hidden="true"></span>
+            <span class="chair__n">04</span>
+          </button>
+        </div>
+        <p class="chairs__hint" id="chairHint">Empty chairs. Click to claim a seat for your practice.</p>
+      </div>
+
+      <form class="practice" id="practiceForm" data-cursor="reply">
+        <div class="practice__label">Studio access request</div>
+        <div class="practice__row">
+          <div class="practice__field">
+            <label for="name">Your name</label>
+            <input id="name" name="name" type="text" autocomplete="name" required placeholder="Mira Chen" />
+          </div>
+          <div class="practice__field">
+            <label for="studio">Studio</label>
+            <input id="studio" name="studio" type="text" autocomplete="organization" required placeholder="North Atelier" />
+          </div>
+        </div>
+        <div class="practice__field">
+          <label for="email">Work email</label>
+          <input id="email" name="email" type="email" autocomplete="email" required placeholder="mira@north.studio" />
+        </div>
+        <div class="practice__field">
+          <label for="note">What are you threading?</label>
+          <textarea id="note" name="note" placeholder="Client reviews, art direction locks, print proofs…"></textarea>
+        </div>
+        <button class="btn" type="submit" data-cursor="reply">
+          Request access
+          <svg class="btn__ic" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 11L11 3M11 3H5M11 3v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="square"/></svg>
+        </button>
+        <p class="practice__note" id="formNote">We reply within two quiet days — never a sales sprint.</p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="foot__inner">
+    <div class="foot__brand">
+      <span class="foot__mark" aria-hidden="true"></span>
+      Murmur
+    </div>
+    <div class="foot__mid">Calm async · Design studios</div>
+    <div class="foot__right">
+      <a href="#score" data-cursor="pin">Score</a>
+      <a href="#decisions" data-cursor="pin">Pins</a>
+      <a href="#access" data-cursor="reply">Practice</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  var REDUCE = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var TOUCH = matchMedia("(hover: none), (pointer: coarse)").matches;
+  var hasGSAP = typeof gsap !== "undefined";
+  var hasST = typeof ScrollTrigger !== "undefined";
+  var hasLenis = typeof Lenis !== "undefined";
+
+  if (TOUCH) document.body.classList.add("is-touch");
+  if (REDUCE) document.body.classList.add("is-reduced");
+  if (!hasGSAP) document.body.classList.add("no-gsap");
+
+  /* ---------- Cursor ---------- */
+  var cur = document.getElementById("cur");
+  if (cur && !TOUCH && !REDUCE && hasGSAP) {
+    document.body.classList.add("has-cursor");
+    var setX = gsap.quickSetter(cur, "x", "px");
+    var setY = gsap.quickSetter(cur, "y", "px");
+    var mx = -100, my = -100, cx = -100, cy = -100;
+
+    window.addEventListener("mousemove", function (e) {
+      mx = e.clientX; my = e.clientY;
+    }, { passive: true });
+
+    gsap.set(cur, { opacity: 1 });
+    gsap.ticker.add(function () {
+      cx += (mx - cx) * 0.22;
+      cy += (my - cy) * 0.22;
+      setX(cx); setY(cy);
+    });
+
+    document.addEventListener("mouseleave", function () {
+      gsap.to(cur, { opacity: 0, duration: 0.2 });
+    });
+    document.addEventListener("mouseenter", function () {
+      gsap.to(cur, { opacity: 1, duration: 0.2 });
+    });
+    document.addEventListener("mousedown", function () { cur.classList.add("is-down"); });
+    document.addEventListener("mouseup", function () { cur.classList.remove("is-down"); });
+
+    document.querySelectorAll("[data-cursor]").forEach(function (el) {
+      el.addEventListener("mouseenter", function () {
+        cur.classList.add("is-hover");
+        cur.classList.remove("is-reply", "is-pin", "is-archive");
+        var mode = el.getAttribute("data-cursor");
+        if (mode === "reply") cur.classList.add("is-reply");
+        else if (mode === "pin") cur.classList.add("is-pin");
+        else if (mode === "archive") cur.classList.add("is-archive");
+      });
+      el.addEventListener("mouseleave", function () {
+        cur.classList.remove("is-hover", "is-reply", "is-pin", "is-archive");
+      });
+    });
+  }
+
+  /* ---------- Lenis + ScrollTrigger ---------- */
+  var lenis = null;
+  if (hasLenis && hasGSAP && hasST && !REDUCE) {
+    gsap.registerPlugin(ScrollTrigger);
+    lenis = new Lenis({
+      duration: 1.15,
+      easing: function (t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); },
+      smoothWheel: true
+    });
+    lenis.on("scroll", ScrollTrigger.update);
+    gsap.ticker.add(function (time) { lenis.raf(time * 1000); });
+    gsap.ticker.lagSmoothing(0);
+  } else if (hasGSAP && hasST) {
+    gsap.registerPlugin(ScrollTrigger);
+  }
+
+  function scrollToHash(href) {
+    var id = href && href.charAt(0) === "#" ? href.slice(1) : null;
+    var el = id ? document.getElementById(id) : null;
+    if (!el) return;
+    if (lenis) lenis.scrollTo(el, { offset: -60, duration: 1.2 });
+    else el.scrollIntoView({ behavior: REDUCE ? "auto" : "smooth", block: "start" });
+  }
+
+  document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+    a.addEventListener("click", function (e) {
+      var href = a.getAttribute("href");
+      if (!href || href === "#") return;
+      e.preventDefault();
+      scrollToHash(href);
+    });
+  });
+
+  /* ---------- Progress ---------- */
+  var progress = document.getElementById("progress");
+  if (progress && hasGSAP && hasST) {
+    ScrollTrigger.create({
+      start: "top top",
+      end: "max",
+      onUpdate: function (self) {
+        gsap.set(progress, { scaleX: self.progress });
+      }
+    });
+  }
+
+  /* ---------- Hero thread: slow human async cadence ---------- */
+  var msgs = gsap.utils.toArray("[data-msg]");
+  var aside = document.querySelector("[data-reveal-aside]");
+  var heroRail = document.getElementById("heroRail");
+
+  if (hasGSAP) {
+    if (REDUCE) {
+      gsap.set(msgs, { opacity: 1, y: 0 });
+      if (aside) gsap.set(aside, { opacity: 1 });
+      if (heroRail) gsap.set(heroRail, { height: "100%" });
+      msgs.forEach(function (m) { m.classList.add("is-in"); });
+    } else {
+      gsap.set(msgs, { opacity: 0, y: 28 });
+      if (aside) gsap.set(aside, { opacity: 0, y: 12 });
+
+      var heroTl = gsap.timeline({ defaults: { ease: "power3.out" } });
+      // Human async cadence — slow, uneven gaps
+      var delays = [0, 0.85, 1.55, 2.35];
+      msgs.forEach(function (msg, i) {
+        heroTl.fromTo(msg,
+          { opacity: 0, y: 28 },
+          {
+            opacity: 1, y: 0, duration: 0.9,
+            onStart: function () { msg.classList.add("is-in"); }
+          },
+          delays[i] || (i * 0.75)
+        );
+      });
+      if (aside) {
+        heroTl.fromTo(aside,
+          { opacity: 0, y: 12 },
+          { opacity: 1, y: 0, duration: 0.8 },
+          1.1
+        );
+      }
+      if (heroRail) {
+        heroTl.fromTo(heroRail,
+          { height: "0%" },
+          { height: "72%", duration: 2.8, ease: "power1.inOut" },
+          0.2
+        );
+      }
+    }
+  } else {
+    msgs.forEach(function (m) { m.style.opacity = "1"; m.classList.add("is-in"); });
+    if (aside) aside.style.opacity = "1";
+  }
+
+  /* ---------- Score notes + marginalia ---------- */
+  if (hasGSAP && hasST) {
+    gsap.utils.toArray("[data-note]").forEach(function (note, i) {
+      if (REDUCE) {
+        gsap.set(note, { opacity: 1 });
+        return;
+      }
+      gsap.fromTo(note,
+        { opacity: 0, y: 18, scale: 0.97 },
+        {
+          opacity: 1, y: 0, scale: 1, duration: 0.7, ease: "power3.out",
+          scrollTrigger: {
+            trigger: note,
+            start: "top 88%",
+            toggleActions: "play none none none"
+          },
+          delay: (i % 3) * 0.08
+        }
+      );
+    });
+
+    gsap.utils.toArray("[data-marginalia]").forEach(function (el, i) {
+      if (REDUCE) {
+        gsap.set(el, { opacity: 1 });
+        return;
+      }
+      gsap.fromTo(el,
+        { opacity: 0, y: 24 },
+        {
+          opacity: 1, y: 0, duration: 0.85, ease: "power3.out",
+          scrollTrigger: {
+            trigger: el,
+            start: "top 85%",
+            toggleActions: "play none none none"
+          },
+          delay: i * 0.12
+        }
+      );
+    });
+  } else {
+    document.querySelectorAll("[data-note],[data-marginalia]").forEach(function (el) {
+      el.style.opacity = "1";
+    });
+  }
+
+  /* ---------- Decision pin (ScrollTrigger pin) ---------- */
+  var pinRail = document.getElementById("pinRail");
+  var pinStage = document.getElementById("pinStage");
+  var ptMsgs = gsap.utils.toArray("[data-pt]");
+
+  if (hasGSAP && hasST && pinRail && pinStage) {
+    var mm = gsap.matchMedia();
+    mm.add("(min-width: 861px)", function () {
+      if (!REDUCE) {
+        ScrollTrigger.create({
+          trigger: pinStage,
+          start: "top top+=" + (parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-h")) || 68),
+          end: "bottom bottom",
+          pin: pinRail,
+          pinSpacing: false,
+          anticipatePin: 1
+        });
+      }
+
+      ptMsgs.forEach(function (msg, i) {
+        if (REDUCE) {
+          gsap.set(msg, { opacity: 1 });
+          return;
+        }
+        gsap.fromTo(msg,
+          { opacity: 0, y: 22 },
+          {
+            opacity: 1, y: 0, duration: 0.65, ease: "power3.out",
+            scrollTrigger: {
+              trigger: msg,
+              start: "top 82%",
+              toggleActions: "play none none none"
+            },
+            delay: i * 0.04
+          }
+        );
+      });
+
+      return function () {
+        /* cleanup handled by matchMedia */
+      };
+    });
+
+    mm.add("(max-width: 860px)", function () {
+      ptMsgs.forEach(function (msg) {
+        gsap.set(msg, { opacity: 1, y: 0 });
+      });
+    });
+  } else {
+    ptMsgs.forEach(function (m) { m.style.opacity = "1"; });
+  }
+
+  /* ---------- Chairs claim ---------- */
+  var chairs = document.querySelectorAll("[data-chair]");
+  var chairHint = document.getElementById("chairHint");
+  var claimed = 0;
+  chairs.forEach(function (chair) {
+    chair.addEventListener("click", function () {
+      var on = chair.classList.toggle("is-claimed");
+      chair.setAttribute("aria-pressed", on ? "true" : "false");
+      claimed = document.querySelectorAll(".chair.is-claimed").length;
+      if (chairHint) {
+        if (claimed === 0) chairHint.textContent = "Empty chairs. Click to claim a seat for your practice.";
+        else if (claimed === 1) chairHint.textContent = "One seat claimed. Add teammates or send the request.";
+        else chairHint.textContent = claimed + " seats claimed for this practice.";
+      }
+      if (hasGSAP && !REDUCE) {
+        gsap.fromTo(chair, { scale: 0.94 }, { scale: 1, duration: 0.45, ease: "power3.out" });
+      }
+    });
+  });
+
+  /* ---------- Form ---------- */
+  var form = document.getElementById("practiceForm");
+  var formNote = document.getElementById("formNote");
+  if (form) {
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (formNote) {
+        formNote.textContent = "Request received. We’ll open your practice channel within two quiet days.";
+        formNote.style.color = "var(--coral-2)";
+      }
+      if (hasGSAP && !REDUCE) {
+        gsap.fromTo(form, { y: 4 }, { y: 0, duration: 0.5, ease: "power3.out" });
+      }
+      form.reset();
+    });
+  }
+
+  /* ---------- Refresh ---------- */
+  if (hasST) {
+    window.addEventListener("load", function () { ScrollTrigger.refresh(); });
+    window.addEventListener("resize", function () {
+      clearTimeout(window.__relayR);
+      window.__relayR = setTimeout(function () { ScrollTrigger.refresh(); }, 220);
+    });
+  }
+})();
+</script>
+</body>
+</html>

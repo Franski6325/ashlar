@@ -1,0 +1,1766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Switchyard — Freight Rail Operations Console</title>
+<meta name="description" content="Switchyard is a freight rail operations console: yard diagrams, live consists, route planning and capacity desks for Class I and shortline networks." />
+<meta name="theme-color" content="#12141A" />
+<meta name="color-scheme" content="dark" />
+<meta property="og:title" content="Switchyard — Freight Rail Operations Console" />
+<meta property="og:description" content="Yard control, live consists, route planning and capacity desks. Built for rail logistics." />
+<meta property="og:type" content="website" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2312141A'/%3E%3Cpath d='M4 16h24M10 12v8M22 12v8' stroke='%23FF6A00' stroke-width='2' fill='none'/%3E%3C/svg%3E" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js" defer></script>
+
+<style>
+:root{
+  --bg:#12141A;
+  --bg-1:#161820;
+  --bg-2:#1A1D26;
+  --bg-3:#22262F;
+  --bg-4:#2A2F3A;
+  --ink:#F2F0E8;
+  --ink-2:rgba(242,240,232,.78);
+  --ink-3:rgba(242,240,232,.55);
+  --muted:rgba(242,240,232,.38);
+  --faint:rgba(242,240,232,.22);
+  --line:rgba(242,240,232,.10);
+  --line-2:rgba(242,240,232,.18);
+  --line-3:rgba(242,240,232,.28);
+
+  --accent:#FF6A00;
+  --accent-2:#FF8A33;
+  --accent-3:rgba(255,106,0,.14);
+  --accent-4:rgba(255,106,0,.32);
+  --label:#F5E6A3;
+  --label-2:#E8D78A;
+  --ok:#3DDC97;
+  --warn:#F5C842;
+  --bad:#FF4D4D;
+
+  --font-sans:"Archivo","Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+
+  --ease:cubic-bezier(.22,1,.36,1);
+  --ease-io:cubic-bezier(.76,0,.24,1);
+
+  --pad:clamp(1rem,2.8vw,2rem);
+  --maxw:1720px;
+  --nav-h:58px;
+
+  --fs-micro:.625rem;
+  --fs-mono:.6875rem;
+  --fs-sm:.8125rem;
+  --fs-base:.9375rem;
+  --fs-lead:clamp(1rem,.92rem + .35vw,1.15rem);
+  --fs-h3:clamp(1.25rem,1.05rem + .9vw,1.85rem);
+  --fs-h2:clamp(1.9rem,1.2rem + 2.6vw,3.6rem);
+  --fs-h1:clamp(2.4rem,.7rem + 5.8vw,6.8rem);
+}
+
+*,*::before,*::after{box-sizing:border-box;border-radius:0 !important;}
+html{-webkit-text-size-adjust:100%;scroll-behavior:auto;}
+body,h1,h2,h3,h4,p,ul,ol,li,figure,blockquote,dl,dd{margin:0;padding:0;}
+ul,ol{list-style:none;}
+img,svg{display:block;max-width:100%;}
+button,input,select,textarea{font:inherit;color:inherit;background:none;border:0;}
+button{cursor:none;}
+a{color:inherit;text-decoration:none;}
+table{border-collapse:collapse;width:100%;}
+strong{font-weight:600;}
+
+html,body{background:var(--bg);}
+body{
+  font-family:var(--font-sans);
+  font-variation-settings:"wdth" 100;
+  color:var(--ink);
+  font-size:var(--fs-base);
+  line-height:1.45;
+  overflow-x:hidden;
+  cursor:none;
+  -webkit-font-smoothing:antialiased;
+}
+body.is-loading{overflow:hidden;}
+::selection{background:var(--accent);color:#12141A;}
+
+/* Coupler cursor */
+.cursor{
+  position:fixed;top:0;left:0;width:28px;height:14px;
+  pointer-events:none;z-index:10000;
+  transform:translate(-50%,-50%);
+  mix-blend-mode:normal;
+  opacity:0;transition:opacity .25s;
+}
+body.cursor-on .cursor{opacity:1;}
+.cursor svg{width:100%;height:100%;}
+.cursor-label{
+  position:fixed;top:0;left:0;pointer-events:none;z-index:10000;
+  font-family:var(--font-mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--label);opacity:0;transform:translate(18px,8px);
+  transition:opacity .2s;
+}
+body.cursor-on .cursor-label.is-on{opacity:1;}
+
+.sr-only{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+}
+
+.wrap{width:min(100% - (var(--pad) * 2), var(--maxw));margin-inline:auto;}
+.rule{height:1px;background:var(--line);width:100%;}
+.label{
+  font-family:var(--font-mono);font-size:var(--fs-micro);
+  letter-spacing:.16em;text-transform:uppercase;color:var(--label);
+}
+.mono{font-family:var(--font-mono);font-size:var(--fs-mono);letter-spacing:.04em;}
+.eyebrow{
+  display:flex;align-items:center;gap:.75rem;
+  font-family:var(--font-mono);font-size:var(--fs-micro);
+  letter-spacing:.18em;text-transform:uppercase;color:var(--label);
+  margin-bottom:1rem;
+}
+.eyebrow::before{
+  content:"";width:18px;height:2px;background:var(--accent);flex-shrink:0;
+}
+h1,h2,h3{font-weight:600;letter-spacing:-.03em;line-height:1.05;font-variation-settings:"wdth" 95;}
+h1{font-size:var(--fs-h1);}
+h2{font-size:var(--fs-h2);}
+h3{font-size:var(--fs-h3);}
+.lead{font-size:var(--fs-lead);color:var(--ink-2);max-width:42ch;line-height:1.5;}
+.accent{color:var(--accent);}
+.panel{
+  background:var(--bg-1);
+  border:1px solid var(--line);
+}
+.panel-head{
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  padding:.65rem .85rem;border-bottom:1px solid var(--line);
+  background:var(--bg-2);
+}
+.panel-body{padding:.85rem;}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:.55rem;
+  min-height:42px;padding:0 1.1rem;
+  font-family:var(--font-mono);font-size:var(--fs-mono);
+  letter-spacing:.12em;text-transform:uppercase;
+  border:1px solid var(--line-2);background:transparent;color:var(--ink);
+  transition:background .25s var(--ease),border-color .25s,color .25s;
+}
+.btn:hover,.btn:focus-visible{border-color:var(--accent);color:var(--accent);}
+.btn-fill{
+  background:var(--accent);border-color:var(--accent);color:#12141A;font-weight:700;
+}
+.btn-fill:hover,.btn-fill:focus-visible{background:var(--accent-2);border-color:var(--accent-2);color:#12141A;}
+.btn-sm{min-height:32px;padding:0 .75rem;font-size:10px;}
+.status-dot{
+  width:7px;height:7px;background:var(--ok);display:inline-block;
+  box-shadow:0 0 0 3px rgba(61,220,151,.18);
+}
+.status-dot.warn{background:var(--warn);box-shadow:0 0 0 3px rgba(245,200,66,.18);}
+.status-dot.bad{background:var(--bad);box-shadow:0 0 0 3px rgba(255,77,77,.18);}
+.status-dot.idle{background:var(--muted);box-shadow:none;}
+
+/* ========== PRELOADER ========== */
+#preloader{
+  position:fixed;inset:0;z-index:9000;
+  background:var(--bg);display:grid;place-items:center;
+  transition:opacity .55s var(--ease),visibility .55s;
+}
+#preloader.is-done{opacity:0;visibility:hidden;pointer-events:none;}
+.pre-inner{width:min(92vw,520px);display:grid;gap:1.25rem;}
+.pre-brand{
+  display:flex;align-items:baseline;justify-content:space-between;
+  font-family:var(--font-mono);font-size:var(--fs-micro);letter-spacing:.2em;text-transform:uppercase;
+}
+.pre-brand span:last-child{color:var(--accent);}
+.pre-track{
+  height:28px;border:1px solid var(--line-2);background:var(--bg-1);
+  position:relative;overflow:hidden;
+}
+.pre-rail{
+  position:absolute;inset:0;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 18px, var(--line) 18px 19px),
+    linear-gradient(var(--bg-2),var(--bg-2));
+}
+.pre-car{
+  position:absolute;top:4px;left:0;height:18px;width:42px;
+  background:var(--accent);
+  box-shadow:48px 0 0 var(--accent-2),96px 0 0 var(--label);
+}
+.pre-meta{
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--font-mono);font-size:var(--fs-mono);color:var(--ink-3);
+}
+.pre-pct{color:var(--label);font-variant-numeric:tabular-nums;}
+.pre-bars{display:grid;grid-template-columns:repeat(24,1fr);gap:3px;height:10px;}
+.pre-bars span{background:var(--bg-3);transform-origin:bottom;}
+.pre-bars span.on{background:var(--accent);}
+
+/* ========== NAV ========== */
+#nav{
+  position:fixed;top:0;left:0;right:0;z-index:800;
+  height:var(--nav-h);
+  border-bottom:1px solid var(--line);
+  background:rgba(18,20,26,.92);
+  backdrop-filter:blur(10px);
+  transition:transform .4s var(--ease), border-color .3s;
+}
+.nav-inner{
+  height:100%;width:min(100% - (var(--pad) * 2), var(--maxw));margin-inline:auto;
+  display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem;
+}
+.nav-logo{
+  display:flex;align-items:center;gap:.65rem;
+  font-weight:700;letter-spacing:-.02em;font-size:1.05rem;
+  font-variation-settings:"wdth" 90;
+}
+.nav-mark{
+  width:22px;height:14px;border:1.5px solid var(--accent);
+  position:relative;
+}
+.nav-mark::before,.nav-mark::after{
+  content:"";position:absolute;top:50%;width:6px;height:6px;
+  border:1.5px solid var(--accent);transform:translateY(-50%);
+}
+.nav-mark::before{left:-4px;border-right:0;}
+.nav-mark::after{right:-4px;border-left:0;}
+.nav-logo em{font-style:normal;color:var(--accent);font-weight:500;}
+.nav-links{
+  display:none;gap:1.35rem;
+  font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+}
+.nav-links a{color:var(--ink-3);transition:color .2s;}
+.nav-links a:hover{color:var(--accent);}
+.nav-right{display:flex;align-items:center;justify-content:flex-end;gap:.75rem;}
+.nav-clock{
+  display:none;font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;
+  color:var(--label);font-variant-numeric:tabular-nums;
+}
+.nav-toggle{
+  width:42px;height:32px;border:1px solid var(--line-2);
+  display:grid;place-items:center;gap:4px;padding:0;
+}
+.nav-toggle span{
+  display:block;width:18px;height:1.5px;background:var(--ink);
+  transition:transform .3s var(--ease), opacity .2s;
+}
+body.menu-open .nav-toggle span:nth-child(1){transform:translateY(5.5px) rotate(45deg);}
+body.menu-open .nav-toggle span:nth-child(2){opacity:0;}
+body.menu-open .nav-toggle span:nth-child(3){transform:translateY(-5.5px) rotate(-45deg);}
+
+@media (min-width:980px){
+  .nav-links{display:flex;}
+  .nav-clock{display:block;}
+}
+
+/* Fullscreen menu */
+#menu{
+  position:fixed;inset:0;z-index:750;
+  background:var(--bg);display:grid;
+  grid-template-rows:var(--nav-h) 1fr auto;
+  opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity .4s var(--ease), visibility .4s;
+}
+body.menu-open #menu{opacity:1;visibility:visible;pointer-events:auto;}
+.menu-body{
+  display:grid;align-content:center;
+  width:min(100% - (var(--pad) * 2), var(--maxw));margin-inline:auto;
+  padding:2rem 0;gap:0;
+}
+.menu-link{
+  display:grid;grid-template-columns:4.5rem 1fr auto;align-items:baseline;gap:1rem;
+  padding:1rem 0;border-bottom:1px solid var(--line);
+  font-size:clamp(1.6rem,1rem + 3vw,3.2rem);font-weight:600;letter-spacing:-.03em;
+  font-variation-settings:"wdth" 92;
+  transition:color .25s, padding-left .3s var(--ease);
+}
+.menu-link:hover{color:var(--accent);padding-left:.5rem;}
+.menu-link .n{font-family:var(--font-mono);font-size:var(--fs-mono);color:var(--label);letter-spacing:.12em;}
+.menu-link .t{font-family:var(--font-mono);font-size:var(--fs-micro);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);}
+.menu-foot{
+  border-top:1px solid var(--line);
+  width:min(100% - (var(--pad) * 2), var(--maxw));margin-inline:auto;
+  padding:1.25rem 0;display:flex;flex-wrap:wrap;gap:1rem 2rem;
+  font-family:var(--font-mono);font-size:var(--fs-mono);color:var(--ink-3);
+}
+.menu-foot strong{color:var(--label);font-weight:500;}
+
+/* ========== HERO ========== */
+#hero{
+  min-height:100svh;padding-top:calc(var(--nav-h) + 1.25rem);
+  padding-bottom:2rem;display:grid;align-content:start;gap:1.25rem;
+  position:relative;overflow:hidden;
+}
+.hero-grid{
+  width:min(100% - (var(--pad) * 2), var(--maxw));margin-inline:auto;
+  display:grid;gap:1.25rem;
+}
+@media (min-width:1100px){
+  .hero-grid{grid-template-columns:1.05fr .95fr;align-items:stretch;min-height:calc(100svh - var(--nav-h) - 3rem);}
+}
+.hero-copy{display:grid;align-content:center;gap:1.35rem;position:relative;z-index:2;}
+.hero-kicker{
+  display:inline-flex;align-items:center;gap:.6rem;
+  font-family:var(--font-mono);font-size:var(--fs-micro);
+  letter-spacing:.18em;text-transform:uppercase;color:var(--label);
+  width:max-content;padding:.35rem .55rem;border:1px solid var(--line-2);
+  background:var(--bg-1);
+}
+.hero-kicker i{width:6px;height:6px;background:var(--accent);display:block;}
+.hero-title{max-width:14ch;}
+.hero-title span{display:block;}
+.hero-title .line-accent{color:var(--accent);}
+.hero-actions{display:flex;flex-wrap:wrap;gap:.65rem;margin-top:.25rem;}
+.hero-meta{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  border:1px solid var(--line);background:var(--bg-1);
+}
+.hero-meta div{padding:.75rem .85rem;border-right:1px solid var(--line);}
+.hero-meta div:last-child{border-right:0;}
+.hero-meta dt{font-family:var(--font-mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--label);margin-bottom:.35rem;}
+.hero-meta dd{font-size:1.05rem;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums;}
+
+.yard-panel{display:grid;grid-template-rows:auto 1fr auto;min-height:420px;}
+.yard-svg-wrap{
+  position:relative;background:
+    linear-gradient(180deg, var(--bg-2), var(--bg-1)),
+    repeating-linear-gradient(0deg, transparent 0 23px, rgba(242,240,232,.04) 23px 24px);
+  overflow:hidden;min-height:340px;
+}
+.yard-svg{width:100%;height:100%;min-height:340px;}
+.yard-legend{
+  display:flex;flex-wrap:wrap;gap:.75rem 1.25rem;padding:.65rem .85rem;
+  border-top:1px solid var(--line);background:var(--bg-2);
+  font-family:var(--font-mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);
+}
+.yard-legend i{display:inline-block;width:14px;height:3px;margin-right:.4rem;vertical-align:middle;}
+.yard-legend .main{background:var(--accent);}
+.yard-legend .spur{background:var(--label);}
+.yard-legend .occ{background:var(--ink);}
+.blink{animation:blink 1.4s steps(1) infinite;}
+@keyframes blink{50%{opacity:.35;}}
+
+/* ========== SECTIONS SHARED ========== */
+section{padding:clamp(3.5rem,8vw,6.5rem) 0;position:relative;}
+.sec-head{
+  width:min(100% - (var(--pad) * 2), var(--maxw));margin-inline:auto;
+  display:grid;gap:1rem;margin-bottom:clamp(1.5rem,3vw,2.5rem);
+}
+@media (min-width:900px){
+  .sec-head{grid-template-columns:1fr 1fr;align-items:end;}
+  .sec-head .lead{justify-self:end;text-align:right;}
+}
+.sec-head h2{max-width:16ch;}
+
+/* ========== KPIs ========== */
+#kpis{padding-top:2rem;border-top:1px solid var(--line);}
+.kpi-strip{
+  width:min(100% - (var(--pad) * 2), var(--maxw));margin-inline:auto;
+  display:grid;grid-template-columns:repeat(2,1fr);border:1px solid var(--line);
+}
+@media (min-width:800px){.kpi-strip{grid-template-columns:repeat(4,1fr);}}
+.kpi{
+  padding:1.25rem 1rem 1.35rem;border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+  background:var(--bg-1);position:relative;overflow:hidden;
+}
+@media (min-width:800px){
+  .kpi:nth-child(4n){border-right:0;}
+  .kpi{border-bottom:0;}
+}
+.kpi:nth-child(2n){border-right:0;}
+@media (min-width:800px){.kpi:nth-child(2n){border-right:1px solid var(--line);}}
+.kpi::after{
+  content:"";position:absolute;left:0;bottom:0;height:2px;width:0;background:var(--accent);
+}
+.kpi.is-in::after{width:100%;transition:width 1s var(--ease);}
+.kpi .k-label{font-family:var(--font-mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--label);margin-bottom:.85rem;}
+.kpi .k-val{
+  font-size:clamp(1.8rem,1.2rem + 2vw,2.85rem);font-weight:700;letter-spacing:-.04em;
+  font-variant-numeric:tabular-nums;line-height:1;
+}
+.kpi .k-val em{font-style:normal;color:var(--accent);font-size:.55em;margin-left:.15em;vertical-align:super;}
+.kpi .k-sub{margin-top:.65rem;font-family:var(--font-mono);font-size:10px;color:var(--ink-3);letter-spacing:.06em;}
+.kpi .k-delta{color:var(--ok);}
+.kpi .k-delta.down{color:var(--bad);}
+
+/* ========== CONSIST TABLE ========== */
+#consist .table-wrap{
+  width:min(100% - (var(--pad) * 2), var(--maxw));margin-inline:auto;
+  border:1px solid var(--line);background:var(--bg-1);overflow:auto;
+}
+.table-toolbar{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.75rem;
+  padding:.65rem .85rem;border-bottom:1px solid var(--line);background:var(--bg-2);
+  position:sticky;left:0;
+}
+.filters{display:flex;flex-wrap:wrap;gap:.4rem;}
+.filter-btn{
+  min-height:28px;padding:0 .65rem;
+  font-family:var(--font-mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;
+  border:1px solid var(--line);color:var(--ink-3);
+}
+.filter-btn.is-active,.filter-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-3);}
+.live-badge{
+  display:inline-flex;align-items:center;gap:.45rem;
+  font-family:var(--font-mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ok);
+}
+table.consist{min-width:920px;}
+table.consist th,table.consist td{
+  padding:.7rem .85rem;text-align:left;border-bottom:1px solid var(--line);
+  font-variant-numeric:tabular-nums;white-space:nowrap;
+}
+table.consist th{
+  font-family:var(--font-mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--label);font-weight:500;background:var(--bg-2);position:sticky;top:0;
+}
+table.consist tbody tr{transition:background .2s;}
+table.consist tbody tr:hover{background:var(--accent-3);}
+table.consist tbody tr.is-hidden{display:none;}
+.pill{
+  display:inline-block;padding:.2rem .45rem;
+  font-family:var(--font-mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;
+  border:1px solid var(--line-2);color:var(--ink-2);
+}
+.pill.run{border-color:rgba(61,220,151,.45);color:var(--ok);}
+.pill.hold{border-color:rgba(245,200,66,.45);color:var(--warn);}
+.pill.yard{border-color:var(--accent-4);color:var(--accent);}
+.pill.clear{border-color:var(--line-2);color:var(--muted);}
+
+/* ========== ROUTE PLANNER ========== */
+#planner .planner-grid{
+  width:min(100% - (var(--pad) * 2), var(--maxw));margin-inline:auto;
+  display:grid;gap:1px;background:var(--line);border:1px solid var(--line);
+}
+@media (min-width:1000px){.planner-grid{grid-template-columns:320px 1fr 300px;}}
+.planner-col{background:var(--bg-1);min-height:420px;display:grid;grid-template-rows:auto 1fr;}
+.form-stack{display:grid;gap:.85rem;padding:1rem;}
+.field{display:grid;gap:.35rem;}
+.field label{font-family:var(--font-mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--label);}
+.field select,.field input{
+  min-height:40px;padding:0 .75rem;border:1px solid var(--line-2);
+  background:var(--bg-2);color:var(--ink);outline:none;
+}
+.field select:focus,.field input:focus{border-color:var(--accent);}
+.seg-toggle{display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid var(--line-2);}
+.seg-toggle button{
+  min-height:36px;font-family:var(--font-mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-3);border-right:1px solid var(--line-2);
+}
+.seg-toggle button:last-child{border-right:0;}
+.seg-toggle button.is-active{background:var(--accent);color:#12141A;font-weight:700;}
+.route-viz{
+  padding:1rem;display:grid;gap:1rem;align-content:start;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(255,106,0,.08), transparent 50%),
+    var(--bg-1);
+}
+.route-map{width:100%;height:auto;border:1px solid var(--line);}
+.route-steps{display:grid;gap:0;}
+.route-step{
+  display:grid;grid-template-columns:18px 1fr auto;gap:.75rem;align-items:start;
+  padding:.7rem 0;border-bottom:1px solid var(--line);
+}
+.route-step .dot{
+  width:10px;height:10px;margin-top:.25rem;border:1.5px solid var(--accent);background:transparent;
+}
+.route-step.is-active .dot{background:var(--accent);}
+.route-step .nm{font-weight:600;letter-spacing:-.02em;}
+.route-step .sub{font-family:var(--font-mono);font-size:10px;color:var(--ink-3);margin-top:.2rem;}
+.route-step .eta{font-family:var(--font-mono);font-size:10px;color:var(--label);text-align:right;}
+.plan-out{padding:1rem;display:grid;gap:.85rem;align-content:start;}
+.stat-block{
+  border:1px solid var(--line);padding:.85rem;background:var(--bg-2);
+}
+.stat-block .s-l{font-family:var(--font-mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--label);margin-bottom:.4rem;}
+.stat-block .s-v{font-size:1.55rem;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums;}
+.stat-block .s-v span{color:var(--accent);}
+.hbar{height:6px;background:var(--bg-3);margin-top:.65rem;overflow:hidden;}
+.hbar > i{display:block;height:100%;background:var(--accent);width:0;transition:width .8s var(--ease);}
+
+/* ========== NETWORK PLATES ========== */
+#network .plates{
+  width:min(100% - (var(--pad) * 2), var(--maxw));margin-inline:auto;
+  display:grid;gap:1px;background:var(--line);border:1px solid var(--line);
+}
+@media (min-width:700px){.plates{grid-template-columns:repeat(2,1fr);}}
+@media (min-width:1100px){.plates{grid-template-columns:repeat(3,1fr);}}
+.plate{
+  background:var(--bg-1);padding:1.15rem;min-height:210px;
+  display:grid;grid-template-rows:auto 1fr auto;gap:1rem;
+  transition:background .25s;
+}
+.plate:hover{background:var(--bg-2);}
+.plate-top{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;}
+.plate-code{
+  font-family:var(--font-mono);font-size:1.35rem;font-weight:700;letter-spacing:.04em;color:var(--accent);
+}
+.plate-region{font-family:var(--font-mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--label);text-align:right;}
+.plate h3{font-size:1.15rem;font-weight:600;letter-spacing:-.02em;}
+.plate p{color:var(--ink-3);font-size:var(--fs-sm);max-width:32ch;}
+.plate-foot{
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--font-mono);font-size:10px;color:var(--ink-3);border-top:1px solid var(--line);padding-top:.75rem;
+}
+.plate-mini{width:100%;height:48px;margin-top:.25rem;}
+
+/* ========== INCIDENTS ========== */
+#incidents .feed-grid{
+  width:min(100% - (var(--pad) * 2), var(--maxw));margin-inline:auto;
+  display:grid;gap:1px;background:var(--line);border:1px solid var(--line);
+}
+@media (min-width:960px){.feed-grid{grid-template-columns:1.2fr .8fr;}}
+.feed-list{background:var(--bg-1);}
+.incident{
+  display:grid;grid-template-columns:88px 1fr auto;gap:1rem;align-items:start;
+  padding:1rem .95rem;border-bottom:1px solid var(--line);
+  transition:background .2s;
+}
+.incident:hover{background:var(--bg-2);}
+.incident .when{font-family:var(--font-mono);font-size:10px;color:var(--label);letter-spacing:.06em;}
+.incident .sev{
+  font-family:var(--font-mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;
+  padding:.2rem .4rem;border:1px solid;width:max-content;margin-bottom:.45rem;
+}
+.sev.s1{color:var(--bad);border-color:rgba(255,77,77,.4);}
+.sev.s2{color:var(--warn);border-color:rgba(245,200,66,.4);}
+.sev.s3{color:var(--accent);border-color:var(--accent-4);}
+.sev.s4{color:var(--ink-3);border-color:var(--line-2);}
+.incident h4{font-size:1rem;font-weight:600;letter-spacing:-.02em;margin-bottom:.3rem;}
+.incident p{font-size:var(--fs-sm);color:var(--ink-3);max-width:52ch;}
+.incident .lane{font-family:var(--font-mono);font-size:10px;color:var(--muted);text-align:right;}
+.feed-side{background:var(--bg-1);padding:1rem;display:grid;gap:1rem;align-content:start;}
+.ticker{
+  border:1px solid var(--line);background:var(--bg-2);overflow:hidden;height:36px;
+  display:flex;align-items:center;
+}
+.ticker-track{
+  display:flex;gap:2.5rem;white-space:nowrap;
+  font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--label);
+  animation:ticker 28s linear infinite;
+}
+@keyframes ticker{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+.sev-bars{display:grid;gap:.55rem;}
+.sev-row{display:grid;grid-template-columns:64px 1fr 36px;gap:.65rem;align-items:center;font-family:var(--font-mono);font-size:10px;color:var(--ink-3);}
+.sev-row .bar{height:8px;background:var(--bg-3);overflow:hidden;}
+.sev-row .bar i{display:block;height:100%;background:var(--accent);}
+
+/* ========== CAPACITY DESK ========== */
+#capacity .desk{
+  width:min(100% - (var(--pad) * 2), var(--maxw));margin-inline:auto;
+  display:grid;gap:1px;background:var(--line);border:1px solid var(--line);
+}
+@media (min-width:1000px){.desk{grid-template-columns:1fr 1.1fr;}}
+.desk-form,.desk-result{background:var(--bg-1);padding:1.25rem;display:grid;gap:1.1rem;align-content:start;}
+.slider-row{display:grid;gap:.45rem;}
+.slider-row header{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;}
+.slider-row header span:first-child{color:var(--label);text-transform:uppercase;letter-spacing:.14em;font-size:9px;}
+.slider-row header span:last-child{color:var(--accent);font-variant-numeric:tabular-nums;}
+input[type="range"]{
+  -webkit-appearance:none;appearance:none;width:100%;height:4px;
+  background:var(--bg-3);outline:none;
+}
+input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:14px;height:14px;background:var(--accent);border:0;cursor:none;
+}
+.cap-readout{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);border:1px solid var(--line);
+}
+.cap-cell{background:var(--bg-2);padding:1rem;}
+.cap-cell .c-l{font-family:var(--font-mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--label);margin-bottom:.4rem;}
+.cap-cell .c-v{font-size:clamp(1.5rem,1rem + 1.8vw,2.2rem);font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums;}
+.cap-gauge{
+  height:160px;border:1px solid var(--line);background:var(--bg-2);
+  display:grid;place-items:center;position:relative;overflow:hidden;
+}
+.cap-gauge svg{width:min(100%,280px);height:auto;}
+.cap-note{font-family:var(--font-mono);font-size:10px;color:var(--ink-3);line-height:1.5;}
+
+/* ========== PRICING ========== */
+#pricing .plans{
+  width:min(100% - (var(--pad) * 2), var(--maxw));margin-inline:auto;
+  display:grid;gap:1px;background:var(--line);border:1px solid var(--line);
+}
+@media (min-width:900px){.plans{grid-template-columns:repeat(3,1fr);}}
+.plan{
+  background:var(--bg-1);padding:1.35rem 1.2rem 1.5rem;
+  display:grid;grid-template-rows:auto auto 1fr auto;gap:1.15rem;
+  position:relative;
+}
+.plan.is-featured{background:var(--bg-2);}
+.plan.is-featured::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);
+}
+.plan-tier{
+  font-family:var(--font-mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--label);
+}
+.plan h3{font-size:1.55rem;letter-spacing:-.03em;}
+.plan-price{
+  display:flex;align-items:baseline;gap:.35rem;
+  font-variant-numeric:tabular-nums;
+}
+.plan-price .amt{font-size:2.4rem;font-weight:700;letter-spacing:-.04em;}
+.plan-price .per{font-family:var(--font-mono);font-size:10px;color:var(--ink-3);letter-spacing:.08em;}
+.plan ul{display:grid;gap:.55rem;}
+.plan li{
+  display:grid;grid-template-columns:14px 1fr;gap:.55rem;align-items:start;
+  font-size:var(--fs-sm);color:var(--ink-2);
+}
+.plan li::before{content:"";width:8px;height:8px;margin-top:.35rem;background:var(--accent);}
+
+/* ========== CTA ========== */
+#cta{
+  padding:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+}
+.cta-band{
+  width:min(100% - (var(--pad) * 2), var(--maxw));margin-inline:auto;
+  display:grid;gap:1.5rem;padding:clamp(3rem,7vw,5rem) 0;
+}
+@media (min-width:900px){
+  .cta-band{grid-template-columns:1.3fr .7fr;align-items:end;}
+}
+.cta-band h2{max-width:14ch;}
+.cta-form{
+  display:grid;gap:.65rem;border:1px solid var(--line);background:var(--bg-1);padding:1rem;
+}
+.cta-form input{
+  min-height:44px;padding:0 .85rem;border:1px solid var(--line-2);background:var(--bg-2);outline:none;
+}
+.cta-form input:focus{border-color:var(--accent);}
+.cta-form .row{display:grid;gap:.65rem;}
+@media (min-width:600px){.cta-form .row{grid-template-columns:1fr auto;}}
+
+/* ========== FOOTER ========== */
+#footer{
+  padding:2rem 0 1.5rem;background:var(--bg);
+}
+.footer-grid{
+  width:min(100% - (var(--pad) * 2), var(--maxw));margin-inline:auto;
+  display:grid;gap:1.5rem;
+}
+@media (min-width:900px){.footer-grid{grid-template-columns:1.2fr 1fr 1fr;align-items:start;}}
+.footer-brand{font-size:1.35rem;font-weight:700;letter-spacing:-.03em;margin-bottom:.5rem;}
+.footer-brand em{font-style:normal;color:var(--accent);}
+.footer-col h4{
+  font-family:var(--font-mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--label);margin-bottom:.85rem;font-weight:500;
+}
+.footer-col a{
+  display:block;padding:.3rem 0;font-size:var(--fs-sm);color:var(--ink-3);transition:color .2s;
+}
+.footer-col a:hover{color:var(--accent);}
+.footer-clock-panel{
+  border:1px solid var(--line);background:var(--bg-1);padding:1rem;
+  display:grid;gap:.75rem;
+}
+.big-clock{
+  font-family:var(--font-mono);font-size:clamp(1.6rem,1rem + 2vw,2.4rem);
+  font-weight:700;letter-spacing:.06em;font-variant-numeric:tabular-nums;color:var(--accent);
+}
+.clock-meta{display:grid;gap:.35rem;font-family:var(--font-mono);font-size:10px;color:var(--ink-3);}
+.clock-meta span{display:flex;justify-content:space-between;gap:1rem;}
+.clock-meta b{color:var(--label);font-weight:500;}
+.footer-bottom{
+  width:min(100% - (var(--pad) * 2), var(--maxw));margin-inline:auto;
+  margin-top:2rem;padding-top:1rem;border-top:1px solid var(--line);
+  display:flex;flex-wrap:wrap;justify-content:space-between;gap:.75rem;
+  font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;color:var(--muted);
+}
+
+/* reveal helpers */
+.reveal{opacity:0;transform:translateY(28px);}
+.reveal-x{opacity:0;transform:translateX(-24px);}
+
+/* track hatch bg accent strip */
+.hatch{
+  background-image:repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 6px,
+    rgba(255,106,0,.06) 6px,
+    rgba(255,106,0,.06) 7px
+  );
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;}
+  .cursor,.cursor-label{display:none !important;}
+  body{cursor:auto;}
+  button{cursor:pointer;}
+}
+</style>
+</head>
+<body class="is-loading">
+
+<!-- Coupler cursor -->
+<div class="cursor" id="cursor" aria-hidden="true">
+  <svg viewBox="0 0 28 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M2 7H26" stroke="#FF6A00" stroke-width="2"/>
+    <path d="M6 3V11M22 3V11" stroke="#FF6A00" stroke-width="2"/>
+    <path d="M1 4L4 7L1 10M27 4L24 7L27 10" stroke="#FF6A00" stroke-width="1.5" fill="none"/>
+  </svg>
+</div>
+<div class="cursor-label" id="cursorLabel" aria-hidden="true">COUPLE</div>
+
+<!-- PRELOADER -->
+<div id="preloader" role="status" aria-live="polite">
+  <div class="pre-inner">
+    <div class="pre-brand"><span>Switchyard OPS</span><span>SYS.BOOT</span></div>
+    <div class="pre-track" aria-hidden="true">
+      <div class="pre-rail"></div>
+      <div class="pre-car" id="preCar"></div>
+    </div>
+    <div class="pre-meta">
+      <span>ALIGNING YARD STATE</span>
+      <span class="pre-pct"><span id="prePct">00</span>%</span>
+    </div>
+    <div class="pre-bars" id="preBars" aria-hidden="true"></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<header id="nav">
+  <div class="nav-inner">
+    <a href="#hero" class="nav-logo" data-cursor="HOME">
+      <span class="nav-mark" aria-hidden="true"></span>
+      Switchyard<em>.</em>
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#kpis">Board</a>
+      <a href="#consist">Consists</a>
+      <a href="#planner">Routes</a>
+      <a href="#network">Network</a>
+      <a href="#pricing">Plans</a>
+    </nav>
+    <div class="nav-right">
+      <div class="nav-clock" id="navClock">00:00:00 Z</div>
+      <a class="btn btn-sm btn-fill" href="#cta" data-cursor="REQUEST">Request desk</a>
+      <button class="nav-toggle" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- MENU -->
+<div id="menu" aria-hidden="true">
+  <div></div>
+  <div class="menu-body">
+    <a class="menu-link" href="#hero"><span class="n">01</span><span>Yard overview</span><span class="t">Hero</span></a>
+    <a class="menu-link" href="#kpis"><span class="n">02</span><span>Network KPIs</span><span class="t">Board</span></a>
+    <a class="menu-link" href="#consist"><span class="n">03</span><span>Live consists</span><span class="t">Timetable</span></a>
+    <a class="menu-link" href="#planner"><span class="n">04</span><span>Route planner</span><span class="t">Desk</span></a>
+    <a class="menu-link" href="#network"><span class="n">05</span><span>Coverage plates</span><span class="t">Map</span></a>
+    <a class="menu-link" href="#incidents"><span class="n">06</span><span>Incident feed</span><span class="t">Alerts</span></a>
+    <a class="menu-link" href="#capacity"><span class="n">07</span><span>Capacity calculator</span><span class="t">Ops</span></a>
+    <a class="menu-link" href="#pricing"><span class="n">08</span><span>Ops plans</span><span class="t">Pricing</span></a>
+    <a class="menu-link" href="#cta"><span class="n">09</span><span>Open a desk</span><span class="t">CTA</span></a>
+  </div>
+  <div class="menu-foot">
+    <div><strong>NOC</strong> &nbsp; 24/7 corridor watch</div>
+    <div><strong>LAT</strong> &nbsp; 41.8781° N</div>
+    <div><strong>LNG</strong> &nbsp; 87.6298° W</div>
+    <div><strong>CLASS</strong> &nbsp; Freight / Intermodal</div>
+  </div>
+</div>
+
+<main id="main">
+
+<!-- HERO / YARD DIAGRAM -->
+<section id="hero">
+  <div class="hero-grid">
+    <div class="hero-copy">
+      <div class="hero-kicker"><i></i> Freight rail operations console</div>
+      <h1 class="hero-title">
+        <span class="reveal">Switch the</span>
+        <span class="reveal line-accent">yard.</span>
+        <span class="reveal">Move the</span>
+        <span class="reveal">network.</span>
+      </h1>
+      <p class="lead reveal">Dense control surface for classification yards, live consists, and corridor capacity — built for dispatchers who read track diagrams, not dashboards.</p>
+      <div class="hero-actions reveal">
+        <a class="btn btn-fill" href="#planner" data-cursor="PLAN">Open route desk</a>
+        <a class="btn" href="#consist" data-cursor="VIEW">View live consists</a>
+      </div>
+      <dl class="hero-meta reveal">
+        <div><dt>Active trains</dt><dd id="heroTrains">148</dd></div>
+        <div><dt>Yard utilization</dt><dd>86<em style="font-style:normal;color:var(--accent);font-size:.7em">%</em></dd></div>
+        <div><dt>Avg dwell</dt><dd>4.2<em style="font-style:normal;color:var(--accent);font-size:.7em">h</em></dd></div>
+      </dl>
+    </div>
+
+    <div class="panel yard-panel reveal">
+      <div class="panel-head">
+        <span class="label">YD-14 · Classification diagram</span>
+        <span class="mono" style="color:var(--ink-3)"><span class="status-dot"></span> &nbsp; LIVE TRACK</span>
+      </div>
+      <div class="yard-svg-wrap">
+        <svg class="yard-svg" viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Classification yard track diagram">
+          <defs>
+            <pattern id="ties" width="16" height="8" patternUnits="userSpaceOnUse">
+              <rect width="16" height="8" fill="transparent"/>
+              <rect x="0" y="3" width="10" height="2" fill="rgba(242,240,232,.08)"/>
+            </pattern>
+          </defs>
+          <rect width="640" height="360" fill="#161820"/>
+          <rect width="640" height="360" fill="url(#ties)"/>
+
+          <!-- Lead tracks -->
+          <g stroke="#FF6A00" stroke-width="2.5" fill="none">
+            <path id="leadA" d="M20 60 H200 C260 60 280 90 340 90 H620"/>
+            <path d="M20 110 H180 C240 110 260 140 320 140 H620"/>
+            <path d="M20 160 H160 C220 160 250 190 310 190 H620"/>
+          </g>
+          <!-- Bowl / classification tracks -->
+          <g stroke="#F5E6A3" stroke-width="1.5" fill="none" opacity=".85">
+            <path d="M340 90 C380 90 400 120 440 120 H620"/>
+            <path d="M340 90 C390 90 410 150 455 150 H620"/>
+            <path d="M340 90 C400 90 420 180 470 180 H620"/>
+            <path d="M340 90 C410 90 430 210 485 210 H620"/>
+            <path d="M340 90 C420 90 440 240 500 240 H620"/>
+            <path d="M320 140 C380 140 400 270 510 270 H620"/>
+            <path d="M310 190 C370 190 395 300 520 300 H620"/>
+          </g>
+          <!-- Occupied blocks -->
+          <g fill="#F2F0E8">
+            <rect class="occ" x="80" y="54" width="52" height="12" opacity=".9"/>
+            <rect class="occ" x="160" y="104" width="40" height="12" opacity=".75"/>
+            <rect class="occ" x="480" y="114" width="70" height="10" opacity=".85"/>
+            <rect class="occ" x="500" y="174" width="55" height="10" opacity=".7"/>
+            <rect class="occ" x="430" y="234" width="48" height="10" opacity=".8"/>
+          </g>
+          <!-- Switch diamonds -->
+          <g fill="none" stroke="#FF6A00" stroke-width="1.5">
+            <path d="M200 54 L210 60 L200 66"/><path d="M200 66 L190 60 L200 54"/>
+            <path d="M260 134 L270 140 L260 146"/>
+            <circle cx="340" cy="90" r="5" class="blink"/>
+          </g>
+          <!-- Labels -->
+          <g font-family="JetBrains Mono, monospace" font-size="9" fill="#F5E6A3" letter-spacing="1.5">
+            <text x="24" y="48">LEAD A</text>
+            <text x="24" y="98">LEAD B</text>
+            <text x="24" y="148">LEAD C</text>
+            <text x="450" y="40">BOWL 01–07</text>
+            <text x="24" y="330">HUMMP / RETARDER ZONE</text>
+            <text x="520" y="340">EAST EXIT</text>
+          </g>
+          <!-- Moving consist marker -->
+          <g id="yardTrain">
+            <rect x="40" y="54" width="28" height="12" fill="#FF6A00"/>
+            <rect x="70" y="54" width="18" height="12" fill="#FF8A33"/>
+          </g>
+          <line x1="20" y1="320" x2="300" y2="320" stroke="rgba(242,240,232,.15)" stroke-width="1" stroke-dasharray="4 4"/>
+        </svg>
+      </div>
+      <div class="yard-legend">
+        <span><i class="main"></i>Main / lead</span>
+        <span><i class="spur"></i>Classification</span>
+        <span><i class="occ"></i>Occupied block</span>
+        <span class="mono" style="margin-left:auto;color:var(--accent)">SW-14 ARMED</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- KPIs -->
+<section id="kpis">
+  <div class="sec-head">
+    <div>
+      <div class="eyebrow">02 — Network board</div>
+      <h2 class="reveal">Throughput under wire.</h2>
+    </div>
+    <p class="lead reveal">Live counters from corridor interlocking, yard bowl occupancy, and intermodal gate cycles — refreshed every 30 seconds from the NOC bus.</p>
+  </div>
+  <div class="kpi-strip">
+    <div class="kpi reveal">
+      <div class="k-label">Cars classified / 24h</div>
+      <div class="k-val" data-count="12840">0<em></em></div>
+      <div class="k-sub"><span class="k-delta">▲ 6.2%</span> vs prior shift</div>
+    </div>
+    <div class="kpi reveal">
+      <div class="k-label">On-time origin</div>
+      <div class="k-val" data-count="94" data-suffix="%">0<em>%</em></div>
+      <div class="k-sub"><span class="k-delta">▲ 1.1pp</span> corridor average</div>
+    </div>
+    <div class="kpi reveal">
+      <div class="k-label">Avg terminal dwell</div>
+      <div class="k-val" data-count="4.2" data-decimals="1" data-suffix="h">0<em>h</em></div>
+      <div class="k-sub"><span class="k-delta down">▼ target 3.8h</span></div>
+    </div>
+    <div class="kpi reveal">
+      <div class="k-label">Track miles under watch</div>
+      <div class="k-val" data-count="18620">0<em></em></div>
+      <div class="k-sub"><span class="k-delta">12 districts online</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE CONSIST TABLE -->
+<section id="consist">
+  <div class="sec-head">
+    <div>
+      <div class="eyebrow">03 — Live consists</div>
+      <h2 class="reveal">Timetable that moves.</h2>
+    </div>
+    <p class="lead reveal">Symbol, tonnage, length, and next interlocking — filtered by status. Same density a dispatcher expects on the wall board.</p>
+  </div>
+  <div class="table-wrap reveal">
+    <div class="table-toolbar">
+      <div class="filters" role="tablist" aria-label="Consist filters">
+        <button class="filter-btn is-active" data-filter="all" role="tab" aria-selected="true">All</button>
+        <button class="filter-btn" data-filter="run" role="tab">Running</button>
+        <button class="filter-btn" data-filter="hold" role="tab">Held</button>
+        <button class="filter-btn" data-filter="yard" role="tab">In yard</button>
+      </div>
+      <div class="live-badge"><span class="status-dot blink"></span> Telemetry · <span id="consistStamp">--:--:--Z</span></div>
+    </div>
+    <table class="consist">
+      <thead>
+        <tr>
+          <th>Symbol</th>
+          <th>Origin → Dest</th>
+          <th>Status</th>
+          <th>Length</th>
+          <th>Tons</th>
+          <th>Next OS</th>
+          <th>ETA</th>
+          <th>Crew</th>
+        </tr>
+      </thead>
+      <tbody id="consistBody">
+        <tr data-status="run"><td class="mono">Q-CHI-404</td><td>Cicero → Clearing</td><td><span class="pill run">Running</span></td><td class="mono">9,840 ft</td><td class="mono">12,410</td><td>Brighton</td><td class="mono">22:18</td><td class="mono">C-17</td></tr>
+        <tr data-status="yard"><td class="mono">H-YARD-09</td><td>Bowl 03 → East exit</td><td><span class="pill yard">In yard</span></td><td class="mono">4,200 ft</td><td class="mono">5,880</td><td>Hump crest</td><td class="mono">—</td><td class="mono">Y-02</td></tr>
+        <tr data-status="run"><td class="mono">I-IMX-221</td><td>Global IV → Willow</td><td><span class="pill run">Running</span></td><td class="mono">11,200 ft</td><td class="mono">14,050</td><td>Argo</td><td class="mono">22:41</td><td class="mono">C-08</td></tr>
+        <tr data-status="hold"><td class="mono">M-STL-118</td><td>East St Louis → Proviso</td><td><span class="pill hold">Held</span></td><td class="mono">8,100 ft</td><td class="mono">10,220</td><td>Joliet</td><td class="mono">23:05</td><td class="mono">C-21</td></tr>
+        <tr data-status="run"><td class="mono">U-UNIT-55</td><td>Powder → Burns Harbor</td><td><span class="pill run">Running</span></td><td class="mono">7,650 ft</td><td class="mono">18,900</td><td>Porter</td><td class="mono">22:09</td><td class="mono">C-03</td></tr>
+        <tr data-status="yard"><td class="mono">L-LOCAL-7</td><td>Industry spur → Lead B</td><td><span class="pill yard">In yard</span></td><td class="mono">1,840 ft</td><td class="mono">2,140</td><td>Switch 14</td><td class="mono">—</td><td class="mono">Y-11</td></tr>
+        <tr data-status="run"><td class="mono">Z-HOT-901</td><td>Logistics Park → Detroit</td><td><span class="pill run">Running</span></td><td class="mono">10,050 ft</td><td class="mono">11,780</td><td>Gary</td><td class="mono">21:58</td><td class="mono">C-12</td></tr>
+        <tr data-status="hold"><td class="mono">G-GRAIN-3</td><td>Council Bluffs → Elevator</td><td><span class="pill hold">Held</span></td><td class="mono">6,400 ft</td><td class="mono">9,560</td><td>Ottawa</td><td class="mono">00:12</td><td class="mono">C-19</td></tr>
+        <tr data-status="run"><td class="mono">K-CHEM-44</td><td>Whiting → Lemont</td><td><span class="pill run">Running</span></td><td class="mono">3,900 ft</td><td class="mono">6,720</td><td>McCook</td><td class="mono">22:33</td><td class="mono">C-05</td></tr>
+        <tr data-status="clear"><td class="mono">S-MAN-12</td><td>Proviso → Ready track</td><td><span class="pill clear">Clear</span></td><td class="mono">2,100 ft</td><td class="mono">2,880</td><td>—</td><td class="mono">—</td><td class="mono">Y-04</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ROUTE PLANNER -->
+<section id="planner">
+  <div class="sec-head">
+    <div>
+      <div class="eyebrow">04 — Route planner</div>
+      <h2 class="reveal">Build a path. Score the slot.</h2>
+    </div>
+    <p class="lead reveal">Interactive corridor desk: origin, destination, priority class, and live slot scoring against dwell and meets.</p>
+  </div>
+  <div class="planner-grid reveal">
+    <div class="planner-col">
+      <div class="panel-head"><span class="label">Inputs</span><span class="mono" style="color:var(--muted)">DESK-A</span></div>
+      <div class="form-stack">
+        <div class="field">
+          <label for="orig">Origin yard</label>
+          <select id="orig">
+            <option value="cicero">Cicero (CIC)</option>
+            <option value="proviso">Proviso (PRV)</option>
+            <option value="clearing">Clearing (CLR)</option>
+            <option value="global">Global IV (GIV)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="dest">Destination</label>
+          <select id="dest">
+            <option value="willow">Willow Springs</option>
+            <option value="burns">Burns Harbor</option>
+            <option value="detroit">Detroit Junction</option>
+            <option value="stl">East St. Louis</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Priority class</label>
+          <div class="seg-toggle" id="prioritySeg" role="group" aria-label="Priority">
+            <button type="button" data-p="Z" class="is-active">Z Hot</button>
+            <button type="button" data-p="Q">Q Pref</button>
+            <button type="button" data-p="M">M Bulk</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="length">Train length (ft)</label>
+          <input id="length" type="number" value="9800" min="1000" max="15000" step="100" />
+        </div>
+        <button class="btn btn-fill" id="planBtn" type="button" data-cursor="COMPUTE">Compute slot</button>
+      </div>
+    </div>
+
+    <div class="planner-col">
+      <div class="panel-head"><span class="label">Corridor sketch</span><span class="mono" style="color:var(--accent)" id="planSymbol">Z-CIC-WIL</span></div>
+      <div class="route-viz">
+        <svg class="route-map" viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect width="640" height="220" fill="#161820"/>
+          <g stroke="rgba(242,240,232,.12)" stroke-width="1">
+            <line x1="40" y1="40" x2="40" y2="180"/><line x1="160" y1="40" x2="160" y2="180"/>
+            <line x1="280" y1="40" x2="280" y2="180"/><line x1="400" y1="40" x2="400" y2="180"/>
+            <line x1="520" y1="40" x2="520" y2="180"/><line x1="600" y1="40" x2="600" y2="180"/>
+          </g>
+          <path id="routePath" d="M40 110 H160 C200 110 220 70 280 70 H400 C440 70 460 150 520 150 H600" fill="none" stroke="#FF6A00" stroke-width="3"/>
+          <path d="M40 140 H200 C240 140 260 170 320 170 H600" fill="none" stroke="#F5E6A3" stroke-width="1.5" opacity=".5"/>
+          <circle cx="40" cy="110" r="6" fill="#FF6A00"/>
+          <circle cx="280" cy="70" r="5" fill="#F5E6A3"/>
+          <circle cx="520" cy="150" r="5" fill="#F5E6A3"/>
+          <circle cx="600" cy="150" r="6" fill="#FF6A00"/>
+          <g font-family="JetBrains Mono, monospace" font-size="9" fill="#F5E6A3">
+            <text x="28" y="95">CIC</text>
+            <text x="268" y="55">ARG</text>
+            <text x="508" y="135">GRY</text>
+            <text x="575" y="135">WIL</text>
+          </g>
+          <rect id="routeMarker" x="36" y="102" width="22" height="16" fill="#FF8A33"/>
+        </svg>
+        <div class="route-steps" id="routeSteps">
+          <div class="route-step is-active"><span class="dot"></span><div><div class="nm">Cicero Yard</div><div class="sub">Depart · Track 4</div></div><span class="eta">T+0</span></div>
+          <div class="route-step"><span class="dot"></span><div><div class="nm">Brighton Interlocking</div><div class="sub">OS · Meet window</div></div><span class="eta">T+28</span></div>
+          <div class="route-step"><span class="dot"></span><div><div class="nm">Argo</div><div class="sub">Pass · No stop</div></div><span class="eta">T+51</span></div>
+          <div class="route-step"><span class="dot"></span><div><div class="nm">Gary Junction</div><div class="sub">Hold optional</div></div><span class="eta">T+1:12</span></div>
+          <div class="route-step"><span class="dot"></span><div><div class="nm">Willow Springs</div><div class="sub">Arrive · Pad B</div></div><span class="eta">T+1:38</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="planner-col">
+      <div class="panel-head"><span class="label">Slot score</span><span class="mono" style="color:var(--muted)">LIVE</span></div>
+      <div class="plan-out">
+        <div class="stat-block">
+          <div class="s-l">Transit estimate</div>
+          <div class="s-v" id="planTransit">1<span>h</span> 38<span>m</span></div>
+          <div class="hbar"><i id="barTransit" style="width:72%"></i></div>
+        </div>
+        <div class="stat-block">
+          <div class="s-l">Meet conflict risk</div>
+          <div class="s-v" id="planRisk">18<span>%</span></div>
+          <div class="hbar"><i id="barRisk" style="width:18%"></i></div>
+        </div>
+        <div class="stat-block">
+          <div class="s-l">Path score</div>
+          <div class="s-v" id="planScore">86<span>/100</span></div>
+          <div class="hbar"><i id="barScore" style="width:86%"></i></div>
+        </div>
+        <p class="mono" style="color:var(--ink-3);line-height:1.5" id="planNote">Z-class preferred path via Argo. Single meet window at Brighton — hold 4 min optional.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NETWORK COVERAGE -->
+<section id="network">
+  <div class="sec-head">
+    <div>
+      <div class="eyebrow">05 — Coverage plates</div>
+      <h2 class="reveal">Districts under wire.</h2>
+    </div>
+    <p class="lead reveal">Plate cards for each operating district — miles, terminals, and a micro track glyph. Flat industrial, zero chrome.</p>
+  </div>
+  <div class="plates">
+    <article class="plate reveal" data-cursor="DISTRICT">
+      <div class="plate-top">
+        <div class="plate-code">CHI-N</div>
+        <div class="plate-region">Lake · North</div>
+      </div>
+      <div>
+        <h3>Chicago North District</h3>
+        <p>Proviso complex, Schiller Park, and North Line industrial leads.</p>
+        <svg class="plate-mini" viewBox="0 0 280 48" aria-hidden="true"><path d="M8 24 H80 C100 24 110 12 140 12 H272" stroke="#FF6A00" stroke-width="2" fill="none"/><path d="M80 24 C110 24 120 36 160 36 H272" stroke="#F5E6A3" stroke-width="1.5" fill="none"/><circle cx="80" cy="24" r="3" fill="#FF6A00"/></svg>
+      </div>
+      <div class="plate-foot"><span>2,140 mi</span><span>6 terminals</span><span class="accent">ONLINE</span></div>
+    </article>
+    <article class="plate reveal" data-cursor="DISTRICT">
+      <div class="plate-top">
+        <div class="plate-code">CHI-S</div>
+        <div class="plate-region">Lake · South</div>
+      </div>
+      <div>
+        <h3>Chicago South District</h3>
+        <p>Clearing Yard, Markham, and the Calumet industrial belt.</p>
+        <svg class="plate-mini" viewBox="0 0 280 48" aria-hidden="true"><path d="M8 30 H100 C130 30 140 18 180 18 H272" stroke="#FF6A00" stroke-width="2" fill="none"/><path d="M100 30 C140 30 150 38 200 38 H272" stroke="#F5E6A3" stroke-width="1.5" fill="none"/><rect x="96" y="24" width="20" height="12" fill="#F2F0E8" opacity=".8"/></svg>
+      </div>
+      <div class="plate-foot"><span>1,880 mi</span><span>5 terminals</span><span class="accent">ONLINE</span></div>
+    </article>
+    <article class="plate reveal" data-cursor="DISTRICT">
+      <div class="plate-top">
+        <div class="plate-code">IMX-E</div>
+        <div class="plate-region">Intermodal East</div>
+      </div>
+      <div>
+        <h3>Intermodal East</h3>
+        <p>Global IV, Willow Springs, and gated pad cycles to Detroit.</p>
+        <svg class="plate-mini" viewBox="0 0 280 48" aria-hidden="true"><path d="M8 20 H272" stroke="#FF6A00" stroke-width="2" fill="none"/><path d="M40 20 V36 H120 V20" stroke="#F5E6A3" stroke-width="1.5" fill="none"/><path d="M160 20 V36 H240 V20" stroke="#F5E6A3" stroke-width="1.5" fill="none"/></svg>
+      </div>
+      <div class="plate-foot"><span>960 mi</span><span>4 pads</span><span class="accent">ONLINE</span></div>
+    </article>
+    <article class="plate reveal" data-cursor="DISTRICT">
+      <div class="plate-top">
+        <div class="plate-code">STL-C</div>
+        <div class="plate-region">Gateway</div>
+      </div>
+      <div>
+        <h3>Gateway Corridor</h3>
+        <p>East St. Louis gateway, Mississippi bridge slots, westbound grain.</p>
+        <svg class="plate-mini" viewBox="0 0 280 48" aria-hidden="true"><path d="M8 28 Q80 8 140 28 T272 28" stroke="#FF6A00" stroke-width="2" fill="none"/><circle cx="140" cy="28" r="4" fill="#F5E6A3"/></svg>
+      </div>
+      <div class="plate-foot"><span>3,420 mi</span><span>8 yards</span><span class="accent">ONLINE</span></div>
+    </article>
+    <article class="plate reveal" data-cursor="DISTRICT">
+      <div class="plate-top">
+        <div class="plate-code">UNIT-W</div>
+        <div class="plate-region">Bulk West</div>
+      </div>
+      <div>
+        <h3>Unit Train West</h3>
+        <p>Coal, grain, and crude unit paths with long-block occupancy logic.</p>
+        <svg class="plate-mini" viewBox="0 0 280 48" aria-hidden="true"><path d="M8 24 H272" stroke="#FF6A00" stroke-width="3" fill="none"/><rect x="60" y="18" width="36" height="12" fill="#FF8A33"/><rect x="100" y="18" width="28" height="12" fill="#F5E6A3"/></svg>
+      </div>
+      <div class="plate-foot"><span>5,100 mi</span><span>11 loops</span><span style="color:var(--warn)">WATCH</span></div>
+    </article>
+    <article class="plate reveal" data-cursor="DISTRICT">
+      <div class="plate-top">
+        <div class="plate-code">CHEM-I</div>
+        <div class="plate-region">Hazmat</div>
+      </div>
+      <div>
+        <h3>Chemical Belt</h3>
+        <p>Whiting–Lemont–Joliet hazmat corridor with speed &amp; spacing rules.</p>
+        <svg class="plate-mini" viewBox="0 0 280 48" aria-hidden="true"><path d="M8 32 H90 L130 12 H272" stroke="#FF6A00" stroke-width="2" fill="none"/><path d="M90 32 H180 L210 20 H272" stroke="#F5E6A3" stroke-width="1.5" fill="none"/></svg>
+      </div>
+      <div class="plate-foot"><span>420 mi</span><span>Strict OS</span><span class="accent">ONLINE</span></div>
+    </article>
+  </div>
+</section>
+
+<!-- INCIDENT FEED -->
+<section id="incidents">
+  <div class="sec-head">
+    <div>
+      <div class="eyebrow">06 — Incident feed</div>
+      <h2 class="reveal">What the wire said.</h2>
+    </div>
+    <p class="lead reveal">Severity-ranked events from field radios, wayside detectors, and interlocking faults — scrolled into the NOC lane.</p>
+  </div>
+  <div class="feed-grid reveal">
+    <div class="feed-list" id="incidentList">
+      <article class="incident">
+        <div class="when">21:44:12Z</div>
+        <div>
+          <div class="sev s2">SEV-2</div>
+          <h4>Hotbox detector — MP 214.6</h4>
+          <p>Axle 38 elevated. Train U-UNIT-55 instructed to reduce and inspect at Porter.</p>
+        </div>
+        <div class="lane">CHI-S</div>
+      </article>
+      <article class="incident">
+        <div class="when">21:31:08Z</div>
+        <div>
+          <div class="sev s3">SEV-3</div>
+          <h4>Switch indication loss — SW-14</h4>
+          <p>Yard lead A: indication intermittent. Manual route until maintainer clear.</p>
+        </div>
+        <div class="lane">YD-14</div>
+      </article>
+      <article class="incident">
+        <div class="when">21:12:55Z</div>
+        <div>
+          <div class="sev s1">SEV-1</div>
+          <h4>Grade crossing activation stuck</h4>
+          <p>Argo Rd crossing continuous warning. Police notified. Trains hold west of Argo.</p>
+        </div>
+        <div class="lane">IMX-E</div>
+      </article>
+      <article class="incident">
+        <div class="when">20:58:40Z</div>
+        <div>
+          <div class="sev s4">SEV-4</div>
+          <h4>Crew van delay — Pad B</h4>
+          <p>Relief crew ETA +22 min. Z-HOT-901 dwell extended at Willow.</p>
+        </div>
+        <div class="lane">IMX-E</div>
+      </article>
+      <article class="incident">
+        <div class="when">20:41:03Z</div>
+        <div>
+          <div class="sev s2">SEV-2</div>
+          <h4>Meet conflict projected</h4>
+          <p>Q-CHI-404 vs M-STL-118 at Joliet window. Planner recommends 4-min hold.</p>
+        </div>
+        <div class="lane">STL-C</div>
+      </article>
+    </div>
+    <aside class="feed-side">
+      <div class="label">Wire ticker</div>
+      <div class="ticker" aria-hidden="true">
+        <div class="ticker-track">
+          <span>OS BRIGHTON CLEAR · Q-CHI-404</span>
+          <span>HUMMP CYCLE 42 COMPLETE</span>
+          <span>GATE GIV-3 GREEN</span>
+          <span>WEATHER: WIND 18KT NW</span>
+          <span>PTC HEALTH 99.4%</span>
+          <span>OS BRIGHTON CLEAR · Q-CHI-404</span>
+          <span>HUMMP CYCLE 42 COMPLETE</span>
+          <span>GATE GIV-3 GREEN</span>
+          <span>WEATHER: WIND 18KT NW</span>
+          <span>PTC HEALTH 99.4%</span>
+        </div>
+      </div>
+      <div class="label" style="margin-top:.5rem">Severity mix · 24h</div>
+      <div class="sev-bars">
+        <div class="sev-row"><span>SEV-1</span><div class="bar"><i style="width:12%;background:var(--bad)"></i></div><span>3</span></div>
+        <div class="sev-row"><span>SEV-2</span><div class="bar"><i style="width:34%;background:var(--warn)"></i></div><span>11</span></div>
+        <div class="sev-row"><span>SEV-3</span><div class="bar"><i style="width:48%"></i></div><span>19</span></div>
+        <div class="sev-row"><span>SEV-4</span><div class="bar"><i style="width:72%;background:var(--label)"></i></div><span>41</span></div>
+      </div>
+      <div class="stat-block">
+        <div class="s-l">Mean time to acknowledge</div>
+        <div class="s-v">1<span>m</span> 42<span>s</span></div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- CAPACITY CALCULATOR -->
+<section id="capacity">
+  <div class="sec-head">
+    <div>
+      <div class="eyebrow">07 — Capacity desk</div>
+      <h2 class="reveal">Slot math on the desk.</h2>
+    </div>
+    <p class="lead reveal">Dial length, horsepower, and corridor density. The gauge shows remaining theoretical slots before the district saturates.</p>
+  </div>
+  <div class="desk reveal">
+    <div class="desk-form">
+      <div class="panel-head" style="margin:-1.25rem -1.25rem 0;border:0;border-bottom:1px solid var(--line)"><span class="label">Parameters</span><span class="mono" style="color:var(--muted)">CALC-01</span></div>
+      <div class="slider-row">
+        <header><span>Train length</span><span id="slLenVal">9,800 ft</span></header>
+        <input type="range" id="slLen" min="3000" max="15000" step="100" value="9800" />
+      </div>
+      <div class="slider-row">
+        <header><span>Horsepower / ton</span><span id="slHpVal">1.05</span></header>
+        <input type="range" id="slHp" min="0.6" max="2.0" step="0.05" value="1.05" />
+      </div>
+      <div class="slider-row">
+        <header><span>Corridor density</span><span id="slDenVal">72%</span></header>
+        <input type="range" id="slDen" min="20" max="95" step="1" value="72" />
+      </div>
+      <div class="slider-row">
+        <header><span>Dwell buffer</span><span id="slDwellVal">35 min</span></header>
+        <input type="range" id="slDwell" min="10" max="90" step="5" value="35" />
+      </div>
+      <p class="cap-note">Model is illustrative — theoretical line capacity using headway × length × density. Not for live dispatch authority.</p>
+    </div>
+    <div class="desk-result">
+      <div class="panel-head" style="margin:-1.25rem -1.25rem 0;border:0;border-bottom:1px solid var(--line)"><span class="label">Readout</span><span class="mono" style="color:var(--accent)">UPDATED</span></div>
+      <div class="cap-readout">
+        <div class="cap-cell"><div class="c-l">Slots remaining</div><div class="c-v" id="capSlots">14</div></div>
+        <div class="cap-cell"><div class="c-l">Headway</div><div class="c-v" id="capHead">18<span style="font-size:.5em;color:var(--accent)">m</span></div></div>
+        <div class="cap-cell"><div class="c-l">Throughput / day</div><div class="c-v" id="capThru">62</div></div>
+        <div class="cap-cell"><div class="c-l">Saturation</div><div class="c-v" id="capSat">78<span style="font-size:.5em;color:var(--accent)">%</span></div></div>
+      </div>
+      <div class="cap-gauge" aria-hidden="true">
+        <svg viewBox="0 0 280 140" id="gaugeSvg">
+          <path d="M30 120 A110 110 0 0 1 250 120" fill="none" stroke="#2A2F3A" stroke-width="14"/>
+          <path id="gaugeArc" d="M30 120 A110 110 0 0 1 250 120" fill="none" stroke="#FF6A00" stroke-width="14" stroke-dasharray="345" stroke-dashoffset="80"/>
+          <text x="140" y="100" text-anchor="middle" fill="#F5E6A3" font-family="JetBrains Mono, monospace" font-size="11" letter-spacing="2">CAPACITY</text>
+          <text id="gaugeLabel" x="140" y="122" text-anchor="middle" fill="#FF6A00" font-family="Archivo, sans-serif" font-size="28" font-weight="700">78%</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING / OPS PLANS -->
+<section id="pricing">
+  <div class="sec-head">
+    <div>
+      <div class="eyebrow">08 — Ops plans</div>
+      <h2 class="reveal">Desks, not seats.</h2>
+    </div>
+    <p class="lead reveal">Subscription tiers for shortlines, regional carriers, and Class I NOC overlays. Flat pricing. No marketplace theatre.</p>
+  </div>
+  <div class="plans">
+    <article class="plan reveal">
+      <div class="plan-tier">Shortline</div>
+      <div>
+        <h3>Yard Local</h3>
+        <div class="plan-price"><span class="amt">$1.2k</span><span class="per">/ mo</span></div>
+      </div>
+      <ul>
+        <li>1 yard diagram + live consist board</li>
+        <li>Incident feed (district scope)</li>
+        <li>2 dispatcher seats</li>
+        <li>Email + radio bridge</li>
+      </ul>
+      <a class="btn" href="#cta" data-cursor="SELECT">Select Local</a>
+    </article>
+    <article class="plan is-featured reveal">
+      <div class="plan-tier">Regional · Featured</div>
+      <div>
+        <h3>Corridor Desk</h3>
+        <div class="plan-price"><span class="amt">$4.8k</span><span class="per">/ mo</span></div>
+      </div>
+      <ul>
+        <li>Multi-yard + route planner</li>
+        <li>Capacity calculator &amp; slot score</li>
+        <li>12 seats · role ACLs</li>
+        <li>NOC phone + 15-min SLA</li>
+        <li>Coverage plates API</li>
+      </ul>
+      <a class="btn btn-fill" href="#cta" data-cursor="SELECT">Select Corridor</a>
+    </article>
+    <article class="plan reveal">
+      <div class="plan-tier">Class I overlay</div>
+      <div>
+        <h3>Network NOC</h3>
+        <div class="plan-price"><span class="amt">Custom</span><span class="per">annual</span></div>
+      </div>
+      <ul>
+        <li>Full district mesh + PTC health</li>
+        <li>Custom interlocking adapters</li>
+        <li>Unlimited seats · SSO</li>
+        <li>On-site cutover desk</li>
+        <li>24/7 dedicated watch team</li>
+      </ul>
+      <a class="btn" href="#cta" data-cursor="TALK">Talk to ops</a>
+    </article>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta" class="hatch">
+  <div class="cta-band">
+    <div>
+      <div class="eyebrow">09 — Open a desk</div>
+      <h2 class="reveal">Put Switchyard on your wall.</h2>
+      <p class="lead reveal" style="margin-top:1rem">Tell us your yards, districts, and peak consists. We’ll stand up a shadow desk in under two weeks.</p>
+    </div>
+    <form class="cta-form reveal" id="ctaForm" onsubmit="return false;">
+      <div class="field">
+        <label for="ctaName">Name</label>
+        <input id="ctaName" name="name" type="text" autocomplete="name" placeholder="Dispatcher / Ops lead" required />
+      </div>
+      <div class="field">
+        <label for="ctaOrg">Railroad / terminal</label>
+        <input id="ctaOrg" name="org" type="text" placeholder="Carrier or shortline" required />
+      </div>
+      <div class="row">
+        <div class="field" style="margin:0">
+          <label class="sr-only" for="ctaEmail">Email</label>
+          <input id="ctaEmail" name="email" type="email" autocomplete="email" placeholder="ops@rail.example" required />
+        </div>
+        <button class="btn btn-fill" type="submit" id="ctaSubmit" data-cursor="SEND">Request desk</button>
+      </div>
+      <p class="mono" id="ctaMsg" style="color:var(--ink-3);min-height:1.2em"></p>
+    </form>
+  </div>
+</section>
+
+</main>
+
+<!-- FOOTER CLOCK -->
+<footer id="footer">
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand">Switchyard<em>.</em></div>
+      <p style="color:var(--ink-3);max-width:36ch;font-size:var(--fs-sm)">Freight rail operations console — yard diagrams, consists, routes, and capacity desks for people who move tonnage.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Navigate</h4>
+      <a href="#kpis">Network board</a>
+      <a href="#consist">Live consists</a>
+      <a href="#planner">Route planner</a>
+      <a href="#capacity">Capacity desk</a>
+      <a href="#pricing">Ops plans</a>
+    </div>
+    <div class="footer-clock-panel">
+      <div class="label">System clock · UTC</div>
+      <div class="big-clock" id="footClock">00:00:00</div>
+      <div class="clock-meta">
+        <span><b>Local desk</b><span id="footLocal">--:--:--</span></span>
+        <span><b>Shift</b><span id="footShift">SECOND</span></span>
+        <span><b>Build</b><span>SY-12.0.8</span></span>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Switchyard Operations — fictional brand for Ashlar Lab</span>
+    <span>No third-party marks · Original track diagrams</span>
+  </div>
+</footer>
+
+<script>
+document.documentElement.classList.add("js");
+
+(function(){
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const preloader = document.getElementById("preloader");
+  const prePct = document.getElementById("prePct");
+  const preCar = document.getElementById("preCar");
+  const preBars = document.getElementById("preBars");
+
+  for(let i=0;i<24;i++){
+    const s=document.createElement("span");
+    preBars.appendChild(s);
+  }
+  const bars=[...preBars.children];
+
+  function boot(){
+    document.body.classList.add("is-loading");
+    if(reduce){
+      prePct.textContent="100";
+      bars.forEach(b=>b.classList.add("on"));
+      finish();
+      return;
+    }
+    let p=0;
+    const iv=setInterval(()=>{
+      p+=Math.random()*7+2;
+      if(p>=100){p=100;clearInterval(iv);finish();}
+      const n=Math.floor(p);
+      prePct.textContent=String(n).padStart(2,"0");
+      preCar.style.transform=`translateX(${(p/100)*420}px)`;
+      const on=Math.floor((p/100)*24);
+      bars.forEach((b,i)=>b.classList.toggle("on",i<on));
+    },38);
+  }
+
+  function finish(){
+    document.body.classList.remove("is-loading");
+    preloader.classList.add("is-done");
+    document.body.classList.add("is-ready");
+    window.dispatchEvent(new Event("switchyard:ready"));
+  }
+
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",boot);
+  } else boot();
+})();
+
+/* Cursor */
+(function(){
+  const fine=window.matchMedia("(pointer:fine)").matches;
+  if(!fine) return;
+  const cur=document.getElementById("cursor");
+  const lab=document.getElementById("cursorLabel");
+  let x=0,y=0,tx=0,ty=0;
+  document.body.classList.add("cursor-on");
+  window.addEventListener("pointermove",e=>{
+    tx=e.clientX;ty=e.clientY;
+  });
+  function loop(){
+    x+=(tx-x)*.28;y+=(ty-y)*.28;
+    cur.style.transform=`translate(${x}px,${y}px) translate(-50%,-50%)`;
+    lab.style.transform=`translate(${x+16}px,${y+10}px)`;
+    requestAnimationFrame(loop);
+  }
+  loop();
+  document.querySelectorAll("[data-cursor]").forEach(el=>{
+    el.addEventListener("pointerenter",()=>{
+      lab.textContent=el.getAttribute("data-cursor");
+      lab.classList.add("is-on");
+    });
+    el.addEventListener("pointerleave",()=>lab.classList.remove("is-on"));
+  });
+})();
+
+/* Clocks */
+(function(){
+  const nav=document.getElementById("navClock");
+  const foot=document.getElementById("footClock");
+  const local=document.getElementById("footLocal");
+  const shift=document.getElementById("footShift");
+  const stamp=document.getElementById("consistStamp");
+  function pad(n){return String(n).padStart(2,"0");}
+  function tick(){
+    const d=new Date();
+    const utc=`${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`;
+    const loc=`${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    if(nav) nav.textContent=utc+" Z";
+    if(foot) foot.textContent=utc;
+    if(local) local.textContent=loc;
+    if(stamp) stamp.textContent=utc+"Z";
+    if(shift){
+      const h=d.getUTCHours();
+      shift.textContent=h<8?"FIRST":h<16?"SECOND":"THIRD";
+    }
+  }
+  tick();setInterval(tick,1000);
+})();
+
+/* Menu */
+(function(){
+  const btn=document.getElementById("menuBtn");
+  const menu=document.getElementById("menu");
+  function close(){
+    document.body.classList.remove("menu-open");
+    btn.setAttribute("aria-expanded","false");
+    menu.setAttribute("aria-hidden","true");
+  }
+  function open(){
+    document.body.classList.add("menu-open");
+    btn.setAttribute("aria-expanded","true");
+    menu.setAttribute("aria-hidden","false");
+  }
+  btn.addEventListener("click",()=>{
+    document.body.classList.contains("menu-open")?close():open();
+  });
+  menu.querySelectorAll("a").forEach(a=>a.addEventListener("click",close));
+  window.addEventListener("keydown",e=>{if(e.key==="Escape")close();});
+})();
+
+/* Consist filters */
+(function(){
+  const btns=[...document.querySelectorAll(".filter-btn")];
+  const rows=[...document.querySelectorAll("#consistBody tr")];
+  btns.forEach(b=>{
+    b.addEventListener("click",()=>{
+      btns.forEach(x=>{x.classList.remove("is-active");x.setAttribute("aria-selected","false");});
+      b.classList.add("is-active");b.setAttribute("aria-selected","true");
+      const f=b.dataset.filter;
+      rows.forEach(r=>{
+        const show=f==="all"||r.dataset.status===f;
+        r.classList.toggle("is-hidden",!show);
+      });
+    });
+  });
+})();
+
+/* Route planner */
+(function(){
+  const orig=document.getElementById("orig");
+  const dest=document.getElementById("dest");
+  const len=document.getElementById("length");
+  const sym=document.getElementById("planSymbol");
+  const transit=document.getElementById("planTransit");
+  const risk=document.getElementById("planRisk");
+  const score=document.getElementById("planScore");
+  const note=document.getElementById("planNote");
+  const barT=document.getElementById("barTransit");
+  const barR=document.getElementById("barRisk");
+  const barS=document.getElementById("barScore");
+  const marker=document.getElementById("routeMarker");
+  let priority="Z";
+
+  document.querySelectorAll("#prioritySeg button").forEach(b=>{
+    b.addEventListener("click",()=>{
+      document.querySelectorAll("#prioritySeg button").forEach(x=>x.classList.remove("is-active"));
+      b.classList.add("is-active");
+      priority=b.dataset.p;
+      compute();
+    });
+  });
+
+  const codes={cicero:"CIC",proviso:"PRV",clearing:"CLR",global:"GIV",willow:"WIL",burns:"BRN",detroit:"DET",stl:"STL"};
+  const baseMin={willow:98,burns:142,detroit:310,stl:420};
+
+  function compute(){
+    const o=codes[orig.value]||"CIC";
+    const d=codes[dest.value]||"WIL";
+    sym.textContent=`${priority}-${o}-${d}`;
+    const L=Number(len.value)||9800;
+    let mins=baseMin[dest.value]||100;
+    mins*= (L/9800);
+    if(priority==="Q") mins*=1.08;
+    if(priority==="M") mins*=1.22;
+    if(priority==="Z") mins*=0.94;
+    const h=Math.floor(mins/60);
+    const m=Math.round(mins%60);
+    transit.innerHTML=`${h}<span>h</span> ${String(m).padStart(2,"0")}<span>m</span>`;
+    let r=12+(L/15000)*28+(priority==="M"?18:priority==="Q"?8:0);
+    r=Math.min(72,Math.round(r));
+    let sc=94-r*0.45-(L>11000?6:0);
+    if(priority==="Z") sc+=4;
+    sc=Math.max(42,Math.min(98,Math.round(sc)));
+    risk.innerHTML=`${r}<span>%</span>`;
+    score.innerHTML=`${sc}<span>/100</span>`;
+    barT.style.width=`${Math.min(100,mins/5)}%`;
+    barR.style.width=`${r}%`;
+    barS.style.width=`${sc}%`;
+    note.textContent=`${priority}-class path ${o}→${d}. Length ${L.toLocaleString()} ft. Risk ${r}% — ${r>35?"expect meets":"single-window preferred"}.`;
+    if(window.gsap && marker){
+      gsap.fromTo(marker,{x:0},{x:540,duration:1.6,ease:"power2.inOut"});
+    }
+  }
+
+  document.getElementById("planBtn").addEventListener("click",compute);
+  orig.addEventListener("change",compute);
+  dest.addEventListener("change",compute);
+  len.addEventListener("change",compute);
+})();
+
+/* Capacity calculator */
+(function(){
+  const slLen=document.getElementById("slLen");
+  const slHp=document.getElementById("slHp");
+  const slDen=document.getElementById("slDen");
+  const slDwell=document.getElementById("slDwell");
+  const el={
+    len:document.getElementById("slLenVal"),
+    hp:document.getElementById("slHpVal"),
+    den:document.getElementById("slDenVal"),
+    dwell:document.getElementById("slDwellVal"),
+    slots:document.getElementById("capSlots"),
+    head:document.getElementById("capHead"),
+    thru:document.getElementById("capThru"),
+    sat:document.getElementById("capSat"),
+    gauge:document.getElementById("gaugeArc"),
+    label:document.getElementById("gaugeLabel")
+  };
+
+  function fmt(n){return n.toLocaleString();}
+  function recalc(){
+    const L=+slLen.value, hp=+slHp.value, den=+slDen.value, dwell=+slDwell.value;
+    el.len.textContent=fmt(L)+" ft";
+    el.hp.textContent=hp.toFixed(2);
+    el.den.textContent=den+"%";
+    el.dwell.textContent=dwell+" min";
+    const head=Math.round(12 + (L/15000)*14 + (den/100)*10 - (hp-1)*4 + dwell*0.05);
+    const thru=Math.max(18,Math.round(1440/Math.max(head,10) * (1-den/160)));
+    const sat=Math.min(99,Math.round(den*0.7 + (L/15000)*20 + dwell*0.15));
+    const slots=Math.max(0,Math.round((100-sat)/3.2 + hp*2));
+    el.slots.textContent=slots;
+    el.head.textContent=head;
+    el.thru.textContent=thru;
+    el.sat.innerHTML=`${sat}<span style="font-size:.5em;color:var(--accent)">%</span>`;
+    el.label.textContent=sat+"%";
+    const total=345;
+    const offset=total*(1-sat/100);
+    el.gauge.setAttribute("stroke-dashoffset",String(offset));
+  }
+  [slLen,slHp,slDen,slDwell].forEach(s=>s.addEventListener("input",recalc));
+  recalc();
+})();
+
+/* CTA */
+(function(){
+  const form=document.getElementById("ctaForm");
+  const msg=document.getElementById("ctaMsg");
+  form.addEventListener("submit",()=>{
+    const name=document.getElementById("ctaName").value.trim();
+    msg.style.color="var(--ok)";
+    msg.textContent=`Desk request queued${name?` for ${name}`:""}. Ops will reply on the wire.`;
+    form.reset();
+  });
+})();
+
+/* Yard train loop */
+(function(){
+  const train=document.getElementById("yardTrain");
+  if(!train||window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  function waitReady(fn){
+    if(document.body.classList.contains("is-ready")&&window.gsap) fn();
+    else window.addEventListener("switchyard:ready",()=>setTimeout(fn,60),{once:true});
+  }
+  waitReady(()=>{
+    gsap.to(train,{x:480,duration:14,ease:"none",repeat:-1,yoyo:true});
+  });
+})();
+
+/* GSAP + Lenis */
+window.addEventListener("switchyard:ready",()=>{
+  if(!window.gsap||!window.ScrollTrigger) return;
+  gsap.registerPlugin(ScrollTrigger);
+  const reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  let lenis=null;
+  if(window.Lenis && !reduce){
+    lenis=new Lenis({
+      duration:1.15,
+      easing:t=>Math.min(1,1.001-Math.pow(2,-10*t)),
+      smoothWheel:true
+    });
+    lenis.on("scroll",ScrollTrigger.update);
+    gsap.ticker.add(time=>{lenis.raf(time*1000);});
+    gsap.ticker.lagSmoothing(0);
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{
+      a.addEventListener("click",e=>{
+        const id=a.getAttribute("href");
+        if(!id||id==="#") return;
+        const t=document.querySelector(id);
+        if(!t) return;
+        e.preventDefault();
+        lenis.scrollTo(t,{offset:-70});
+      });
+    });
+  }
+
+  if(reduce){
+    gsap.set(".reveal,.reveal-x",{clearProps:"all",opacity:1,transform:"none"});
+    document.querySelectorAll(".kpi").forEach(k=>k.classList.add("is-in"));
+    return;
+  }
+
+  gsap.utils.toArray(".reveal").forEach((el,i)=>{
+    gsap.to(el,{
+      opacity:1,y:0,duration:.9,ease:"power3.out",
+      delay:(i%4)*0.05,
+      scrollTrigger:{trigger:el,start:"top 88%",toggleActions:"play none none none"}
+    });
+  });
+
+  /* Hero title already in view after preloader */
+  gsap.from("#hero .hero-title .reveal",{opacity:0,y:40,stagger:.08,duration:.95,ease:"power3.out",delay:.05});
+  gsap.from("#hero .yard-panel",{opacity:0,x:40,duration:1.1,ease:"power3.out",delay:.15});
+
+  /* KPI counters */
+  document.querySelectorAll(".kpi").forEach(kpi=>{
+    const val=kpi.querySelector(".k-val");
+    const target=parseFloat(val.dataset.count);
+    const decimals=parseInt(val.dataset.decimals||"0",10);
+    const suffix=val.dataset.suffix||"";
+    ScrollTrigger.create({
+      trigger:kpi,
+      start:"top 85%",
+      once:true,
+      onEnter:()=>{
+        kpi.classList.add("is-in");
+        const obj={n:0};
+        gsap.to(obj,{
+          n:target,duration:1.4,ease:"power2.out",
+          onUpdate:()=>{
+            const n=decimals?obj.n.toFixed(decimals):Math.round(obj.n).toLocaleString();
+            val.innerHTML=`${n}<em>${suffix}</em>`;
+          }
+        });
+      }
+    });
+  });
+
+  /* Route path draw */
+  const routePath=document.getElementById("routePath");
+  if(routePath){
+    const len=routePath.getTotalLength();
+    routePath.style.strokeDasharray=String(len);
+    routePath.style.strokeDashoffset=String(len);
+    gsap.to(routePath,{
+      strokeDashoffset:0,duration:1.6,ease:"power2.inOut",
+      scrollTrigger:{trigger:"#planner",start:"top 70%",once:true}
+    });
+  }
+
+  /* Incident stagger */
+  gsap.from("#incidentList .incident",{
+    opacity:0,x:-16,stagger:.08,duration:.55,ease:"power2.out",
+    scrollTrigger:{trigger:"#incidents",start:"top 75%",once:true}
+  });
+
+  /* Plans */
+  gsap.from("#pricing .plan",{
+    opacity:0,y:30,stagger:.12,duration:.7,ease:"power3.out",
+    scrollTrigger:{trigger:"#pricing",start:"top 75%",once:true}
+  });
+
+}, {once:true});
+</script>
+</body>
+</html>

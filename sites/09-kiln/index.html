@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#D8DDD4" />
+<title>Kiln — Industrial Product Design Studio</title>
+<meta name="description" content="Kiln designs objects, tooling, and packaging systems for industrial brands. Flat geometry. Glaze cyan. Temperature-led process." />
+<meta property="og:title" content="Kiln — Industrial Product Design Studio" />
+<meta property="og:description" content="Objects, tooling, and packaging systems forged through a temperature-led studio process." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%231A1C1B'/%3E%3Crect x='8' y='10' width='16' height='12' fill='none' stroke='%232BB5A0' stroke-width='2'/%3E%3Crect x='12' y='14' width='8' height='4' fill='%232BB5A0'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+<style>
+/* ============================================================
+   KILN — Industrial Product Design Studio
+   Soft sage · charcoal · glaze cyan
+   ============================================================ */
+:root{
+  --sage:#D8DDD4;
+  --sage-2:#CDD4C8;
+  --sage-3:#C0C8B8;
+  --ink:#1A1C1B;
+  --ink-2:#2E322F;
+  --muted:#5E6660;
+  --line:rgba(26,28,27,.14);
+  --line-2:rgba(26,28,27,.28);
+  --glaze:#2BB5A0;
+  --glaze-2:#239E8B;
+  --glaze-soft:rgba(43,181,160,.16);
+  --white:#F4F6F2;
+  --panel:#E4E8DF;
+
+  --font-display:"Syne",system-ui,sans-serif;
+  --font-body:"DM Sans",system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+
+  --ease:cubic-bezier(.19,1,.22,1);
+  --ease-out:cubic-bezier(.16,1,.3,1);
+
+  --nav-h:72px;
+  --pad:clamp(1.15rem,3.2vw,2.6rem);
+  --max:1240px;
+  --fs-micro:.65rem;
+  --fs-xs:.75rem;
+  --fs-sm:.875rem;
+  --fs-md:1rem;
+  --fs-lg:clamp(1.1rem,.95rem + .5vw,1.3rem);
+  --fs-h3:clamp(1.35rem,1.05rem + 1vw,1.85rem);
+  --fs-h2:clamp(2rem,1.2rem + 2.8vw,3.6rem);
+  --fs-h1:clamp(2.8rem,1.1rem + 5.8vw,6.2rem);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--sage);-webkit-text-size-adjust:100%}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto !important}
+.lenis.lenis-stopped{overflow:hidden}
+body{
+  font-family:var(--font-body);
+  font-size:var(--fs-md);
+  font-weight:400;
+  line-height:1.55;
+  color:var(--ink);
+  background:var(--sage);
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+body.has-cursor,
+body.has-cursor a,
+body.has-cursor button,
+body.has-cursor label,
+body.has-cursor input,
+body.has-cursor textarea,
+body.has-cursor [data-magnetic],
+body.has-cursor [data-cursor]{cursor:none}
+img,svg{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button,input,textarea{font:inherit;color:inherit;background:none;border:0;border-radius:0;outline:0}
+::selection{background:var(--glaze);color:var(--ink)}
+h1,h2,h3,h4{font-family:var(--font-display);font-weight:700;line-height:.96;letter-spacing:-.035em}
+p{text-wrap:pretty}
+:focus-visible{outline:2px solid var(--glaze);outline-offset:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* grain overlay */
+.grain{
+  pointer-events:none;
+  position:fixed;
+  inset:0;
+  z-index:9000;
+  opacity:.055;
+  mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* layout */
+.wrap{width:min(100% - (var(--pad)*2), var(--max));margin-inline:auto}
+.section{position:relative;padding:clamp(4.5rem,10vw,8.5rem) 0}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:.55rem;
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.eyebrow::before{
+  content:"";
+  width:18px;height:2px;
+  background:var(--glaze);
+}
+.lead{font-size:var(--fs-lg);color:var(--ink-2);max-width:36rem}
+.mono{font-family:var(--font-mono);font-size:var(--fs-xs);letter-spacing:.06em;text-transform:uppercase}
+
+/* custom cursor — glaze diamond */
+.cursor{
+  position:fixed;left:0;top:0;z-index:9998;
+  width:0;height:0;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .3s;
+}
+.cursor.ready{opacity:1}
+.cursor__diamond{
+  position:absolute;left:0;top:0;
+  width:14px;height:14px;
+  margin:-7px 0 0 -7px;
+  border:1.5px solid #2BB5A0;
+  background:transparent;
+  transform:rotate(45deg);
+  transition:width .28s var(--ease),height .28s var(--ease),margin .28s var(--ease),background .25s,border-color .25s,transform .2s;
+}
+.cursor.hover .cursor__diamond{
+  width:28px;height:28px;margin:-14px 0 0 -14px;
+  background:#2BB5A0;
+  border-color:#2BB5A0;
+}
+.cursor.click .cursor__diamond{transform:rotate(45deg) scale(.75)}
+.cursor-label{
+  position:fixed;left:0;top:0;z-index:9999;
+  pointer-events:none;
+  font-family:var(--font-mono);
+  font-size:.58rem;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--ink);
+  background:transparent;
+  padding:.35rem .5rem;
+  opacity:0;
+  transform:translate(18px,18px);
+  transition:opacity .25s;
+  white-space:nowrap;
+}
+.cursor-label.on{opacity:1}
+
+/* buttons */
+.btn{
+  position:relative;
+  display:inline-flex;align-items:center;justify-content:center;gap:.65rem;
+  min-height:48px;
+  padding:.85rem 1.35rem;
+  font-family:var(--font-display);
+  font-size:.92rem;
+  font-weight:600;
+  letter-spacing:-.01em;
+  border:1.5px solid var(--ink);
+  background:var(--ink);
+  color:var(--sage);
+  transition:background .3s var(--ease),color .3s var(--ease),border-color .3s;
+  will-change:transform;
+}
+.btn:hover{background:var(--glaze);border-color:var(--glaze);color:var(--ink)}
+.btn--ghost{
+  background:transparent;
+  color:var(--ink);
+}
+.btn--ghost:hover{background:var(--ink);color:var(--sage);border-color:var(--ink)}
+.btn .arrow{display:inline-block;transition:transform .35s var(--ease)}
+.btn:hover .arrow{transform:translateX(4px)}
+
+/* ============================================================
+   PRELOADER
+   ============================================================ */
+.preloader{
+  position:fixed;inset:0;z-index:10000;
+  display:grid;place-items:center;
+  background:var(--sage);
+}
+.preloader__inner{width:min(88vw,420px);text-align:center}
+.preloader__mark{
+  font-family:var(--font-display);
+  font-weight:800;
+  font-size:clamp(2.4rem,8vw,3.6rem);
+  letter-spacing:-.04em;
+  margin-bottom:1.75rem;
+}
+.preloader__mark span{color:var(--glaze)}
+.preloader__bar{
+  height:2px;background:var(--line);
+  overflow:hidden;margin-bottom:.9rem;
+}
+.preloader__fill{height:100%;width:0;background:var(--glaze)}
+.preloader__meta{
+  display:flex;justify-content:space-between;
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.preloader__pct{color:var(--ink);font-variant-numeric:tabular-nums}
+
+/* ============================================================
+   NAV
+   ============================================================ */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:800;
+  height:var(--nav-h);
+  display:flex;align-items:center;
+  border-bottom:1px solid transparent;
+  transition:background .35s,border-color .35s,backdrop-filter .35s;
+}
+.nav.scrolled{
+  background:rgba(216,221,212,.88);
+  border-bottom-color:var(--line);
+  backdrop-filter:blur(12px);
+}
+.nav__inner{
+  width:min(100% - (var(--pad)*2), var(--max));
+  margin-inline:auto;
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;
+}
+.logo{
+  font-family:var(--font-display);
+  font-weight:800;
+  font-size:1.35rem;
+  letter-spacing:-.04em;
+  display:inline-flex;align-items:baseline;gap:.2rem;
+}
+.logo i{font-style:normal;color:var(--glaze)}
+.nav__links{display:flex;align-items:center;gap:clamp(.8rem,2vw,1.6rem)}
+.nav__links a{
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--ink-2);
+  transition:color .25s;
+}
+.nav__links a:hover{color:var(--glaze)}
+.nav__cta{display:none}
+@media (min-width:720px){
+  .nav__cta{display:inline-flex;min-height:40px;padding:.55rem 1rem;font-size:.82rem}
+}
+.nav__toggle{
+  display:none;
+  width:40px;height:40px;
+  border:1px solid var(--line-2);
+  place-items:center;
+  gap:5px;
+  flex-direction:column;
+}
+.nav__toggle span{display:block;width:16px;height:1.5px;background:var(--ink)}
+@media (max-width:719px){
+  .nav__links{display:none}
+  .nav__toggle{display:grid}
+  .nav.open .nav__links{
+    display:flex;flex-direction:column;align-items:flex-start;
+    position:absolute;top:var(--nav-h);left:0;right:0;
+    background:var(--sage);border-bottom:1px solid var(--line);
+    padding:1.25rem var(--pad) 1.5rem;gap:1rem;
+  }
+}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero{
+  min-height:100svh;
+  padding:calc(var(--nav-h) + 2.5rem) 0 3.5rem;
+  display:grid;align-items:center;
+}
+.hero__grid{
+  display:grid;gap:clamp(2rem,5vw,4rem);
+  align-items:end;
+}
+@media (min-width:960px){
+  .hero__grid{grid-template-columns:1.05fr .95fr;align-items:center}
+}
+.hero__copy{max-width:36rem}
+.hero h1{
+  font-size:var(--fs-h1);
+  margin:.85rem 0 1.25rem;
+}
+.hero h1 em{
+  font-style:normal;
+  color:var(--glaze);
+}
+.hero__actions{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:1.85rem}
+.hero__meta{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:1px;
+  background:var(--line);
+  border:1px solid var(--line);
+  margin-top:2.4rem;
+}
+.hero__meta div{
+  background:var(--sage);
+  padding:.85rem 1rem;
+}
+.hero__meta .k{display:block;margin-bottom:.35rem;color:var(--muted)}
+.hero__meta .v{
+  font-family:var(--font-display);
+  font-weight:700;
+  font-size:1.05rem;
+  letter-spacing:-.02em;
+}
+
+/* object plate */
+.plate{
+  position:relative;
+  aspect-ratio:1 / 1.05;
+  background:var(--panel);
+  border:1px solid var(--line);
+  overflow:hidden;
+}
+.plate__grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size:48px 48px;
+  opacity:.7;
+}
+.plate__frame{
+  position:absolute;inset:12%;
+  border:1px solid var(--line-2);
+}
+.plate__object{
+  position:absolute;
+  inset:18% 22%;
+  display:grid;place-items:center;
+}
+.plate__object svg{width:100%;height:auto}
+.plate__tag{
+  position:absolute;
+  left:1rem;bottom:1rem;
+  display:flex;flex-direction:column;gap:.25rem;
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.plate__tag strong{font-weight:500;color:var(--glaze)}
+.plate__corner{
+  position:absolute;
+  width:14px;height:14px;
+  border:1.5px solid var(--glaze);
+}
+.plate__corner--tl{top:10px;left:10px;border-right:0;border-bottom:0}
+.plate__corner--tr{top:10px;right:10px;border-left:0;border-bottom:0}
+.plate__corner--bl{bottom:10px;left:10px;border-right:0;border-top:0}
+.plate__corner--br{bottom:10px;right:10px;border-left:0;border-top:0}
+.plate__temp{
+  position:absolute;top:1rem;right:1rem;
+  font-family:var(--font-mono);
+  font-size:var(--fs-xs);
+  letter-spacing:.08em;
+  color:var(--glaze);
+}
+
+/* ============================================================
+   KILN DESK — process
+   ============================================================ */
+.desk-section{padding-top:clamp(3rem,6vw,5rem)}
+.desk-head{
+  display:grid;gap:1.25rem;
+  margin-bottom:clamp(2rem,4vw,3.2rem);
+}
+@media (min-width:800px){
+  .desk-head{grid-template-columns:1fr 1fr;align-items:end}
+}
+.desk-head h2{font-size:var(--fs-h2)}
+
+.kiln-desk{
+  border:1px solid var(--line);
+  background:var(--panel);
+  display:grid;
+}
+@media (min-width:980px){
+  .kiln-desk{grid-template-columns:280px 1fr 300px;min-height:560px}
+}
+
+.desk-rail{
+  border-bottom:1px solid var(--line);
+  padding:1.25rem;
+  display:flex;flex-direction:column;gap:.65rem;
+}
+@media (min-width:980px){
+  .desk-rail{border-bottom:0;border-right:1px solid var(--line)}
+}
+.desk-rail__title{
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:.4rem;
+}
+.temp-step{
+  text-align:left;
+  padding:.85rem .9rem;
+  border:1px solid transparent;
+  background:transparent;
+  transition:background .25s,border-color .25s;
+  will-change:transform;
+}
+.temp-step:hover,
+.temp-step.is-active{
+  background:var(--sage);
+  border-color:var(--line);
+}
+.temp-step.is-active{border-color:var(--glaze)}
+.temp-step__deg{
+  font-family:var(--font-mono);
+  font-size:var(--fs-xs);
+  color:var(--glaze);
+  letter-spacing:.08em;
+  margin-bottom:.25rem;
+}
+.temp-step__name{
+  font-family:var(--font-display);
+  font-weight:700;
+  font-size:1.05rem;
+  letter-spacing:-.02em;
+}
+.temp-step__code{
+  font-family:var(--font-mono);
+  font-size:.62rem;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-top:.2rem;
+}
+
+.desk-stage{
+  position:relative;
+  min-height:380px;
+  padding:1.5rem;
+  display:grid;
+  grid-template-rows:auto 1fr auto;
+  gap:1.25rem;
+  border-bottom:1px solid var(--line);
+}
+@media (min-width:980px){ .desk-stage{border-bottom:0;border-right:1px solid var(--line)} }
+
+.gauge{
+  display:grid;gap:.55rem;
+}
+.gauge__labels{
+  display:flex;justify-content:space-between;
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.gauge__track{
+  position:relative;
+  height:10px;
+  background:var(--sage-3);
+  overflow:hidden;
+}
+.gauge__fill{
+  position:absolute;inset:0 auto 0 0;
+  width:18%;
+  background:linear-gradient(90deg,var(--sage-2),var(--glaze));
+}
+.gauge__needle{
+  position:absolute;top:-4px;bottom:-4px;left:18%;
+  width:2px;background:var(--ink);
+  transform:translateX(-50%);
+}
+.gauge__readout{
+  font-family:var(--font-display);
+  font-weight:800;
+  font-size:clamp(2.4rem,5vw,3.4rem);
+  letter-spacing:-.04em;
+  line-height:1;
+}
+.gauge__readout span{color:var(--glaze);font-size:.45em;margin-left:.15rem}
+
+.desk-visual{
+  position:relative;
+  border:1px solid var(--line);
+  background:var(--sage);
+  min-height:220px;
+  display:grid;place-items:center;
+  overflow:hidden;
+}
+.desk-visual__grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(26,28,27,.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(26,28,27,.08) 1px, transparent 1px);
+  background-size:32px 32px;
+}
+.desk-visual svg{position:relative;z-index:1;width:min(70%,280px);height:auto}
+.desk-caption{
+  font-size:var(--fs-sm);
+  color:var(--ink-2);
+  max-width:40rem;
+}
+
+.desk-log{
+  padding:1.25rem;
+  display:flex;flex-direction:column;gap:1rem;
+}
+.desk-log__head{
+  display:flex;justify-content:space-between;align-items:center;
+}
+.desk-log__list{
+  list-style:none;
+  display:flex;flex-direction:column;gap:.55rem;
+  flex:1;
+}
+.desk-log__list li{
+  display:grid;
+  grid-template-columns:64px 1fr;
+  gap:.75rem;
+  padding:.7rem 0;
+  border-top:1px solid var(--line);
+  font-size:var(--fs-sm);
+}
+.desk-log__list li:first-child{border-top:0;padding-top:0}
+.desk-log__list time{
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.08em;
+  color:var(--glaze);
+}
+.desk-log__note{color:var(--muted);font-size:var(--fs-xs);margin-top:.15rem}
+.heat-bars{
+  display:grid;grid-template-columns:repeat(8,1fr);gap:4px;height:64px;align-items:end;
+}
+.heat-bars span{
+  display:block;background:var(--sage-3);height:20%;
+  transition:height .45s var(--ease),background .45s;
+}
+.heat-bars span.on{background:var(--glaze)}
+
+/* ============================================================
+   ARCHIVE
+   ============================================================ */
+.archive-head{
+  display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:1.25rem;
+  margin-bottom:clamp(1.75rem,3vw,2.5rem);
+}
+.archive-head h2{font-size:var(--fs-h2)}
+.filters{display:flex;flex-wrap:wrap;gap:.4rem}
+.filter-btn{
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  padding:.55rem .75rem;
+  border:1px solid var(--line);
+  color:var(--muted);
+  transition:background .25s,color .25s,border-color .25s;
+  will-change:transform;
+}
+.filter-btn:hover,
+.filter-btn.is-active{
+  background:var(--ink);
+  border-color:var(--ink);
+  color:var(--sage);
+}
+.filter-btn.is-active{background:var(--glaze);border-color:var(--glaze);color:var(--ink)}
+
+.archive-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:1px;
+  background:var(--line);
+  border:1px solid var(--line);
+}
+@media (min-width:900px){
+  .archive-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+.card{
+  background:var(--sage);
+  padding:1.1rem;
+  display:grid;gap:1rem;
+  transition:background .3s;
+  min-height:280px;
+}
+.card:hover{background:var(--panel)}
+.card.is-hidden{display:none}
+.card__viz{
+  aspect-ratio:4/3;
+  background:var(--panel);
+  border:1px solid var(--line);
+  display:grid;place-items:center;
+  position:relative;
+  overflow:hidden;
+}
+.card__viz svg{width:58%;height:auto;transition:transform .5s var(--ease)}
+.card:hover .card__viz svg{transform:scale(1.06)}
+.card__meta{display:flex;justify-content:space-between;align-items:flex-start;gap:.75rem}
+.card__title{
+  font-family:var(--font-display);
+  font-weight:700;
+  font-size:1.15rem;
+  letter-spacing:-.02em;
+}
+.card__spec{color:var(--muted);font-size:var(--fs-sm);margin-top:.25rem}
+.card__id{color:var(--glaze)}
+
+/* ============================================================
+   STUDIO BOARD
+   ============================================================ */
+.board-head{margin-bottom:clamp(1.75rem,3vw,2.5rem);max-width:40rem}
+.board-head h2{font-size:var(--fs-h2);margin:.7rem 0 1rem}
+.board{
+  display:grid;gap:1px;
+  background:var(--line);
+  border:1px solid var(--line);
+}
+@media (min-width:860px){
+  .board{grid-template-columns:1.2fr .8fr .9fr}
+}
+.board__cell{
+  background:var(--sage);
+  padding:clamp(1.25rem,2.5vw,1.85rem);
+  min-height:220px;
+}
+.board__cell--wide{grid-column:1 / -1}
+@media (min-width:860px){
+  .board__cell--tall{grid-row:span 2}
+  .board__cell--wide{grid-column:auto}
+}
+.board__label{margin-bottom:1rem;color:var(--glaze)}
+.board__cell h3{
+  font-size:clamp(1.4rem,1rem + 1.2vw,2rem);
+  margin-bottom:.75rem;
+}
+.board__cell p{color:var(--ink-2);font-size:var(--fs-sm);max-width:28rem}
+.stat-row{
+  display:grid;grid-template-columns:1fr 1fr;gap:1rem;
+  margin-top:1.5rem;
+}
+.stat-row strong{
+  display:block;
+  font-family:var(--font-display);
+  font-size:clamp(1.8rem,3vw,2.4rem);
+  letter-spacing:-.03em;
+  line-height:1;
+}
+.stat-row span{display:block;margin-top:.35rem;color:var(--muted);font-size:var(--fs-xs)}
+.people{list-style:none;display:flex;flex-direction:column;gap:.75rem;margin-top:.5rem}
+.people li{
+  display:flex;justify-content:space-between;align-items:baseline;gap:1rem;
+  padding-bottom:.75rem;border-bottom:1px solid var(--line);
+}
+.people li:last-child{border-bottom:0;padding-bottom:0}
+.people .role{color:var(--muted);font-size:var(--fs-xs)}
+.principle{
+  display:grid;gap:.85rem;margin-top:.5rem;
+}
+.principle div{
+  display:grid;
+  grid-template-columns:42px 1fr;
+  gap:.85rem;
+  align-items:start;
+}
+.principle b{
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.1em;
+  color:var(--glaze);
+  padding-top:.2rem;
+}
+.studio-map{
+  margin-top:1.25rem;
+  aspect-ratio:16/9;
+  border:1px solid var(--line);
+  background:var(--panel);
+  position:relative;
+  overflow:hidden;
+}
+.studio-map svg{width:100%;height:100%}
+
+/* ============================================================
+   CONTACT
+   ============================================================ */
+.contact{
+  display:grid;gap:clamp(2rem,4vw,3.5rem);
+}
+@media (min-width:900px){
+  .contact{grid-template-columns:1fr 1.1fr;align-items:start}
+}
+.contact__copy h2{font-size:var(--fs-h2);margin:.7rem 0 1rem}
+.contact__details{
+  margin-top:2rem;
+  display:grid;gap:1rem;
+}
+.contact__details a,
+.contact__details p{
+  display:block;
+  font-size:var(--fs-lg);
+}
+.contact__details .label{display:block;margin-bottom:.25rem}
+.form{
+  border:1px solid var(--line);
+  background:var(--panel);
+  padding:clamp(1.25rem,3vw,2rem);
+  display:grid;gap:1rem;
+}
+.form__row{display:grid;gap:1rem}
+@media (min-width:640px){
+  .form__row{grid-template-columns:1fr 1fr}
+}
+.field{display:grid;gap:.45rem}
+.field label{
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.field input,
+.field textarea{
+  width:100%;
+  border:1px solid var(--line-2);
+  background:var(--sage);
+  padding:.9rem 1rem;
+  transition:border-color .25s,background .25s;
+}
+.field input:focus,
+.field textarea:focus{
+  border-color:var(--glaze);
+  background:var(--white);
+}
+.field textarea{min-height:140px;resize:vertical}
+.form__foot{
+  display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:1rem;
+  margin-top:.35rem;
+}
+.form__note{font-size:var(--fs-xs);color:var(--muted);max-width:18rem}
+.form-status{
+  display:none;
+  margin-top:.5rem;
+  padding:.85rem 1rem;
+  border:1px solid var(--glaze);
+  background:var(--glaze-soft);
+  font-size:var(--fs-sm);
+}
+.form-status.show{display:block}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.footer{
+  border-top:1px solid var(--line);
+  padding:clamp(2.5rem,5vw,4rem) 0 2rem;
+}
+.footer__top{
+  display:grid;gap:2rem;
+  margin-bottom:clamp(2rem,4vw,3.5rem);
+}
+@media (min-width:800px){
+  .footer__top{grid-template-columns:1.4fr 1fr 1fr;align-items:start}
+}
+.footer__brand{
+  font-family:var(--font-display);
+  font-weight:800;
+  font-size:clamp(2.2rem,5vw,3.4rem);
+  letter-spacing:-.04em;
+  line-height:1;
+}
+.footer__brand i{font-style:normal;color:var(--glaze)}
+.footer__col h4{
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  font-weight:500;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:1rem;
+}
+.footer__col a,
+.footer__col p{
+  display:block;
+  font-size:var(--fs-sm);
+  color:var(--ink-2);
+  margin-bottom:.45rem;
+  transition:color .25s;
+}
+.footer__col a:hover{color:var(--glaze)}
+.footer__bottom{
+  display:flex;flex-wrap:wrap;justify-content:space-between;gap:1rem;
+  padding-top:1.25rem;
+  border-top:1px solid var(--line);
+  font-family:var(--font-mono);
+  font-size:var(--fs-micro);
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+
+/* reduced motion */
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .cursor,.cursor-label{display:none !important}
+  body.has-cursor,body.has-cursor *{cursor:auto !important}
+}
+</style>
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<div class="cursor" id="cursor" aria-hidden="true"><span class="cursor__diamond"></span></div>
+<div class="cursor-label" id="cursorLabel" aria-hidden="true"></div>
+
+<!-- PRELOADER -->
+<div class="preloader" id="preloader">
+  <div class="preloader__inner">
+    <div class="preloader__mark">KIL<span>N</span></div>
+    <div class="preloader__bar"><div class="preloader__fill" id="preFill"></div></div>
+    <div class="preloader__meta">
+      <span>Heating chamber</span>
+      <span class="preloader__pct" id="prePct">00%</span>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<header class="nav" id="nav">
+  <div class="nav__inner">
+    <a href="#top" class="logo" data-magnetic data-cursor="Home">Kil<span>n</span></a>
+    <nav class="nav__links" id="navLinks">
+      <a href="#process" data-magnetic>Process</a>
+      <a href="#archive" data-magnetic>Archive</a>
+      <a href="#studio" data-magnetic>Studio</a>
+      <a href="#contact" data-magnetic>Contact</a>
+    </nav>
+    <a class="btn nav__cta" href="#contact" data-magnetic data-cursor="Brief">Start a brief</a>
+    <button class="nav__toggle" id="navToggle" aria-label="Menu" type="button">
+      <span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<main id="top">
+  <!-- HERO -->
+  <section class="hero wrap">
+    <div class="hero__grid">
+      <div class="hero__copy">
+        <p class="eyebrow" data-anim="fade">Object systems · EST. 2014</p>
+        <h1 data-anim="split">Industrial form,<br>fired with <em>precision</em>.</h1>
+        <p class="lead" data-anim="fade">Kiln is a product design studio for objects, tooling, and packaging systems. We shape geometry that survives the floor, the line, and the shelf.</p>
+        <div class="hero__actions" data-anim="fade">
+          <a class="btn" href="#archive" data-magnetic data-cursor="View">
+            Object archive <span class="arrow">→</span>
+          </a>
+          <a class="btn btn--ghost" href="#process" data-magnetic>Open kiln desk</a>
+        </div>
+        <div class="hero__meta" data-anim="fade">
+          <div>
+            <span class="mono k">Discipline</span>
+            <span class="v">Industrial PD</span>
+          </div>
+          <div>
+            <span class="mono k">Chamber</span>
+            <span class="v">Portland · EU</span>
+          </div>
+          <div>
+            <span class="mono k">Accent</span>
+            <span class="v">Glaze cyan</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="plate" data-anim="plate" data-cursor="Plate K-09">
+        <div class="plate__grid" aria-hidden="true"></div>
+        <div class="plate__frame" aria-hidden="true"></div>
+        <div class="plate__corner plate__corner--tl" aria-hidden="true"></div>
+        <div class="plate__corner plate__corner--tr" aria-hidden="true"></div>
+        <div class="plate__corner plate__corner--bl" aria-hidden="true"></div>
+        <div class="plate__corner plate__corner--br" aria-hidden="true"></div>
+        <div class="plate__temp mono">T° 1180 / HOLD</div>
+        <div class="plate__object" id="heroObject">
+          <svg viewBox="0 0 240 260" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="70" y="28" width="100" height="18" fill="#1A1C1B"/>
+            <rect x="88" y="46" width="64" height="22" stroke="#1A1C1B" stroke-width="3"/>
+            <rect x="48" y="68" width="144" height="120" fill="#2E322F"/>
+            <rect x="66" y="86" width="108" height="84" fill="#D8DDD4"/>
+            <rect x="84" y="104" width="72" height="48" fill="#2BB5A0"/>
+            <rect x="96" y="116" width="48" height="8" fill="#1A1C1B"/>
+            <rect x="96" y="132" width="32" height="8" fill="#1A1C1B" opacity=".45"/>
+            <rect x="40" y="188" width="160" height="28" fill="#1A1C1B"/>
+            <rect x="58" y="216" width="124" height="14" stroke="#1A1C1B" stroke-width="3"/>
+            <rect x="78" y="230" width="84" height="10" fill="#2BB5A0"/>
+          </svg>
+        </div>
+        <div class="plate__tag">
+          <span>Specimen</span>
+          <strong>Clamp Module · CM-4</strong>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS — Kiln Temperature Desk -->
+  <section class="section desk-section" id="process">
+    <div class="wrap">
+      <div class="desk-head">
+        <div>
+          <p class="eyebrow">Process / 01</p>
+          <h2>Kiln temperature desk</h2>
+        </div>
+        <p class="lead">Not a carousel. A vertical firing schedule. Select a temperature band to inspect the stage, log, and geometry under heat.</p>
+      </div>
+
+      <div class="kiln-desk" id="kilnDesk">
+        <aside class="desk-rail" aria-label="Temperature steps">
+          <p class="desk-rail__title">Firing schedule</p>
+          <button class="temp-step is-active" type="button" data-magnetic data-step="0"
+            data-temp="180" data-name="Bisque draft" data-code="K-01">
+            <div class="temp-step__deg">0180°C</div>
+            <div class="temp-step__name">Bisque draft</div>
+            <div class="temp-step__code">Brief · Silhouette</div>
+          </button>
+          <button class="temp-step" type="button" data-magnetic data-step="1"
+            data-temp="620" data-name="Tooling set" data-code="K-02">
+            <div class="temp-step__deg">0620°C</div>
+            <div class="temp-step__name">Tooling set</div>
+            <div class="temp-step__code">Jigs · Tolerances</div>
+          </button>
+          <button class="temp-step" type="button" data-magnetic data-step="2"
+            data-temp="980" data-name="Glaze pass" data-code="K-03">
+            <div class="temp-step__deg">0980°C</div>
+            <div class="temp-step__name">Glaze pass</div>
+            <div class="temp-step__code">Surface · Fit</div>
+          </button>
+          <button class="temp-step" type="button" data-magnetic data-step="3"
+            data-temp="1180" data-name="Hold &amp; cool" data-code="K-04">
+            <div class="temp-step__deg">1180°C</div>
+            <div class="temp-step__name">Hold &amp; cool</div>
+            <div class="temp-step__code">Pack · Release</div>
+          </button>
+        </aside>
+
+        <div class="desk-stage">
+          <div class="gauge">
+            <div class="gauge__labels">
+              <span>Chamber heat</span>
+              <span id="gaugeBand">BAND 01 / 04</span>
+            </div>
+            <div class="gauge__track" aria-hidden="true">
+              <div class="gauge__fill" id="gaugeFill"></div>
+              <div class="gauge__needle" id="gaugeNeedle"></div>
+            </div>
+            <div class="gauge__readout"><span id="gaugeTemp">180</span><span>°C</span></div>
+          </div>
+
+          <div class="desk-visual" id="deskVisual" data-cursor="Heat view">
+            <div class="desk-visual__grid" aria-hidden="true"></div>
+            <svg id="deskSvg" viewBox="0 0 280 200" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <!-- morphing product silhouette stages -->
+              <g id="viz0">
+                <rect x="90" y="30" width="100" height="140" stroke="#1A1C1B" stroke-width="3"/>
+                <rect x="110" y="50" width="60" height="80" stroke="#2BB5A0" stroke-width="2" stroke-dasharray="6 4"/>
+                <rect x="120" y="180" width="40" height="8" fill="#1A1C1B"/>
+              </g>
+              <g id="viz1" opacity="0">
+                <rect x="70" y="40" width="140" height="20" fill="#1A1C1B"/>
+                <rect x="85" y="60" width="110" height="100" stroke="#1A1C1B" stroke-width="3"/>
+                <rect x="100" y="80" width="30" height="60" fill="#2BB5A0"/>
+                <rect x="150" y="80" width="30" height="60" fill="#2E322F"/>
+                <rect x="95" y="165" width="90" height="12" fill="#1A1C1B"/>
+              </g>
+              <g id="viz2" opacity="0">
+                <rect x="60" y="50" width="160" height="100" fill="#2E322F"/>
+                <rect x="80" y="70" width="120" height="60" fill="#D8DDD4"/>
+                <rect x="100" y="85" width="80" height="30" fill="#2BB5A0"/>
+                <rect x="40" y="155" width="200" height="16" fill="#1A1C1B"/>
+              </g>
+              <g id="viz3" opacity="0">
+                <rect x="100" y="20" width="80" height="14" fill="#2BB5A0"/>
+                <rect x="75" y="40" width="130" height="110" fill="#1A1C1B"/>
+                <rect x="95" y="60" width="90" height="70" fill="#D8DDD4"/>
+                <rect x="110" y="78" width="60" height="34" stroke="#2BB5A0" stroke-width="3"/>
+                <rect x="55" y="155" width="170" height="22" fill="#2E322F"/>
+                <rect x="85" y="182" width="110" height="8" fill="#2BB5A0"/>
+              </g>
+            </svg>
+          </div>
+
+          <p class="desk-caption" id="deskCaption">Rough volumes and silhouette intent. We lock proportion before material, and reject anything that only works in render.</p>
+        </div>
+
+        <aside class="desk-log">
+          <div class="desk-log__head">
+            <span class="mono" style="color:var(--glaze)">Chamber log</span>
+            <span class="mono" id="logCode">K-01</span>
+          </div>
+          <ul class="desk-log__list" id="logList">
+            <li><time>00:00</time><div>Intake brief filed<div class="desk-log__note">Constraints mapped</div></div></li>
+            <li><time>00:18</time><div>Silhouette board<div class="desk-log__note">Four volumes rejected</div></div></li>
+            <li><time>00:40</time><div>Proportion lock<div class="desk-log__note">Ready for tooling</div></div></li>
+          </ul>
+          <div>
+            <p class="mono" style="margin-bottom:.55rem;color:var(--muted)">Heat signature</p>
+            <div class="heat-bars" id="heatBars" aria-hidden="true">
+              <span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARCHIVE -->
+  <section class="section" id="archive">
+    <div class="wrap">
+      <div class="archive-head">
+        <div>
+          <p class="eyebrow">Archive / 02</p>
+          <h2>Object index</h2>
+        </div>
+        <div class="filters" role="tablist" aria-label="Filter objects">
+          <button class="filter-btn is-active" type="button" data-filter="all" data-magnetic>All</button>
+          <button class="filter-btn" type="button" data-filter="object" data-magnetic>Objects</button>
+          <button class="filter-btn" type="button" data-filter="tool" data-magnetic>Tooling</button>
+          <button class="filter-btn" type="button" data-filter="pack" data-magnetic>Packaging</button>
+        </div>
+      </div>
+
+      <div class="archive-grid" id="archiveGrid">
+        <article class="card" data-cat="object" data-cursor="Object">
+          <div class="card__viz">
+            <svg viewBox="0 0 160 120" fill="none"><rect x="50" y="10" width="60" height="12" fill="#1A1C1B"/><rect x="35" y="28" width="90" height="70" fill="#2E322F"/><rect x="50" y="42" width="60" height="42" fill="#2BB5A0"/><rect x="25" y="100" width="110" height="10" fill="#1A1C1B"/></svg>
+          </div>
+          <div class="card__meta">
+            <div>
+              <h3 class="card__title">Rail Vessel</h3>
+              <p class="card__spec">Cast aluminum · matte glaze</p>
+            </div>
+            <span class="mono card__id">OB-12</span>
+          </div>
+        </article>
+
+        <article class="card" data-cat="tool" data-cursor="Tooling">
+          <div class="card__viz">
+            <svg viewBox="0 0 160 120" fill="none"><rect x="20" y="45" width="120" height="18" fill="#1A1C1B"/><rect x="40" y="20" width="20" height="80" stroke="#2BB5A0" stroke-width="3"/><rect x="100" y="20" width="20" height="80" stroke="#2BB5A0" stroke-width="3"/><rect x="55" y="55" width="50" height="8" fill="#2E322F"/></svg>
+          </div>
+          <div class="card__meta">
+            <div>
+              <h3 class="card__title">Jig Frame 7</h3>
+              <p class="card__spec">CNC plate · ±0.05mm</p>
+            </div>
+            <span class="mono card__id">TL-07</span>
+          </div>
+        </article>
+
+        <article class="card" data-cat="pack" data-cursor="Pack">
+          <div class="card__viz">
+            <svg viewBox="0 0 160 120" fill="none"><rect x="30" y="25" width="100" height="70" stroke="#1A1C1B" stroke-width="3"/><rect x="45" y="40" width="70" height="40" fill="#2BB5A0"/><rect x="55" y="95" width="50" height="8" fill="#1A1C1B"/><rect x="70" y="15" width="20" height="10" fill="#2E322F"/></svg>
+          </div>
+          <div class="card__meta">
+            <div>
+              <h3 class="card__title">Nest Crate</h3>
+              <p class="card__spec">Fiberboard · inkless score</p>
+            </div>
+            <span class="mono card__id">PK-03</span>
+          </div>
+        </article>
+
+        <article class="card" data-cat="object" data-cursor="Object">
+          <div class="card__viz">
+            <svg viewBox="0 0 160 120" fill="none"><rect x="55" y="15" width="50" height="90" fill="#1A1C1B"/><rect x="65" y="30" width="30" height="50" fill="#D8DDD4"/><rect x="70" y="40" width="20" height="12" fill="#2BB5A0"/><rect x="45" y="105" width="70" height="8" fill="#2E322F"/></svg>
+          </div>
+          <div class="card__meta">
+            <div>
+              <h3 class="card__title">Column Lamp</h3>
+              <p class="card__spec">Extruded shell · soft LED</p>
+            </div>
+            <span class="mono card__id">OB-19</span>
+          </div>
+        </article>
+
+        <article class="card" data-cat="tool" data-cursor="Tooling">
+          <div class="card__viz">
+            <svg viewBox="0 0 160 120" fill="none"><rect x="25" y="30" width="110" height="60" fill="#2E322F"/><rect x="40" y="45" width="35" height="30" fill="#2BB5A0"/><rect x="85" y="45" width="35" height="30" stroke="#D8DDD4" stroke-width="3"/><rect x="60" y="95" width="40" height="8" fill="#1A1C1B"/></svg>
+          </div>
+          <div class="card__meta">
+            <div>
+              <h3 class="card__title">Press Insert</h3>
+              <p class="card__spec">Hardened steel · keyed</p>
+            </div>
+            <span class="mono card__id">TL-14</span>
+          </div>
+        </article>
+
+        <article class="card" data-cat="pack" data-cursor="Pack">
+          <div class="card__viz">
+            <svg viewBox="0 0 160 120" fill="none"><rect x="20" y="35" width="55" height="55" fill="#1A1C1B"/><rect x="85" y="35" width="55" height="55" stroke="#1A1C1B" stroke-width="3"/><rect x="35" y="50" width="25" height="25" fill="#2BB5A0"/><rect x="50" y="100" width="60" height="6" fill="#2E322F"/></svg>
+          </div>
+          <div class="card__meta">
+            <div>
+              <h3 class="card__title">Split Sleeve</h3>
+              <p class="card__spec">Two-part pulp · no ink</p>
+            </div>
+            <span class="mono card__id">PK-11</span>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- STUDIO BOARD -->
+  <section class="section" id="studio">
+    <div class="wrap">
+      <div class="board-head">
+        <p class="eyebrow">Studio / 03</p>
+        <h2>Studio board</h2>
+        <p class="lead">A working wall, not a brochure. Capacity, principles, and the people who keep the kiln honest.</p>
+      </div>
+
+      <div class="board">
+        <div class="board__cell board__cell--tall">
+          <p class="mono board__label">Capacity</p>
+          <h3>Four concurrent programs. One firing cadence.</h3>
+          <p>We keep the studio small enough that every object still passes through the same desk — brief, tooling, glaze, release.</p>
+          <div class="stat-row">
+            <div><strong data-count="48">0</strong><span class="mono">Shipped SKUs</span></div>
+            <div><strong data-count="12">0</strong><span class="mono">Active tools</span></div>
+          </div>
+          <div class="studio-map" aria-hidden="true">
+            <svg viewBox="0 0 320 180" fill="none">
+              <rect x="20" y="20" width="120" height="80" stroke="#1A1C1B" stroke-width="2"/>
+              <rect x="160" y="20" width="140" height="50" fill="#2E322F"/>
+              <rect x="160" y="80" width="70" height="50" stroke="#2BB5A0" stroke-width="2"/>
+              <rect x="240" y="80" width="60" height="50" fill="#2BB5A0"/>
+              <rect x="20" y="115" width="120" height="45" fill="#1A1C1B"/>
+              <rect x="160" y="140" width="140" height="20" stroke="#1A1C1B" stroke-width="2"/>
+              <text x="28" y="42" fill="#5E6660" font-family="JetBrains Mono" font-size="8" letter-spacing="1">BENCH A</text>
+              <text x="168" y="42" fill="#D8DDD4" font-family="JetBrains Mono" font-size="8" letter-spacing="1">KILN BAY</text>
+            </svg>
+          </div>
+        </div>
+
+        <div class="board__cell">
+          <p class="mono board__label">Principles</p>
+          <div class="principle">
+            <div><b>01</b><p>Square corners survive the line. Soft radius is a last resort, not a default.</p></div>
+            <div><b>02</b><p>Color is structural. Glaze cyan marks heat, hold, and release — never decoration alone.</p></div>
+            <div><b>03</b><p>Packaging is a tool. If it doesn't protect and instruct, it fails the schedule.</p></div>
+          </div>
+        </div>
+
+        <div class="board__cell">
+          <p class="mono board__label">Roster</p>
+          <ul class="people">
+            <li><span>Mara Quill</span><span class="mono role">Lead PD</span></li>
+            <li><span>Jonah Reed</span><span class="mono role">Tooling</span></li>
+            <li><span>Inez Park</span><span class="mono role">Pack systems</span></li>
+            <li><span>Theo Lang</span><span class="mono role">Materials</span></li>
+          </ul>
+        </div>
+
+        <div class="board__cell">
+          <p class="mono board__label">Services</p>
+          <h3>Objects · Tooling · Packaging</h3>
+          <p>From first silhouette through production-ready drawings, jig design, and ship-ready nest systems.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="section" id="contact">
+    <div class="wrap contact">
+      <div class="contact__copy">
+        <p class="eyebrow">Contact / 04</p>
+        <h2>Start a firing schedule</h2>
+        <p class="lead">Tell us what needs to survive the floor. We reply within two business days with capacity and a first temperature band.</p>
+        <div class="contact__details">
+          <div>
+            <span class="mono label">Studio</span>
+            <p>214 Clay Street · Portland</p>
+          </div>
+          <div>
+            <span class="mono label">Mail</span>
+            <a href="mailto:brief@kiln.studio" data-magnetic data-cursor="Email">brief@kiln.studio</a>
+          </div>
+          <div>
+            <span class="mono label">Signal</span>
+            <p>+1 (503) 555-0180</p>
+          </div>
+        </div>
+      </div>
+
+      <form class="form" id="contactForm" novalidate>
+        <div class="form__row">
+          <div class="field">
+            <label for="name">Name</label>
+            <input id="name" name="name" type="text" autocomplete="name" required placeholder="Your name" />
+          </div>
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" autocomplete="email" required placeholder="you@company.com" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="company">Company</label>
+          <input id="company" name="company" type="text" autocomplete="organization" placeholder="Brand or manufacturer" />
+        </div>
+        <div class="field">
+          <label for="message">Brief</label>
+          <textarea id="message" name="message" required placeholder="Object, tooling, or packaging need — constraints welcome."></textarea>
+        </div>
+        <div class="form__foot">
+          <p class="form__note">No spam. No auto-reply fog. A human opens every brief.</p>
+          <button class="btn" type="submit" data-magnetic data-cursor="Send">
+            Send brief <span class="arrow">→</span>
+          </button>
+        </div>
+        <div class="form-status" id="formStatus" role="status">Brief queued. We'll respond with chamber availability.</div>
+      </form>
+    </div>
+  </section>
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__top">
+      <div>
+        <div class="footer__brand">Kil<span>n</span></div>
+        <p style="margin-top:1rem;max-width:22rem;color:var(--ink-2);font-size:var(--fs-sm)">Industrial product design for objects, tooling, and packaging systems.</p>
+      </div>
+      <div class="footer__col">
+        <h4>Index</h4>
+        <a href="#process" data-magnetic>Process</a>
+        <a href="#archive" data-magnetic>Archive</a>
+        <a href="#studio" data-magnetic>Studio</a>
+        <a href="#contact" data-magnetic>Contact</a>
+      </div>
+      <div class="footer__col">
+        <h4>Studio</h4>
+        <p>Portland · Remote EU</p>
+        <a href="mailto:brief@kiln.studio" data-magnetic>brief@kiln.studio</a>
+        <p>Mon–Fri · 09–17 PT</p>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>© 2026 Kiln Studio</span>
+      <span>Glaze cyan · #2BB5A0</span>
+      <span>Single-file build</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const finePointer = window.matchMedia('(pointer:fine)').matches;
+
+  /* ---------- Preloader ---------- */
+  const preloader = document.getElementById('preloader');
+  const preFill = document.getElementById('preFill');
+  const prePct = document.getElementById('prePct');
+
+  function runPreloader() {
+    return new Promise((resolve) => {
+      if (reduce) {
+        gsap.set(preloader, { autoAlpha: 0, display: 'none' });
+        resolve();
+        return;
+      }
+      const obj = { p: 0 };
+      gsap.to(obj, {
+        p: 100,
+        duration: 1.55,
+        ease: 'power2.inOut',
+        onUpdate: () => {
+          const v = Math.round(obj.p);
+          preFill.style.width = v + '%';
+          prePct.textContent = String(v).padStart(2, '0') + '%';
+        },
+        onComplete: () => {
+          gsap.to(preloader, {
+            yPercent: -100,
+            duration: .9,
+            ease: 'power4.inOut',
+            onComplete: () => {
+              preloader.style.display = 'none';
+              resolve();
+            }
+          });
+        }
+      });
+    });
+  }
+
+  /* ---------- Lenis + GSAP ---------- */
+  let lenis;
+  function initSmooth() {
+    if (reduce || typeof Lenis === 'undefined') return;
+    lenis = new Lenis({
+      duration: 1.15,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true
+    });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add((time) => lenis.raf(time * 1000));
+    gsap.ticker.lagSmoothing(0);
+  }
+
+  /* ---------- Custom cursor ---------- */
+  const cursor = document.getElementById('cursor');
+  const cursorLabel = document.getElementById('cursorLabel');
+  const mouse = { x: 0, y: 0 };
+  const pos = { x: 0, y: 0 };
+
+  function initCursor() {
+    if (!finePointer || reduce) return;
+    document.body.classList.add('has-cursor');
+    window.addEventListener('mousemove', (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+      if (!cursor.classList.contains('ready')) cursor.classList.add('ready');
+    });
+    gsap.ticker.add(() => {
+      pos.x += (mouse.x - pos.x) * .22;
+      pos.y += (mouse.y - pos.y) * .22;
+      cursor.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
+      cursorLabel.style.transform = `translate(${pos.x + 18}px, ${pos.y + 18}px)`;
+    });
+    document.addEventListener('mousedown', () => cursor.classList.add('click'));
+    document.addEventListener('mouseup', () => cursor.classList.remove('click'));
+
+    document.querySelectorAll('[data-cursor], a, button, .card, .temp-step').forEach((el) => {
+      el.addEventListener('mouseenter', () => {
+        cursor.classList.add('hover');
+        const label = el.getAttribute('data-cursor');
+        if (label) {
+          cursorLabel.textContent = label;
+          cursorLabel.classList.add('on');
+        }
+      });
+      el.addEventListener('mouseleave', () => {
+        cursor.classList.remove('hover');
+        cursorLabel.classList.remove('on');
+      });
+    });
+  }
+
+  /* ---------- Magnetic buttons ---------- */
+  function initMagnetic() {
+    if (!finePointer || reduce) return;
+    document.querySelectorAll('[data-magnetic]').forEach((el) => {
+      const strength = el.classList.contains('btn') ? 0.35 : 0.22;
+      el.addEventListener('mousemove', (e) => {
+        const r = el.getBoundingClientRect();
+        const x = e.clientX - r.left - r.width / 2;
+        const y = e.clientY - r.top - r.height / 2;
+        gsap.to(el, { x: x * strength, y: y * strength, duration: .35, ease: 'power3.out' });
+      });
+      el.addEventListener('mouseleave', () => {
+        gsap.to(el, { x: 0, y: 0, duration: .55, ease: 'elastic.out(1, .45)' });
+      });
+    });
+  }
+
+  /* ---------- Nav ---------- */
+  const nav = document.getElementById('nav');
+  const navToggle = document.getElementById('navToggle');
+  navToggle?.addEventListener('click', () => nav.classList.toggle('open'));
+  document.querySelectorAll('.nav__links a').forEach((a) => {
+    a.addEventListener('click', () => nav.classList.remove('open'));
+  });
+  ScrollTrigger.create({
+    start: 40,
+    onUpdate: (self) => nav.classList.toggle('scrolled', self.scroll() > 40)
+  });
+
+  /* ---------- Kiln desk ---------- */
+  const steps = [
+    {
+      temp: 180, band: 'BAND 01 / 04', code: 'K-01', heat: 2,
+      caption: 'Rough volumes and silhouette intent. We lock proportion before material, and reject anything that only works in render.',
+      log: [
+        ['00:00', 'Intake brief filed', 'Constraints mapped'],
+        ['00:18', 'Silhouette board', 'Four volumes rejected'],
+        ['00:40', 'Proportion lock', 'Ready for tooling']
+      ]
+    },
+    {
+      temp: 620, band: 'BAND 02 / 04', code: 'K-02', heat: 4,
+      caption: 'Tooling geometry and jig interfaces. Tolerances are written as manufacturing truth, not design aspiration.',
+      log: [
+        ['01:05', 'Jig envelope set', 'Datum faces locked'],
+        ['01:32', 'Tolerance stack', '±0.05mm critical'],
+        ['02:10', 'Fixture pilot', 'Three inserts cut']
+      ]
+    },
+    {
+      temp: 980, band: 'BAND 03 / 04', code: 'K-03', heat: 6,
+      caption: 'Surface pass and fit check. Glaze cyan marks hold points — color is a process signal, not a trend.',
+      log: [
+        ['03:00', 'Surface sample', 'Matte glaze A3'],
+        ['03:40', 'Fit assembly', 'Lid gap closed'],
+        ['04:15', 'Color hold', 'Cyan markers applied']
+      ]
+    },
+    {
+      temp: 1180, band: 'BAND 04 / 04', code: 'K-04', heat: 8,
+      caption: 'Hold, cool, and release. Packaging nests are designed with the object — never after the fact.',
+      log: [
+        ['05:00', 'Hold cycle', 'Thermal settle'],
+        ['05:45', 'Pack nest', 'Pulp sleeve scored'],
+        ['06:20', 'Release gate', 'SKU cleared']
+      ]
+    }
+  ];
+
+  const gaugeTemp = document.getElementById('gaugeTemp');
+  const gaugeFill = document.getElementById('gaugeFill');
+  const gaugeNeedle = document.getElementById('gaugeNeedle');
+  const gaugeBand = document.getElementById('gaugeBand');
+  const deskCaption = document.getElementById('deskCaption');
+  const logList = document.getElementById('logList');
+  const logCode = document.getElementById('logCode');
+  const heatBars = [...document.querySelectorAll('#heatBars span')];
+  const tempButtons = [...document.querySelectorAll('.temp-step')];
+  const tempObj = { t: 180 };
+
+  function setHeat(n) {
+    heatBars.forEach((bar, i) => {
+      const on = i < n;
+      bar.classList.toggle('on', on);
+      bar.style.height = on ? `${35 + i * 8}%` : '18%';
+    });
+  }
+
+  function setViz(index) {
+    for (let i = 0; i < 4; i++) {
+      const g = document.getElementById('viz' + i);
+      if (!g) continue;
+      gsap.to(g, { opacity: i === index ? 1 : 0, duration: .45, ease: 'power2.out' });
+    }
+  }
+
+  function renderLog(entries) {
+    logList.innerHTML = entries.map(([time, title, note]) =>
+      `<li><time>${time}</time><div>${title}<div class="desk-log__note">${note}</div></div></li>`
+    ).join('');
+  }
+
+  function goStep(index) {
+    const s = steps[index];
+    tempButtons.forEach((b, i) => b.classList.toggle('is-active', i === index));
+    gaugeBand.textContent = s.band;
+    logCode.textContent = s.code;
+    deskCaption.textContent = s.caption;
+    renderLog(s.log);
+    setHeat(s.heat);
+    setViz(index);
+
+    const pct = ((s.temp - 180) / (1180 - 180)) * 100;
+    gsap.to(tempObj, {
+      t: s.temp,
+      duration: reduce ? 0 : .7,
+      ease: 'power3.out',
+      onUpdate: () => { gaugeTemp.textContent = String(Math.round(tempObj.t)); }
+    });
+    gsap.to(gaugeFill, { width: pct + '%', duration: reduce ? 0 : .7, ease: 'power3.out' });
+    gsap.to(gaugeNeedle, { left: pct + '%', duration: reduce ? 0 : .7, ease: 'power3.out' });
+  }
+
+  tempButtons.forEach((btn) => {
+    btn.addEventListener('click', () => goStep(Number(btn.dataset.step)));
+  });
+  setHeat(2);
+
+  /* Scroll-linked desk progression (vertical, not horizontal pin carousel) */
+  function initDeskScroll() {
+    const desk = document.getElementById('kilnDesk');
+    if (!desk || reduce) return;
+    ScrollTrigger.create({
+      trigger: desk,
+      start: 'top 70%',
+      end: 'bottom 45%',
+      onUpdate: (self) => {
+        const idx = Math.min(3, Math.floor(self.progress * 4));
+        if (!tempButtons[idx].classList.contains('is-active')) goStep(idx);
+      }
+    });
+  }
+
+  /* ---------- Archive filters ---------- */
+  const filterBtns = [...document.querySelectorAll('.filter-btn')];
+  const cards = [...document.querySelectorAll('.card')];
+  filterBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach((b) => b.classList.toggle('is-active', b === btn));
+      const f = btn.dataset.filter;
+      cards.forEach((card) => {
+        const show = f === 'all' || card.dataset.cat === f;
+        card.classList.toggle('is-hidden', !show);
+        if (show && !reduce) {
+          gsap.fromTo(card, { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: .4, ease: 'power2.out' });
+        }
+      });
+      ScrollTrigger.refresh();
+    });
+  });
+
+  /* ---------- Contact form ---------- */
+  document.getElementById('contactForm')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+    document.getElementById('formStatus').classList.add('show');
+    form.reset();
+  });
+
+  /* ---------- Hero / section reveals ---------- */
+  function initReveals() {
+    if (reduce) {
+      gsap.set('[data-anim]', { clearProps: 'all' });
+      return;
+    }
+
+    const heroTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+    heroTl
+      .from('.hero .eyebrow', { y: 20, autoAlpha: 0, duration: .6 })
+      .from('.hero h1', { y: 40, autoAlpha: 0, duration: .85 }, '-=.35')
+      .from('.hero .lead', { y: 24, autoAlpha: 0, duration: .65 }, '-=.5')
+      .from('.hero__actions', { y: 20, autoAlpha: 0, duration: .55 }, '-=.4')
+      .from('.hero__meta', { y: 20, autoAlpha: 0, duration: .55 }, '-=.35')
+      .from('.plate', { y: 50, autoAlpha: 0, scale: .96, duration: 1 }, '-=.85')
+      .from('.plate__object svg', { y: 30, autoAlpha: 0, duration: .8 }, '-=.55');
+
+    gsap.to('.plate__object', {
+      y: -12,
+      duration: 3.2,
+      ease: 'sine.inOut',
+      yoyo: true,
+      repeat: -1
+    });
+
+    gsap.utils.toArray('.desk-head, .archive-head, .board-head, .contact__copy, .form, .board__cell, .card, .kiln-desk').forEach((el) => {
+      gsap.from(el, {
+        y: 36,
+        autoAlpha: 0,
+        duration: .8,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 88%',
+          toggleActions: 'play none none none'
+        }
+      });
+    });
+
+    document.querySelectorAll('[data-count]').forEach((el) => {
+      const target = Number(el.dataset.count);
+      const obj = { v: 0 };
+      ScrollTrigger.create({
+        trigger: el,
+        start: 'top 90%',
+        once: true,
+        onEnter: () => {
+          gsap.to(obj, {
+            v: target,
+            duration: 1.4,
+            ease: 'power2.out',
+            onUpdate: () => { el.textContent = String(Math.round(obj.v)); }
+          });
+        }
+      });
+    });
+  }
+
+  /* ---------- Boot ---------- */
+  gsap.registerPlugin(ScrollTrigger);
+
+  async function boot() {
+    await runPreloader();
+    initSmooth();
+    initCursor();
+    initMagnetic();
+    initDeskScroll();
+    initReveals();
+    goStep(0);
+    ScrollTrigger.refresh();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+</body>
+</html>

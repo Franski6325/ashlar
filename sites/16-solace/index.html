@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Solace — Calm focus for restless minds</title>
+<meta name="description" content="Solace is a digital wellbeing app for calm sessions, focus modes, and gentle sleep wind-downs. Soft structure for clearer days." />
+<meta name="theme-color" content="#F3EEE6" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Solace — Calm focus for restless minds" />
+<meta property="og:description" content="Soft sessions for focus, rest, and wind-down. A quieter way to reclaim your attention." />
+<meta property="og:image" content="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 630'%3E%3Crect fill='%23F3EEE6' width='1200' height='630'/%3E%3Ccircle cx='600' cy='315' r='180' fill='none' stroke='%237BA17A' stroke-width='2' opacity='.45'/%3E%3Ccircle cx='600' cy='315' r='110' fill='none' stroke='%231F2A24' stroke-width='1.5' opacity='.35'/%3E%3Ccircle cx='600' cy='315' r='42' fill='%237BA17A' opacity='.55'/%3E%3Ctext x='600' y='540' text-anchor='middle' font-family='Georgia,serif' font-size='48' fill='%231F2A24' opacity='.85'%3ESolace%3C/text%3E%3C/svg%3E" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Solace — Calm focus for restless minds" />
+<meta name="twitter:description" content="Soft sessions for focus, rest, and wind-down." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%23F3EEE6'/%3E%3Ccircle cx='32' cy='32' r='18' fill='none' stroke='%237BA17A' stroke-width='2'/%3E%3Ccircle cx='32' cy='32' r='8' fill='%237BA17A' opacity='.7'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+<style>
+:root {
+  --sand: #F3EEE6;
+  --sand-deep: #E8E0D4;
+  --ink: #1F2A24;
+  --ink-soft: rgba(31, 42, 36, 0.62);
+  --ink-faint: rgba(31, 42, 36, 0.08);
+  --sage: #7BA17A;
+  --sage-soft: rgba(123, 161, 122, 0.22);
+  --sage-deep: #5E8560;
+  --cream: #FAF7F2;
+  --white: #FFFDF9;
+  --radius-card: 28px;
+  --radius-pill: 999px;
+  --font: "Outfit", system-ui, sans-serif;
+  --font-brand: "Fraunces", Georgia, serif;
+  --shadow-soft: 0 18px 48px rgba(31, 42, 36, 0.06);
+  --nav-h: 72px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: auto; }
+
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+body {
+  font-family: var(--font);
+  background: var(--sand);
+  color: var(--ink);
+  line-height: 1.55;
+  font-weight: 400;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+@media (pointer: fine) {
+  body.has-cursor, body.has-cursor * { cursor: none !important; }
+}
+
+img, svg { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; border: none; background: none; color: inherit; cursor: pointer; }
+ul { list-style: none; }
+
+.bg-mesh {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 12% 8%, rgba(123, 161, 122, 0.18), transparent 55%),
+    radial-gradient(ellipse 55% 45% at 88% 18%, rgba(232, 224, 212, 0.9), transparent 50%),
+    radial-gradient(ellipse 60% 50% at 70% 78%, rgba(123, 161, 122, 0.12), transparent 55%),
+    radial-gradient(ellipse 50% 40% at 20% 88%, rgba(255, 253, 249, 0.55), transparent 50%),
+    linear-gradient(165deg, #F6F1EA 0%, #F3EEE6 42%, #EDE6DB 100%);
+}
+
+.bg-mesh::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.45'/%3E%3C/svg%3E");
+  mix-blend-mode: soft-light;
+}
+
+.wrap {
+  width: min(1120px, calc(100% - 2.5rem));
+  margin-inline: auto;
+  position: relative;
+  z-index: 1;
+}
+
+/* Custom cursor */
+.cursor {
+  position: fixed;
+  top: 0; left: 0;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: rgba(123, 161, 122, 0.45);
+  border: 1.5px solid rgba(123, 161, 122, 0.7);
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  mix-blend-mode: multiply;
+  opacity: 0;
+  transition: width 0.35s var(--ease), height 0.35s var(--ease), background 0.3s ease, border-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  will-change: transform;
+}
+
+.cursor.is-active {
+  width: 72px;
+  height: 72px;
+  background: rgba(123, 161, 122, 0.28);
+  border-color: rgba(94, 133, 96, 0.55);
+}
+
+.cursor-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink);
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 0.25s ease, transform 0.25s var(--ease);
+}
+
+.cursor.is-active .cursor-label {
+  opacity: 0.85;
+  transform: scale(1);
+}
+
+@media (pointer: coarse), (max-width: 768px) {
+  .cursor { display: none !important; }
+}
+
+/* Nav */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  height: var(--nav-h);
+  display: flex;
+  align-items: center;
+  backdrop-filter: blur(14px);
+  background: rgba(243, 238, 230, 0.72);
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.3s ease, background 0.3s ease;
+}
+
+.nav.scrolled {
+  border-bottom-color: rgba(31, 42, 36, 0.06);
+  background: rgba(243, 238, 230, 0.88);
+}
+
+.nav-inner {
+  width: min(1120px, calc(100% - 2.5rem));
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.logo {
+  font-family: var(--font-brand);
+  font-weight: 300;
+  font-size: 1.55rem;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.logo-mark {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--sage);
+  box-shadow: inset 0 0 0 5px transparent, inset 0 0 0 7px var(--sage-soft);
+  position: relative;
+}
+
+.logo-mark::after {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  background: var(--sage);
+  opacity: 0.7;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+}
+
+.nav-links a {
+  font-size: 0.9rem;
+  font-weight: 450;
+  color: var(--ink-soft);
+  transition: color 0.25s ease;
+}
+
+.nav-links a:hover { color: var(--ink); }
+
+.nav-cta { display: none; }
+@media (min-width: 900px) {
+  .nav-cta { display: inline-flex; }
+  .nav-toggle { display: none; }
+}
+
+.nav-toggle {
+  width: 44px; height: 44px;
+  border-radius: var(--radius-pill);
+  background: var(--sage-soft);
+  display: grid;
+  place-items: center;
+  gap: 5px;
+}
+
+.nav-toggle span {
+  display: block;
+  width: 16px; height: 1.5px;
+  background: var(--ink);
+  border-radius: 2px;
+  transition: transform 0.3s var(--ease), opacity 0.2s;
+}
+
+.nav-toggle.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.nav-toggle.open span:nth-child(2) { opacity: 0; }
+.nav-toggle.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+.mobile-menu {
+  position: fixed;
+  inset: var(--nav-h) 0 0 0;
+  background: rgba(243, 238, 230, 0.96);
+  backdrop-filter: blur(16px);
+  z-index: 99;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.35s ease, visibility 0.35s;
+}
+
+.mobile-menu.open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.mobile-menu a {
+  font-size: 1.5rem;
+  font-weight: 500;
+  padding: 0.35rem 0;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.55rem;
+  border-radius: var(--radius-pill);
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: transform 0.35s var(--ease), background 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary {
+  background: var(--ink);
+  color: var(--sand);
+  box-shadow: 0 10px 28px rgba(31, 42, 36, 0.18);
+}
+
+.btn-primary:hover {
+  background: #2A3830;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px rgba(31, 42, 36, 0.22);
+}
+
+.btn-ghost {
+  background: rgba(255, 253, 249, 0.55);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px rgba(31, 42, 36, 0.06);
+}
+
+.btn-ghost:hover {
+  background: var(--white);
+  transform: translateY(-2px);
+}
+
+.btn-sage {
+  background: var(--sage);
+  color: var(--white);
+  box-shadow: 0 10px 28px rgba(123, 161, 122, 0.35);
+}
+
+.btn-sage:hover {
+  background: var(--sage-deep);
+  transform: translateY(-2px);
+}
+
+.btn .mag {
+  position: absolute;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.22), transparent 70%);
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.3s;
+}
+
+.btn:hover .mag { opacity: 1; }
+
+/* Hero */
+.hero {
+  min-height: 100svh;
+  display: grid;
+  align-items: center;
+  padding: calc(var(--nav-h) + 2.5rem) 0 4rem;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-grid {
+  display: grid;
+  gap: 3rem;
+  align-items: center;
+}
+
+@media (min-width: 900px) {
+  .hero-grid {
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 2.5rem;
+  }
+}
+
+.hero-copy { max-width: 34rem; }
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sage-deep);
+  margin-bottom: 1.25rem;
+}
+
+.eyebrow::before {
+  content: "";
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--sage-soft);
+  box-shadow: inset 0 0 0 5px var(--sage);
+  opacity: 0.85;
+}
+
+.brand-hero {
+  font-family: var(--font-brand);
+  font-weight: 300;
+  font-size: clamp(3.4rem, 8vw, 5.6rem);
+  letter-spacing: -0.035em;
+  line-height: 0.95;
+  color: var(--ink);
+  margin-bottom: 1.15rem;
+}
+
+.hero h1 {
+  font-size: clamp(1.55rem, 3.2vw, 2.15rem);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+  color: var(--ink);
+  margin-bottom: 0.85rem;
+  max-width: 18ch;
+}
+
+.hero-sub {
+  font-size: 1.05rem;
+  color: var(--ink-soft);
+  max-width: 34ch;
+  margin-bottom: 1.85rem;
+  font-weight: 400;
+}
+
+.hero-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.hero-visual {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 320px;
+}
+
+.orb-stage {
+  width: min(420px, 100%);
+  aspect-ratio: 1;
+  position: relative;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 42% 38%, rgba(255,253,249,0.85), transparent 45%),
+    radial-gradient(circle at 55% 60%, rgba(123,161,122,0.18), transparent 50%),
+    linear-gradient(145deg, rgba(255,253,249,0.5), rgba(232,224,212,0.4));
+  box-shadow: var(--shadow-soft);
+}
+
+.orb-stage svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.orb-pulse {
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  border: 1px solid rgba(123, 161, 122, 0.25);
+  animation: breathe 6s ease-in-out infinite;
+}
+
+.orb-pulse:nth-child(2) {
+  inset: 22%;
+  animation-delay: -2s;
+  border-color: rgba(31, 42, 36, 0.1);
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.55; }
+  50% { transform: scale(1.06); opacity: 0.9; }
+}
+
+/* Sections shared */
+section {
+  position: relative;
+  z-index: 1;
+  padding: 5.5rem 0;
+}
+
+.section-label {
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sage-deep);
+  margin-bottom: 0.75rem;
+}
+
+.section-title {
+  font-size: clamp(1.85rem, 3.5vw, 2.55rem);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin-bottom: 0.65rem;
+  max-width: 16ch;
+}
+
+.section-lead {
+  color: var(--ink-soft);
+  max-width: 42ch;
+  font-size: 1.05rem;
+  margin-bottom: 2.5rem;
+}
+
+.section-head {
+  margin-bottom: 0.25rem;
+}
+
+/* Modes */
+.modes-grid {
+  display: grid;
+  gap: 1.15rem;
+}
+
+@media (min-width: 768px) {
+  .modes-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.mode-card {
+  background: rgba(255, 253, 249, 0.62);
+  border-radius: var(--radius-card);
+  padding: 1.75rem 1.6rem 1.85rem;
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  min-height: 280px;
+  transition: transform 0.4s var(--ease), background 0.3s ease;
+}
+
+.mode-card:hover {
+  transform: translateY(-4px);
+  background: rgba(255, 253, 249, 0.88);
+}
+
+.mode-icon {
+  width: 52px; height: 52px;
+  border-radius: 18px;
+  background: var(--sage-soft);
+  display: grid;
+  place-items: center;
+  margin-bottom: 0.35rem;
+}
+
+.mode-icon svg { width: 26px; height: 26px; }
+
+.mode-card h3 {
+  font-size: 1.25rem;
+  font-weight: 550;
+  letter-spacing: -0.02em;
+}
+
+.mode-card p {
+  color: var(--ink-soft);
+  font-size: 0.98rem;
+  flex: 1;
+}
+
+.mode-tag {
+  align-self: flex-start;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sage-deep);
+  background: var(--sage-soft);
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-pill);
+}
+
+/* Steps */
+.steps {
+  display: grid;
+  gap: 1.15rem;
+  counter-reset: step;
+}
+
+@media (min-width: 768px) {
+  .steps { grid-template-columns: repeat(3, 1fr); }
+}
+
+.step {
+  background: linear-gradient(160deg, rgba(255,253,249,0.55), rgba(232,224,212,0.35));
+  border-radius: var(--radius-card);
+  padding: 1.85rem 1.55rem;
+  position: relative;
+}
+
+.step::before {
+  counter-increment: step;
+  content: "0" counter(step);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--sage-deep);
+  display: block;
+  margin-bottom: 1.1rem;
+}
+
+.step h3 {
+  font-size: 1.2rem;
+  font-weight: 550;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.55rem;
+}
+
+.step p { color: var(--ink-soft); font-size: 0.96rem; }
+
+/* Rituals */
+.rituals {
+  padding: 4rem 0;
+}
+
+.rituals-panel {
+  background: var(--ink);
+  color: var(--sand);
+  border-radius: clamp(28px, 4vw, 40px);
+  padding: clamp(2rem, 4vw, 3rem);
+  overflow: hidden;
+  position: relative;
+}
+
+.rituals-panel::before {
+  content: "";
+  position: absolute;
+  width: 280px; height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(123,161,122,0.35), transparent 70%);
+  top: -80px; right: -40px;
+  pointer-events: none;
+}
+
+.rituals-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.rituals-head .section-label { color: var(--sage); }
+.rituals-head h2 {
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  max-width: 14ch;
+}
+
+.ritual-track {
+  display: grid;
+  gap: 0.85rem;
+  position: relative;
+}
+
+@media (min-width: 700px) {
+  .ritual-track { grid-template-columns: repeat(4, 1fr); }
+}
+
+.ritual {
+  background: rgba(243, 238, 230, 0.08);
+  border-radius: 22px;
+  padding: 1.25rem 1.15rem;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: background 0.3s ease;
+}
+
+.ritual:hover { background: rgba(243, 238, 230, 0.14); }
+
+.ritual time {
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  color: rgba(243, 238, 230, 0.5);
+  font-variant-numeric: tabular-nums;
+}
+
+.ritual strong {
+  font-weight: 500;
+  font-size: 1.05rem;
+  letter-spacing: -0.015em;
+  margin-top: 0.85rem;
+}
+
+.ritual span {
+  font-size: 0.88rem;
+  color: rgba(243, 238, 230, 0.58);
+  margin-top: 0.35rem;
+}
+
+/* Pricing */
+.pricing-grid {
+  display: grid;
+  gap: 1.15rem;
+  align-items: stretch;
+}
+
+@media (min-width: 800px) {
+  .pricing-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.price-card {
+  background: rgba(255, 253, 249, 0.55);
+  border-radius: var(--radius-card);
+  padding: 1.85rem 1.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-shadow: var(--shadow-soft);
+}
+
+.price-card.featured {
+  background: linear-gradient(165deg, rgba(123,161,122,0.22), rgba(255,253,249,0.75));
+  box-shadow: 0 22px 50px rgba(123, 161, 122, 0.18);
+}
+
+.price-card h3 {
+  font-size: 1.15rem;
+  font-weight: 550;
+  letter-spacing: -0.02em;
+}
+
+.price-amount {
+  font-size: 2.4rem;
+  font-weight: 550;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.price-amount small {
+  font-size: 0.95rem;
+  font-weight: 450;
+  color: var(--ink-soft);
+  letter-spacing: 0;
+}
+
+.price-card p {
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+
+.price-card ul {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin: 0.35rem 0 0.75rem;
+  flex: 1;
+}
+
+.price-card li {
+  font-size: 0.92rem;
+  padding-left: 1.35rem;
+  position: relative;
+  color: var(--ink);
+}
+
+.price-card li::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0.45em;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--sage);
+  opacity: 0.75;
+}
+
+.price-card .btn { width: 100%; margin-top: auto; }
+
+/* CTA trial */
+.cta-band {
+  padding-top: 2rem;
+  padding-bottom: 5rem;
+}
+
+.cta-panel {
+  border-radius: clamp(28px, 4vw, 40px);
+  background:
+    radial-gradient(ellipse 60% 80% at 90% 20%, rgba(123,161,122,0.25), transparent 50%),
+    radial-gradient(ellipse 50% 60% at 10% 90%, rgba(255,253,249,0.7), transparent 45%),
+    linear-gradient(145deg, rgba(255,253,249,0.75), rgba(232,224,212,0.55));
+  padding: clamp(2.5rem, 6vw, 4.5rem);
+  text-align: center;
+  box-shadow: var(--shadow-soft);
+}
+
+.cta-panel h2 {
+  font-size: clamp(1.85rem, 3.5vw, 2.6rem);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  margin: 0.5rem auto 0.75rem;
+  max-width: 16ch;
+}
+
+.cta-panel p {
+  color: var(--ink-soft);
+  max-width: 36ch;
+  margin: 0 auto 1.75rem;
+}
+
+.cta-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  justify-content: center;
+  max-width: 460px;
+  margin: 0 auto;
+}
+
+.cta-form input {
+  flex: 1 1 220px;
+  border: none;
+  background: var(--white);
+  border-radius: var(--radius-pill);
+  padding: 0.95rem 1.35rem;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px rgba(31, 42, 36, 0.06);
+  outline: none;
+  transition: box-shadow 0.25s ease;
+}
+
+.cta-form input:focus {
+  box-shadow: inset 0 0 0 1.5px var(--sage);
+}
+
+.cta-form input::placeholder { color: rgba(31, 42, 36, 0.4); }
+
+.form-note {
+  margin-top: 1rem;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+
+.form-ok {
+  display: none;
+  margin-top: 1rem;
+  color: var(--sage-deep);
+  font-weight: 500;
+}
+
+/* Footer */
+.footer {
+  position: relative;
+  z-index: 1;
+  padding: 2.5rem 0 3rem;
+  border-top: 1px solid rgba(31, 42, 36, 0.06);
+}
+
+.footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer .logo { font-size: 1.25rem; }
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.footer-links a {
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+  transition: color 0.2s;
+}
+
+.footer-links a:hover { color: var(--ink); }
+
+.footer-copy {
+  width: 100%;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: rgba(31, 42, 36, 0.45);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .orb-pulse { animation: none; }
+  .cursor { display: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="bg-mesh" aria-hidden="true"></div>
+<div class="cursor" id="cursor" aria-hidden="true"><span class="cursor-label">focus</span></div>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#top" class="logo" data-interactive>
+      <span class="logo-mark" aria-hidden="true"></span>
+      Solace
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#modes" data-interactive>Modes</a>
+      <a href="#how" data-interactive>How it works</a>
+      <a href="#rituals" data-interactive>Rituals</a>
+      <a href="#pricing" data-interactive>Pricing</a>
+      <a href="#trial" class="btn btn-primary nav-cta" data-interactive>Start free trial</a>
+    </nav>
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" data-interactive>
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+  <a href="#modes" data-interactive>Modes</a>
+  <a href="#how" data-interactive>How it works</a>
+  <a href="#rituals" data-interactive>Rituals</a>
+  <a href="#pricing" data-interactive>Pricing</a>
+  <a href="#trial" class="btn btn-primary" style="align-self:flex-start;margin-top:0.5rem" data-interactive>Start free trial</a>
+</div>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow" data-reveal>Digital wellbeing</p>
+        <p class="brand-hero" data-reveal>Solace</p>
+        <h1 data-reveal>Quiet rooms for a louder mind.</h1>
+        <p class="hero-sub" data-reveal>Soft sessions that help you focus, rest, and wind down — without the rush of another noisy app.</p>
+        <div class="hero-cta" data-reveal>
+          <a href="#trial" class="btn btn-primary" data-interactive>
+            <span class="mag" aria-hidden="true"></span>
+            Begin gently
+          </a>
+          <a href="#modes" class="btn btn-ghost" data-interactive>
+            <span class="mag" aria-hidden="true"></span>
+            Explore modes
+          </a>
+        </div>
+      </div>
+      <div class="hero-visual" data-reveal data-interactive>
+        <div class="orb-stage" aria-hidden="true">
+          <div class="orb-pulse"></div>
+          <div class="orb-pulse"></div>
+          <svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="200" cy="200" r="168" stroke="#7BA17A" stroke-opacity="0.22" stroke-width="1.25"/>
+            <circle cx="200" cy="200" r="132" stroke="#1F2A24" stroke-opacity="0.12" stroke-width="1.25"/>
+            <circle cx="200" cy="200" r="96" stroke="#7BA17A" stroke-opacity="0.35" stroke-width="1.5"/>
+            <circle cx="200" cy="200" r="58" stroke="#1F2A24" stroke-opacity="0.18" stroke-width="1.25"/>
+            <circle cx="200" cy="200" r="28" fill="#7BA17A" fill-opacity="0.55"/>
+            <circle cx="200" cy="200" r="12" fill="#1F2A24" fill-opacity="0.55"/>
+            <circle class="orbit-dot" cx="200" cy="32" r="5" fill="#7BA17A" fill-opacity="0.8"/>
+            <path d="M200 68c42 0 76 34 76 76" stroke="#7BA17A" stroke-opacity="0.35" stroke-width="1.25" stroke-linecap="round"/>
+            <path d="M124 200c0-42 34-76 76-76" stroke="#1F2A24" stroke-opacity="0.12" stroke-width="1.25" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="modes">
+    <div class="wrap">
+      <div class="section-head" data-reveal>
+        <p class="section-label">Modes</p>
+        <h2 class="section-title">Three tempos for the day.</h2>
+        <p class="section-lead">Each mode is a soft container — timed soundscapes, dimmed UI, and cues that ask for less of you.</p>
+      </div>
+      <div class="modes-grid">
+        <article class="mode-card" data-reveal data-interactive>
+          <div class="mode-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#1F2A24" stroke-width="1.5" stroke-linecap="round">
+              <circle cx="12" cy="12" r="8"/>
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M12 4v2M12 18v2M4 12h2M18 12h2"/>
+            </svg>
+          </div>
+          <h3>Focus</h3>
+          <p>Short, protected blocks with a single soft pulse and optional ambient layers. Built for deep work without harsh timers.</p>
+          <span class="mode-tag">25–50 min</span>
+        </article>
+        <article class="mode-card" data-reveal data-interactive>
+          <div class="mode-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#1F2A24" stroke-width="1.5" stroke-linecap="round">
+              <path d="M4 14c3-1 5-4 8-4s5 3 8 4"/>
+              <path d="M4 18c3-1 5-3 8-3s5 2 8 3"/>
+              <circle cx="12" cy="7" r="2.5"/>
+            </svg>
+          </div>
+          <h3>Rest</h3>
+          <p>Midday resets that lower visual noise and guide your breath. Pause between meetings without scrolling away the break.</p>
+          <span class="mode-tag">8–15 min</span>
+        </article>
+        <article class="mode-card" data-reveal data-interactive>
+          <div class="mode-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#1F2A24" stroke-width="1.5" stroke-linecap="round">
+              <path d="M14 6a6 6 0 1 0 4 10.5A7.5 7.5 0 1 1 14 6Z"/>
+              <path d="M16 4.5c.4 1.2.5 2.4.3 3.5"/>
+            </svg>
+          </div>
+          <h3>Wind-down</h3>
+          <p>Evening rituals that dim screens, slow cues, and ease you toward sleep — no startling alerts, no bright streaks.</p>
+          <span class="mode-tag">20–40 min</span>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="wrap">
+      <div class="section-head" data-reveal>
+        <p class="section-label">How it works</p>
+        <h2 class="section-title">A ritual, not a dashboard.</h2>
+        <p class="section-lead">Open Solace, choose a tempo, and let the session hold the edges. You return when the soft chime says it’s time.</p>
+      </div>
+      <div class="steps">
+        <div class="step" data-reveal>
+          <h3>Choose your tempo</h3>
+          <p>Pick Focus, Rest, or Wind-down. Each mode shapes sound, light, and length to match the moment.</p>
+        </div>
+        <div class="step" data-reveal>
+          <h3>Settle into the room</h3>
+          <p>The interface softens. Optional breath cues and ambient textures keep you present without demanding taps.</p>
+        </div>
+        <div class="step" data-reveal>
+          <h3>Return on the chime</h3>
+          <p>A gentle close ends the session. Log a one-word note if you like — or simply step back into your day.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="rituals" id="rituals">
+    <div class="wrap">
+      <div class="rituals-panel" data-reveal>
+        <div class="rituals-head">
+          <div>
+            <p class="section-label">Rituals</p>
+            <h2>A day shaped by soft edges.</h2>
+          </div>
+          <a href="#trial" class="btn btn-sage" data-interactive style="align-self:flex-start">
+            <span class="mag" aria-hidden="true"></span>
+            Try a sample day
+          </a>
+        </div>
+        <div class="ritual-track">
+          <div class="ritual" data-reveal>
+            <time>07:30</time>
+            <strong>Morning clear</strong>
+            <span>Five minutes of still breath before inbox</span>
+          </div>
+          <div class="ritual" data-reveal>
+            <time>10:15</time>
+            <strong>Deep focus</strong>
+            <span>Protected block with sand-soft ambience</span>
+          </div>
+          <div class="ritual" data-reveal>
+            <time>14:40</time>
+            <strong>Midday rest</strong>
+            <span>Screen dim + guided exhale</span>
+          </div>
+          <div class="ritual" data-reveal>
+            <time>21:20</time>
+            <strong>Wind-down</strong>
+            <span>Low light, slow fade into sleep</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pricing">
+    <div class="wrap">
+      <div class="section-head" data-reveal>
+        <p class="section-label">Pricing</p>
+        <h2 class="section-title">Soft plans, clear limits.</h2>
+        <p class="section-lead">Start free. Upgrade when the ritual sticks. No streak guilt, no dark patterns.</p>
+      </div>
+      <div class="pricing-grid">
+        <article class="price-card" data-reveal>
+          <h3>Drift</h3>
+          <p class="price-amount">$0 <small>/ mo</small></p>
+          <p>Enough to feel the rhythm of a quieter day.</p>
+          <ul>
+            <li>2 Focus sessions / day</li>
+            <li>Rest mode unlocked</li>
+            <li>Basic ambient set</li>
+          </ul>
+          <a href="#trial" class="btn btn-ghost" data-interactive>
+            <span class="mag" aria-hidden="true"></span>
+            Start free
+          </a>
+        </article>
+        <article class="price-card featured" data-reveal>
+          <h3>Harbor</h3>
+          <p class="price-amount">$9 <small>/ mo</small></p>
+          <p>For people who want Solace as a daily companion.</p>
+          <ul>
+            <li>Unlimited Focus & Rest</li>
+            <li>Full Wind-down library</li>
+            <li>Custom session lengths</li>
+            <li>Offline soft packs</li>
+          </ul>
+          <a href="#trial" class="btn btn-primary" data-interactive>
+            <span class="mag" aria-hidden="true"></span>
+            Choose Harbor
+          </a>
+        </article>
+        <article class="price-card" data-reveal>
+          <h3>Sanctuary</h3>
+          <p class="price-amount">$16 <small>/ mo</small></p>
+          <p>Shared calm for households and small teams.</p>
+          <ul>
+            <li>Everything in Harbor</li>
+            <li>Up to 5 profiles</li>
+            <li>Shared ritual calendars</li>
+            <li>Priority new soundscapes</li>
+          </ul>
+          <a href="#trial" class="btn btn-ghost" data-interactive>
+            <span class="mag" aria-hidden="true"></span>
+            Choose Sanctuary
+          </a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-band" id="trial">
+    <div class="wrap">
+      <div class="cta-panel" data-reveal>
+        <p class="section-label">Free trial</p>
+        <h2>Fourteen days of quieter attention.</h2>
+        <p>No card required to begin. We’ll send a soft link to open your first session.</p>
+        <form class="cta-form" id="trialForm" novalidate>
+          <label class="visually-hidden" for="email" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Email</label>
+          <input type="email" id="email" name="email" placeholder="you@quietmail.com" required autocomplete="email" data-interactive />
+          <button type="submit" class="btn btn-sage" data-interactive>
+            <span class="mag" aria-hidden="true"></span>
+            Start trial
+          </button>
+        </form>
+        <p class="form-note">We’ll never sell your address. Cancel anytime from inside the app.</p>
+        <p class="form-ok" id="formOk" role="status">You’re on the list — check your inbox for a gentle welcome.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <a href="#top" class="logo" data-interactive>
+      <span class="logo-mark" aria-hidden="true"></span>
+      Solace
+    </a>
+    <nav class="footer-links" aria-label="Footer">
+      <a href="#modes" data-interactive>Modes</a>
+      <a href="#how" data-interactive>How it works</a>
+      <a href="#rituals" data-interactive>Rituals</a>
+      <a href="#pricing" data-interactive>Pricing</a>
+      <a href="#trial" data-interactive>Trial</a>
+    </nav>
+    <p class="footer-copy">© 2026 Solace. Fictional wellbeing product for demonstration.</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const finePointer = window.matchMedia('(pointer: fine)').matches;
+
+  /* Magnetic buttons */
+  document.querySelectorAll('.btn').forEach((btn) => {
+    const mag = btn.querySelector('.mag');
+    btn.addEventListener('pointermove', (e) => {
+      if (!finePointer || reduced) return;
+      const r = btn.getBoundingClientRect();
+      const x = e.clientX - r.left;
+      const y = e.clientY - r.top;
+      if (mag) {
+        mag.style.left = x + 'px';
+        mag.style.top = y + 'px';
+      }
+      const dx = (x - r.width / 2) / r.width;
+      const dy = (y - r.height / 2) / r.height;
+      btn.style.transform = `translate(${dx * 6}px, ${dy * 4 - 2}px)`;
+    });
+    btn.addEventListener('pointerleave', () => {
+      btn.style.transform = '';
+    });
+  });
+
+  /* Custom cursor */
+  const cursor = document.getElementById('cursor');
+  if (finePointer && !reduced && cursor) {
+    document.body.classList.add('has-cursor');
+    const pos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    const mouse = { x: pos.x, y: pos.y };
+    let visible = false;
+
+    window.addEventListener('mousemove', (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+      if (!visible) {
+        visible = true;
+        cursor.style.opacity = '1';
+      }
+    });
+
+    const tick = () => {
+      pos.x += (mouse.x - pos.x) * 0.22;
+      pos.y += (mouse.y - pos.y) * 0.22;
+      cursor.style.transform = `translate(${pos.x}px, ${pos.y}px) translate(-50%, -50%)`;
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+
+    document.querySelectorAll('[data-interactive]').forEach((el) => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('is-active'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('is-active'));
+    });
+  }
+
+  /* Mobile nav */
+  const toggle = document.getElementById('navToggle');
+  const menu = document.getElementById('mobileMenu');
+  const setMenu = (open) => {
+    toggle.classList.toggle('open', open);
+    menu.classList.toggle('open', open);
+    toggle.setAttribute('aria-expanded', String(open));
+    menu.setAttribute('aria-hidden', String(!open));
+    if (window.lenis) {
+      if (open) window.lenis.stop();
+      else window.lenis.start();
+    }
+  };
+  toggle.addEventListener('click', () => setMenu(!menu.classList.contains('open')));
+  menu.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setMenu(false)));
+
+  /* Nav scroll state */
+  const nav = document.getElementById('nav');
+  const onScrollNav = () => {
+    nav.classList.toggle('scrolled', (window.scrollY || window.lenis?.scroll || 0) > 12);
+  };
+  window.addEventListener('scroll', onScrollNav, { passive: true });
+
+  /* Trial form */
+  const form = document.getElementById('trialForm');
+  const formOk = document.getElementById('formOk');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = form.email.value.trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      form.email.focus();
+      return;
+    }
+    form.style.display = 'none';
+    form.closest('.cta-panel').querySelector('.form-note').style.display = 'none';
+    formOk.style.display = 'block';
+    if (typeof gsap !== 'undefined') {
+      gsap.fromTo(formOk, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' });
+    }
+  });
+
+  /* GSAP + Lenis */
+  function initMotion() {
+    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+    gsap.registerPlugin(ScrollTrigger);
+
+    if (!reduced && typeof Lenis !== 'undefined') {
+      const lenis = new Lenis({
+        duration: 1.15,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true,
+      });
+      window.lenis = lenis;
+      lenis.on('scroll', ScrollTrigger.update);
+      gsap.ticker.add((time) => lenis.raf(time * 1000));
+      gsap.ticker.lagSmoothing(0);
+      lenis.on('scroll', onScrollNav);
+    }
+
+    /* Hero entrance — fromTo so we never leave opacity stuck at 0 */
+    const heroEls = gsap.utils.toArray('.hero [data-reveal]');
+    if (!reduced) {
+      gsap.fromTo(
+        heroEls,
+        { opacity: 0, y: 28 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.9,
+          stagger: 0.1,
+          ease: 'power3.out',
+          delay: 0.15,
+          clearProps: 'transform',
+        }
+      );
+
+      gsap.to('.orbit-dot', {
+        rotation: 360,
+        transformOrigin: '200px 200px',
+        duration: 28,
+        repeat: -1,
+        ease: 'none',
+        svgOrigin: '200 200',
+      });
+
+      /* Animate orbit via SVG attribute for reliability */
+      const orbitDot = document.querySelector('.orbit-dot');
+      if (orbitDot) {
+        gsap.to(orbitDot, {
+          duration: 24,
+          repeat: -1,
+          ease: 'none',
+          onUpdate: function () {
+            const a = this.progress() * Math.PI * 2;
+            const cx = 200 + Math.cos(a - Math.PI / 2) * 168;
+            const cy = 200 + Math.sin(a - Math.PI / 2) * 168;
+            orbitDot.setAttribute('cx', cx);
+            orbitDot.setAttribute('cy', cy);
+          },
+        });
+      }
+    } else {
+      gsap.set(heroEls, { opacity: 1, y: 0 });
+    }
+
+    /* Scroll reveals — fromTo ending at opacity 1; no CSS opacity:0 */
+    if (!reduced) {
+      gsap.utils.toArray('section:not(.hero) [data-reveal]').forEach((el) => {
+        gsap.fromTo(
+          el,
+          { opacity: 0, y: 24 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.75,
+            ease: 'power2.out',
+            clearProps: 'transform',
+            scrollTrigger: {
+              trigger: el,
+              start: 'top 88%',
+              once: true,
+            },
+          }
+        );
+      });
+    } else {
+      gsap.set('[data-reveal]', { opacity: 1, y: 0 });
+    }
+
+    /* Smooth anchors */
+    document.querySelectorAll('a[href^="#"]').forEach((a) => {
+      a.addEventListener('click', (e) => {
+        const id = a.getAttribute('href');
+        if (!id || id === '#') return;
+        const target = document.querySelector(id);
+        if (!target) return;
+        e.preventDefault();
+        if (window.lenis) {
+          window.lenis.scrollTo(target, { offset: -20, duration: 1.2 });
+        } else {
+          target.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' });
+        }
+      });
+    });
+
+    ScrollTrigger.refresh();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMotion);
+  } else {
+    initMotion();
+  }
+})();
+</script>
+</body>
+</html>
