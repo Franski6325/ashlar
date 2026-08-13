@@ -325,9 +325,9 @@
     function layoutWaves() {
       for (let i = 0; i < WAVE_COUNT; i++) {
         waves[i].baseY = sim.height * (0.20 + i * 0.15);
-        waves[i].amplitude = Math.max(18, sim.height * (0.034 + i * 0.006));
+        waves[i].amplitude = Math.max(28, sim.height * (0.048 + i * 0.01));
       }
-      sim.trailLength = Math.max(420, sim.width * 0.38);
+      sim.trailLength = Math.max(640, sim.width * 0.92);
       force.radius = Math.max(110, Math.min(sim.width, sim.height) * 0.16);
     }
 
@@ -524,7 +524,7 @@
         let tang = normalize(nxt - prv + vec2<f32>(0.002, 0.0));
         let nrm = vec2<f32>(-tang.y, tang.x);
         let wave = waves[waveId];
-        let thick = (1.35 + wave.life * 1.25) * (u.height / 900.0 + 0.55);
+        let thick = (2.1 + wave.life * 1.8) * (u.height / 900.0 + 0.7);
         let world = p + nrm * side * thick;
         let clip = vec2<f32>(
           (world.x / u.width) * 2.0 - 1.0,
@@ -560,8 +560,8 @@
         let phosphor = vec3<f32>(0.8, 0.8, 0.8);
         let glowCore = smoothstep(1.0, 0.08, abs(in.side));
         let head = smoothstep(0.15, 0.82, in.headness);
-        let intensity = glowCore * in.life * (0.45 + head * 0.7);
-        let rgb = phosphor * (0.52 + spec * 1.9 + fres * 0.5 + march) * intensity;
+        let intensity = glowCore * in.life * (0.7 + head * 0.55);
+        let rgb = phosphor * (0.62 + spec * 1.35 + fres * 0.35 + march * 0.65) * intensity;
         return vec4<f32>(rgb, intensity);
       }
     `;
@@ -588,7 +588,7 @@
       @group(0) @binding(1) var samp: sampler;
       @fragment
       fn fsMain(in: VSOut) -> @location(0) vec4<f32> {
-        return textureSample(src, samp, in.uv) * 0.84;
+        return textureSample(src, samp, in.uv) * 0.72;
       }
     `;
 
@@ -599,7 +599,7 @@
       fn fsMain(in: VSOut) -> @location(0) vec4<f32> {
         let c = textureSample(src, samp, in.uv).rgb;
         let luma = dot(c, vec3<f32>(0.299, 0.587, 0.114));
-        let bloom = max(luma - 0.28, 0.0) * 1.55;
+        let bloom = max(luma - 0.55, 0.0) * 0.85;
         return vec4<f32>(c * bloom, 1.0);
       }
     `;
@@ -637,9 +637,8 @@
       fn fsMain(in: VSOut) -> @location(0) vec4<f32> {
         let s = textureSample(scene, samp, in.uv).rgb;
         let b = textureSample(bloom, samp, in.uv).rgb;
-        var rgb = s + b * 1.25;
-        rgb = rgb / (rgb + vec3<f32>(1.0));
-        rgb = pow(rgb, vec3<f32>(0.92));
+        var rgb = s + b * 0.65;
+        rgb = min(rgb, vec3<f32>(1.0));
         return vec4<f32>(rgb, 1.0);
       }
     `;
@@ -666,6 +665,7 @@
         size: POINT_COUNT * WAVE_COUNT * 16,
         usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
       });
+      device.queue.writeBuffer(particleBuffer, 0, new Float32Array(POINT_COUNT * WAVE_COUNT * 4));
       const blurUniformA = device.createBuffer({
         size: 16,
         usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
@@ -800,6 +800,22 @@
           bloom1 = makeTarget(hw, hh);
           device.queue.writeBuffer(blurUniformA, 0, new Float32Array([1 / hw, 0, 0, 0]));
           device.queue.writeBuffer(blurUniformB, 0, new Float32Array([0, 1 / hh, 0, 0]));
+          // New textures are uninitialized — clear both persist targets to black
+          // so the first decay pass cannot sample garbage / white.
+          const wipe = device.createCommandEncoder();
+          for (const target of [persistA, persistB, bloom0, bloom1]) {
+            const pass = wipe.beginRenderPass({
+              colorAttachments: [{
+                view: target.view,
+                loadOp: "clear",
+                storeOp: "store",
+                clearValue: { r: 0, g: 0, b: 0, a: 1 }
+              }]
+            });
+            pass.end();
+          }
+          device.queue.submit([wipe.finish()]);
+          ping = 0;
         },
         frame() {
           simData[0] = sim.time;
@@ -1017,7 +1033,7 @@
         vec2 nxt = evaluate(min(t + dt, 1.0));
         vec2 tang = normalize(nxt - prv + vec2(0.002, 0.0));
         vec2 nrm = vec2(-tang.y, tang.x);
-        float thick = (1.35 + uWaveB.z * 1.25) * (uSimB.z / 900.0 + 0.55);
+        float thick = (2.1 + uWaveB.z * 1.8) * (uSimB.z / 900.0 + 0.7);
         vec2 world = p + nrm * uSide * thick;
         vec2 clip = vec2((world.x / uSimB.y) * 2.0 - 1.0, 1.0 - (world.y / uSimB.z) * 2.0);
         gl_Position = vec4(clip, 0.0, 1.0);
@@ -1051,8 +1067,8 @@
         }
         float glowCore = smoothstep(1.0, 0.08, abs(vSide));
         float head = smoothstep(0.15, 0.82, vHead);
-        float intensity = glowCore * vLife * (0.45 + head * 0.7);
-        vec3 rgb = vec3(0.8) * (0.52 + spec * 1.9 + fres * 0.5 + march) * intensity;
+        float intensity = glowCore * vLife * (0.7 + head * 0.55);
+        vec3 rgb = vec3(0.8) * (0.62 + spec * 1.35 + fres * 0.35 + march * 0.65) * intensity;
         outColor = vec4(rgb, intensity);
       }
     `;
@@ -1075,17 +1091,16 @@
       uniform vec2 uTexel;
       out vec4 outColor;
       void main() {
+        vec3 scene = texture(uScene, vUv).rgb;
         vec3 acc = vec3(0.0);
         for (int y = -2; y <= 2; y++) {
           for (int x = -2; x <= 2; x++) {
-            vec3 c = texture(uScene, vUv + vec2(float(x), float(y)) * uTexel * 1.6).rgb;
+            vec3 c = texture(uScene, vUv + vec2(float(x), float(y)) * uTexel * 2.2).rgb;
             float luma = dot(c, vec3(0.299, 0.587, 0.114));
-            acc += c * max(luma - 0.22, 0.0);
+            acc += c * max(luma - 0.42, 0.0);
           }
         }
-        vec3 scene = texture(uScene, vUv).rgb;
-        vec3 rgb = scene + acc * 0.085;
-        rgb = rgb / (rgb + vec3(1.0));
+        vec3 rgb = min(scene + acc * 0.045, vec3(1.0));
         outColor = vec4(rgb, 1.0);
       }
     `;
@@ -1134,84 +1149,89 @@
 
       let sceneFbo = null;
       let sceneTex = null;
-      let persistFbo = null;
-      let persistTex = null;
+      let useFbo = false;
+
+      const loc = {
+        simA: gl.getUniformLocation(lineProg, "uSimA"),
+        simB: gl.getUniformLocation(lineProg, "uSimB"),
+        waveA: gl.getUniformLocation(lineProg, "uWaveA"),
+        waveB: gl.getUniformLocation(lineProg, "uWaveB"),
+        side: gl.getUniformLocation(lineProg, "uSide"),
+        bloomScene: gl.getUniformLocation(bloomProg, "uScene"),
+        bloomTexel: gl.getUniformLocation(bloomProg, "uTexel")
+      };
+
+      const drawWaves = () => {
+        gl.useProgram(lineProg);
+        gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+        gl.enableVertexAttribArray(0);
+        gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+        gl.uniform4f(loc.simA, sim.time, force.x, force.y, force.strength);
+        gl.uniform4f(loc.simB, force.radius, sim.width, sim.height, sim.trailLength);
+        for (let i = 0; i < WAVE_COUNT; i++) {
+          const wv = waves[i];
+          if (wv.life < 0.01) continue;
+          gl.uniform4f(loc.waveA, wv.bornAt, wv.baseY, wv.amplitude, wv.freq);
+          gl.uniform4f(loc.waveB, wv.phase, wv.velocity, wv.life, wv.seed);
+          gl.uniform1f(loc.side, -1);
+          gl.drawArrays(gl.LINE_STRIP, 0, POINT_COUNT);
+          gl.uniform1f(loc.side, 1);
+          gl.drawArrays(gl.LINE_STRIP, 0, POINT_COUNT);
+          gl.uniform1f(loc.side, 0);
+          gl.drawArrays(gl.LINE_STRIP, 0, POINT_COUNT);
+        }
+      };
 
       const api = {
         resize() {
           if (sceneTex) gl.deleteTexture(sceneTex);
-          if (persistTex) gl.deleteTexture(persistTex);
           if (sceneFbo) gl.deleteFramebuffer(sceneFbo);
-          if (persistFbo) gl.deleteFramebuffer(persistFbo);
           const w = canvas.width;
           const h = canvas.height;
-          const make = () => {
-            const tex = gl.createTexture();
-            gl.bindTexture(gl.TEXTURE_2D, tex);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, w, h, 0, gl.RGBA, gl.HALF_FLOAT, null);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-            const fbo = gl.createFramebuffer();
-            gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
-            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
-            return { tex, fbo };
-          };
-          const a = make();
-          const b = make();
-          sceneTex = a.tex; sceneFbo = a.fbo;
-          persistTex = b.tex; persistFbo = b.fbo;
-          gl.bindFramebuffer(gl.FRAMEBUFFER, persistFbo);
-          gl.clearColor(0, 0, 0, 1);
-          gl.clear(gl.COLOR_BUFFER_BIT);
+          gl.getExtension("EXT_color_buffer_float");
+          gl.getExtension("EXT_color_buffer_half_float");
+          sceneTex = gl.createTexture();
+          gl.bindTexture(gl.TEXTURE_2D, sceneTex);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+          gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+          sceneFbo = gl.createFramebuffer();
+          gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFbo);
+          gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, sceneTex, 0);
+          useFbo = gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE;
+          gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         },
         frame() {
           const w = canvas.width;
           const h = canvas.height;
           gl.viewport(0, 0, w, h);
-          gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFbo);
           gl.clearColor(0, 0, 0, 1);
-          gl.clear(gl.COLOR_BUFFER_BIT);
-          gl.enable(gl.BLEND);
-          gl.blendFunc(gl.ONE, gl.ONE);
-          gl.useProgram(lineProg);
-          gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-          gl.enableVertexAttribArray(0);
-          gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
-          gl.uniform4f(gl.getUniformLocation(lineProg, "uSimA"), sim.time, force.x, force.y, force.strength);
-          gl.uniform4f(gl.getUniformLocation(lineProg, "uSimB"), force.radius, sim.width, sim.height, sim.trailLength);
-          for (let i = 0; i < WAVE_COUNT; i++) {
-            const wv = waves[i];
-            if (wv.life < 0.01) continue;
-            gl.uniform4f(gl.getUniformLocation(lineProg, "uWaveA"), wv.bornAt, wv.baseY, wv.amplitude, wv.freq);
-            gl.uniform4f(gl.getUniformLocation(lineProg, "uWaveB"), wv.phase, wv.velocity, wv.life, wv.seed);
-            gl.uniform1f(gl.getUniformLocation(lineProg, "uSide"), -1);
-            gl.drawArrays(gl.LINE_STRIP, 0, POINT_COUNT);
-            gl.uniform1f(gl.getUniformLocation(lineProg, "uSide"), 1);
-            gl.drawArrays(gl.LINE_STRIP, 0, POINT_COUNT);
-            gl.uniform1f(gl.getUniformLocation(lineProg, "uSide"), 0);
-            gl.drawArrays(gl.LINE_STRIP, 0, POINT_COUNT);
+
+          if (useFbo) {
+            gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFbo);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+            gl.enable(gl.BLEND);
+            gl.blendFunc(gl.ONE, gl.ONE);
+            drawWaves();
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            gl.disable(gl.BLEND);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+            gl.useProgram(bloomProg);
+            gl.uniform1i(loc.bloomScene, 0);
+            gl.uniform2f(loc.bloomTexel, 1 / w, 1 / h);
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, sceneTex);
+            gl.drawArrays(gl.TRIANGLES, 0, 3);
+          } else {
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+            gl.enable(gl.BLEND);
+            gl.blendFunc(gl.ONE, gl.ONE);
+            drawWaves();
+            gl.disable(gl.BLEND);
           }
-
-          // Phosphor decay into persist, then bloom composite to the canvas.
-          gl.bindFramebuffer(gl.FRAMEBUFFER, persistFbo);
-          gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-          gl.enable(gl.BLEND);
-          gl.useProgram(bloomProg);
-          gl.uniform1i(gl.getUniformLocation(bloomProg, "uScene"), 0);
-          gl.uniform2f(gl.getUniformLocation(bloomProg, "uTexel"), 1 / w, 1 / h);
-          gl.activeTexture(gl.TEXTURE0);
-          gl.bindTexture(gl.TEXTURE_2D, sceneTex);
-          gl.drawArrays(gl.TRIANGLES, 0, 3);
-
-          gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-          gl.disable(gl.BLEND);
-          gl.clearColor(0, 0, 0, 1);
-          gl.clear(gl.COLOR_BUFFER_BIT);
-          gl.useProgram(bloomProg);
-          gl.bindTexture(gl.TEXTURE_2D, persistTex);
-          gl.drawArrays(gl.TRIANGLES, 0, 3);
         }
       };
 
@@ -1307,8 +1327,24 @@
     function tick(time, deltaMs) {
       sim.time = time;
       sim.dt = Math.min(deltaMs / 1000, 0.05);
-      if (gpu) gpu.frame();
-      else if (gl2) gl2.frame();
+      try {
+        if (gpu) gpu.frame();
+        else if (gl2) gl2.frame();
+      } catch (err) {
+        console.warn("GPU frame failed", err);
+        if (gpu) {
+          gpu = null;
+          try { gl2 = createWebGL2(); } catch (fallbackErr) { gl2 = null; }
+          if (gl2) {
+            backend = "webgl2";
+            hudBackend.textContent = "WebGL2 · fallback";
+            gl2.resize();
+          } else {
+            document.getElementById("fail").classList.add("is-on");
+            gsap.ticker.remove(tick);
+          }
+        }
+      }
 
       fpsFrames += 1;
       if (time - fpsStamp >= 0.5) {
@@ -1330,9 +1366,17 @@
       }
 
       if (gpu) {
-        backend = "webgpu";
-        hudBackend.textContent = "WebGPU · compute";
-      } else {
+        try {
+          gpu.frame();
+          backend = "webgpu";
+          hudBackend.textContent = "WebGPU · compute";
+        } catch (err) {
+          console.warn("WebGPU present failed, using WebGL2", err);
+          gpu = null;
+        }
+      }
+
+      if (!gpu) {
         try {
           gl2 = createWebGL2();
         } catch (err) {
