@@ -2,7 +2,7 @@
 
 Personal design portfolio of **fictional** single-file landing pages — GSAP, ScrollTrigger, Lenis, original copy and CSS/SVG graphics.
 
-Open `sites/index.html` for the catalog (26 planes across six batches). The root `index.html` is a separate studio study. `sites/26-tracefield` is a WebGPU signal-wave bench (GSAP + WGSL compute, WebGL2 fallback).
+Open `sites/index.html` for the catalog (26 planes across six batches). The root `index.html` is a separate studio study. `sites/26-tracefield` is a WebGPU signal-wave bench: one expanding concentric arc (GSAP + WGSL compute, WebGL2 fallback).
 
 ## Disclaimer
 
