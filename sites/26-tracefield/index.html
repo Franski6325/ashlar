@@ -244,6 +244,7 @@
     /* 0. Tunable bench constants                                          */
     /* ------------------------------------------------------------------ */
     const POINT_COUNT = 2000;
+    const POINT_COUNT_GL = 420;
     const WAVE_COUNT = 5;
     const SPAWN_EVERY = 0.8;
 
@@ -328,7 +329,7 @@
         waves[i].amplitude = Math.max(28, sim.height * (0.048 + i * 0.01));
       }
       sim.trailLength = Math.max(640, sim.width * 0.92);
-      force.radius = Math.max(110, Math.min(sim.width, sim.height) * 0.16);
+      force.radius = Math.max(160, Math.min(sim.width, sim.height) * 0.22);
     }
 
     function resize() {
@@ -347,22 +348,16 @@
       if (gl2) gl2.resize();
     }
 
+    let spawnCursor = 0;
     function spawnWave() {
-      // Recycle the quietest slot so five traces stay active.
-      let slot = 0;
-      let best = 99;
-      for (let i = 0; i < WAVE_COUNT; i++) {
-        if (waves[i].life < best) {
-          best = waves[i].life;
-          slot = i;
-        }
-      }
-      const w = waves[slot];
+      // Round-robin a brighter traveling packet. Channels stay alive.
+      const w = waves[spawnCursor % WAVE_COUNT];
+      spawnCursor += 1;
       w.bornAt = sim.time;
-      w.phase = Math.random() * Math.PI * 2;
+      w.phase += 0.37;
       w.seed = Math.random() * 80;
       applySpeedMode(sim.speedMode);
-      gsap.fromTo(w, { life: 0 }, { life: 1, duration: 0.42, ease: "power2.out", overwrite: "auto" });
+      gsap.fromTo(w, { life: 0.7 }, { life: 1, duration: 0.36, ease: "power2.out", overwrite: "auto" });
     }
 
     /* ================================================================== */
@@ -447,23 +442,21 @@
         let wave = waves[waveId];
         let t = f32(i) / f32(n - 1u);
 
-        // X travel: packet head = elapsed * velocity (px/s).
+        // Full-width channel. Phase velocity = mapped km/h in px/s.
+        var x = t * u.width;
+        let travel = u.time * wave.velocity;
+        let local = (x - travel) * 0.011 * wave.freq + wave.phase;
         let headX = (u.time - wave.bornAt) * wave.velocity;
-        var x = headX - (1.0 - t) * u.trailLength;
-
-        // Carrier that also streams left → right at the same speed.
-        let local = (x - wave.velocity * u.time * 0.15) * 0.012 * wave.freq + wave.phase;
-        let env = exp(-pow((t - 0.78) * 2.2, 2.0));
-        let body = 0.35 + 0.65 * env;
+        let packet = exp(-((x - headX) * (x - headX)) / 24200.0);
 
         var y = wave.baseY;
-        y += wave.amplitude * body * (
+        y += wave.amplitude * (0.72 + packet * 0.9) * (
           sin(local) +
           0.34 * sin(local * 2.13 + 0.5) +
           0.15 * sin(local * 3.7 + 1.2)
         );
         y += perlin2(vec2<f32>(x * u.noiseScale + wave.seed, u.time * 0.32 + wave.seed))
-          * wave.amplitude * 0.24 * body;
+          * wave.amplitude * 0.22;
 
         // Soft coupling — overlapping packets interfere.
         var couple = 0.0;
@@ -483,12 +476,12 @@
         let delta = pos - mouse;
         let dist = length(delta);
         let falloff = pow(max(1.0 - dist / max(u.mouseRadius, 1.0), 0.0), 2.0);
-        let influence = u.mouseStrength * falloff * wave.life;
+        let influence = u.mouseStrength * falloff * max(wave.life, 0.35);
         if (influence > 0.0) {
           let dir = delta / max(dist, 1.0);
-          x += dir.x * influence * 48.0;
-          y += dir.y * influence * 64.0;
-          y += sin(dist * 0.108 - u.time * 9.0) * influence * 24.0;
+          x += dir.x * influence * 86.0;
+          y += dir.y * influence * 128.0;
+          y += sin(dist * 0.09 - u.time * 10.0) * influence * 36.0;
         }
 
         let prev = particles[idx];
@@ -1006,34 +999,30 @@
 
       vec2 evaluate(float t) {
         float time = uSimA.x;
+        float x = t * uSimB.y;
+        float travel = time * uWaveB.y;
+        float local = (x - travel) * 0.011 * uWaveA.w + uWaveB.x;
         float headX = (time - uWaveA.x) * uWaveB.y;
-        float x = headX - (1.0 - t) * uSimB.w;
-        float local = (x - uWaveB.y * time * 0.15) * 0.012 * uWaveA.w + uWaveB.x;
-        float env = exp(-pow((t - 0.78) * 2.2, 2.0));
-        float body = 0.35 + 0.65 * env;
-        float y = uWaveA.y + uWaveA.z * body * (sin(local) + 0.34 * sin(local * 2.13 + 0.5) + 0.15 * sin(local * 3.7 + 1.2));
-        y += perlin2(vec2(x * 0.012 + uWaveB.w, time * 0.32 + uWaveB.w)) * uWaveA.z * 0.24 * body;
+        float packet = exp(-((x - headX) * (x - headX)) / 24200.0);
+        float y = uWaveA.y + uWaveA.z * (0.72 + packet * 0.9) * (sin(local) + 0.34 * sin(local * 2.13 + 0.5) + 0.15 * sin(local * 3.7 + 1.2));
+        y += sin(x * 0.041 + uWaveB.w + time * 1.7) * uWaveA.z * 0.14;
         vec2 pos = vec2(x, y);
         vec2 delta = pos - uSimA.yz;
         float dist = length(delta);
-        float influence = uSimA.w * uWaveB.z * pow(max(1.0 - dist / max(uSimB.x, 1.0), 0.0), 2.0);
+        float influence = uSimA.w * max(uWaveB.z, 0.35) * pow(max(1.0 - dist / max(uSimB.x, 1.0), 0.0), 2.0);
         if (influence > 0.0) {
           vec2 dir = delta / max(dist, 1.0);
-          pos += dir * vec2(48.0, 64.0) * influence;
-          pos.y += sin(dist * 0.108 - time * 9.0) * influence * 24.0;
+          pos += dir * vec2(86.0, 128.0) * influence;
+          pos.y += sin(dist * 0.09 - time * 10.0) * influence * 36.0;
         }
         return pos;
       }
 
       void main() {
         float t = aRest.x;
-        float dt = 1.0 / 1999.0;
         vec2 p = evaluate(t);
-        vec2 prv = evaluate(max(t - dt, 0.0));
-        vec2 nxt = evaluate(min(t + dt, 1.0));
-        vec2 tang = normalize(nxt - prv + vec2(0.002, 0.0));
-        vec2 nrm = vec2(-tang.y, tang.x);
-        float thick = (2.1 + uWaveB.z * 1.8) * (uSimB.z / 900.0 + 0.7);
+        float thick = (2.4 + uWaveB.z * 2.0) * (uSimB.z / 900.0 + 0.8);
+        vec2 nrm = vec2(0.0, 1.0);
         vec2 world = p + nrm * uSide * thick;
         vec2 clip = vec2((world.x / uSimB.y) * 2.0 - 1.0, 1.0 - (world.y / uSimB.z) * 2.0);
         gl_Position = vec4(clip, 0.0, 1.0);
@@ -1138,9 +1127,9 @@
       const lineProg = programGL(gl, VERT_GL, FRAG_GL);
       const bloomProg = programGL(gl, VERT_FS_GL, FRAG_BLOOM_GL);
 
-      const rest = new Float32Array(POINT_COUNT * 2);
-      for (let i = 0; i < POINT_COUNT; i++) {
-        rest[i * 2] = i / (POINT_COUNT - 1);
+      const rest = new Float32Array(POINT_COUNT_GL * 2);
+      for (let i = 0; i < POINT_COUNT_GL; i++) {
+        rest[i * 2] = i / (POINT_COUNT_GL - 1);
         rest[i * 2 + 1] = 0;
       }
       const vbo = gl.createBuffer();
@@ -1174,11 +1163,11 @@
           gl.uniform4f(loc.waveA, wv.bornAt, wv.baseY, wv.amplitude, wv.freq);
           gl.uniform4f(loc.waveB, wv.phase, wv.velocity, wv.life, wv.seed);
           gl.uniform1f(loc.side, -1);
-          gl.drawArrays(gl.LINE_STRIP, 0, POINT_COUNT);
+          gl.drawArrays(gl.LINE_STRIP, 0, POINT_COUNT_GL);
           gl.uniform1f(loc.side, 1);
-          gl.drawArrays(gl.LINE_STRIP, 0, POINT_COUNT);
+          gl.drawArrays(gl.LINE_STRIP, 0, POINT_COUNT_GL);
           gl.uniform1f(loc.side, 0);
-          gl.drawArrays(gl.LINE_STRIP, 0, POINT_COUNT);
+          gl.drawArrays(gl.LINE_STRIP, 0, POINT_COUNT_GL);
         }
       };
 
@@ -1247,13 +1236,11 @@
       spawnTl.call(spawnWave);
       spawnTl.to({}, { duration: SPAWN_EVERY });
 
-      // Prime the five channels so the bench is never empty on first paint.
+      // Five channels live from the first frame; packets are already mid-crossing.
       for (let i = 0; i < WAVE_COUNT; i++) {
-        gsap.delayedCall(i * 0.16, () => {
-          const w = waves[i];
-          w.bornAt = sim.time - (0.35 + i * 0.22) * (sim.width / Math.max(w.velocity, 1));
-          w.life = 1;
-        });
+        const w = waves[i];
+        w.life = 1;
+        w.bornAt = sim.time - (0.18 + i * 0.16) * (sim.width / Math.max(w.velocity, 1));
       }
 
       if (reduced) {
