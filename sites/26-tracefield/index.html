@@ -257,7 +257,7 @@
     /* 0. Tunable bench constants                                          */
     /* ------------------------------------------------------------------ */
     const POINT_COUNT = 2000;
-    const POINT_COUNT_GL = 420;
+    const POINT_COUNT_GL = 240;
     const RING_COUNT = 5;
     const WAVE_COUNT = RING_COUNT;
     const SPAWN_EVERY = 0.8;
@@ -1048,11 +1048,9 @@
 
       void main() {
         float t = aRest.x;
+        float theta = uSimC.z + t * uSimC.w;
         vec2 p = evaluate(t);
-        vec2 prv = evaluate(max(t - 0.004, 0.0));
-        vec2 nxt = evaluate(min(t + 0.004, 1.0));
-        vec2 tang = normalize(nxt - prv + vec2(0.002, 0.0));
-        vec2 nrm = vec2(-tang.y, tang.x);
+        vec2 nrm = vec2(cos(theta), -sin(theta));
         float thick = (1.35 + uWaveB.z * 0.9) * (uSimB.z / 900.0 + 0.8);
         vec2 world = p + nrm * uSide * thick;
         vec2 clip = vec2((world.x / uSimB.y) * 2.0 - 1.0, 1.0 - (world.y / uSimB.z) * 2.0);
