@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tracefield — traveling signal bench</title>
+  <meta name="description" content="Original WebGPU signal-wave bench. Five traveling traces, compute-driven vertices, mouse interference, bloom phosphor. MIT license. Fictional instrument — not affiliated with any manufacturer." />
+  <meta name="theme-color" content="#000000" />
+  <meta name="color-scheme" content="dark" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%23000' width='32' height='32'/%3E%3Cpath d='M3 16h6l3-7 4 14 3-7h10' fill='none' stroke='%23ccc' stroke-width='1.4'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    /* Tracefield HUD — original lab-bench chrome, black phosphor field. */
+    :root {
+      --bg: #000000;
+      --wave: #cccccc;
+      --dim: rgba(204, 204, 204, 0.42);
+      --line: rgba(204, 204, 204, 0.14);
+      --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+      --font-display: "Instrument Serif", Georgia, serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #000;
+      color: #ccc;
+      overflow: hidden;
+      font-family: var(--font-mono);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    #stage {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      background: #000;
+    }
+
+    /* Oscilloscope plate: faint grid + vignette, no brand marks. */
+    .plate {
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      background:
+        radial-gradient(ellipse at 50% 50%, transparent 42%, rgba(0, 0, 0, 0.55) 100%),
+        linear-gradient(rgba(204, 204, 204, 0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(204, 204, 204, 0.045) 1px, transparent 1px);
+      background-size: auto, 48px 48px, 48px 48px;
+    }
+
+    .scan {
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      z-index: 3;
+      opacity: 0.07;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(204, 204, 204, 0.35) 0 1px,
+        transparent 1px 3px
+      );
+      mix-blend-mode: screen;
+    }
+
+    .hud {
+      position: fixed;
+      z-index: 5;
+      inset: 0;
+      pointer-events: none;
+      padding: clamp(1rem, 2.4vw, 1.8rem);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .hud__row {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
+    .title {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 400;
+      letter-spacing: -0.03em;
+      line-height: 0.95;
+    }
+
+    .title em { font-style: italic; color: #fff; }
+
+    .meta, .readout {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--dim);
+      line-height: 1.7;
+    }
+
+    .readout strong {
+      color: #ccc;
+      font-weight: 500;
+    }
+
+    .controls {
+      pointer-events: auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+    }
+
+    button.chip {
+      pointer-events: auto;
+      font: inherit;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #ccc;
+      background: transparent;
+      border: 1px solid var(--line);
+      padding: 0.45rem 0.7rem;
+      cursor: pointer;
+    }
+
+    button.chip.is-on {
+      background: #ccc;
+      color: #000;
+      border-color: #ccc;
+    }
+
+    button.chip:focus-visible { outline: 1px solid #fff; outline-offset: 3px; }
+
+    .cursor-ring {
+      position: fixed;
+      top: 0; left: 0;
+      width: 88px; height: 88px;
+      margin: -44px 0 0 -44px;
+      border: 1px solid rgba(204, 204, 204, 0.35);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 8;
+      box-shadow: 0 0 24px rgba(204, 204, 204, 0.12);
+    }
+
+    .cursor-ring::after {
+      content: "";
+      position: absolute;
+      inset: 50%;
+      width: 5px; height: 5px;
+      margin: -2.5px 0 0 -2.5px;
+      background: #ccc;
+      border-radius: 50%;
+    }
+
+    body.is-touch .cursor-ring,
+    body.is-reduced .cursor-ring { display: none; }
+
+    .fail {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: none;
+      place-items: center;
+      text-align: center;
+      padding: 2rem;
+      background: #000;
+    }
+
+    .fail.is-on { display: grid; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .scan { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <!--
+    Tracefield — original traveling-signal bench.
+    License: MIT. No third-party scene code, no brand marks, no cloned assets.
+    Stack: HTML + CSS + JS (ES modules) · GSAP 3.12.5 · WebGPU/WGSL with WebGL2 fallback.
+  -->
+  <canvas id="stage" aria-label="Traveling signal-wave field"></canvas>
+  <div class="plate" aria-hidden="true"></div>
+  <div class="scan" aria-hidden="true"></div>
+  <div class="cursor-ring" id="cursorRing" aria-hidden="true"></div>
+
+  <div class="hud">
+    <div class="hud__row">
+      <div>
+        <h1 class="title">Trace<em>field</em></h1>
+        <p class="meta" style="margin-top:0.7rem">
+          Five live traces · 2000 vertices each<br />
+          Compute-driven travel · mouse interference
+        </p>
+      </div>
+      <div class="readout" style="text-align:right">
+        <div>Renderer <strong id="hudBackend">boot</strong></div>
+        <div>Speed <strong id="hudSpeed">30 / 20 km/h</strong></div>
+        <div>Frame <strong id="hudFps">—</strong></div>
+      </div>
+    </div>
+    <div class="hud__row">
+      <p class="meta">Move the pointer to bend the field.<br />Release to let elastic recovery settle the traces.</p>
+      <div class="controls">
+        <button class="chip is-on" type="button" data-speed="split">30 / 20</button>
+        <button class="chip" type="button" data-speed="30">30 km/h</button>
+        <button class="chip" type="button" data-speed="20">20 km/h</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="fail" id="fail">
+    <div>
+      <h1 class="title">No GPU path</h1>
+      <p class="meta" style="margin-top:1rem">This bench needs WebGPU or WebGL2.</p>
+    </div>
+  </div>
+
+  <script type="module">
+    /**
+     * TRACEFIELD
+     * Original signal-wave instrument. MIT License.
+     *
+     * Pipeline (requested order):
+     *  1. WebGPU device + canvas (WebGL2 fallback)
+     *  2. Vertex / particle buffer — 2000 points × 5 waves
+     *  3. WGSL compute — X = time * velocity, Perlin, mouse field
+     *  4. WGSL render — thick ribbon, grey phosphor, light ray-march, bloom
+     *  5. GSAP timeline — spawn a packet every 800ms; elastic.out on mouse release
+     *  6. mousemove — cursor coords + force strength written to the sim uniform
+     */
+    import { gsap } from "https://cdn.jsdelivr.net/npm/gsap@3.12.5/+esm";
+
+    /* ------------------------------------------------------------------ */
+    /* 0. Tunable bench constants                                          */
+    /* ------------------------------------------------------------------ */
+    const POINT_COUNT = 2000;
+    const WAVE_COUNT = 5;
+    const SPAWN_EVERY = 0.8;
+
+    /**
+     * Physical mapping used to turn km/h into pixels / second.
+     * 1 CSS pixel ≈ 2.5 cm of imagined bench length (0.025 m/px).
+     * 30 km/h = 8.333 m/s → 333.33 px/s
+     * 20 km/h = 5.556 m/s → 222.22 px/s
+     */
+    const METERS_PER_PIXEL = 0.025;
+    const kmhToPxs = (kmh) => (kmh * 1000 / 3600) / METERS_PER_PIXEL;
+    const SPEED_30 = kmhToPxs(30);
+    const SPEED_20 = kmhToPxs(20);
+
+    const WAVE_COLOR = [0.8, 0.8, 0.8]; // #CCCCCC
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isTouch = matchMedia("(hover: none), (pointer: coarse)").matches;
+    if (reduced) document.body.classList.add("is-reduced");
+    if (isTouch) document.body.classList.add("is-touch");
+
+    gsap.defaults({ ease: "power2.out" });
+    gsap.ticker.fps(60);
+    gsap.ticker.lagSmoothing(500, 16);
+
+    /* ------------------------------------------------------------------ */
+    /* Shared simulation state (GSAP writes these; GPU reads them)         */
+    /* ------------------------------------------------------------------ */
+    const canvas = document.getElementById("stage");
+    const hudBackend = document.getElementById("hudBackend");
+    const hudSpeed = document.getElementById("hudSpeed");
+    const hudFps = document.getElementById("hudFps");
+
+    const sim = {
+      time: 0,
+      dt: 1 / 60,
+      width: 1,
+      height: 1,
+      trailLength: 720,
+      noiseScale: 0.012,
+      speedMode: "split"
+    };
+
+    /** Force field around the cursor. GSAP eases strength in, elastic.out back. */
+    const force = {
+      x: 0,
+      y: 0,
+      strength: 0,
+      radius: 150
+    };
+
+    const waves = Array.from({ length: WAVE_COUNT }, (_, i) => ({
+      bornAt: -40,
+      baseY: 0,
+      amplitude: 26 + i * 5,
+      freq: 1.45 + i * 0.21,
+      phase: i * 1.13,
+      velocity: i % 2 === 0 ? SPEED_30 : SPEED_20,
+      life: 0,
+      seed: 11.3 + i * 7.9
+    }));
+
+    let backend = null;
+    let gpu = null;
+    let gl2 = null;
+    let nextSpawn = 0;
+    let fpsFrames = 0;
+    let fpsStamp = 0;
+
+    function applySpeedMode(mode) {
+      sim.speedMode = mode;
+      for (let i = 0; i < WAVE_COUNT; i++) {
+        if (mode === "30") waves[i].velocity = SPEED_30;
+        else if (mode === "20") waves[i].velocity = SPEED_20;
+        else waves[i].velocity = i % 2 === 0 ? SPEED_30 : SPEED_20;
+      }
+      hudSpeed.textContent = mode === "split" ? "30 / 20 km/h" : `${mode} km/h`;
+    }
+
+    function layoutWaves() {
+      for (let i = 0; i < WAVE_COUNT; i++) {
+        waves[i].baseY = sim.height * (0.20 + i * 0.15);
+        waves[i].amplitude = Math.max(18, sim.height * (0.034 + i * 0.006));
+      }
+      sim.trailLength = Math.max(420, sim.width * 0.38);
+      force.radius = Math.max(110, Math.min(sim.width, sim.height) * 0.16);
+    }
+
+    function resize() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const w = Math.max(2, Math.floor(window.innerWidth * dpr));
+      const h = Math.max(2, Math.floor(window.innerHeight * dpr));
+      if (canvas.width === w && canvas.height === h) return;
+      canvas.width = w;
+      canvas.height = h;
+      canvas.style.width = `${window.innerWidth}px`;
+      canvas.style.height = `${window.innerHeight}px`;
+      sim.width = w;
+      sim.height = h;
+      layoutWaves();
+      if (gpu) gpu.resize();
+      if (gl2) gl2.resize();
+    }
+
+    function spawnWave() {
+      // Recycle the quietest slot so five traces stay active.
+      let slot = 0;
+      let best = 99;
+      for (let i = 0; i < WAVE_COUNT; i++) {
+        if (waves[i].life < best) {
+          best = waves[i].life;
+          slot = i;
+        }
+      }
+      const w = waves[slot];
+      w.bornAt = sim.time;
+      w.phase = Math.random() * Math.PI * 2;
+      w.seed = Math.random() * 80;
+      applySpeedMode(sim.speedMode);
+      gsap.fromTo(w, { life: 0 }, { life: 1, duration: 0.42, ease: "power2.out", overwrite: "auto" });
+    }
+
+    /* ================================================================== */
+    /* 1–4. WebGPU device, buffers, compute, render, bloom                 */
+    /* ================================================================== */
+    const WGSL_COMMON = /* wgsl */ `
+      struct SimUniforms {
+        time: f32,
+        dt: f32,
+        mouseX: f32,
+        mouseY: f32,
+        mouseStrength: f32,
+        mouseRadius: f32,
+        width: f32,
+        height: f32,
+        trailLength: f32,
+        noiseScale: f32,
+        pointCount: f32,
+        waveCount: f32,
+      };
+
+      struct WaveState {
+        bornAt: f32,
+        baseY: f32,
+        amplitude: f32,
+        freq: f32,
+        phase: f32,
+        velocity: f32,
+        life: f32,
+        seed: f32,
+      };
+
+      struct Particle {
+        x: f32,
+        y: f32,
+        px: f32,
+        py: f32,
+      };
+
+      // Quintic fade — classic Perlin smoother, written here from the
+      // published Ken Perlin improved-noise polynomial (public algorithm).
+      fn fade(t: f32) -> f32 {
+        return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
+      }
+
+      fn hash22(p: vec2<f32>) -> vec2<f32> {
+        var q = vec2<f32>(
+          dot(p, vec2<f32>(127.1, 311.7)),
+          dot(p, vec2<f32>(269.5, 183.3))
+        );
+        return -1.0 + 2.0 * fract(sin(q) * 43758.5453123);
+      }
+
+      fn perlin2(p: vec2<f32>) -> f32 {
+        let i = floor(p);
+        let f = fract(p);
+        let u = vec2<f32>(fade(f.x), fade(f.y));
+        let a = hash22(i);
+        let b = hash22(i + vec2<f32>(1.0, 0.0));
+        let c = hash22(i + vec2<f32>(0.0, 1.0));
+        let d = hash22(i + vec2<f32>(1.0, 1.0));
+        let va = mix(dot(a, f), dot(b, f - vec2<f32>(1.0, 0.0)), u.x);
+        let vb = mix(dot(c, f - vec2<f32>(0.0, 1.0)), dot(d, f - vec2<f32>(1.0, 1.0)), u.x);
+        return mix(va, vb, u.y);
+      }
+    `;
+
+    const WGSL_COMPUTE = WGSL_COMMON + /* wgsl */ `
+      @group(0) @binding(0) var<uniform> u: SimUniforms;
+      @group(0) @binding(1) var<storage, read> waves: array<WaveState>;
+      @group(0) @binding(2) var<storage, read_write> particles: array<Particle>;
+
+      @compute @workgroup_size(64)
+      fn csMain(@builtin(global_invocation_id) gid: vec3<u32>) {
+        let idx = gid.x;
+        let n = u32(u.pointCount);
+        let wc = u32(u.waveCount);
+        if (idx >= n * wc) { return; }
+
+        let waveId = idx / n;
+        let i = idx % n;
+        let wave = waves[waveId];
+        let t = f32(i) / f32(n - 1u);
+
+        // X travel: packet head = elapsed * velocity (px/s).
+        let headX = (u.time - wave.bornAt) * wave.velocity;
+        var x = headX - (1.0 - t) * u.trailLength;
+
+        // Carrier that also streams left → right at the same speed.
+        let local = (x - wave.velocity * u.time * 0.15) * 0.012 * wave.freq + wave.phase;
+        let env = exp(-pow((t - 0.78) * 2.2, 2.0));
+        let body = 0.35 + 0.65 * env;
+
+        var y = wave.baseY;
+        y += wave.amplitude * body * (
+          sin(local) +
+          0.34 * sin(local * 2.13 + 0.5) +
+          0.15 * sin(local * 3.7 + 1.2)
+        );
+        y += perlin2(vec2<f32>(x * u.noiseScale + wave.seed, u.time * 0.32 + wave.seed))
+          * wave.amplitude * 0.24 * body;
+
+        // Soft coupling — overlapping packets interfere.
+        var couple = 0.0;
+        for (var w = 0u; w < 5u; w = w + 1u) {
+          if (w == waveId) { continue; }
+          let ow = waves[w];
+          if (ow.life < 0.04) { continue; }
+          let ohead = (u.time - ow.bornAt) * ow.velocity;
+          let dx = x - ohead;
+          couple += sin(dx * 0.038 + ow.phase) * exp(-dx * dx * 0.00007) * ow.life;
+        }
+        y += couple * 11.0 * wave.life;
+
+        // Cursor force field (strength is GSAP-eased).
+        let pos = vec2<f32>(x, y);
+        let mouse = vec2<f32>(u.mouseX, u.mouseY);
+        let delta = pos - mouse;
+        let dist = length(delta);
+        let falloff = pow(max(1.0 - dist / max(u.mouseRadius, 1.0), 0.0), 2.0);
+        let influence = u.mouseStrength * falloff * wave.life;
+        if (influence > 0.0) {
+          let dir = delta / max(dist, 1.0);
+          x += dir.x * influence * 48.0;
+          y += dir.y * influence * 64.0;
+          y += sin(dist * 0.108 - u.time * 9.0) * influence * 24.0;
+        }
+
+        let prev = particles[idx];
+        particles[idx] = Particle(x, y, prev.x, prev.y);
+      }
+    `;
+
+    const WGSL_LINE = WGSL_COMMON + /* wgsl */ `
+      @group(0) @binding(0) var<uniform> u: SimUniforms;
+      @group(0) @binding(1) var<storage, read> waves: array<WaveState>;
+      @group(0) @binding(2) var<storage, read> particles: array<Particle>;
+
+      struct VSOut {
+        @builtin(position) pos: vec4<f32>,
+        @location(0) side: f32,
+        @location(1) life: f32,
+        @location(2) nrm: vec2<f32>,
+        @location(3) headness: f32,
+      };
+
+      @vertex
+      fn vsMain(@builtin(vertex_index) vid: u32, @builtin(instance_index) waveId: u32) -> VSOut {
+        let n = u32(u.pointCount);
+        let i = vid / 2u;
+        let side = select(-1.0, 1.0, (vid & 1u) == 1u);
+        let base = waveId * n;
+        let i0 = base + i;
+        let ip = base + select(i - 1u, 0u, i == 0u);
+        let inx = base + min(i + 1u, n - 1u);
+        let p = vec2<f32>(particles[i0].x, particles[i0].y);
+        let prv = vec2<f32>(particles[ip].x, particles[ip].y);
+        let nxt = vec2<f32>(particles[inx].x, particles[inx].y);
+        let tang = normalize(nxt - prv + vec2<f32>(0.002, 0.0));
+        let nrm = vec2<f32>(-tang.y, tang.x);
+        let wave = waves[waveId];
+        let thick = (1.35 + wave.life * 1.25) * (u.height / 900.0 + 0.55);
+        let world = p + nrm * side * thick;
+        let clip = vec2<f32>(
+          (world.x / u.width) * 2.0 - 1.0,
+          1.0 - (world.y / u.height) * 2.0
+        );
+        var o: VSOut;
+        o.pos = vec4<f32>(clip, 0.0, 1.0);
+        o.side = side;
+        o.life = wave.life;
+        o.nrm = nrm;
+        o.headness = f32(i) / f32(n - 1u);
+        return o;
+      }
+
+      @fragment
+      fn fsMain(in: VSOut) -> @location(0) vec4<f32> {
+        // Ribbon shade + a few view-ray steps toward a virtual key light.
+        let N = normalize(vec3<f32>(in.nrm.x, in.nrm.y, 0.62));
+        let V = normalize(vec3<f32>(0.0, 0.18, 1.0));
+        let L = normalize(vec3<f32>(0.32, 0.78, 0.52));
+        let R = reflect(-L, N);
+        let spec = pow(max(dot(R, V), 0.0), 42.0);
+        let fres = pow(1.0 - max(dot(N, V), 0.0), 2.8);
+
+        var march = 0.0;
+        var ro = vec3<f32>(in.headness, abs(in.side) * 0.5, 0.0);
+        let rd = normalize(vec3<f32>(0.12, 0.62, 0.45));
+        for (var s = 0; s < 6; s = s + 1) {
+          ro += rd * 0.07;
+          march += exp(-abs(ro.y - 0.12) * 9.0) * 0.11;
+        }
+
+        let phosphor = vec3<f32>(0.8, 0.8, 0.8);
+        let glowCore = smoothstep(1.0, 0.08, abs(in.side));
+        let head = smoothstep(0.15, 0.82, in.headness);
+        let intensity = glowCore * in.life * (0.45 + head * 0.7);
+        let rgb = phosphor * (0.52 + spec * 1.9 + fres * 0.5 + march) * intensity;
+        return vec4<f32>(rgb, intensity);
+      }
+    `;
+
+    const WGSL_FULLSCREEN = /* wgsl */ `
+      struct VSOut {
+        @builtin(position) pos: vec4<f32>,
+        @location(0) uv: vec2<f32>,
+      };
+
+      @vertex
+      fn vsMain(@builtin(vertex_index) i: u32) -> VSOut {
+        let x = f32(i32(i << 1u) & 2) * 2.0 - 1.0;
+        let y = f32(i32(i & 2u)) * 2.0 - 1.0;
+        var o: VSOut;
+        o.pos = vec4<f32>(x, y, 0.0, 1.0);
+        o.uv = vec2<f32>(x * 0.5 + 0.5, 1.0 - (y * 0.5 + 0.5));
+        return o;
+      }
+    `;
+
+    const WGSL_DECAY = WGSL_FULLSCREEN + /* wgsl */ `
+      @group(0) @binding(0) var src: texture_2d<f32>;
+      @group(0) @binding(1) var samp: sampler;
+      @fragment
+      fn fsMain(in: VSOut) -> @location(0) vec4<f32> {
+        return textureSample(src, samp, in.uv) * 0.84;
+      }
+    `;
+
+    const WGSL_EXTRACT = WGSL_FULLSCREEN + /* wgsl */ `
+      @group(0) @binding(0) var src: texture_2d<f32>;
+      @group(0) @binding(1) var samp: sampler;
+      @fragment
+      fn fsMain(in: VSOut) -> @location(0) vec4<f32> {
+        let c = textureSample(src, samp, in.uv).rgb;
+        let luma = dot(c, vec3<f32>(0.299, 0.587, 0.114));
+        let bloom = max(luma - 0.28, 0.0) * 1.55;
+        return vec4<f32>(c * bloom, 1.0);
+      }
+    `;
+
+    const WGSL_BLUR = WGSL_FULLSCREEN + /* wgsl */ `
+      @group(0) @binding(0) var src: texture_2d<f32>;
+      @group(0) @binding(1) var samp: sampler;
+      @group(0) @binding(2) var<uniform> axis: vec4<f32>; // xy = pixel step
+      @fragment
+      fn fsMain(in: VSOut) -> @location(0) vec4<f32> {
+        let step = axis.xy;
+        let w0 = 0.227027;
+        let w1 = 0.1945946;
+        let w2 = 0.1216216;
+        let w3 = 0.054054;
+        let w4 = 0.016216;
+        var col = textureSample(src, samp, in.uv).rgb * w0;
+        col += textureSample(src, samp, in.uv + step * 1.0).rgb * w1;
+        col += textureSample(src, samp, in.uv - step * 1.0).rgb * w1;
+        col += textureSample(src, samp, in.uv + step * 2.0).rgb * w2;
+        col += textureSample(src, samp, in.uv - step * 2.0).rgb * w2;
+        col += textureSample(src, samp, in.uv + step * 3.0).rgb * w3;
+        col += textureSample(src, samp, in.uv - step * 3.0).rgb * w3;
+        col += textureSample(src, samp, in.uv + step * 4.0).rgb * w4;
+        col += textureSample(src, samp, in.uv - step * 4.0).rgb * w4;
+        return vec4<f32>(col, 1.0);
+      }
+    `;
+
+    const WGSL_COMPOSITE = WGSL_FULLSCREEN + /* wgsl */ `
+      @group(0) @binding(0) var scene: texture_2d<f32>;
+      @group(0) @binding(1) var bloom: texture_2d<f32>;
+      @group(0) @binding(2) var samp: sampler;
+      @fragment
+      fn fsMain(in: VSOut) -> @location(0) vec4<f32> {
+        let s = textureSample(scene, samp, in.uv).rgb;
+        let b = textureSample(bloom, samp, in.uv).rgb;
+        var rgb = s + b * 1.25;
+        rgb = rgb / (rgb + vec3<f32>(1.0));
+        rgb = pow(rgb, vec3<f32>(0.92));
+        return vec4<f32>(rgb, 1.0);
+      }
+    `;
+
+    async function createWebGPU() {
+      if (!navigator.gpu) return null;
+      const adapter = await navigator.gpu.requestAdapter();
+      if (!adapter) return null;
+      const device = await adapter.requestDevice();
+      const context = canvas.getContext("webgpu");
+      if (!context) return null;
+      const format = navigator.gpu.getPreferredCanvasFormat();
+      const hdr = "rgba16float";
+
+      const simBuffer = device.createBuffer({
+        size: 48,
+        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+      });
+      const waveBuffer = device.createBuffer({
+        size: WAVE_COUNT * 32,
+        usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
+      });
+      const particleBuffer = device.createBuffer({
+        size: POINT_COUNT * WAVE_COUNT * 16,
+        usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
+      });
+      const blurUniformA = device.createBuffer({
+        size: 16,
+        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+      });
+      const blurUniformB = device.createBuffer({
+        size: 16,
+        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+      });
+
+      const computeLayout = device.createBindGroupLayout({
+        entries: [
+          { binding: 0, visibility: GPUShaderStage.COMPUTE, buffer: { type: "uniform" } },
+          { binding: 1, visibility: GPUShaderStage.COMPUTE, buffer: { type: "read-only-storage" } },
+          { binding: 2, visibility: GPUShaderStage.COMPUTE, buffer: { type: "storage" } }
+        ]
+      });
+      const renderLayout = device.createBindGroupLayout({
+        entries: [
+          { binding: 0, visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT, buffer: { type: "uniform" } },
+          { binding: 1, visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT, buffer: { type: "read-only-storage" } },
+          { binding: 2, visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT, buffer: { type: "read-only-storage" } }
+        ]
+      });
+      const texLayout = device.createBindGroupLayout({
+        entries: [
+          { binding: 0, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: "float" } },
+          { binding: 1, visibility: GPUShaderStage.FRAGMENT, sampler: { type: "filtering" } }
+        ]
+      });
+      const blurLayout = device.createBindGroupLayout({
+        entries: [
+          { binding: 0, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: "float" } },
+          { binding: 1, visibility: GPUShaderStage.FRAGMENT, sampler: { type: "filtering" } },
+          { binding: 2, visibility: GPUShaderStage.FRAGMENT, buffer: { type: "uniform" } }
+        ]
+      });
+      const compLayout = device.createBindGroupLayout({
+        entries: [
+          { binding: 0, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: "float" } },
+          { binding: 1, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: "float" } },
+          { binding: 2, visibility: GPUShaderStage.FRAGMENT, sampler: { type: "filtering" } }
+        ]
+      });
+
+      const sampler = device.createSampler({ magFilter: "linear", minFilter: "linear" });
+
+      const computePipe = device.createComputePipeline({
+        layout: device.createPipelineLayout({ bindGroupLayouts: [computeLayout] }),
+        compute: { module: device.createShaderModule({ code: WGSL_COMPUTE }), entryPoint: "csMain" }
+      });
+
+      const lineBlend = {
+        color: { srcFactor: "one", dstFactor: "one", operation: "add" },
+        alpha: { srcFactor: "one", dstFactor: "one", operation: "add" }
+      };
+
+      const makeFsPipe = (code, layout, target, blend) => device.createRenderPipeline({
+        layout: device.createPipelineLayout({ bindGroupLayouts: [layout] }),
+        vertex: { module: device.createShaderModule({ code }), entryPoint: "vsMain" },
+        fragment: {
+          module: device.createShaderModule({ code }),
+          entryPoint: "fsMain",
+          targets: [{ format: target, blend }]
+        },
+        primitive: { topology: "triangle-list" }
+      });
+
+      const linePipe = device.createRenderPipeline({
+        layout: device.createPipelineLayout({ bindGroupLayouts: [renderLayout] }),
+        vertex: { module: device.createShaderModule({ code: WGSL_LINE }), entryPoint: "vsMain" },
+        fragment: {
+          module: device.createShaderModule({ code: WGSL_LINE }),
+          entryPoint: "fsMain",
+          targets: [{ format: hdr, blend: lineBlend }]
+        },
+        primitive: { topology: "triangle-strip" }
+      });
+
+      const decayPipe = makeFsPipe(WGSL_DECAY, texLayout, hdr);
+      const extractPipe = makeFsPipe(WGSL_EXTRACT, texLayout, hdr);
+      const blurPipe = makeFsPipe(WGSL_BLUR, blurLayout, hdr);
+      const compPipe = makeFsPipe(WGSL_COMPOSITE, compLayout, format);
+
+      const computeBG = device.createBindGroup({
+        layout: computeLayout,
+        entries: [
+          { binding: 0, resource: { buffer: simBuffer } },
+          { binding: 1, resource: { buffer: waveBuffer } },
+          { binding: 2, resource: { buffer: particleBuffer } }
+        ]
+      });
+      const renderBG = device.createBindGroup({
+        layout: renderLayout,
+        entries: [
+          { binding: 0, resource: { buffer: simBuffer } },
+          { binding: 1, resource: { buffer: waveBuffer } },
+          { binding: 2, resource: { buffer: particleBuffer } }
+        ]
+      });
+
+      const simData = new Float32Array(12);
+      const waveData = new Float32Array(WAVE_COUNT * 8);
+      let persistA = null;
+      let persistB = null;
+      let bloom0 = null;
+      let bloom1 = null;
+      let ping = 0;
+
+      const makeTarget = (w, h) => {
+        const tex = device.createTexture({
+          size: { width: w, height: h },
+          format: hdr,
+          usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING
+        });
+        return { tex, view: tex.createView() };
+      };
+
+      const api = {
+        resize() {
+          context.configure({ device, format, alphaMode: "opaque" });
+          const w = canvas.width;
+          const h = canvas.height;
+          const hw = Math.max(2, w >> 1);
+          const hh = Math.max(2, h >> 1);
+          persistA?.tex.destroy();
+          persistB?.tex.destroy();
+          bloom0?.tex.destroy();
+          bloom1?.tex.destroy();
+          persistA = makeTarget(w, h);
+          persistB = makeTarget(w, h);
+          bloom0 = makeTarget(hw, hh);
+          bloom1 = makeTarget(hw, hh);
+          device.queue.writeBuffer(blurUniformA, 0, new Float32Array([1 / hw, 0, 0, 0]));
+          device.queue.writeBuffer(blurUniformB, 0, new Float32Array([0, 1 / hh, 0, 0]));
+        },
+        frame() {
+          simData[0] = sim.time;
+          simData[1] = sim.dt;
+          simData[2] = force.x;
+          simData[3] = force.y;
+          simData[4] = force.strength;
+          simData[5] = force.radius;
+          simData[6] = sim.width;
+          simData[7] = sim.height;
+          simData[8] = sim.trailLength;
+          simData[9] = sim.noiseScale;
+          simData[10] = POINT_COUNT;
+          simData[11] = WAVE_COUNT;
+          device.queue.writeBuffer(simBuffer, 0, simData);
+
+          for (let i = 0; i < WAVE_COUNT; i++) {
+            const w = waves[i];
+            const o = i * 8;
+            waveData[o] = w.bornAt;
+            waveData[o + 1] = w.baseY;
+            waveData[o + 2] = w.amplitude;
+            waveData[o + 3] = w.freq;
+            waveData[o + 4] = w.phase;
+            waveData[o + 5] = w.velocity;
+            waveData[o + 6] = w.life;
+            waveData[o + 7] = w.seed;
+          }
+          device.queue.writeBuffer(waveBuffer, 0, waveData);
+
+          const src = ping ? persistB : persistA;
+          const dst = ping ? persistA : persistB;
+          ping ^= 1;
+
+          const encoder = device.createCommandEncoder();
+          const cpass = encoder.beginComputePass();
+          cpass.setPipeline(computePipe);
+          cpass.setBindGroup(0, computeBG);
+          cpass.dispatchWorkgroups(Math.ceil((POINT_COUNT * WAVE_COUNT) / 64));
+          cpass.end();
+
+          const decayBG = device.createBindGroup({
+            layout: texLayout,
+            entries: [
+              { binding: 0, resource: src.view },
+              { binding: 1, resource: sampler }
+            ]
+          });
+          {
+            const pass = encoder.beginRenderPass({
+              colorAttachments: [{ view: dst.view, loadOp: "clear", storeOp: "store", clearValue: { r: 0, g: 0, b: 0, a: 1 } }]
+            });
+            pass.setPipeline(decayPipe);
+            pass.setBindGroup(0, decayBG);
+            pass.draw(3);
+            pass.end();
+          }
+          {
+            const pass = encoder.beginRenderPass({
+              colorAttachments: [{ view: dst.view, loadOp: "load", storeOp: "store" }]
+            });
+            pass.setPipeline(linePipe);
+            pass.setBindGroup(0, renderBG);
+            for (let w = 0; w < WAVE_COUNT; w++) {
+              if (waves[w].life < 0.01) continue;
+              pass.draw(POINT_COUNT * 2, 1, 0, w);
+            }
+            pass.end();
+          }
+
+          const extractBG = device.createBindGroup({
+            layout: texLayout,
+            entries: [
+              { binding: 0, resource: dst.view },
+              { binding: 1, resource: sampler }
+            ]
+          });
+          {
+            const pass = encoder.beginRenderPass({
+              colorAttachments: [{ view: bloom0.view, loadOp: "clear", storeOp: "store", clearValue: { r: 0, g: 0, b: 0, a: 1 } }]
+            });
+            pass.setPipeline(extractPipe);
+            pass.setBindGroup(0, extractBG);
+            pass.draw(3);
+            pass.end();
+          }
+
+          const blurHBG = device.createBindGroup({
+            layout: blurLayout,
+            entries: [
+              { binding: 0, resource: bloom0.view },
+              { binding: 1, resource: sampler },
+              { binding: 2, resource: { buffer: blurUniformA } }
+            ]
+          });
+          {
+            const pass = encoder.beginRenderPass({
+              colorAttachments: [{ view: bloom1.view, loadOp: "clear", storeOp: "store", clearValue: { r: 0, g: 0, b: 0, a: 1 } }]
+            });
+            pass.setPipeline(blurPipe);
+            pass.setBindGroup(0, blurHBG);
+            pass.draw(3);
+            pass.end();
+          }
+
+          const blurVBG = device.createBindGroup({
+            layout: blurLayout,
+            entries: [
+              { binding: 0, resource: bloom1.view },
+              { binding: 1, resource: sampler },
+              { binding: 2, resource: { buffer: blurUniformB } }
+            ]
+          });
+          {
+            const pass = encoder.beginRenderPass({
+              colorAttachments: [{ view: bloom0.view, loadOp: "clear", storeOp: "store", clearValue: { r: 0, g: 0, b: 0, a: 1 } }]
+            });
+            pass.setPipeline(blurPipe);
+            pass.setBindGroup(0, blurVBG);
+            pass.draw(3);
+            pass.end();
+          }
+
+          const compBG = device.createBindGroup({
+            layout: compLayout,
+            entries: [
+              { binding: 0, resource: dst.view },
+              { binding: 1, resource: bloom0.view },
+              { binding: 2, resource: sampler }
+            ]
+          });
+          {
+            const pass = encoder.beginRenderPass({
+              colorAttachments: [{
+                view: context.getCurrentTexture().createView(),
+                loadOp: "clear",
+                storeOp: "store",
+                clearValue: { r: 0, g: 0, b: 0, a: 1 }
+              }]
+            });
+            pass.setPipeline(compPipe);
+            pass.setBindGroup(0, compBG);
+            pass.draw(3);
+            pass.end();
+          }
+
+          device.queue.submit([encoder.finish()]);
+        }
+      };
+
+      device.addEventListener("uncapturederror", (e) => {
+        console.warn("WebGPU error", e.error);
+      });
+
+      api.resize();
+      return api;
+    }
+
+    /* ================================================================== */
+    /* WebGL2 fallback — same motion model, CPU / vertex evaluation        */
+    /* ================================================================== */
+    const VERT_GL = `#version 300 es
+      precision highp float;
+      layout(location = 0) in vec2 aRest;
+      uniform vec4 uSimA; // time, mouseX, mouseY, mouseStrength
+      uniform vec4 uSimB; // mouseRadius, width, height, trail
+      uniform vec4 uWaveA; // bornAt, baseY, amp, freq
+      uniform vec4 uWaveB; // phase, velocity, life, seed
+      uniform float uSide;
+      out float vSide;
+      out float vLife;
+      out float vHead;
+      out vec2 vNrm;
+
+      float fade(float t) { return t * t * t * (t * (t * 6.0 - 15.0) + 10.0); }
+      vec2 hash22(vec2 p) {
+        vec2 q = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)));
+        return -1.0 + 2.0 * fract(sin(q) * 43758.5453123);
+      }
+      float perlin2(vec2 p) {
+        vec2 i = floor(p);
+        vec2 f = fract(p);
+        vec2 u = vec2(fade(f.x), fade(f.y));
+        float va = mix(dot(hash22(i), f), dot(hash22(i + vec2(1.0, 0.0)), f - vec2(1.0, 0.0)), u.x);
+        float vb = mix(dot(hash22(i + vec2(0.0, 1.0)), f - vec2(0.0, 1.0)), dot(hash22(i + vec2(1.0, 1.0)), f - vec2(1.0, 1.0)), u.x);
+        return mix(va, vb, u.y);
+      }
+
+      vec2 evaluate(float t) {
+        float time = uSimA.x;
+        float headX = (time - uWaveA.x) * uWaveB.y;
+        float x = headX - (1.0 - t) * uSimB.w;
+        float local = (x - uWaveB.y * time * 0.15) * 0.012 * uWaveA.w + uWaveB.x;
+        float env = exp(-pow((t - 0.78) * 2.2, 2.0));
+        float body = 0.35 + 0.65 * env;
+        float y = uWaveA.y + uWaveA.z * body * (sin(local) + 0.34 * sin(local * 2.13 + 0.5) + 0.15 * sin(local * 3.7 + 1.2));
+        y += perlin2(vec2(x * 0.012 + uWaveB.w, time * 0.32 + uWaveB.w)) * uWaveA.z * 0.24 * body;
+        vec2 pos = vec2(x, y);
+        vec2 delta = pos - uSimA.yz;
+        float dist = length(delta);
+        float influence = uSimA.w * uWaveB.z * pow(max(1.0 - dist / max(uSimB.x, 1.0), 0.0), 2.0);
+        if (influence > 0.0) {
+          vec2 dir = delta / max(dist, 1.0);
+          pos += dir * vec2(48.0, 64.0) * influence;
+          pos.y += sin(dist * 0.108 - time * 9.0) * influence * 24.0;
+        }
+        return pos;
+      }
+
+      void main() {
+        float t = aRest.x;
+        float dt = 1.0 / 1999.0;
+        vec2 p = evaluate(t);
+        vec2 prv = evaluate(max(t - dt, 0.0));
+        vec2 nxt = evaluate(min(t + dt, 1.0));
+        vec2 tang = normalize(nxt - prv + vec2(0.002, 0.0));
+        vec2 nrm = vec2(-tang.y, tang.x);
+        float thick = (1.35 + uWaveB.z * 1.25) * (uSimB.z / 900.0 + 0.55);
+        vec2 world = p + nrm * uSide * thick;
+        vec2 clip = vec2((world.x / uSimB.y) * 2.0 - 1.0, 1.0 - (world.y / uSimB.z) * 2.0);
+        gl_Position = vec4(clip, 0.0, 1.0);
+        vSide = uSide;
+        vLife = uWaveB.z;
+        vHead = t;
+        vNrm = nrm;
+      }
+    `;
+
+    const FRAG_GL = `#version 300 es
+      precision highp float;
+      in float vSide;
+      in float vLife;
+      in float vHead;
+      in vec2 vNrm;
+      out vec4 outColor;
+      void main() {
+        vec3 N = normalize(vec3(vNrm, 0.62));
+        vec3 V = normalize(vec3(0.0, 0.18, 1.0));
+        vec3 L = normalize(vec3(0.32, 0.78, 0.52));
+        vec3 R = reflect(-L, N);
+        float spec = pow(max(dot(R, V), 0.0), 42.0);
+        float fres = pow(1.0 - max(dot(N, V), 0.0), 2.8);
+        float march = 0.0;
+        vec3 ro = vec3(vHead, abs(vSide) * 0.5, 0.0);
+        vec3 rd = normalize(vec3(0.12, 0.62, 0.45));
+        for (int s = 0; s < 6; s++) {
+          ro += rd * 0.07;
+          march += exp(-abs(ro.y - 0.12) * 9.0) * 0.11;
+        }
+        float glowCore = smoothstep(1.0, 0.08, abs(vSide));
+        float head = smoothstep(0.15, 0.82, vHead);
+        float intensity = glowCore * vLife * (0.45 + head * 0.7);
+        vec3 rgb = vec3(0.8) * (0.52 + spec * 1.9 + fres * 0.5 + march) * intensity;
+        outColor = vec4(rgb, intensity);
+      }
+    `;
+
+    const VERT_FS_GL = `#version 300 es
+      precision highp float;
+      const vec2 POS[3] = vec2[3](vec2(-1.0, -1.0), vec2(3.0, -1.0), vec2(-1.0, 3.0));
+      out vec2 vUv;
+      void main() {
+        vec2 p = POS[gl_VertexID];
+        gl_Position = vec4(p, 0.0, 1.0);
+        vUv = p * 0.5 + 0.5;
+      }
+    `;
+
+    const FRAG_BLOOM_GL = `#version 300 es
+      precision highp float;
+      in vec2 vUv;
+      uniform sampler2D uScene;
+      uniform vec2 uTexel;
+      out vec4 outColor;
+      void main() {
+        vec3 acc = vec3(0.0);
+        for (int y = -2; y <= 2; y++) {
+          for (int x = -2; x <= 2; x++) {
+            vec3 c = texture(uScene, vUv + vec2(float(x), float(y)) * uTexel * 1.6).rgb;
+            float luma = dot(c, vec3(0.299, 0.587, 0.114));
+            acc += c * max(luma - 0.22, 0.0);
+          }
+        }
+        vec3 scene = texture(uScene, vUv).rgb;
+        vec3 rgb = scene + acc * 0.085;
+        rgb = rgb / (rgb + vec3(1.0));
+        outColor = vec4(rgb, 1.0);
+      }
+    `;
+
+    function compileGL(gl, type, src) {
+      const sh = gl.createShader(type);
+      gl.shaderSource(sh, src);
+      gl.compileShader(sh);
+      if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+        throw new Error(gl.getShaderInfoLog(sh) || "shader");
+      }
+      return sh;
+    }
+
+    function programGL(gl, vs, fs) {
+      const p = gl.createProgram();
+      gl.attachShader(p, compileGL(gl, gl.VERTEX_SHADER, vs));
+      gl.attachShader(p, compileGL(gl, gl.FRAGMENT_SHADER, fs));
+      gl.linkProgram(p);
+      if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
+        throw new Error(gl.getProgramInfoLog(p) || "program");
+      }
+      return p;
+    }
+
+    function createWebGL2() {
+      const gl = canvas.getContext("webgl2", {
+        alpha: false,
+        antialias: false,
+        premultipliedAlpha: false,
+        preserveDrawingBuffer: false
+      });
+      if (!gl) return null;
+
+      const lineProg = programGL(gl, VERT_GL, FRAG_GL);
+      const bloomProg = programGL(gl, VERT_FS_GL, FRAG_BLOOM_GL);
+
+      const rest = new Float32Array(POINT_COUNT * 2);
+      for (let i = 0; i < POINT_COUNT; i++) {
+        rest[i * 2] = i / (POINT_COUNT - 1);
+        rest[i * 2 + 1] = 0;
+      }
+      const vbo = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+      gl.bufferData(gl.ARRAY_BUFFER, rest, gl.STATIC_DRAW);
+
+      let sceneFbo = null;
+      let sceneTex = null;
+      let persistFbo = null;
+      let persistTex = null;
+
+      const api = {
+        resize() {
+          if (sceneTex) gl.deleteTexture(sceneTex);
+          if (persistTex) gl.deleteTexture(persistTex);
+          if (sceneFbo) gl.deleteFramebuffer(sceneFbo);
+          if (persistFbo) gl.deleteFramebuffer(persistFbo);
+          const w = canvas.width;
+          const h = canvas.height;
+          const make = () => {
+            const tex = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, tex);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, w, h, 0, gl.RGBA, gl.HALF_FLOAT, null);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            const fbo = gl.createFramebuffer();
+            gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+            return { tex, fbo };
+          };
+          const a = make();
+          const b = make();
+          sceneTex = a.tex; sceneFbo = a.fbo;
+          persistTex = b.tex; persistFbo = b.fbo;
+          gl.bindFramebuffer(gl.FRAMEBUFFER, persistFbo);
+          gl.clearColor(0, 0, 0, 1);
+          gl.clear(gl.COLOR_BUFFER_BIT);
+        },
+        frame() {
+          const w = canvas.width;
+          const h = canvas.height;
+          gl.viewport(0, 0, w, h);
+          gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFbo);
+          gl.clearColor(0, 0, 0, 1);
+          gl.clear(gl.COLOR_BUFFER_BIT);
+          gl.enable(gl.BLEND);
+          gl.blendFunc(gl.ONE, gl.ONE);
+          gl.useProgram(lineProg);
+          gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+          gl.enableVertexAttribArray(0);
+          gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+          gl.uniform4f(gl.getUniformLocation(lineProg, "uSimA"), sim.time, force.x, force.y, force.strength);
+          gl.uniform4f(gl.getUniformLocation(lineProg, "uSimB"), force.radius, sim.width, sim.height, sim.trailLength);
+          for (let i = 0; i < WAVE_COUNT; i++) {
+            const wv = waves[i];
+            if (wv.life < 0.01) continue;
+            gl.uniform4f(gl.getUniformLocation(lineProg, "uWaveA"), wv.bornAt, wv.baseY, wv.amplitude, wv.freq);
+            gl.uniform4f(gl.getUniformLocation(lineProg, "uWaveB"), wv.phase, wv.velocity, wv.life, wv.seed);
+            gl.uniform1f(gl.getUniformLocation(lineProg, "uSide"), -1);
+            gl.drawArrays(gl.LINE_STRIP, 0, POINT_COUNT);
+            gl.uniform1f(gl.getUniformLocation(lineProg, "uSide"), 1);
+            gl.drawArrays(gl.LINE_STRIP, 0, POINT_COUNT);
+            gl.uniform1f(gl.getUniformLocation(lineProg, "uSide"), 0);
+            gl.drawArrays(gl.LINE_STRIP, 0, POINT_COUNT);
+          }
+
+          // Phosphor decay into persist, then bloom composite to the canvas.
+          gl.bindFramebuffer(gl.FRAMEBUFFER, persistFbo);
+          gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+          gl.enable(gl.BLEND);
+          gl.useProgram(bloomProg);
+          gl.uniform1i(gl.getUniformLocation(bloomProg, "uScene"), 0);
+          gl.uniform2f(gl.getUniformLocation(bloomProg, "uTexel"), 1 / w, 1 / h);
+          gl.activeTexture(gl.TEXTURE0);
+          gl.bindTexture(gl.TEXTURE_2D, sceneTex);
+          gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+          gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+          gl.disable(gl.BLEND);
+          gl.clearColor(0, 0, 0, 1);
+          gl.clear(gl.COLOR_BUFFER_BIT);
+          gl.useProgram(bloomProg);
+          gl.bindTexture(gl.TEXTURE_2D, persistTex);
+          gl.drawArrays(gl.TRIANGLES, 0, 3);
+        }
+      };
+
+      api.resize();
+      return api;
+    }
+
+    /* ================================================================== */
+    /* 5. GSAP timelines — spawn clock + mouse recovery                    */
+    /* ================================================================== */
+    function startMotion() {
+      const spawnTl = gsap.timeline({ repeat: -1, defaults: { ease: "none" } });
+      spawnTl.call(spawnWave);
+      spawnTl.to({}, { duration: SPAWN_EVERY });
+
+      // Prime the five channels so the bench is never empty on first paint.
+      for (let i = 0; i < WAVE_COUNT; i++) {
+        gsap.delayedCall(i * 0.16, () => {
+          const w = waves[i];
+          w.bornAt = sim.time - (0.35 + i * 0.22) * (sim.width / Math.max(w.velocity, 1));
+          w.life = 1;
+        });
+      }
+
+      if (reduced) {
+        spawnTl.pause();
+        waves.forEach((w, i) => {
+          w.life = 1;
+          w.bornAt = -0.4 * i;
+          w.velocity = 0;
+        });
+      }
+
+      gsap.from(".title", { y: 18, opacity: 0, duration: 0.9, ease: "power3.out" });
+      gsap.from(".meta, .readout, .controls", { y: 10, opacity: 0, duration: 0.7, stagger: 0.06, delay: 0.12 });
+    }
+
+    /* ================================================================== */
+    /* 6. Pointer → shader                                                 */
+    /* ================================================================== */
+    let restTween = null;
+    let restTimer = 0;
+
+    function pointerToSim(clientX, clientY) {
+      const dpr = canvas.width / Math.max(window.innerWidth, 1);
+      force.x = clientX * dpr;
+      force.y = clientY * dpr;
+    }
+
+    function pulseForce() {
+      if (restTween) restTween.kill();
+      gsap.to(force, { strength: 1, duration: 0.16, ease: "power3.out", overwrite: "auto" });
+      window.clearTimeout(restTimer);
+      restTimer = window.setTimeout(() => {
+        restTween = gsap.to(force, {
+          strength: 0,
+          duration: 1.35,
+          ease: "elastic.out(1, 0.34)"
+        });
+      }, 70);
+    }
+
+    function bindInput() {
+      window.addEventListener("pointermove", (e) => {
+        pointerToSim(e.clientX, e.clientY);
+        if (!isTouch && !reduced) {
+          gsap.to("#cursorRing", { x: e.clientX, y: e.clientY, duration: 0.18, ease: "power3.out", overwrite: "auto" });
+        }
+        pulseForce();
+      }, { passive: true });
+
+      window.addEventListener("pointerdown", (e) => {
+        pointerToSim(e.clientX, e.clientY);
+        pulseForce();
+      }, { passive: true });
+
+      window.addEventListener("pointerleave", () => {
+        restTween = gsap.to(force, { strength: 0, duration: 1.2, ease: "elastic.out(1, 0.34)" });
+      });
+
+      document.querySelectorAll("[data-speed]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll("[data-speed]").forEach((b) => b.classList.remove("is-on"));
+          btn.classList.add("is-on");
+          applySpeedMode(btn.getAttribute("data-speed"));
+        });
+      });
+    }
+
+    /* ================================================================== */
+    /* Frame clock — GSAP ticker is the only rAF                           */
+    /* ================================================================== */
+    function tick(time, deltaMs) {
+      sim.time = time;
+      sim.dt = Math.min(deltaMs / 1000, 0.05);
+      if (gpu) gpu.frame();
+      else if (gl2) gl2.frame();
+
+      fpsFrames += 1;
+      if (time - fpsStamp >= 0.5) {
+        hudFps.textContent = `${Math.round(fpsFrames / (time - fpsStamp))} fps`;
+        fpsFrames = 0;
+        fpsStamp = time;
+      }
+    }
+
+    async function boot() {
+      resize();
+      window.addEventListener("resize", resize);
+
+      try {
+        gpu = await createWebGPU();
+      } catch (err) {
+        console.warn("WebGPU init failed, trying WebGL2", err);
+        gpu = null;
+      }
+
+      if (gpu) {
+        backend = "webgpu";
+        hudBackend.textContent = "WebGPU · compute";
+      } else {
+        try {
+          gl2 = createWebGL2();
+        } catch (err) {
+          console.warn("WebGL2 init failed", err);
+          gl2 = null;
+        }
+        if (gl2) {
+          backend = "webgl2";
+          hudBackend.textContent = "WebGL2 · fallback";
+        }
+      }
+
+      if (!backend) {
+        document.getElementById("fail").classList.add("is-on");
+        return;
+      }
+
+      bindInput();
+      startMotion();
+      gsap.ticker.add(tick);
+    }
+
+    boot();
+  </script>
+</body>
+</html>
