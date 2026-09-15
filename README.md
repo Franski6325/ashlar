@@ -39,6 +39,10 @@ npx --yes serve .
 
 Then open `/` for the catalog and `/sites/00-ashlar/` for the studio.
 
+## Cloudflare
+
+Workers Builds runs `npx wrangler versions upload`. This repo is a static HTML catalog (no Worker script). `wrangler.jsonc` points assets at the repository root; `.assetsignore` keeps `.git`, `.github`, and similar files off the public site.
+
 ## License
 
 Portfolio code and original writing in this repository are released under the MIT License (see `LICENSE`). Third-party fonts and libraries remain under their own licenses.
