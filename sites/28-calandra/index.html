@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>28 — Officine Calandra S.R.L. · Carpenteria metallica dal 1978 · Ferro dritto, conti dritti</title>
+<meta name="description" content="Officine Calandra S.R.L. — carpenteria metallica dimostrativa dal 1978. Taglio, piegatura, saldatura, montaggi. Disegno tecnico vivente: blueprint, quote, tolleranze. Demo fittizia.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%230A0A0B'/%3E%3Crect x='6' y='6' width='52' height='52' fill='none' stroke='%23E8E6E0' stroke-width='2'/%3E%3Ctext x='32' y='42' font-family='monospace' font-size='26' font-weight='700' text-anchor='middle' fill='%23FFC400'%3E28%3C/text%3E%3C/svg%3E">
+<!-- CDN: GSAP 3.12.5 + ScrollTrigger (MIT) + Lenis 1.1.18 (MIT) via jsDelivr + Google Fonts (OFL) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter+Tight:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --graphite:#131417;
+  --graphite-2:#1B1D21;
+  --graphite-3:#24272D;
+  --concrete:#E8E6E0;
+  --concrete-dim:#C9C6BD;
+  --concrete-mute:#A9A69C;
+  --safety:#FFC400;
+  --safety-ink:#0A0A0B;
+  --steel:#5B5E63;
+  --steel-light:#8A8E94;
+  --ink:#0A0A0B;
+  --blueprint:#1D4ED8;
+  --line-dark:rgba(232,230,224,.14);
+  --line-light:rgba(10,10,11,.16);
+  --font-display:"Oswald","Arial Narrow",Impact,sans-serif;
+  --font-body:"Inter Tight",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --radius:2px;
+  --container:80rem;
+  --pad-sec:clamp(4rem,7vw,7.5rem);
+  --gap:clamp(1rem,2.4vw,1.75rem);
+  --h1:clamp(2.6rem,6.2vw,5.4rem);
+  --h2:clamp(1.7rem,3.4vw,2.9rem);
+  --h3:clamp(1.05rem,1.8vw,1.35rem);
+  --body:clamp(1rem,1.2vw,1.08rem);
+  --small:.86rem;
+  --mono:.8rem;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+html,body{overflow-x:clip;max-width:100%}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+body{
+  font-family:var(--font-body);
+  font-size:var(--body);
+  line-height:1.6;
+  background:var(--graphite);
+  color:var(--concrete);
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+::selection{background:var(--safety);color:var(--ink)}
+::-webkit-scrollbar{width:12px;height:12px}
+::-webkit-scrollbar-track{background:var(--ink)}
+::-webkit-scrollbar-thumb{background:var(--steel);border:2px solid var(--ink);border-radius:6px}
+::-webkit-scrollbar-thumb:hover{background:var(--safety)}
+:focus{outline:none}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px;box-shadow:0 0 0 4px var(--safety);border-radius:2px}
+.on-dark :focus-visible{outline-color:var(--concrete)}
+img,svg{max-width:100%;display:block}
+a{color:inherit}
+button,input,select,textarea{font:inherit;color:inherit}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.skip-link{position:fixed;top:-60px;left:12px;z-index:200;background:var(--safety);color:var(--ink);font-family:var(--font-mono);font-size:.85rem;font-weight:600;padding:.8rem 1.1rem;border-radius:var(--radius);text-decoration:none;min-height:44px;display:flex;align-items:center;transition:top .2s ease,transform .2s ease}
+.skip-link:focus{top:12px}
+.container{width:min(100% - 2.5rem,var(--container));margin-inline:auto}
+@media(min-width:1600px){:root{--container:90rem}}
+section{position:relative}
+/* ============ TYPO ============ */
+.display{font-family:var(--font-display);text-transform:uppercase;line-height:.98;letter-spacing:.01em;font-weight:600}
+h1.display{font-size:var(--h1);font-weight:700}
+h2.display{font-size:var(--h2)}
+h3.display{font-size:var(--h3)}
+.eyebrow{font-family:var(--font-mono);font-size:.76rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;display:inline-flex;align-items:center;gap:.6rem}
+.eyebrow::before{content:"";width:26px;height:2px;background:currentColor;flex:none}
+.eyebrow .tag{border:1px solid currentColor;padding:.15rem .5rem;border-radius:var(--radius)}
+.sec-head{max-width:62rem;margin-bottom:clamp(2rem,4vw,3.2rem)}
+.sec-head p.lead{margin-top:1rem;max-width:44rem;font-size:clamp(1.02rem,1.4vw,1.18rem);line-height:1.55}
+.on-light{background:var(--concrete);color:var(--ink)}
+.on-light .sec-head p.lead{color:#2B2D31}
+.on-dark{background:var(--graphite);color:var(--concrete)}
+.kicker-row{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin-bottom:1rem}
+/* ============ BUTTONS / NASTRO / TARGHE ============ */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.6rem;min-height:48px;padding:.85rem 1.4rem;border-radius:var(--radius);font-family:var(--font-display);font-weight:600;text-transform:uppercase;letter-spacing:.06em;font-size:.95rem;text-decoration:none;border:1px solid transparent;cursor:pointer;transition:transform .18s ease,background-color .18s ease,color .18s ease,border-color .18s ease}
+.btn-primary{background:var(--safety);color:var(--ink);border-color:var(--safety)}
+.btn-primary:hover,.btn-primary:focus-visible{background:#FFD234;transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--concrete);border-color:rgba(232,230,224,.4)}
+.btn-ghost:hover,.btn-ghost:focus-visible{border-color:var(--concrete);transform:translateY(-1px)}
+.on-light .btn-ghost{color:var(--ink);border-color:rgba(10,10,11,.4)}
+.on-light .btn-ghost:hover{border-color:var(--ink)}
+.btn-steel{background:var(--steel);color:#fff;border-color:var(--steel)}
+.btn-steel:hover{transform:translateY(-1px)}
+.nastro{height:12px;border-radius:0;background:repeating-linear-gradient(-45deg,var(--safety) 0 12px,var(--ink) 12px 24px);border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)}
+.nastro.slim{height:8px}
+.nastro[aria-hidden="true"]{pointer-events:none}
+.targhetta{position:relative;border:1px solid var(--line-dark);border-radius:var(--radius);background:rgba(232,230,224,.03)}
+.on-light .targhetta{border-color:var(--line-light);background:rgba(10,10,11,.02)}
+.targhetta .tick{position:absolute;width:10px;height:10px;pointer-events:none}
+.tick.tl{top:-1px;left:-1px;border-top:2px solid currentColor;border-left:2px solid currentColor}
+.tick.tr{top:-1px;right:-1px;border-top:2px solid currentColor;border-right:2px solid currentColor}
+.tick.bl{bottom:-1px;left:-1px;border-bottom:2px solid currentColor;border-left:2px solid currentColor}
+.tick.br{bottom:-1px;right:-1px;border-bottom:2px solid currentColor;border-right:2px solid currentColor}
+.lamiera-dark{background:linear-gradient(180deg,#26292F 0%,#191B1E 38%,#22252A 62%,#131417 100%)}
+.lamiera-light{background:linear-gradient(180deg,#F2F0EB 0%,#D8D4CB 42%,#E8E6E0 68%,#CFCBC2 100%)}
+.blueprint-bg{background-image:linear-gradient(rgba(29,78,216,.16) 1px,transparent 1px),linear-gradient(90deg,rgba(29,78,216,.16) 1px,transparent 1px),linear-gradient(rgba(232,230,224,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(232,230,224,.05) 1px,transparent 1px);background-size:22px 22px,22px 22px,110px 110px,110px 110px}
+/* ============ SERRANDA / CURSORE ============ */
+#serranda{position:fixed;inset:0;z-index:150;background:var(--ink);display:flex;align-items:center;justify-content:center;clip-path:inset(0 0 0 0)}
+#serranda .slats{position:absolute;inset:0;background:repeating-linear-gradient(180deg,#1A1C1F 0 26px,#0A0A0B 26px 30px,#2A2D33 30px 31px);opacity:.9}
+#serranda .sigillo{position:relative;border:3px solid var(--safety);color:var(--safety);font-family:var(--font-display);font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:clamp(1.4rem,4vw,2.4rem);padding:.8rem 1.6rem;transform:rotate(-6deg);background:rgba(10,10,11,.7)}
+#serranda .sigillo small{display:block;font-family:var(--font-mono);font-size:.72rem;letter-spacing:.18em;text-align:center;margin-top:.3rem}
+#crocino{position:fixed;top:0;left:0;z-index:140;pointer-events:none;display:none;width:44px;height:44px;margin:-22px 0 0 -22px;will-change:transform}
+#crocino .cross{position:absolute;inset:0}
+#crocino .cross::before,#crocino .cross::after{content:"";position:absolute;background:var(--safety);box-shadow:0 0 0 1px rgba(10,10,11,.7)}
+#crocino .cross::before{left:50%;top:6px;bottom:6px;width:1.5px;transform:translateX(-50%)}
+#crocino .cross::after{top:50%;left:6px;right:6px;height:1.5px;transform:translateY(-50%)}
+#crocino .ring{position:absolute;inset:8px;border:1px solid var(--safety);border-radius:50%;opacity:.8}
+#crocino .coords{position:absolute;top:calc(100% + 2px);left:50%;transform:translateX(-50%);font-family:var(--font-mono);font-size:.62rem;letter-spacing:.06em;background:var(--ink);color:var(--safety);padding:.1rem .4rem;border:1px solid var(--safety);border-radius:2px;white-space:nowrap;font-variant-numeric:tabular-nums}
+#crocino.snap .cross{transform:rotate(45deg)}
+#crocino.snap .ring{border-radius:2px}
+@media(pointer:fine){#crocino.is-on{display:block}}
+/* ============ TOPBAR ============ */
+.topbar{position:sticky;top:0;z-index:100;background:rgba(10,10,11,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line-dark)}
+.topbar-inner{display:flex;align-items:center;gap:1rem;min-height:68px}
+.brand{display:flex;align-items:center;gap:.75rem;text-decoration:none;min-height:44px}
+.brand-mark{width:40px;height:40px;flex:none;border:1px solid var(--concrete);border-radius:var(--radius);display:grid;place-items:center;background:var(--ink);position:relative}
+.brand-mark b{font-family:var(--font-display);font-size:1rem;color:var(--safety)}
+.brand-mark::after{content:"";position:absolute;bottom:5px;left:6px;right:6px;height:2px;background:repeating-linear-gradient(90deg,var(--concrete) 0 4px,transparent 4px 7px)}
+.brand-text{line-height:1.1}
+.brand-text strong{font-family:var(--font-display);text-transform:uppercase;font-size:.92rem;letter-spacing:.05em;display:block}
+.brand-text span{font-family:var(--font-mono);font-size:.66rem;letter-spacing:.12em;color:var(--concrete-dim);text-transform:uppercase}
+.nav-desktop{display:none;gap:.2rem;margin-left:auto}
+.nav-desktop a{font-family:var(--font-mono);font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;padding:.6rem .8rem;min-height:44px;display:inline-flex;align-items:center;border-radius:var(--radius);color:var(--concrete-dim);transition:color .15s ease,background-color .15s ease}
+.nav-desktop a:hover,.nav-desktop a:focus-visible{color:var(--safety);background:rgba(255,196,0,.08)}
+.topbar-cta{display:none;margin-left:.5rem}
+.burger{margin-left:auto;width:48px;height:48px;display:grid;place-items:center;background:transparent;border:1px solid var(--line-dark);border-radius:var(--radius);cursor:pointer}
+.burger span{display:block;width:22px;height:2px;background:var(--concrete);position:relative;transition:transform .2s ease}
+.burger span::before,.burger span::after{content:"";position:absolute;left:0;width:22px;height:2px;background:var(--concrete)}
+.burger span::before{top:-7px}.burger span::after{top:7px}
+@media(min-width:1024px){.nav-desktop{display:flex}.topbar-cta{display:inline-flex}.burger{display:none}}
+#mobileMenu{position:fixed;inset:68px 0 0 0;z-index:99;background:var(--ink);border-top:1px solid var(--line-dark);padding:1rem 1.25rem 2rem;display:flex;flex-direction:column;gap:.3rem}
+#mobileMenu[hidden]{display:none}
+#mobileMenu a{font-family:var(--font-display);text-transform:uppercase;font-size:1.4rem;letter-spacing:.04em;text-decoration:none;padding:.85rem .4rem;min-height:48px;border-bottom:1px solid var(--line-dark);display:flex;justify-content:space-between;align-items:center}
+#mobileMenu a small{font-family:var(--font-mono);font-size:.7rem;color:var(--safety)}
+#mobileMenu .menu-foot{margin-top:1.2rem;font-family:var(--font-mono);font-size:.75rem;color:var(--concrete-dim)}
+/* ============ HERO ============ */
+#hero{padding:0 0 var(--pad-sec);overflow:clip}
+.hero-grid{display:grid;gap:2rem;padding-top:clamp(2rem,4vw,3.5rem)}
+@media(min-width:1024px){.hero-grid{grid-template-columns:1.02fr .98fr;gap:2.5rem;align-items:start}}
+.hero-eyebrow{color:var(--safety)}
+.hero-title{margin:1.1rem 0 1rem}
+.hero-title .line{display:block}
+.hero-title .line.accent{color:transparent;-webkit-text-stroke:1.5px var(--concrete)}
+.hero-sub{color:var(--concrete-dim);max-width:36rem}
+.hero-ctas{display:flex;flex-wrap:wrap;gap:.8rem;margin:1.6rem 0 1.4rem}
+.hero-targa{padding:1rem 1.1rem;display:grid;grid-template-columns:repeat(2,1fr);gap:.7rem 1rem;font-family:var(--font-mono);font-size:.74rem;color:var(--concrete-dim)}
+.hero-targa dt{font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--concrete-mute)}
+.hero-targa dd{color:var(--concrete);font-weight:600;font-variant-numeric:tabular-nums}
+@media(min-width:640px){.hero-targa{grid-template-columns:repeat(3,1fr)}}
+.hero-note{font-family:var(--font-mono);font-size:.72rem;color:var(--concrete-mute);margin-top:.8rem;letter-spacing:.04em}
+.hero-blueprint-wrap{position:relative;border:1px solid var(--line-dark);border-radius:var(--radius);background:var(--ink);overflow:hidden}
+.hero-blueprint-head{display:flex;justify-content:space-between;align-items:center;padding:.65rem .9rem;border-bottom:1px solid var(--line-dark);font-family:var(--font-mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--concrete-dim)}
+.hero-blueprint-head .dot{display:inline-flex;gap:.35rem;align-items:center}
+.hero-blueprint-head .dot::before{content:"";width:8px;height:8px;background:var(--safety);border-radius:50%}
+#heroBlueprint{width:100%;height:auto;background:var(--ink)}
+#timbroCommessa{position:absolute;right:12px;bottom:12px;transform:rotate(-8deg);border:2.5px solid var(--safety);color:var(--safety);background:rgba(10,10,11,.82);font-family:var(--font-display);font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:.95rem;padding:.5rem .9rem;border-radius:var(--radius);text-align:center;will-change:transform,opacity}
+#timbroCommessa small{display:block;font-family:var(--font-mono);font-size:.6rem;letter-spacing:.2em;font-weight:600}
+.scroll-hint{display:flex;align-items:center;gap:.8rem;margin-top:1.2rem;font-family:var(--font-mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--concrete-mute)}
+.scroll-hint .bar{width:1px;height:34px;background:var(--line-dark);position:relative;overflow:hidden}
+.scroll-hint .bar::after{content:"";position:absolute;left:0;top:-40%;width:100%;height:40%;background:var(--safety)}
+@media(prefers-reduced-motion:no-preference){.scroll-hint .bar::after{animation:hintDrop 1.8s ease-in-out infinite}}
+@keyframes hintDrop{0%{top:-40%}100%{top:110%}}
+/* ============ REPARTI ============ */
+#reparti{padding:var(--pad-sec) 0}
+.reparti-grid{display:grid;gap:var(--gap);grid-template-columns:1fr}
+@media(min-width:768px){.reparti-grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1280px){.reparti-grid{grid-template-columns:repeat(4,1fr)}}
+.reparto{padding:1.3rem 1.2rem 1.2rem;display:flex;flex-direction:column;gap:.9rem;transition:transform .2s ease,border-color .2s ease,background-color .2s ease;background:#fff}
+.reparto:hover,.reparto:focus-within{transform:translateY(-3px);border-color:var(--ink)}
+.reparto-top{display:flex;justify-content:space-between;align-items:flex-start;gap:.8rem}
+.reparto-num{font-family:var(--font-display);font-size:2rem;font-weight:700;line-height:1;color:transparent;-webkit-text-stroke:1.2px var(--ink)}
+.reparto-icon{width:44px;height:44px;flex:none;border:1px solid var(--line-light);border-radius:var(--radius);display:grid;place-items:center;background:var(--concrete)}
+.reparto h3{font-size:1.25rem}
+.reparto p.desc{font-size:.95rem;color:#33363B}
+.reparto ul.machines{list-style:none;font-family:var(--font-mono);font-size:.74rem;color:#3A3D42;display:grid;gap:.4rem;border-top:1px dashed rgba(10,10,11,.25);border-bottom:1px dashed rgba(10,10,11,.25);padding:.8rem 0}
+.reparto ul.machines li{display:flex;gap:.5rem;align-items:baseline}
+.reparto ul.machines li::before{content:"▸";color:var(--steel);font-weight:700}
+.reparto-foot{display:flex;justify-content:space-between;align-items:center;gap:.6rem;margin-top:auto;font-family:var(--font-mono);font-size:.72rem}
+.reparto-foot .tol{border:1px solid var(--line-light);padding:.3rem .55rem;border-radius:var(--radius);font-variant-numeric:tabular-nums;background:var(--concrete)}
+.reparto-foot a{min-height:44px;display:inline-flex;align-items:center;font-weight:600;text-transform:uppercase;letter-spacing:.08em;text-decoration:none;border-bottom:2px solid var(--ink)}
+.reparto-foot a:hover{background:var(--safety);border-color:var(--safety);padding:0 .4rem}
+/* ============ LINEA ============ */
+#linea{padding:var(--pad-sec) 0;border-top:1px solid var(--line-dark);border-bottom:1px solid var(--line-dark)}
+.linea-stage{position:relative;border:1px solid var(--line-dark);border-radius:var(--radius);background:var(--ink);overflow:hidden;margin-top:1rem}
+.linea-rail{position:absolute;left:0;right:0;top:118px;height:2px;background:rgba(232,230,224,.18)}
+.linea-rail::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(232,230,224,.35) 0 10px,transparent 10px 20px)}
+.linea-ticks{position:absolute;left:1rem;right:1rem;top:132px;display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:.62rem;color:var(--concrete-mute);letter-spacing:.1em}
+.linea-progress{height:4px;background:rgba(232,230,224,.12);margin:0;border-radius:0}
+.linea-progress span{display:block;height:100%;background:var(--safety);transform:scaleX(0);transform-origin:left center;will-change:transform}
+.stazioni{display:grid;gap:1rem;padding:3.2rem 1rem 1rem;position:relative}
+@media(min-width:1024px){.linea-stage{min-height:72vh;display:flex;flex-direction:column}.stazioni{grid-template-columns:repeat(4,1fr);gap:1.2rem;padding:4.2rem 2.2rem 1rem;flex:1}.linea-rail{top:150px}.linea-ticks{top:164px;left:2.2rem;right:2.2rem}}
+.stazione{border:1px solid var(--line-dark);border-radius:var(--radius);background:var(--graphite-2);padding:1rem;position:relative;min-height:250px;display:flex;flex-direction:column;gap:.6rem}
+.stazione .plate{position:relative;border:1px solid rgba(232,230,224,.25);border-radius:var(--radius);min-height:96px;display:grid;place-items:center;background:var(--graphite);overflow:hidden}
+.stazione .plate svg{position:relative;z-index:2}
+.stazione .fill-layer{position:absolute;inset:0;background:linear-gradient(180deg,#2E3138,#1B1D21);opacity:0;z-index:1;will-change:opacity}
+.stazione .st-code{position:absolute;top:.45rem;left:.6rem;z-index:3;font-family:var(--font-mono);font-size:.64rem;letter-spacing:.12em;color:var(--concrete-dim)}
+.stazione h3{font-size:1.05rem;letter-spacing:.04em}
+.stazione .st-desc{font-size:.86rem;color:var(--concrete-dim)}
+.quota-stazione{font-family:var(--font-mono);font-size:.78rem;font-weight:600;color:var(--concrete);border:1px dashed rgba(232,230,224,.4);border-radius:var(--radius);padding:.35rem .6rem;display:inline-block;will-change:transform,opacity;font-variant-numeric:tabular-nums}
+.timbro-ok{display:inline-block;margin-top:.2rem;align-self:flex-start;font-family:var(--font-display);font-weight:700;font-size:.82rem;letter-spacing:.1em;color:var(--safety);border:2px solid var(--safety);border-radius:var(--radius);padding:.25rem .6rem;transform:rotate(-6deg);will-change:transform,opacity;background:rgba(10,10,11,.6)}
+#pezzoLinea{position:absolute;top:58px;left:0;width:110px;height:64px;z-index:5;will-change:transform;filter:drop-shadow(0 6px 12px rgba(0,0,0,.5))}
+@media(max-width:1023px){#pezzoLinea{display:none}.quota-stazione,.timbro-ok,.stazione .fill-layer{opacity:1!important;transform:none!important}.stazione{min-height:0}.linea-rail,.linea-ticks{display:none}}
+.linea-readout{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:1rem 1.2rem;border-top:1px solid var(--line-dark);font-family:var(--font-mono);font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;color:var(--concrete-dim);flex-wrap:wrap}
+.linea-readout strong{color:var(--safety);font-variant-numeric:tabular-nums}
+.linea-legend{font-family:var(--font-mono);font-size:.72rem;color:var(--concrete-mute);margin-top:.8rem}
+/* ============ NUMERI ============ */
+#numeri{padding:var(--pad-sec) 0}
+.numeri-grid{display:grid;gap:var(--gap);grid-template-columns:1fr}
+@media(min-width:768px){.numeri-grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1280px){.numeri-grid{grid-template-columns:repeat(4,1fr)}}
+.numero{padding:1.2rem;border:1px solid var(--line-light);border-radius:var(--radius);background:#fff;display:flex;flex-direction:column;gap:.8rem}
+.numero-top{display:flex;justify-content:space-between;align-items:center;font-family:var(--font-mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--steel)}
+.numero-top .sq{width:10px;height:10px;background:var(--ink)}
+.odometro{display:flex;align-items:baseline;gap:.4rem;background:linear-gradient(180deg,#141518,#1E2025);border:1px solid var(--ink);border-radius:var(--radius);padding:.7rem .8rem;min-height:86px}
+.rulli{display:flex;gap:3px}
+.rullo{width:.95em;height:1.35em;overflow:hidden;background:#0A0A0B;border:1px solid rgba(232,230,224,.22);border-radius:2px;font-family:var(--font-mono);font-weight:600;font-size:2rem;line-height:1.35em;color:var(--concrete);font-variant-numeric:tabular-nums}
+.rullo-strip{display:flex;flex-direction:column;will-change:transform}
+.rullo-strip span{height:1.35em;line-height:1.35em;text-align:center;display:block;flex:none}
+.rullo-sep{font-family:var(--font-mono);font-size:2rem;line-height:1.35em;color:var(--concrete-dim);padding:0 .1rem}
+.od-suffix{font-family:var(--font-display);font-weight:600;color:var(--safety);font-size:1rem;text-transform:uppercase;background:var(--ink);padding:.2rem .5rem;border-radius:2px}
+@media(max-width:380px){.rullo,.rullo-sep{font-size:1.6rem}}
+.numero p{font-size:.9rem;color:#33363B}
+.numero .rif{font-family:var(--font-mono);font-size:.7rem;color:var(--steel);letter-spacing:.06em;border-top:1px dashed rgba(10,10,11,.25);padding-top:.6rem}
+/* ============ STRUMENTO ============ */
+#strumento{padding:var(--pad-sec) 0;border-top:1px solid var(--line-dark)}
+.strumento-grid{display:grid;gap:var(--gap);grid-template-columns:1fr}
+@media(min-width:1024px){.strumento-grid{grid-template-columns:1fr 1fr;align-items:start}}
+.panel{border:1px solid var(--line-dark);border-radius:var(--radius);background:var(--graphite-2);padding:1.4rem}
+@media(min-width:768px){.panel{padding:1.8rem}}
+.field{margin-bottom:1.4rem}
+.field label,.field legend{font-family:var(--font-mono);font-size:.74rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--concrete);display:block;margin-bottom:.6rem}
+.field .hint{font-family:var(--font-mono);font-size:.7rem;color:var(--concrete-mute);margin-top:.4rem}
+select,input[type="text"],input[type="email"],input[type="tel"],input[type="number"],textarea{min-height:48px;width:100%;background:var(--ink);border:1px solid rgba(232,230,224,.3);border-radius:var(--radius);padding:.75rem .9rem;font-size:1rem;color:var(--concrete)}
+select:focus-visible,input:focus-visible,textarea:focus-visible{border-color:var(--safety)}
+.on-light select,.on-light input,.on-light textarea{background:#fff;border-color:rgba(10,10,11,.3);color:var(--ink)}
+input[type="range"]{width:100%;min-height:44px;accent-color:var(--safety);cursor:pointer;background:transparent}
+.range-row{display:flex;align-items:center;gap:1rem}
+.range-row output{font-family:var(--font-mono);font-weight:600;font-size:.95rem;background:var(--ink);border:1px solid var(--safety);color:var(--safety);border-radius:var(--radius);padding:.4rem .7rem;min-width:92px;text-align:center;font-variant-numeric:tabular-nums}
+.range-scale{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:.66rem;color:var(--concrete-mute);margin-top:.15rem}
+.chips{display:flex;flex-wrap:wrap;gap:.6rem}
+.chips label{position:relative;cursor:pointer}
+.chips input{position:absolute;opacity:0;width:1px;height:1px}
+.chips .chip{display:inline-flex;align-items:center;gap:.5rem;min-height:44px;padding:.6rem 1rem;border:1px solid rgba(232,230,224,.3);border-radius:var(--radius);font-family:var(--font-mono);font-size:.82rem;font-weight:600;letter-spacing:.04em;transition:transform .15s ease,border-color .15s ease,background-color .15s ease}
+.chips .chip i{width:10px;height:10px;background:var(--steel);border-radius:50%;flex:none}
+.chips input:checked + .chip{border-color:var(--safety);background:rgba(255,196,0,.1);color:var(--safety)}
+.chips input:checked + .chip i{background:var(--safety)}
+.chips input:focus-visible + .chip{outline:2px solid var(--ink);box-shadow:0 0 0 4px var(--safety)}
+.chips .chip:hover{transform:translateY(-1px)}
+.out-head{display:flex;justify-content:space-between;align-items:center;gap:.8rem;flex-wrap:wrap;margin-bottom:1rem}
+.out-head .live-dot{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--safety);display:inline-flex;gap:.5rem;align-items:center}
+.out-head .live-dot::before{content:"";width:8px;height:8px;background:var(--safety);border-radius:50%}
+.prezzo-fascia{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;background:var(--ink);border:1px solid rgba(232,230,224,.2);border-radius:var(--radius);padding:1rem}
+.prezzo-fascia .euro{font-family:var(--font-display);font-size:1.6rem;color:var(--safety);font-weight:700}
+.prezzo-fascia .sep{font-family:var(--font-mono);color:var(--concrete-mute)}
+.mini-od .rullo{font-size:1.5rem}
+.leadtime{margin:1rem 0;padding:.9rem 1rem;border:1px dashed rgba(232,230,224,.4);border-radius:var(--radius);font-family:var(--font-mono);font-size:.86rem;display:flex;justify-content:space-between;gap:.8rem;flex-wrap:wrap}
+.leadtime strong{color:var(--safety);font-variant-numeric:tabular-nums}
+#distinta{list-style:none;display:grid;gap:.5rem;margin:1rem 0}
+#distinta li{font-family:var(--font-mono);font-size:.78rem;display:flex;gap:.7rem;align-items:baseline;background:rgba(232,230,224,.05);border:1px solid var(--line-dark);border-radius:var(--radius);padding:.6rem .8rem;will-change:transform,opacity}
+#distinta li .q{margin-left:auto;color:var(--safety);font-weight:600;white-space:nowrap}
+#distinta li::before{content:attr(data-riga);color:var(--concrete-mute);font-size:.66rem;flex:none}
+.strumento-note{font-family:var(--font-mono);font-size:.74rem;color:var(--concrete-dim);border-left:3px solid var(--safety);padding-left:.8rem;margin:1rem 0}
+.strumento-actions{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1rem}
+.strumento-actions .btn{min-height:44px;font-size:.85rem}
+/* ============ STORIA ============ */
+#storia{padding:var(--pad-sec) 0}
+.storia-bar{display:flex;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap}
+.storia-btns{display:flex;gap:.5rem}
+.storia-btns button{width:48px;height:48px;display:grid;place-items:center;background:var(--ink);color:var(--concrete);border:1px solid var(--ink);border-radius:var(--radius);cursor:pointer;font-size:1.2rem;transition:transform .15s ease,background-color .15s ease}
+.storia-btns button:hover{background:var(--safety);color:var(--ink);border-color:var(--safety);transform:translateY(-1px)}
+.storia-progress{flex:1;min-width:140px;height:4px;background:rgba(10,10,11,.15);border-radius:0;overflow:hidden}
+.storia-progress span{display:block;height:100%;background:var(--ink);transform:scaleX(0);transform-origin:left center;will-change:transform}
+.storia-hint{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--steel)}
+.storia-viewport{overflow-x:auto;scrollbar-width:thin;padding-bottom:1rem;cursor:grab;border:1px solid var(--line-light);border-radius:var(--radius);background:#fff}
+.storia-viewport:active{cursor:grabbing}
+.storia-track{display:flex;gap:1rem;padding:1.2rem;min-width:min-content}
+.storia-card{flex:0 0 min(78vw,340px);border:1px solid var(--line-light);border-radius:var(--radius);background:var(--concrete);padding:1.2rem;display:flex;flex-direction:column;gap:.7rem;user-select:none}
+@media(min-width:768px){.storia-card{flex-basis:360px}}
+.storia-card .year{font-family:var(--font-display);font-size:2.2rem;font-weight:700;line-height:1;display:flex;align-items:baseline;gap:.6rem}
+.storia-card .year small{font-family:var(--font-mono);font-size:.66rem;letter-spacing:.14em;color:var(--steel);font-weight:600}
+.storia-card h3{font-size:1.05rem}
+.storia-card p{font-size:.92rem;color:#33363B}
+.storia-card .quota{font-family:var(--font-mono);font-size:.7rem;color:var(--steel);border-top:1px dashed rgba(10,10,11,.3);padding-top:.6rem;margin-top:auto;font-variant-numeric:tabular-nums}
+.storia-card.is-first{border-color:var(--ink);border-width:2px}
+/* ============ CERTIFICAZIONI ============ */
+#certificazioni{padding:var(--pad-sec) 0;border-top:1px solid var(--line-dark)}
+.cert-grid{display:grid;gap:var(--gap);grid-template-columns:1fr}
+@media(min-width:768px){.cert-grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1280px){.cert-grid{grid-template-columns:repeat(3,1fr)}}
+.cert{padding:1.2rem;display:flex;flex-direction:column;gap:.7rem;background:var(--graphite-2);transition:transform .18s ease,border-color .18s ease}
+.cert:hover,.cert:focus-within{transform:translateY(-2px);border-color:rgba(232,230,224,.4)}
+.cert-code{font-family:var(--font-mono);font-size:.7rem;font-weight:600;letter-spacing:.14em;color:var(--safety);border:1px solid var(--safety);border-radius:var(--radius);padding:.3rem .6rem;align-self:flex-start}
+.cert h3{font-size:1.05rem}
+.cert p{font-size:.9rem;color:var(--concrete-dim)}
+.cert .rev{font-family:var(--font-mono);font-size:.68rem;color:var(--concrete-mute);margin-top:auto;border-top:1px dashed rgba(232,230,224,.25);padding-top:.6rem}
+.cert-disclaimer{margin-top:1.4rem;font-family:var(--font-mono);font-size:.76rem;color:var(--concrete-dim);border:1px dashed rgba(255,196,0,.6);border-radius:var(--radius);padding:.9rem 1rem;background:rgba(255,196,0,.05)}
+/* ============ CONTATTI ============ */
+#contatti{padding:var(--pad-sec) 0}
+.contatti-grid{display:grid;gap:var(--gap);grid-template-columns:1fr}
+@media(min-width:1024px){.contatti-grid{grid-template-columns:1.05fr .95fr;align-items:start}}
+.form-panel{background:#fff;border:1px solid var(--line-light);border-radius:var(--radius);padding:1.4rem}
+@media(min-width:768px){.form-panel{padding:1.8rem}}
+.form-grid{display:grid;gap:1rem;grid-template-columns:1fr}
+@media(min-width:640px){.form-grid.two{grid-template-columns:1fr 1fr}}
+.form-panel .field label{color:var(--ink)}
+.form-panel .hint{color:var(--steel)}
+textarea{min-height:130px;resize:vertical}
+.check{display:flex;gap:.7rem;align-items:flex-start;font-size:.88rem;color:#33363B}
+.check input{width:22px;height:22px;min-width:22px;accent-color:var(--ink);margin-top:.15rem}
+#formStatus{margin-top:1rem;font-family:var(--font-mono);font-size:.82rem;font-weight:600;padding:.8rem 1rem;border-radius:var(--radius);display:none}
+#formStatus.show{display:block}
+#formStatus.ok{background:var(--safety);color:var(--ink);border:1px solid var(--ink)}
+.sede{border:1px solid var(--line-light);border-radius:var(--radius);background:var(--ink);color:var(--concrete);padding:1.4rem;display:flex;flex-direction:column;gap:1rem}
+@media(min-width:768px){.sede{padding:1.8rem}}
+.sede h3{font-size:1.2rem}
+.sede address{font-style:normal;display:grid;gap:.6rem;font-size:.95rem}
+.sede address a{color:var(--safety);text-decoration:none;border-bottom:1px solid rgba(255,196,0,.4);word-break:break-all}
+.sede address a:hover{background:rgba(255,196,0,.12)}
+.sede dl{display:grid;grid-template-columns:auto 1fr;gap:.4rem .9rem;font-family:var(--font-mono);font-size:.78rem;border-top:1px solid var(--line-dark);padding-top:1rem}
+.sede dl dt{color:var(--concrete-mute);text-transform:uppercase;letter-spacing:.1em;font-size:.66rem}
+.sede dl dd{font-variant-numeric:tabular-nums}
+.sede-map{border:1px solid var(--line-dark);border-radius:var(--radius);overflow:hidden;background:var(--graphite-2)}
+/* ============ FOOTER ============ */
+footer{background:var(--ink);color:var(--concrete);border-top:1px solid var(--line-dark)}
+.footer-targa{padding:2.2rem 0;display:grid;gap:1.6rem;grid-template-columns:1fr}
+@media(min-width:1024px){.footer-targa{grid-template-columns:1.2fr .8fr;gap:2.5rem}}
+.footer-ragione{border:1px solid rgba(232,230,224,.25);border-radius:var(--radius);padding:1.4rem;background:var(--graphite)}
+.footer-ragione h2{font-size:1.3rem;margin-bottom:.8rem}
+.footer-ragione dl{display:grid;gap:.45rem;font-family:var(--font-mono);font-size:.78rem}
+.footer-ragione dl div{display:grid;grid-template-columns:110px 1fr;gap:.8rem;border-bottom:1px dashed rgba(232,230,224,.15);padding-bottom:.45rem}
+.footer-ragione dt{color:var(--concrete-mute);text-transform:uppercase;letter-spacing:.1em;font-size:.64rem;padding-top:.2rem}
+.footer-ragione dd{font-variant-numeric:tabular-nums}
+.footer-ragione a{color:var(--safety)}
+.footer-nav nav{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1rem}
+.footer-nav nav a{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;border:1px solid var(--line-dark);border-radius:var(--radius);padding:.6rem .9rem;min-height:44px;display:inline-flex;align-items:center;color:var(--concrete-dim)}
+.footer-nav nav a:hover{border-color:var(--safety);color:var(--safety)}
+.disclaimer{font-size:.82rem;color:var(--concrete-dim);line-height:1.6;border-left:3px solid var(--safety);padding-left:1rem}
+.footer-base{border-top:1px solid var(--line-dark);padding:1.2rem 0 1.6rem;display:flex;flex-wrap:wrap;gap:.8rem;justify-content:space-between;align-items:center;font-family:var(--font-mono);font-size:.7rem;letter-spacing:.06em;color:var(--concrete-mute)}
+/* ============ REVEAL DEFAULTS (JS sets initial) ============ */
+[data-reveal]{will-change:transform,opacity}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  #serranda{display:none!important}
+  #crocino{display:none!important}
+}
+</style>
+<noscript><style>#serranda{display:none!important}#timbroCommessa{opacity:1!important}.quota-stazione,.timbro-ok{opacity:1!important}</style></noscript>
+</head>
+<body class="on-dark">
+<a class="skip-link" href="#main">Salta al contenuto</a>
+
+<div id="serranda" aria-hidden="true">
+  <div class="slats"></div>
+  <div class="sigillo" id="sigilloSerranda">Officine Calandra<small>Dis. 28 · Rev. C · Demo</small></div>
+</div>
+
+<div id="crocino" aria-hidden="true">
+  <span class="cross"></span><span class="ring"></span><span class="coords" id="crocinoCoords">000,0 · 000,0 mm</span>
+</div>
+
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a class="brand" href="#hero" data-scroll aria-label="Officine Calandra S.R.L. — Torna all'inizio">
+      <span class="brand-mark" aria-hidden="true"><b>28</b></span>
+      <span class="brand-text"><strong>Officine Calandra S.R.L.</strong><span>Carpenteria · dal 1978 · demo</span></span>
+    </a>
+    <nav class="nav-desktop" aria-label="Navigazione principale">
+      <a href="#reparti" data-scroll>Reparti</a>
+      <a href="#linea" data-scroll>Linea</a>
+      <a href="#numeri" data-scroll>Numeri</a>
+      <a href="#strumento" data-scroll>Preventivo</a>
+      <a href="#storia" data-scroll>Storia</a>
+      <a href="#contatti" data-scroll>Contatti</a>
+    </nav>
+    <a class="btn btn-primary topbar-cta" href="#contatti" data-scroll style="min-height:44px;padding:.6rem 1rem;font-size:.82rem">Richiedi rilievo</a>
+    <button class="burger" id="burger" aria-expanded="false" aria-controls="mobileMenu" aria-label="Apri menu"><span></span></button>
+  </div>
+</header>
+<div id="mobileMenu" hidden>
+  <nav aria-label="Menu mobile">
+    <a href="#reparti" data-scroll>Reparti <small>01</small></a>
+    <a href="#linea" data-scroll>Linea <small>02</small></a>
+    <a href="#numeri" data-scroll>Numeri <small>03</small></a>
+    <a href="#strumento" data-scroll>Preventivo demo <small>04</small></a>
+    <a href="#storia" data-scroll>Storia <small>05</small></a>
+    <a href="#certificazioni" data-scroll>Metodo <small>06</small></a>
+    <a href="#contatti" data-scroll>Contatti <small>07</small></a>
+  </nav>
+  <p class="menu-foot mono">OFFICINE CALANDRA S.R.L. · VIA ESEMPIO 0 MILANO · DEMO</p>
+</div>
+
+<main id="main">
+<!-- ================= HERO ================= -->
+<section id="hero" class="on-dark blueprint-bg" aria-labelledby="hero-title">
+  <div class="container hero-grid">
+    <div>
+      <p class="eyebrow hero-eyebrow">Officine Calandra S.R.L. · Carpenteria metallica · Dis. 28-2026 Rev. C</p>
+      <h1 class="display hero-title" id="hero-title">
+        <span class="line">Ferro dritto,</span>
+        <span class="line accent">conti dritti.</span>
+      </h1>
+      <p class="hero-sub">Carpenteria metallica e impianti leggeri dal 1978 — nome, date e numeri fittizi a scopo dimostrativo. Taglio, piegatura, saldatura e montaggi con quote dichiarate, tolleranze scritte e commesse tracciate, dal rilievo al collaudo visivo.</p>
+      <div class="hero-ctas">
+        <a class="btn btn-primary" href="#contatti" data-scroll>Richiedi un rilievo</a>
+        <a class="btn btn-ghost" href="#strumento" data-scroll>Prova il preventivatore demo</a>
+      </div>
+      <dl class="targhetta hero-targa" aria-label="Targhetta commessa dimostrativa">
+        <i class="tick tl" aria-hidden="true"></i><i class="tick tr" aria-hidden="true"></i><i class="tick bl" aria-hidden="true"></i><i class="tick br" aria-hidden="true"></i>
+        <div><dt>Commessa</dt><dd>DEMO-28/2026</dd></div>
+        <div><dt>Scala</dt><dd>1:5</dd></div>
+        <div><dt>Toll. gen.</dt><dd>±0,2 mm</dd></div>
+        <div><dt>Angoli</dt><dd>±0,5°</dd></div>
+        <div><dt>Materiale</dt><dd>S355 demo</dd></div>
+        <div><dt>Foglio</dt><dd>01 / 01</dd></div>
+      </dl>
+      <p class="hero-note">Disegno dimostrativo fittizio — quote e materiali inventati. Scorri: il tratto si quota da solo.</p>
+      <p class="scroll-hint" aria-hidden="true"><span class="bar"></span> Scorri per quotare — 000 mm</p>
+    </div>
+    <div class="hero-blueprint-wrap" id="heroBlueprintWrap" data-drawing>
+      <div class="hero-blueprint-head"><span>Piastra staffata · PS-28 demo</span><span class="dot">Lucido 01</span></div>
+      <svg id="heroBlueprint" viewBox="0 0 560 440" role="img" aria-label="Disegno tecnico dimostrativo di una piastra staffata con quattro fori e quote fittizie" data-drawing>
+        <defs>
+          <pattern id="bpGrid" width="22" height="22" patternUnits="userSpaceOnUse">
+            <path d="M22 0H0V22" fill="none" stroke="#1D4ED8" stroke-width="1" opacity=".35"/>
+          </pattern>
+          <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <line x1="0" y1="0" x2="0" y2="8" stroke="#E8E6E0" stroke-width="1" opacity=".5"/>
+          </pattern>
+        </defs>
+        <rect x="0" y="0" width="560" height="440" fill="#0A0A0B"/>
+        <rect x="0" y="0" width="560" height="440" fill="url(#bpGrid)" opacity=".5"/>
+        <!-- center lines -->
+        <g stroke="#E8E6E0" stroke-width="1" opacity=".45" stroke-dasharray="14 5 3 5" aria-hidden="true">
+          <line x1="60" y1="200" x2="500" y2="200"/><line x1="280" y1="40" x2="280" y2="360"/>
+        </g>
+        <!-- main plate -->
+        <g fill="none" stroke-linecap="square" stroke-linejoin="miter">
+          <rect class="draw" x="120" y="110" width="320" height="180" stroke="#1D4ED8" stroke-width="2.5"/>
+          <path class="draw" d="M120 150 H80 V290 H120" stroke="#1D4ED8" stroke-width="2.5"/>
+          <path class="draw" d="M440 150 H480 V290 H440" stroke="#1D4ED8" stroke-width="2.5"/>
+          <rect class="draw" x="150" y="240" width="90" height="50" fill="url(#hatch)" stroke="#1D4ED8" stroke-width="1.6"/>
+          <circle class="draw" cx="180" cy="160" r="22" stroke="#1D4ED8" stroke-width="2"/>
+          <circle class="draw" cx="380" cy="160" r="22" stroke="#1D4ED8" stroke-width="2"/>
+          <circle class="draw" cx="180" cy="240" r="14" stroke="#1D4ED8" stroke-width="1.6"/>
+          <circle class="draw" cx="380" cy="240" r="14" stroke="#1D4ED8" stroke-width="1.6"/>
+          <path class="draw" d="M250 110 V290 M310 110 V290" stroke="#1D4ED8" stroke-width="1.2" stroke-dasharray="6 4" opacity=".9"/>
+        </g>
+        <!-- dimension lines -->
+        <g class="quota-hero" font-family="IBM Plex Mono,monospace" font-size="13" fill="#E8E6E0" opacity="0">
+          <line x1="120" y1="330" x2="440" y2="330" stroke="#E8E6E0" stroke-width="1"/>
+          <line x1="120" y1="322" x2="120" y2="338" stroke="#E8E6E0" stroke-width="1"/>
+          <line x1="440" y1="322" x2="440" y2="338" stroke="#E8E6E0" stroke-width="1"/>
+          <rect x="218" y="318" width="124" height="22" fill="#0A0A0B" stroke="#E8E6E0" stroke-width="1"/>
+          <text x="280" y="334" text-anchor="middle">320 ±0,2</text>
+        </g>
+        <g class="quota-hero" font-family="IBM Plex Mono,monospace" font-size="13" fill="#E8E6E0" opacity="0">
+          <line x1="505" y1="110" x2="505" y2="290" stroke="#E8E6E0" stroke-width="1"/>
+          <line x1="497" y1="110" x2="513" y2="110" stroke="#E8E6E0" stroke-width="1"/>
+          <line x1="497" y1="290" x2="513" y2="290" stroke="#E8E6E0" stroke-width="1"/>
+          <rect x="476" y="188" width="58" height="22" fill="#0A0A0B" stroke="#E8E6E0" stroke-width="1" transform="rotate(90 505 199)"/>
+          <text x="505" y="203" text-anchor="middle">180</text>
+        </g>
+        <g class="quota-hero" font-family="IBM Plex Mono,monospace" font-size="12" fill="#FFC400" opacity="0">
+          <line x1="180" y1="160" x2="110" y2="70" stroke="#FFC400" stroke-width="1"/>
+          <circle cx="180" cy="160" r="2.5" fill="#FFC400" stroke="none"/>
+          <rect x="28" y="52" width="118" height="22" fill="#0A0A0B" stroke="#FFC400" stroke-width="1"/>
+          <text x="87" y="67" text-anchor="middle">Ø28 ±0,1</text>
+        </g>
+        <g class="quota-hero" font-family="IBM Plex Mono,monospace" font-size="12" fill="#E8E6E0" opacity="0">
+          <line x1="380" y1="160" x2="450" y2="70" stroke="#E8E6E0" stroke-width="1"/>
+          <rect x="414" y="52" width="118" height="22" fill="#0A0A0B" stroke="#E8E6E0" stroke-width="1"/>
+          <text x="473" y="67" text-anchor="middle">4× fori demo</text>
+        </g>
+        <g font-family="IBM Plex Mono,monospace" font-size="10" fill="#A9A69C" aria-hidden="true">
+          <rect x="360" y="372" width="184" height="52" fill="none" stroke="#5B5E63" stroke-width="1"/>
+          <line x1="360" y1="398" x2="544" y2="398" stroke="#5B5E63" stroke-width="1"/>
+          <line x1="452" y1="372" x2="452" y2="424" stroke="#5B5E63" stroke-width="1"/>
+          <text x="368" y="389">OFF. CALANDRA</text><text x="460" y="389">SCALA 1:5</text>
+          <text x="368" y="414">TOL. ±0,2 / ±0,5°</text><text x="460" y="414">F.01 DEMO</text>
+        </g>
+      </svg>
+      <div id="timbroCommessa" aria-hidden="true">Visto · Commessa 28<small>demo · non firmato</small></div>
+    </div>
+  </div>
+</section>
+<div class="nastro slim" aria-hidden="true"></div>
+
+<!-- ================= REPARTI ================= -->
+<section id="reparti" class="on-light" aria-labelledby="reparti-title">
+  <div class="container" style="padding-top:var(--pad-sec);padding-bottom:0">
+    <div class="sec-head">
+      <div class="kicker-row"><span class="eyebrow">01 — Reparti</span><span class="eyebrow tag mono" style="font-size:.68rem">4 isole · 1 foglio commessa</span></div>
+      <h2 class="display" id="reparti-title">Quattro reparti, un solo foglio commessa.</h2>
+      <p class="lead">Ogni pezzo nasce su carta e resta su carta: cartellino forato, quota scritta a mano, firma del caporeparto inventato. Nomi di macchine e persone interamente fittizi.</p>
+    </div>
+    <div class="reparti-grid">
+      <article class="targhetta reparto" data-reveal>
+        <i class="tick tl" aria-hidden="true"></i><i class="tick tr" aria-hidden="true"></i><i class="tick bl" aria-hidden="true"></i><i class="tick br" aria-hidden="true"></i>
+        <div class="reparto-top"><span class="reparto-num" aria-hidden="true">01</span>
+          <span class="reparto-icon" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="#0A0A0B" stroke-width="1.8"><path d="M4 20 20 4M4 20h7v-7M20 4h-7v7"/><path d="M4 13h18" stroke-dasharray="3 3"/></svg></span>
+        </div>
+        <h3 class="display">Taglio</h3>
+        <p class="desc">Lamiere demo fino a 20 mm, piatti e tubi. Nesting stretto, sfrido pesato e segnato sul cartellino giallo.</p>
+        <ul class="machines"><li>Banco CNC 3000×1500 — LT-01 demo</li><li>Cesoia 3000 — CS-02 demo</li><li>Banco tracciatura — TT-00</li></ul>
+        <div class="reparto-foot"><span class="tol">±0,2 / 1000</span><a href="#linea" data-scroll>Vedi linea</a></div>
+      </article>
+      <article class="targhetta reparto" data-reveal>
+        <i class="tick tl" aria-hidden="true"></i><i class="tick tr" aria-hidden="true"></i><i class="tick bl" aria-hidden="true"></i><i class="tick br" aria-hidden="true"></i>
+        <div class="reparto-top"><span class="reparto-num" aria-hidden="true">02</span>
+          <span class="reparto-icon" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="#0A0A0B" stroke-width="1.8"><path d="M4 6v14h16"/><path d="M4 6l10 10 8-8"/><circle cx="14" cy="16" r="2.4"/></svg></span>
+        </div>
+        <h3 class="display">Piegatura</h3>
+        <p class="desc">Pressa demo 160 t, matrici V6–V32. Ogni angolo provato su scarto, poi via: 90° e non 89°.</p>
+        <ul class="machines"><li>Pressa 160 t — PR-16 demo</li><li>Matrici V6–V32 — set MP demo</li><li>Dima angolare — DG-90</li></ul>
+        <div class="reparto-foot"><span class="tol">±0,5°</span><a href="#linea" data-scroll>Vedi linea</a></div>
+      </article>
+      <article class="targhetta reparto" data-reveal>
+        <i class="tick tl" aria-hidden="true"></i><i class="tick tr" aria-hidden="true"></i><i class="tick bl" aria-hidden="true"></i><i class="tick br" aria-hidden="true"></i>
+        <div class="reparto-top"><span class="reparto-num" aria-hidden="true">03</span>
+          <span class="reparto-icon" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="#0A0A0B" stroke-width="1.8"><path d="M13 3v8M7 7l4 4M19 7l-4 4"/><path d="M5 15h16v8H5z"/><path d="M9 19h8" stroke-dasharray="2 2"/></svg></span>
+        </div>
+        <h3 class="display">Saldatura</h3>
+        <p class="desc">Banchi con maschere dedicate. Sequenze scritte sul processo interno, cordoni spazzolati e controllati a vista.</p>
+        <ul class="machines"><li>Banco TIG/MIG — SL-03 demo</li><li>Maschere componibili — MK set</li><li>Aspiratore — AP-01 demo</li></ul>
+        <div class="reparto-foot"><span class="tol">PQ-04 interno</span><a href="#linea" data-scroll>Vedi linea</a></div>
+      </article>
+      <article class="targhetta reparto" data-reveal>
+        <i class="tick tl" aria-hidden="true"></i><i class="tick tr" aria-hidden="true"></i><i class="tick bl" aria-hidden="true"></i><i class="tick br" aria-hidden="true"></i>
+        <div class="reparto-top"><span class="reparto-num" aria-hidden="true">04</span>
+          <span class="reparto-icon" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="#0A0A0B" stroke-width="1.8"><rect x="4" y="4" width="8" height="8"/><rect x="14" y="4" width="8" height="8"/><rect x="4" y="14" width="18" height="8"/><path d="M8 8h0M18 8h0M13 18h0" stroke-width="2.4"/></svg></span>
+        </div>
+        <h3 class="display">Montaggi</h3>
+        <p class="desc">Assemblaggio in sede e posa demo con collaudo quote. Viti segnate con pennarello, come da istruzione.</p>
+        <ul class="machines"><li>Ponte 5 t — GR-05 demo</li><li>Carrello posa — CR-02</li><li>Valigia collaudo — VC-28</li></ul>
+        <div class="reparto-foot"><span class="tol">check SQ-01</span><a href="#linea" data-scroll>Vedi linea</a></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LINEA ================= -->
+<section id="linea" class="on-dark" aria-labelledby="linea-title">
+  <div class="container">
+    <div class="sec-head">
+      <div class="kicker-row"><span class="eyebrow" style="color:var(--safety)">02 — Linea</span><span class="mono" style="font-size:.7rem;color:var(--concrete-mute)">ST.10 → ST.40 · scrub · desktop pinned</span></div>
+      <h2 class="display" id="linea-title">Il pezzo percorre la linea.</h2>
+      <p class="lead" style="color:var(--concrete-dim)">Scorri e il pezzo avanza sul carroponte: taglio, piegatura, saldatura, controllo. Ogni stazione si accende, quota e timbra. Su mobile la linea è già svolta, in verticale.</p>
+    </div>
+    <div class="linea-stage blueprint-bg" id="lineaStage" data-drawing>
+      <div class="linea-progress" aria-hidden="true"><span id="lineaProgress"></span></div>
+      <div class="linea-rail" aria-hidden="true"></div>
+      <div class="linea-ticks" aria-hidden="true"><span>0</span><span>500</span><span>1000</span><span>1500</span><span>2000 mm demo</span></div>
+      <div id="pezzoLinea" aria-hidden="true">
+        <svg width="110" height="64" viewBox="0 0 110 64" fill="none">
+          <rect x="4" y="18" width="78" height="34" fill="#E8E6E0" stroke="#0A0A0B" stroke-width="2"/>
+          <rect x="82" y="30" width="24" height="22" fill="#FFC400" stroke="#0A0A0B" stroke-width="2"/>
+          <circle cx="20" cy="35" r="6" fill="#0A0A0B"/><circle cx="44" cy="35" r="6" fill="#0A0A0B"/><circle cx="68" cy="35" r="4" fill="#0A0A0B"/>
+          <line x1="55" y1="4" x2="55" y2="18" stroke="#E8E6E0" stroke-width="2"/><rect x="47" y="2" width="16" height="6" fill="#5B5E63" stroke="#E8E6E0"/>
+        </svg>
+      </div>
+      <div class="stazioni">
+        <article class="stazione" id="stTaglio" aria-label="Stazione 10 Taglio">
+          <div class="plate"><span class="fill-layer" aria-hidden="true"></span><span class="st-code">ST.10</span>
+            <svg width="52" height="52" viewBox="0 0 52 52" fill="none" stroke="#E8E6E0" stroke-width="2" aria-hidden="true"><path d="M8 40 40 8"/><path d="M8 40h12v-12"/><rect x="8" y="26" width="36" height="6" stroke-dasharray="4 3" opacity=".7"/></svg>
+          </div>
+          <h3 class="display">Taglio</h3>
+          <p class="st-desc">Banco LT-01 · lamiera S355 demo s=8. Prima bava tolta, bordo segnato.</p>
+          <span class="quota-stazione">240 ±0,2</span>
+          <span class="timbro-ok">OK · Taglio</span>
+        </article>
+        <article class="stazione" id="stPiega" aria-label="Stazione 20 Piegatura">
+          <div class="plate"><span class="fill-layer" aria-hidden="true"></span><span class="st-code">ST.20</span>
+            <svg width="52" height="52" viewBox="0 0 52 52" fill="none" stroke="#E8E6E0" stroke-width="2" aria-hidden="true"><path d="M10 10v32h32"/><path d="M10 10l20 20 12-12"/><circle cx="30" cy="30" r="4"/></svg>
+          </div>
+          <h3 class="display">Piegatura</h3>
+          <p class="st-desc">Pressa PR-16 · matrice V12. Prova su scarto, poi due pieghe a 90°.</p>
+          <span class="quota-stazione">90° ±0,5°</span>
+          <span class="timbro-ok">OK · Piega</span>
+        </article>
+        <article class="stazione" id="stSalda" aria-label="Stazione 30 Saldatura">
+          <div class="plate"><span class="fill-layer" aria-hidden="true"></span><span class="st-code">ST.30</span>
+            <svg width="52" height="52" viewBox="0 0 52 52" fill="none" stroke="#E8E6E0" stroke-width="2" aria-hidden="true"><path d="M26 6v12M16 12l6 6M36 12l-6 6"/><rect x="10" y="28" width="32" height="14"/><path d="M16 35h20" stroke-dasharray="3 3"/></svg>
+          </div>
+          <h3 class="display">Saldatura</h3>
+          <p class="st-desc">Banco SL-03 · maschera MK-28. Sequenza PQ-04, cordone demo da 4.</p>
+          <span class="quota-stazione">cord. 4 demo</span>
+          <span class="timbro-ok">OK · Giunto</span>
+        </article>
+        <article class="stazione" id="stControllo" aria-label="Stazione 40 Controllo">
+          <div class="plate"><span class="fill-layer" aria-hidden="true"></span><span class="st-code">ST.40</span>
+            <svg width="52" height="52" viewBox="0 0 52 52" fill="none" stroke="#E8E6E0" stroke-width="2" aria-hidden="true"><path d="M8 12h36v8H8z"/><path d="M14 20v18M38 20v10"/><path d="M14 34h10" stroke="#FFC400"/></svg>
+          </div>
+          <h3 class="display">Controllo</h3>
+          <p class="st-desc">Calibro e dima DG-90. Quattro quote ricontrollate, cartellino firmato.</p>
+          <span class="quota-stazione">Ø28 ±0,1</span>
+          <span class="timbro-ok">OK · Quota</span>
+        </article>
+      </div>
+      <p class="linea-readout"><span>Linea 28 · carroponte demo</span><strong id="lineaReadout">ST.10 — Taglio · 01/04</strong></p>
+    </div>
+    <p class="linea-legend">Sagoma e quote inventate. Desktop: sezione ancorata con scrub; mobile e riduzione movimento: stazioni già timbrate, senza ancoraggio.</p>
+  </div>
+</section>
+
+<!-- ================= NUMERI ================= -->
+<section id="numeri" class="on-light" aria-labelledby="numeri-title">
+  <div class="container" style="padding-top:var(--pad-sec);padding-bottom:var(--pad-sec)">
+    <div class="sec-head">
+      <div class="kicker-row"><span class="eyebrow">03 — Numeri</span><span class="mono" style="font-size:.7rem;color:var(--steel)">odometri a rulli · non contatori piatti</span></div>
+      <h2 class="display" id="numeri-title">Quote dell'officina.</h2>
+      <p class="lead">Rulli meccanici, scatto secco, come il contacolpi della pressa. Tutti i valori sono dimostrativi e fittizi.</p>
+    </div>
+    <div class="numeri-grid">
+      <article class="numero" data-reveal>
+        <div class="numero-top"><span>Anni di officina</span><span class="sq" aria-hidden="true"></span></div>
+        <div class="odometro" data-value="48" data-suffix="anni" role="img" aria-label="48 anni di officina, dato dimostrativo"><div class="rulli" aria-hidden="true"></div><span class="od-suffix">anni</span><span class="sr-only">48 anni</span></div>
+        <p>Dal 1978 al 2026 nella stessa via inventata, tre serrande e un piazzale.</p>
+        <p class="rif">Rif. cartellino AN-48 · demo</p>
+      </article>
+      <article class="numero" data-reveal>
+        <div class="numero-top"><span>Pezzi al mese</span><span class="sq" aria-hidden="true"></span></div>
+        <div class="odometro" data-value="1240" data-suffix="pz" role="img" aria-label="1240 pezzi al mese, capacità dimostrativa"><div class="rulli" aria-hidden="true"></div><span class="od-suffix">pz/mese</span><span class="sr-only">1240 pezzi</span></div>
+        <p>Capacità dimostrativa a pieno carico, tra taglio e montaggi.</p>
+        <p class="rif">Rif. cartellino PZ-1240 · demo</p>
+      </article>
+      <article class="numero" data-reveal>
+        <div class="numero-top"><span>Mq coperti</span><span class="sq" aria-hidden="true"></span></div>
+        <div class="odometro" data-value="3200" data-suffix="mq" role="img" aria-label="3200 metri quadri coperti, sede dimostrativa"><div class="rulli" aria-hidden="true"></div><span class="od-suffix">mq</span><span class="sr-only">3200 mq</span></div>
+        <p>Due campate fittizie, uffici sopra lo spogliatoio, come da tradizione.</p>
+        <p class="rif">Rif. planimetria MQ-32 · demo</p>
+      </article>
+      <article class="numero" data-reveal>
+        <div class="numero-top"><span>Organico demo</span><span class="sq" aria-hidden="true"></span></div>
+        <div class="odometro" data-value="18" data-suffix="persone" role="img" aria-label="18 tecnici e saldatori, organico dimostrativo"><div class="rulli" aria-hidden="true"></div><span class="od-suffix">teste</span><span class="sr-only">18 persone</span></div>
+        <p>Tecnici, saldatori e un magazziniere che sa tutto. Nomi inventati.</p>
+        <p class="rif">Rif. organigramma OR-18 · demo</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= STRUMENTO ================= -->
+<section id="strumento" class="on-dark" aria-labelledby="strumento-title">
+  <div class="container">
+    <div class="sec-head">
+      <div class="kicker-row"><span class="eyebrow" style="color:var(--safety)">04 — Strumento</span><span class="mono" style="font-size:.7rem;color:var(--concrete-mute)">preventivatore demo · tastierabile</span></div>
+      <h2 class="display" id="strumento-title">Preventivatore demo.</h2>
+      <p class="lead" style="color:var(--concrete-dim)">Scegli lavorazione, pezzi, spessore e materiale fittizio: fascia di prezzo a rulli, lead-time e distinta base. Numeri inventati, rulli veri.</p>
+    </div>
+    <div class="strumento-grid">
+      <form class="panel targhetta" id="preventivatore" aria-label="Preventivatore dimostrativo" onsubmit="return false">
+        <i class="tick tl" aria-hidden="true"></i><i class="tick tr" aria-hidden="true"></i><i class="tick bl" aria-hidden="true"></i><i class="tick br" aria-hidden="true"></i>
+        <div class="field">
+          <label for="selLavorazione">Lavorazione</label>
+          <select id="selLavorazione" name="lavorazione">
+            <option value="taglio" selected>Taglio — banco LT-01 demo</option>
+            <option value="piegatura">Piegatura — pressa PR-16 demo</option>
+            <option value="saldatura">Saldatura — banco SL-03 demo</option>
+            <option value="montaggio">Montaggio — squadra posa demo</option>
+          </select>
+          <p class="hint">Base demo diversa per isola. Nessun listino reale.</p>
+        </div>
+        <div class="field">
+          <label for="rngPezzi">Pezzi — <span id="valPezziLab" class="mono">120 pz</span></label>
+          <div class="range-row"><input type="range" id="rngPezzi" name="pezzi" min="1" max="500" step="1" value="120" aria-describedby="rngPezziHint"><output id="valPezzi" for="rngPezzi">120</output></div>
+          <div class="range-scale" aria-hidden="true"><span>1</span><span>250</span><span>500</span></div>
+          <p class="hint" id="rngPezziHint">1–500 pezzi. Oltre 200 scatta lo sconto scala demo.</p>
+        </div>
+        <div class="field">
+          <label for="rngSpessore">Spessore — <span id="valSpessLab" class="mono">8 mm</span></label>
+          <div class="range-row"><input type="range" id="rngSpessore" name="spessore" min="1" max="20" step="1" value="8" aria-describedby="rngSpessHint"><output id="valSpess" for="rngSpessore">8 mm</output></div>
+          <div class="range-scale" aria-hidden="true"><span>1 mm</span><span>10 mm</span><span>20 mm</span></div>
+          <p class="hint" id="rngSpessHint">1–20 mm. Lo spessore pesa su tempo e sfrido demo.</p>
+        </div>
+        <fieldset class="field" style="border:0">
+          <legend>Materiale fittizio</legend>
+          <div class="chips" role="radiogroup" aria-label="Materiale fittizio">
+            <label><input type="radio" name="materiale" value="S235" checked><span class="chip"><i aria-hidden="true"></i>S235 demo</span></label>
+            <label><input type="radio" name="materiale" value="S355"><span class="chip"><i aria-hidden="true"></i>S355 demo</span></label>
+            <label><input type="radio" name="materiale" value="Inox"><span class="chip"><i aria-hidden="true"></i>Inox demo</span></label>
+          </div>
+          <p class="hint">Sigle a scopo illustrativo. Nessuna fornitura reale.</p>
+        </fieldset>
+        <div class="strumento-actions">
+          <button type="button" class="btn btn-steel" id="btnResetPrev">Reset demo</button>
+          <button type="button" class="btn btn-ghost" id="btnCopiaDistinta">Copia distinta</button>
+        </div>
+      </form>
+      <div class="panel targhetta" aria-live="polite" aria-atomic="false" aria-label="Risultato stima dimostrativa">
+        <i class="tick tl" aria-hidden="true"></i><i class="tick tr" aria-hidden="true"></i><i class="tick bl" aria-hidden="true"></i><i class="tick br" aria-hidden="true"></i>
+        <div class="out-head"><strong class="display" style="font-size:1rem">Fascia prezzo demo</strong><span class="live-dot">aria-live · polite</span></div>
+        <div class="prezzo-fascia mini-od" id="preventivoLive">
+          <span class="euro" aria-hidden="true">€</span>
+          <div class="odometro" style="border:0;background:transparent;padding:0;min-height:0" data-price-min role="img" aria-label="Prezzo minimo dimostrativo"><div class="rulli" aria-hidden="true"></div></div>
+          <span class="sep" aria-hidden="true">—</span>
+          <div class="odometro" style="border:0;background:transparent;padding:0;min-height:0" data-price-max role="img" aria-label="Prezzo massimo dimostrativo"><div class="rulli" aria-hidden="true"></div></div>
+          <span class="sr-only" id="prezzoSr">Fascia dimostrativa</span>
+        </div>
+        <div class="leadtime"><span>Lead-time fittizio</span><strong id="outLead">3–4 settimane</strong></div>
+        <strong class="mono" style="font-size:.72rem;letter-spacing:.12em;text-transform:uppercase">Distinta base — demo</strong>
+        <ul id="distinta"></ul>
+        <p class="strumento-note">Stima demo a scopo illustrativo, non offerta commerciale.</p>
+        <p class="mono" style="font-size:.68rem;color:var(--concrete-mute)" id="copiaStato" role="status"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= STORIA ================= -->
+<section id="storia" class="on-light" aria-labelledby="storia-title">
+  <div class="container" style="padding-top:var(--pad-sec);padding-bottom:var(--pad-sec)">
+    <div class="sec-head">
+      <div class="kicker-row"><span class="eyebrow">05 — Storia</span><span class="mono" style="font-size:.7rem;color:var(--steel)">1978 → 2026 · trascina / frecce / bottoni</span></div>
+      <h2 class="display" id="storia-title">1978 → 2026, sette fogli.</h2>
+      <p class="lead">Cronologia inventata di sana pianta. Trascina la rotaia, usa le frecce o i bottoni: tutto tastierabile, tutto finto.</p>
+    </div>
+    <div class="storia-bar">
+      <div class="storia-btns">
+        <button type="button" id="storiaPrev" aria-label="Storia precedente">←</button>
+        <button type="button" id="storiaNext" aria-label="Storia successiva">→</button>
+      </div>
+      <div class="storia-progress" aria-hidden="true"><span id="storiaProgress"></span></div>
+      <span class="storia-hint" id="storiaHint">Trascina per scorrere</span>
+    </div>
+    <div class="storia-viewport" id="storiaViewport" tabindex="0" role="region" aria-label="Timeline trascinabile 1978-2026, usare frecce sinistra e destra per scorrere">
+      <div class="storia-track" id="storiaTrack">
+        <article class="storia-card is-first" aria-label="1978 fondazione"><p class="year">1978 <small>f.01</small></p><h3 class="display">La prima serranda</h3><p>Bruno Calandra — nome inventato — apre in via Esempio 0: una cesoia, un trapano a colonna e un quaderno a quadretti.</p><p class="quota">Sup. 180 mq demo · 3 teste</p></article>
+        <article class="storia-card" aria-label="1985 prima campata"><p class="year">1985 <small>f.02</small></p><h3 class="display">Prima campata</h3><p>Si copre il piazzale, si compra il carroponte demo GR-05. Il quaderno diventa raccoglitore giallo.</p><p class="quota">+620 mq demo · carroponte 5 t</p></article>
+        <article class="storia-card" aria-label="1994 piegatura"><p class="year">1994 <small>f.03</small></p><h3 class="display">Nasce la piegatura</h3><p>Arriva la pressa PR-16 demo. Si impara che 90° veri si pagano con le prove su scarto.</p><p class="quota">160 t demo · toll. ±0,5°</p></article>
+        <article class="storia-card" aria-label="2003 saldatura e montaggi"><p class="year">2003 <small>f.04</small></p><h3 class="display">Saldatura + montaggi</h3><p>Banco SL-03, maschere MK e valigia collaudo VC-28. Nasce il processo interno PQ-04, carta e penna.</p><p class="quota">proc. PQ-04 · rev.0 demo</p></article>
+        <article class="storia-card" aria-label="2012 ufficio tecnico"><p class="year">2012 <small>f.05</small></p><h3 class="display">Ufficio tecnico</h3><p>Due tavoli, un plotter finto e la regola d'oro: nessuna quota a voce, solo scritta e firmata.</p><p class="quota">dis. 1200/anno demo</p></article>
+        <article class="storia-card" aria-label="2019 seconda campata"><p class="year">2019 <small>f.06</small></p><h3 class="display">Seconda campata</h3><p>Montaggi al coperto, magazzino con corsie numerate. Il magazziniere inventato sa tutto a memoria.</p><p class="quota">3200 mq demo · corsie A–F</p></article>
+        <article class="storia-card" aria-label="2026 oggi"><p class="year">2026 <small>f.07</small></p><h3 class="display">Oggi, rulli e R.L.</h3><p>18 teste demo, 1240 pezzi/mese demo, zero scorciatoie. Ragione sociale per esteso, come da targa.</p><p class="quota">18 teste · 1240 pz demo</p></article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CERTIFICAZIONI ================= -->
+<section id="certificazioni" class="on-dark" aria-labelledby="cert-title">
+  <div class="container">
+    <div class="sec-head">
+      <div class="kicker-row"><span class="eyebrow" style="color:var(--safety)">06 — Metodo</span><span class="mono" style="font-size:.7rem;color:var(--concrete-mute)">solo carte interne fittizie</span></div>
+      <h2 class="display" id="cert-title">Carte interne, non medaglie.</h2>
+      <p class="lead" style="color:var(--concrete-dim)">Nessun logo, nessun bollino, nessuna certificazione reale: solo processi interni inventati, scritti per lavorare dritti. Se cerchi medaglie, non sono qui.</p>
+    </div>
+    <div class="cert-grid">
+      <article class="targhetta cert" data-reveal><i class="tick tl" aria-hidden="true"></i><i class="tick tr" aria-hidden="true"></i><i class="tick bl" aria-hidden="true"></i><i class="tick br" aria-hidden="true"></i><span class="cert-code">PQ-04 · demo</span><h3 class="display">Saldatura su maschera</h3><p>Processo interno PQ-04 rev.2025 demo: sequenze, maschere MK-28 e pulizia cordone.</p><p class="rev">Rev. 2025 · 4 pagg. fittizie</p></article>
+      <article class="targhetta cert" data-reveal><i class="tick tl" aria-hidden="true"></i><i class="tick tr" aria-hidden="true"></i><i class="tick bl" aria-hidden="true"></i><i class="tick br" aria-hidden="true"></i><span class="cert-code">PQ-07 · demo</span><h3 class="display">Controllo quote</h3><p>Processo interno PQ-07 demo: calibro, dima DG-90 e doppia lettura incrociata.</p><p class="rev">Rev. 2024 · modulo C-7</p></article>
+      <article class="targhetta cert" data-reveal><i class="tick tl" aria-hidden="true"></i><i class="tick tr" aria-hidden="true"></i><i class="tick bl" aria-hidden="true"></i><i class="tick br" aria-hidden="true"></i><span class="cert-code">IQ-09 · demo</span><h3 class="display">Istruzione tolleranze</h3><p>Istruzione interna IQ-09 demo: ±0,2 su 1000 e ±0,5° scritti su ogni cartellino.</p><p class="rev">Rev. 2023 · affissa in reparto</p></article>
+      <article class="targhetta cert" data-reveal><i class="tick tl" aria-hidden="true"></i><i class="tick tr" aria-hidden="true"></i><i class="tick bl" aria-hidden="true"></i><i class="tick br" aria-hidden="true"></i><span class="cert-code">RT-02 · demo</span><h3 class="display">Tracciabilità commesse</h3><p>Registro interno RT-02 demo: da commessa DEMO-28 a pezzo singolo, senza buchi.</p><p class="rev">Rev. 2026 · raccoglitore giallo</p></article>
+      <article class="targhetta cert" data-reveal><i class="tick tl" aria-hidden="true"></i><i class="tick tr" aria-hidden="true"></i><i class="tick bl" aria-hidden="true"></i><i class="tick br" aria-hidden="true"></i><span class="cert-code">SQ-01 · demo</span><h3 class="display">Collaudo visivo</h3><p>Scheda interna SQ-01 demo: 12 check a vista, firma e data. Niente timbri veri.</p><p class="rev">Rev. 2025 · check 1–12</p></article>
+      <article class="targhetta cert" data-reveal><i class="tick tl" aria-hidden="true"></i><i class="tick tr" aria-hidden="true"></i><i class="tick bl" aria-hidden="true"></i><i class="tick br" aria-hidden="true"></i><span class="cert-code">MD-03 · demo</span><h3 class="display">Scheda materiale</h3><p>Modulo interno MD-03 demo: lotti fittizi, sfridi pesati e cartellini conservati.</p><p class="rev">Rev. 2024 · archivio A–F</p></article>
+    </div>
+    <p class="cert-disclaimer">Documenti dimostrativi fittizi a scopo illustrativo. Nessun logo o certificazione reale esposta o rivendicata.</p>
+  </div>
+</section>
+
+<!-- ================= CONTATTI ================= -->
+<section id="contatti" class="on-light" aria-labelledby="contatti-title">
+  <div class="container" style="padding-top:var(--pad-sec);padding-bottom:var(--pad-sec)">
+    <div class="sec-head">
+      <div class="kicker-row"><span class="eyebrow">07 — Contatti</span><span class="mono" style="font-size:.7rem;color:var(--steel)">modulo demo · non invia dati</span></div>
+      <h2 class="display" id="contatti-title">Mandaci un disegno leggibile.</h2>
+      <p class="lead">Quote, materiali, tolleranze e quantità: più è scritto, prima rispondiamo. Sede, telefoni e mail sono fittizi.</p>
+    </div>
+    <div class="contatti-grid">
+      <form class="form-panel" id="formContatti" aria-label="Modulo di contatto dimostrativo" novalidate>
+        <div class="form-grid two">
+          <div class="field"><label for="fNome">Nome e cognome *</label><input type="text" id="fNome" name="nome" autocomplete="name" required placeholder="Mario Rossi (demo)"><p class="hint">Invenzione gradita, è una demo.</p></div>
+          <div class="field"><label for="fEmail">Email *</label><input type="email" id="fEmail" name="email" autocomplete="email" required placeholder="mario@esempio.it"></div>
+        </div>
+        <div class="form-grid two">
+          <div class="field"><label for="fTel">Telefono</label><input type="tel" id="fTel" name="telefono" autocomplete="tel" placeholder="02 0000 0000"></div>
+          <div class="field"><label for="fLav">Lavorazione</label><select id="fLav" name="lavorazione"><option>Taglio</option><option>Piegatura</option><option>Saldatura</option><option>Montaggio</option><option>Carpenteria completa demo</option></select></div>
+        </div>
+        <div class="field"><label for="fMsg">Disegno in parole *</label><textarea id="fMsg" name="messaggio" required placeholder="Es: 120 staffe S355 demo, 240×180 s=8, 2 pieghe 90°, 4 fori Ø28, toll. ±0,2…"></textarea><p class="hint">Quote e tolleranze scritte valgono più di mille telefonate.</p></div>
+        <div class="field"><label class="check"><input type="checkbox" id="fDemo" required><span>Ho capito che è una <strong>demo dimostrativa</strong>: nessun dato viene inviato o salvato. *</span></label></div>
+        <button type="submit" class="btn btn-primary" style="width:100%">Invia richiesta demo</button>
+        <p id="formStatus" role="status" aria-live="polite"></p>
+      </form>
+      <aside class="sede" aria-labelledby="sede-title">
+        <h3 class="display" id="sede-title">Sede fittizia — capannone 28</h3>
+        <address>
+          <span>Via Esempio 0, 20100 Milano MI — demo</span>
+          <span>Tel. <a href="tel:+390200000000">02 0000 0000</a> · demo, non chiamare</span>
+          <span>Email <a href="mailto:officina@esempio.it">officina@esempio.it</a></span>
+          <span>PEC <a href="mailto:calandra-demo@pec.esempio.it">calandra-demo@pec.esempio.it</a></span>
+        </address>
+        <dl><dt>Orari demo</dt><dd>Lun–Ven 8:00–18:00</dd><dt>P.IVA demo</dt><dd>00000000000</dd><dt>REA fittizio</dt><dd>MI-0000000</dd><dt>Rilievo</dt><dd>entro 5 gg demo</dd></dl>
+        <div class="sede-map" aria-hidden="true">
+          <svg viewBox="0 0 400 150" width="100%" height="150" fill="none">
+            <rect width="400" height="150" fill="#1B1D21"/>
+            <g stroke="#5B5E63" stroke-width="1"><path d="M0 40H400M0 90H400M80 0V150M200 0V150M320 0V150"/></g>
+            <rect x="200" y="40" width="120" height="50" fill="#E8E6E0" stroke="#FFC400" stroke-width="2"/>
+            <text x="260" y="68" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="11" fill="#0A0A0B" font-weight="700">CAP. 28</text>
+            <path d="M40 120 H360" stroke="#FFC400" stroke-width="2" stroke-dasharray="8 5"/>
+            <text x="40" y="138" font-family="IBM Plex Mono,monospace" font-size="9" fill="#A9A69C">VIA ESEMPIO 0 · DEMO · NON SEGUIRE</text>
+          </svg>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+</main>
+
+<div class="nastro" aria-hidden="true"></div>
+<footer aria-labelledby="footer-title">
+  <div class="container footer-targa">
+    <div class="footer-ragione targhetta">
+      <i class="tick tl" aria-hidden="true"></i><i class="tick tr" aria-hidden="true"></i><i class="tick bl" aria-hidden="true"></i><i class="tick br" aria-hidden="true"></i>
+      <h2 class="display" id="footer-title">Officine Calandra S.R.L.</h2>
+      <dl>
+        <div><dt>Ragione soc.</dt><dd>Officine Calandra S.R.L. — società fittizia demo</dd></div>
+        <div><dt>Sede demo</dt><dd>Via Esempio 0, 20100 Milano MI</dd></div>
+        <div><dt>P.IVA demo</dt><dd>00000000000</dd></div>
+        <div><dt>REA fittizio</dt><dd>MI-0000000</dd></div>
+        <div><dt>PEC fittizia</dt><dd><a href="mailto:calandra-demo@pec.esempio.it">calandra-demo@pec.esempio.it</a></dd></div>
+        <div><dt>Tel. demo</dt><dd>02 0000 0000</dd></div>
+      </dl>
+    </div>
+    <div class="footer-nav">
+      <nav aria-label="Navigazione footer">
+        <a href="#hero" data-scroll>Cima</a><a href="#reparti" data-scroll>Reparti</a><a href="#linea" data-scroll>Linea</a><a href="#strumento" data-scroll>Preventivo</a><a href="#storia" data-scroll>Storia</a><a href="#contatti" data-scroll>Contatti</a>
+      </nav>
+      <p class="disclaimer"><strong>Demo di design</strong> — marchio, dati, prezzi e persone fittizi a scopo illustrativo. Nessuna affiliazione con aziende reali; certificazioni, macchine e commesse inventate. I moduli non inviano né salvano dati. Prezzi e lead-time non costituiscono offerta commerciale.</p>
+    </div>
+  </div>
+  <div class="container footer-base"><span>© 2026 Officine Calandra S.R.L. · demo fittizia</span><span>Disegno web n. 28 · singolo file · “Ferro dritto, conti dritti.”</span></div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+<script>
+(function(){
+'use strict';
+var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var finePointer = window.matchMedia('(pointer: fine)').matches;
+var hasGsap = typeof window.gsap !== 'undefined';
+var hasST = typeof window.ScrollTrigger !== 'undefined';
+var hasLenis = typeof window.Lenis !== 'undefined';
+/* DPR<=2: nessun canvas raster — solo SVG vettoriale, nessuna gestione DPR necessaria. */
+var serranda = document.getElementById('serranda');
+function killSerranda(){ if(serranda){ serranda.style.display='none'; serranda.setAttribute('aria-hidden','true'); } }
+if(!hasGsap || !hasST){ killSerranda(); }
+/* ---------- registerPlugin una sola volta ---------- */
+if(hasGsap && hasST){ gsap.registerPlugin(ScrollTrigger); gsap.defaults({overwrite:'auto', ease:'power3.out'}); }
+/* ---------- refresh dopo fonts ---------- */
+if(document.fonts && document.fonts.ready && hasST){ document.fonts.ready.then(function(){ try{ ScrollTrigger.refresh(); }catch(e){} }); }
+/* ---------- Lenis sync ---------- */
+var lenis = null;
+if(hasGsap && hasST && hasLenis && !reduced){
+  try{
+    lenis = new Lenis({duration:1.1, smoothWheel:true});
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(function(t){ lenis.raf(t*1000); });
+    gsap.ticker.lagSmoothing(0);
+  }catch(e){ lenis = null; }
+}
+document.querySelectorAll('[data-scroll]').forEach(function(a){
+  a.addEventListener('click', function(ev){
+    var id = a.getAttribute('href');
+    if(!id || id.charAt(0)!=='#') return;
+    var target = document.querySelector(id);
+    if(!target) return;
+    ev.preventDefault();
+    closeMenu();
+    if(lenis){ lenis.scrollTo(target, {offset:-68, duration:1.2}); }
+    else{ target.scrollIntoView({behavior: reduced?'auto':'smooth'}); target.setAttribute('tabindex','-1'); try{target.focus({preventScroll:true});}catch(e){} }
+  });
+});
+/* ---------- APERTURA serranda (max 1.6s, skip reduced) ---------- */
+(function intro(){
+  if(!serranda) return;
+  if(reduced || !hasGsap){ killSerranda(); return; }
+  var sigillo = document.getElementById('sigilloSerranda');
+  gsap.set(sigillo, {scale:1.4, opacity:0, rotate:-6, transformOrigin:'50% 50%'});
+  var tl = gsap.timeline({defaults:{overwrite:'auto'}, onComplete:function(){ killSerranda(); gsap.set(tl.targets(), {clearProps:'all'}); }});
+  tl.addLabel('timbro', 0);
+  tl.to(sigillo, {scale:1, opacity:1, rotate:-6, duration:0.28, ease:'power4.in', immediateRender:false}, 'timbro');
+  tl.addLabel('apri', 0.42);
+  tl.to(serranda, {clipPath:'inset(0 0 100% 0)', duration:0.85, ease:'power4.inOut', immediateRender:false}, 'apri');
+  tl.to(sigillo, {yPercent:-30, opacity:0, duration:0.5, ease:'power2.in', immediateRender:false}, 'apri');
+})();
+/* ---------- CURSORE crocino tecnico ---------- */
+(function cursor(){
+  var cur = document.getElementById('crocino');
+  var coords = document.getElementById('crocinoCoords');
+  if(!cur || !finePointer || reduced || !hasGsap) return;
+  cur.classList.add('is-on');
+  var xTo = gsap.quickTo(cur, 'x', {duration:0.18, ease:'power3.out'});
+  var yTo = gsap.quickTo(cur, 'y', {duration:0.18, ease:'power3.out'});
+  var px2mm = 0.264;
+  window.addEventListener('mousemove', function(e){
+    xTo(e.clientX); yTo(e.clientY);
+    var mx = (e.clientX*px2mm).toFixed(1).replace('.', ',');
+    var my = (e.clientY*px2mm).toFixed(1).replace('.', ',');
+    coords.textContent = mx+' · '+my+' mm';
+  }, {passive:true});
+  document.querySelectorAll('[data-drawing], svg, .stazione, .storia-viewport').forEach(function(el){
+    el.addEventListener('mouseenter', function(){ cur.classList.add('snap'); });
+    el.addEventListener('mouseleave', function(){ cur.classList.remove('snap'); });
+  });
+})();
+/* ---------- MENU mobile: Esc + trap ---------- */
+var burger = document.getElementById('burger');
+var menu = document.getElementById('mobileMenu');
+var lastFocus = null;
+function openMenu(){
+  lastFocus = document.activeElement;
+  menu.hidden = false; burger.setAttribute('aria-expanded','true'); burger.setAttribute('aria-label','Chiudi menu');
+  var links = menu.querySelectorAll('a'); if(links.length) links[0].focus();
+  document.addEventListener('keydown', trapKeys);
+}
+function closeMenu(){
+  if(!menu || menu.hidden) return;
+  menu.hidden = true; burger.setAttribute('aria-expanded','false'); burger.setAttribute('aria-label','Apri menu');
+  document.removeEventListener('keydown', trapKeys);
+  if(lastFocus && lastFocus.focus) { try{lastFocus.focus();}catch(e){} }
+}
+function trapKeys(e){
+  if(e.key === 'Escape'){ e.preventDefault(); closeMenu(); return; }
+  if(e.key !== 'Tab') return;
+  var f = menu.querySelectorAll('a, button'); if(!f.length) return;
+  var first = f[0], last = f[f.length-1];
+  if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+  else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+}
+if(burger && menu){ burger.addEventListener('click', function(){ menu.hidden ? openMenu() : closeMenu(); }); }
+/* ---------- helpers odometro ---------- */
+function formatIT(n){ return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+function buildRulli(box, str){
+  box.innerHTML = '';
+  Array.prototype.forEach.call(str, function(ch){
+    if(ch >= '0' && ch <= '9'){
+      var r = document.createElement('span'); r.className = 'rullo';
+      var strip = document.createElement('span'); strip.className = 'rullo-strip';
+      for(var d=0; d<=9; d++){ var s = document.createElement('span'); s.textContent = d; strip.appendChild(s); }
+      r.appendChild(strip); box.appendChild(r);
+      r._strip = strip; r._digit = ch;
+    } else {
+      var sep = document.createElement('span'); sep.className = 'rullo-sep'; sep.textContent = ch; box.appendChild(sep);
+    }
+  });
+}
+function setRulliInstant(box, str){
+  var rolls = box.querySelectorAll('.rullo');
+  var di = 0;
+  Array.prototype.forEach.call(str, function(ch){
+    if(ch >= '0' && ch <= '9'){ var r = rolls[di++]; if(r && r._strip){ r._strip.style.transform = 'translateY('+(-parseInt(ch,10)*10)+'%)'; } }
+  });
+}
+function animateRulli(box, str, dur){
+  if(!hasGsap){ setRulliInstant(box, str); return; }
+  var rolls = box.querySelectorAll('.rullo');
+  var di = 0;
+  Array.prototype.forEach.call(str, function(ch){
+    if(ch >= '0' && ch <= '9'){
+      var r = rolls[di++];
+      if(r && r._strip){
+        gsap.to(r._strip, {yPercent:-parseInt(ch,10)*10, duration:dur||1.3, ease:'steps(14)', overwrite:'auto', immediateRender:false});
+      }
+    }
+  });
+}
+/* ---------- HERO draw-on scrubbed ---------- */
+(function heroDraw(){
+  var paths = document.querySelectorAll('#heroBlueprint .draw');
+  var quotes = document.querySelectorAll('#heroBlueprint .quota-hero');
+  var timbro = document.getElementById('timbroCommessa');
+  if(!paths.length) return;
+  paths.forEach(function(p){
+    try{ var L = p.getTotalLength(); p.style.strokeDasharray = L; p.style.strokeDashoffset = L; }catch(e){}
+  });
+  if(reduced || !hasGsap || !hasST){
+    paths.forEach(function(p){ p.style.strokeDashoffset = '0'; });
+    quotes.forEach(function(q){ q.setAttribute('opacity','1'); q.style.opacity='1'; });
+    if(timbro){ timbro.style.opacity='1'; timbro.style.transform='rotate(-8deg) scale(1)'; }
+    return;
+  }
+  gsap.set(quotes, {opacity:0, y:10});
+  gsap.set(timbro, {scale:1.4, opacity:0, rotate:-8, transformOrigin:'50% 50%'});
+  gsap.to(paths, {strokeDashoffset:0, ease:'none', stagger:0.12,
+    scrollTrigger:{trigger:'#hero', start:'top top', end:'bottom 60%', scrub:1, invalidateOnRefresh:true, markers:false}, immediateRender:false});
+  gsap.to(quotes, {opacity:1, y:0, ease:'none', stagger:0.1,
+    scrollTrigger:{trigger:'#hero', start:'top 40%', end:'bottom 75%', scrub:1, invalidateOnRefresh:true, markers:false}, immediateRender:false,
+    onComplete:function(){ quotes.forEach(function(q){ q.setAttribute('opacity','1'); }); }});
+  gsap.to(timbro, {scale:1, opacity:1, rotate:-8, duration:0.32, ease:'power4.in',
+    scrollTrigger:{trigger:'#heroBlueprintWrap', start:'top 62%', once:true, markers:false}, immediateRender:false});
+})();
+/* ---------- REVEALS sobri (stagger, non protagonisti) ---------- */
+(function reveals(){
+  if(reduced || !hasGsap || !hasST) return;
+  var groups = [['#reparti [data-reveal]', 0.08], ['#numeri [data-reveal]', 0.1], ['#certificazioni [data-reveal]', 0.08]];
+  groups.forEach(function(g){
+    var els = document.querySelectorAll(g[0]);
+    if(!els.length) return;
+    gsap.fromTo(els, {y:26, opacity:0}, {y:0, opacity:1, duration:0.7, ease:'power3.out', stagger:g[1], clearProps:'transform',
+      scrollTrigger:{trigger:els[0].closest('section'), start:'top 78%', once:true, markers:false}, immediateRender:false});
+  });
+})();
+/* ---------- LINEA pinned scrub (unico pin) ---------- */
+(function linea(){
+  var stage = document.getElementById('lineaStage');
+  var readout = document.getElementById('lineaReadout');
+  var progress = document.getElementById('lineaProgress');
+  if(!stage || !hasGsap || !hasST) return;
+  var labels = ['ST.10 — Taglio · 01/04','ST.20 — Piegatura · 02/04','ST.30 — Saldatura · 03/04','ST.40 — Controllo · 04/04'];
+  if(reduced){ return; }
+  var mm = gsap.matchMedia();
+  mm.add('(min-width:1024px)', function(){
+    var q = gsap.utils.selector(stage);
+    gsap.set('#pezzoLinea', {x:0, y:0});
+    gsap.set(q('.quota-stazione'), {opacity:0, y:12});
+    gsap.set(q('.fill-layer'), {opacity:0});
+    gsap.set(q('.timbro-ok'), {opacity:0, scale:1.4, rotate:-8, transformOrigin:'50% 50%'});
+    gsap.set(progress, {scaleX:0, transformOrigin:'left center'});
+    var tl = gsap.timeline({defaults:{overwrite:'auto', ease:'power2.inOut'},
+      onUpdate:function(){ var p = tl.progress(); var idx = Math.min(3, Math.floor(p*4)); if(readout) readout.textContent = labels[idx]; },
+      scrollTrigger:{trigger:'#linea', start:'top top', end:'+=2800', pin:true, scrub:1, anticipatePin:1, invalidateOnRefresh:true, markers:false}});
+    tl.addLabel('taglio', 0);
+    tl.addLabel('piegatura', 1.2);
+    tl.addLabel('saldatura', 2.4);
+    tl.addLabel('controllo', 3.6);
+    /* pezzo: keyframes x/y manuali, NO MotionPath */
+    tl.to('#pezzoLinea', {keyframes:[
+      {x:function(){return stage.clientWidth*0.06;}, y:0, duration:0.6},
+      {x:function(){return stage.clientWidth*0.27;}, y:-24, duration:1},
+      {x:function(){return stage.clientWidth*0.49;}, y:0, duration:1},
+      {x:function(){return stage.clientWidth*0.70;}, y:-20, duration:1},
+      {x:function(){return stage.clientWidth*0.80;}, y:0, duration:0.6}
+    ], ease:'none', immediateRender:false}, 0);
+    tl.to('#lineaProgress', {scaleX:1, duration:4.4, ease:'none', immediateRender:false}, 0);
+    [['#stTaglio','taglio'],['#stPiega','piegatura'],['#stSalda','saldatura'],['#stControllo','controllo']].forEach(function(pair){
+      var sel = pair[0], lab = pair[1];
+      tl.to(sel+' .fill-layer', {opacity:1, duration:0.35, ease:'power2.out', immediateRender:false}, lab+'+=0.15');
+      tl.to(sel+' .quota-stazione', {opacity:1, y:0, duration:0.35, ease:'power2.out', immediateRender:false}, lab+'+=0.3');
+      tl.to(sel+' .timbro-ok', {opacity:1, scale:1, rotate:-8, duration:0.3, ease:'power4.in', immediateRender:false}, lab+'+=0.45');
+    });
+    return function(){ gsap.set(['#pezzoLinea', q('.quota-stazione'), q('.fill-layer'), q('.timbro-ok'), progress], {clearProps:'transform,opacity'}); };
+  });
+  mm.add('(max-width:1023px)', function(){
+    if(readout) readout.textContent = 'ST.10–40 · linea svolta · 04/04';
+    return function(){};
+  });
+})();
+/* ---------- NUMERI odometri a rulli ---------- */
+(function numeri(){
+  var odos = document.querySelectorAll('#numeri .odometro');
+  odos.forEach(function(odo){
+    var val = odo.getAttribute('data-value') || '0';
+    var box = odo.querySelector('.rulli');
+    buildRulli(box, formatIT(parseInt(val,10)));
+    setRulliInstant(box, formatIT(0).padStart(String(formatIT(parseInt(val,10))).length,'0').slice(-String(formatIT(parseInt(val,10))).length) || '0');
+    var zero = ''; for(var i=0;i<box.querySelectorAll('.rullo').length;i++) zero+='0';
+    var withSep = formatIT(parseInt(val,10)).replace(/[0-9]/g, function(){ return zero.charAt(0); });
+    setRulliInstant(box, formatIT(parseInt(val,10)).replace(/\d/g,'0'));
+  });
+  if(reduced || !hasGsap || !hasST){
+    odos.forEach(function(odo){ setRulliInstant(odo.querySelector('.rulli'), formatIT(parseInt(odo.getAttribute('data-value'),10))); });
+    return;
+  }
+  odos.forEach(function(odo, idx){
+    var target = formatIT(parseInt(odo.getAttribute('data-value'),10));
+    ScrollTrigger.create({trigger:odo, start:'top 85%', once:true, invalidateOnRefresh:true, markers:false,
+      onEnter:function(){ animateRulli(odo.querySelector('.rulli'), target, 1.4 + idx*0.12); }});
+  });
+})();
+/* ---------- STRUMENTO preventivatore demo ---------- */
+(function strumento(){
+  var sel = document.getElementById('selLavorazione');
+  var rngPz = document.getElementById('rngPezzi');
+  var rngSp = document.getElementById('rngSpessore');
+  var valPz = document.getElementById('valPezzi');
+  var valSp = document.getElementById('valSpess');
+  var valPzLab = document.getElementById('valPezziLab');
+  var valSpLab = document.getElementById('valSpessLab');
+  var outLead = document.getElementById('outLead');
+  var distinta = document.getElementById('distinta');
+  var prezzoSr = document.getElementById('prezzoSr');
+  var minBox = document.querySelector('[data-price-min] .rulli');
+  var maxBox = document.querySelector('[data-price-max] .rulli');
+  if(!sel || !rngPz || !rngSp) return;
+  var BASE = {taglio:14, piegatura:19, saldatura:27, montaggio:34};
+  var MAT = {S235:1, S355:1.18, Inox:1.65};
+  var NOMI = {taglio:'Taglio', piegatura:'Piegatura', saldatura:'Saldatura', montaggio:'Montaggio'};
+  function matVal(){ var c = document.querySelector('input[name="materiale"]:checked'); return c ? c.value : 'S235'; }
+  function ensureLen(box, str){
+    var cur = box.querySelectorAll('.rullo').length;
+    var need = (str.match(/\d/g)||[]).length;
+    if(cur !== need){ buildRulli(box, str); }
+  }
+  function calc(){
+    var lav = sel.value, pz = parseInt(rngPz.value,10), sp = parseInt(rngSp.value,10), mt = matVal();
+    valPz.textContent = pz; valPzLab.textContent = pz+' pz';
+    valSp.textContent = sp+' mm'; valSpLab.textContent = sp+' mm';
+    var unit = BASE[lav] * MAT[mt] * (1 + (sp-1)*0.055);
+    if(pz >= 200) unit *= 0.88; else if(pz >= 80) unit *= 0.94;
+    var tot = unit * pz + 90;
+    var lo = Math.max(120, tot*0.9), hi = tot*1.12;
+    var sLo = formatIT(lo), sHi = formatIT(hi);
+    ensureLen(minBox, sLo); ensureLen(maxBox, sHi);
+    if(reduced || !hasGsap){ setRulliInstant(minBox, sLo); setRulliInstant(maxBox, sHi); }
+    else{ animateRulli(minBox, sLo, 0.7); animateRulli(maxBox, sHi, 0.7); }
+    var w = pz <= 20 ? '1–2 settimane' : pz <= 80 ? '2–3 settimane' : pz <= 200 ? '3–4 settimane' : '4–6 settimane';
+    if(mt === 'Inox') w += ' +3 gg demo';
+    outLead.textContent = w;
+    prezzoSr.textContent = 'Fascia dimostrativa da '+sLo+' a '+sHi+' euro, '+w+'. Stima demo a scopo illustrativo, non offerta commerciale.';
+    var rows = [
+      {t:'PL 240×180 '+mt+' s='+sp+' — '+NOMI[lav].toLowerCase()+' demo', q:'n. '+pz},
+      {t:'Cartellino DEMO-28 · toll. ±0,2 / ±0,5°', q:'1 lotto'},
+      {t:'Controllo quote · scheda SQ-01 demo', q:'4 quote'}
+    ];
+    if(pz >= 80) rows.push({t:'Sconto scala demo applicato', q:'−'+(pz>=200?'12':'6')+'%'});
+    distinta.innerHTML = '';
+    rows.forEach(function(r, i){
+      var li = document.createElement('li');
+      li.setAttribute('data-riga', 'R'+(i+1).toString().padStart(2,'0'));
+      var tt = document.createElement('span'); tt.textContent = r.t;
+      var qq = document.createElement('span'); qq.className = 'q'; qq.textContent = r.q;
+      li.appendChild(tt); li.appendChild(qq); distinta.appendChild(li);
+    });
+    if(hasGsap && !reduced){
+      gsap.fromTo(distinta.children, {y:12, opacity:0}, {y:0, opacity:1, duration:0.4, ease:'power3.out', stagger:0.07, overwrite:'auto', immediateRender:false, clearProps:'transform'});
+    }
+  }
+  ['change','input'].forEach(function(ev){
+    sel.addEventListener(ev, calc); rngPz.addEventListener(ev, calc); rngSp.addEventListener(ev, calc);
+    document.querySelectorAll('input[name="materiale"]').forEach(function(r){ r.addEventListener(ev, calc); });
+  });
+  buildRulli(minBox, '1.240'); buildRulli(maxBox, '1.580');
+  calc();
+  var btnReset = document.getElementById('btnResetPrev');
+  if(btnReset) btnReset.addEventListener('click', function(){
+    sel.value='taglio'; rngPz.value='120'; rngSp.value='8';
+    var s = document.querySelector('input[name="materiale"][value="S235"]'); if(s) s.checked = true;
+    calc(); sel.focus();
+  });
+  var btnCopia = document.getElementById('btnCopiaDistinta');
+  var copiaStato = document.getElementById('copiaStato');
+  if(btnCopia) btnCopia.addEventListener('click', function(){
+    var txt = 'DISTINTA DEMO-28 (demo, non offerta)\n';
+    distinta.querySelectorAll('li').forEach(function(li){ txt += '- '+li.textContent.trim()+'\n'; });
+    txt += outLead.textContent+'\nStima demo a scopo illustrativo, non offerta commerciale.';
+    function done(ok){ copiaStato.textContent = ok ? 'Distinta demo copiata negli appunti.' : 'Copia non riuscita — seleziona a mano, è una demo.'; }
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(function(){done(true);}, function(){done(false);}); }
+    else{ done(false); }
+  });
+})();
+/* ---------- STORIA drag/scrub ---------- */
+(function storia(){
+  var viewport = document.getElementById('storiaViewport');
+  var progress = document.getElementById('storiaProgress');
+  var prev = document.getElementById('storiaPrev');
+  var next = document.getElementById('storiaNext');
+  var hint = document.getElementById('storiaHint');
+  if(!viewport) return;
+  var isDown = false, startX = 0, startScroll = 0, moved = false, lastUser = 0, scrubbing = false;
+  function maxScroll(){ return Math.max(0, viewport.scrollWidth - viewport.clientWidth); }
+  function paint(){
+    var m = maxScroll();
+    var p = m > 0 ? viewport.scrollLeft / m : 0;
+    if(progress){ progress.style.transform = 'scaleX('+p.toFixed(4)+')'; }
+    if(hint){ var cards = viewport.querySelectorAll('.storia-card').length; var idx = Math.min(cards, Math.round(p*(cards-1))+1); hint.textContent = 'Foglio '+idx+' / '+cards+' — trascina'; }
+  }
+  viewport.addEventListener('scroll', function(){ if(!scrubbing) lastUser = Date.now(); paint(); }, {passive:true});
+  viewport.addEventListener('pointerdown', function(e){
+    isDown = true; moved = false; startX = e.clientX; startScroll = viewport.scrollLeft;
+    try{ viewport.setPointerCapture(e.pointerId); }catch(err){}
+    viewport.style.scrollBehavior = 'auto';
+  });
+  viewport.addEventListener('pointermove', function(e){
+    if(!isDown) return;
+    var dx = e.clientX - startX;
+    if(Math.abs(dx) > 6) moved = true;
+    viewport.scrollLeft = startScroll - dx;
+  });
+  ['pointerup','pointercancel','pointerleave'].forEach(function(ev){
+    viewport.addEventListener(ev, function(){ isDown = false; viewport.style.scrollBehavior = ''; setTimeout(function(){ moved = false; }, 50); });
+  });
+  viewport.addEventListener('click', function(e){ if(moved){ e.preventDefault(); e.stopPropagation(); } }, true);
+  viewport.addEventListener('keydown', function(e){
+    if(e.key === 'ArrowRight'){ e.preventDefault(); viewport.scrollBy({left:360, behavior: reduced?'auto':'smooth'}); }
+    if(e.key === 'ArrowLeft'){ e.preventDefault(); viewport.scrollBy({left:-360, behavior: reduced?'auto':'smooth'}); }
+    if(e.key === 'Home'){ e.preventDefault(); viewport.scrollTo({left:0, behavior:'auto'}); }
+    if(e.key === 'End'){ e.preventDefault(); viewport.scrollTo({left:maxScroll(), behavior:'auto'}); }
+  });
+  function step(dir){ viewport.scrollBy({left: dir*370, behavior: reduced?'auto':'smooth'}); }
+  if(prev) prev.addEventListener('click', function(){ step(-1); });
+  if(next) next.addEventListener('click', function(){ step(1); });
+  paint();
+  window.addEventListener('resize', paint);
+  if(hasGsap && hasST && !reduced){
+    ScrollTrigger.create({trigger:'#storia', start:'top 75%', end:'bottom 45%', invalidateOnRefresh:true, markers:false,
+      onUpdate:function(self){
+        if(isDown) return;
+        if(Date.now() - lastUser < 2500) return;
+        var m = maxScroll(); if(m <= 0) return;
+        scrubbing = true;
+        viewport.scrollLeft = self.progress * m;
+        requestAnimationFrame(function(){ scrubbing = false; });
+      }});
+    gsap.fromTo('#storia .storia-card', {y:20, opacity:0.35}, {y:0, opacity:1, duration:0.6, ease:'power3.out', stagger:0.06, clearProps:'transform',
+      scrollTrigger:{trigger:'#storia', start:'top 80%', once:true, markers:false}, immediateRender:false});
+  }
+})();
+/* ---------- FORM demo ---------- */
+(function formDemo(){
+  var form = document.getElementById('formContatti');
+  var status = document.getElementById('formStatus');
+  if(!form) return;
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    if(!form.checkValidity()){ form.reportValidity(); return; }
+    status.textContent = 'Demo — nessun dato inviato';
+    status.className = 'show ok';
+    form.reset();
+    try{ status.focus(); }catch(err){}
+  });
+})();
+})();
+</script>
+</body>
+</html>

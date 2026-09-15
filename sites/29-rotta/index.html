@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>29 — STUDIO ROTTA · Web design indipendente | Milano</title>
+<meta name="description" content="Studio Rotta — web design editoriale indipendente a Milano (demo fittizia). Siti che si leggono come riviste e convertono come negozi.">
+<!-- CDN: gsap@3.12.5 + ScrollTrigger@3.12.5 + lenis@1.1.18 via jsDelivr (MIT) + Google Fonts (OFL). Tutti i contenuti sono fittizi e originali. -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%230F0F0E'/%3E%3Ctext x='32' y='46' font-family='monospace' font-size='44' fill='%23FF3D2E' text-anchor='middle'%3E*%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Instrument+Serif:ital,wght@1,400&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bone:#F2EFE9;
+  --ink:#0F0F0E;
+  --vermilion:#FF3D2E;
+  --lilac:#B8A9FF;
+  --line:rgba(15,15,14,.14);
+  --ink-soft:rgba(15,15,14,.68);
+  --ink-faint:rgba(15,15,14,.48);
+  --paper2:#E9E4D8;
+  --card:#FBFAF6;
+  --ok:#0F0F0E;
+  --r-poster:0px;
+  --r-card:14px;
+  --r-chip:999px;
+  --font-display:"Syne",sans-serif;
+  --font-body:"Instrument Sans",system-ui,sans-serif;
+  --font-accent:"Instrument Serif",serif;
+  --font-mono:"Space Mono",monospace;
+  --sp-1:.5rem; --sp-2:1rem; --sp-3:1.5rem; --sp-4:2rem; --sp-6:3rem; --sp-8:4rem; --sp-12:6rem; --sp-16:8rem;
+  --max:1280px;
+  --max-wide:1600px;
+  --grid-cols:12;
+  --header-h:64px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:auto}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+body{
+  margin:0;
+  background:var(--bone);
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:clamp(1rem,1rem + .2vw,1.125rem);
+  line-height:1.6;
+  overflow-x:clip;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--lilac);color:var(--ink)}
+a{color:inherit;text-decoration-thickness:1px;text-underline-offset:3px}
+a:hover{color:var(--vermilion)}
+:focus-visible{outline:3px solid var(--vermilion);outline-offset:3px;border-radius:2px}
+img,svg{max-width:100%}
+h1,h2,h3{font-family:var(--font-display);line-height:.95;letter-spacing:-.02em;margin:0;text-wrap:balance}
+h1{font-weight:800;font-size:clamp(3rem,9vw,8.5rem)}
+h2{font-weight:800;font-size:clamp(2.2rem,5.5vw,4.6rem)}
+h3{font-weight:700;font-size:clamp(1.3rem,2.4vw,1.9rem)}
+.accent{font-family:var(--font-accent);font-style:italic;font-weight:400;letter-spacing:0}
+.kicker{font-family:var(--font-mono);font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);display:inline-flex;align-items:center;gap:.6rem}
+.kicker::before{content:"*";color:var(--vermilion);font-size:1.1rem;line-height:1}
+.wrap{width:min(var(--max),calc(100% - 2rem));margin-inline:auto}
+.wrap-wide{width:min(var(--max-wide),100%);margin-inline:auto;padding-inline:clamp(1rem,3vw,3rem)}
+.skip-link{position:absolute;left:1rem;top:-100px;z-index:200;background:var(--ink);color:var(--bone);padding:.9rem 1.2rem;border-radius:6px;font-family:var(--font-mono);font-size:.85rem;transition:top .2s}
+.skip-link:focus{top:1rem;color:var(--bone)}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* ---------- visible grid ---------- */
+.grid-overlay{position:fixed;inset:0;z-index:5;pointer-events:none;opacity:0;transition:opacity .3s}
+.grid-overlay.is-on{opacity:1}
+.grid-overlay-inner{height:100%;width:min(var(--max),calc(100% - 2rem));margin-inline:auto;display:grid;grid-template-columns:repeat(12,1fr);gap:1rem}
+.grid-overlay-inner i{display:block;border-left:1px solid rgba(255,61,46,.35);border-right:1px solid rgba(255,61,46,.12);height:100%}
+/* ---------- cursor ---------- */
+#cursor{position:fixed;left:0;top:0;z-index:120;pointer-events:none;display:none;will-change:transform}
+@media (pointer:fine){
+  #cursor{display:block}
+}
+.cursor-star{width:44px;height:44px;display:grid;place-items:center;color:var(--vermilion);font-family:var(--font-display);font-weight:800;font-size:2.4rem;line-height:1;will-change:transform}
+.cursor-lens{position:absolute;left:50%;top:50%;translate:-50% -50%;min-width:88px;min-height:88px;width:88px;height:88px;border-radius:50%;background:var(--ink);color:var(--bone);display:grid;place-items:center;font-family:var(--font-mono);font-size:.72rem;letter-spacing:.12em;scale:0;transition:scale .25s ease;text-align:center;padding:.5rem}
+#cursor.is-lens .cursor-star{opacity:0}
+#cursor.is-lens .cursor-lens{scale:1}
+/* ---------- header ---------- */
+.site-header{position:sticky;top:0;z-index:60;background:color-mix(in srgb, var(--bone) 88%, transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.header-bar{height:var(--header-h);display:flex;align-items:center;justify-content:space-between;gap:1rem;width:min(var(--max),calc(100% - 2rem));margin-inline:auto}
+.brand{display:flex;align-items:center;gap:.7rem;text-decoration:none;font-family:var(--font-display);font-weight:800;letter-spacing:-.02em}
+.brand-mark{width:36px;height:36px;background:var(--ink);color:var(--vermilion);display:grid;place-items:center;font-size:1.8rem;line-height:1;border-radius:0}
+.brand small{font-family:var(--font-mono);font-weight:400;font-size:.65rem;letter-spacing:.12em;display:block;line-height:1.2;color:var(--ink-faint)}
+.nav-desktop{display:flex;gap:1.2rem;align-items:center}
+.nav-desktop a{font-size:.92rem;font-weight:500;text-decoration:none;min-height:44px;display:inline-flex;align-items:center}
+.nav-desktop a:hover{color:var(--vermilion)}
+.header-actions{display:flex;gap:.6rem;align-items:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:44px;padding:.7rem 1.2rem;border-radius:var(--r-chip);border:1.5px solid var(--ink);background:var(--ink);color:var(--bone);font-weight:600;font-size:.92rem;text-decoration:none;cursor:pointer;transition:transform .2s,background .2s,color .2s}
+.btn:hover{background:var(--vermilion);border-color:var(--vermilion);color:var(--bone);transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--ink)}
+.btn-ghost:hover{background:var(--ink);color:var(--bone);border-color:var(--ink)}
+.btn-small{min-height:44px;padding:.5rem .9rem;font-size:.82rem}
+.grid-toggle{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;background:transparent;border:1.5px dashed var(--ink-faint);border-radius:999px;min-height:44px;padding:.5rem .9rem;cursor:pointer}
+.grid-toggle[aria-pressed="true"]{border-color:var(--vermilion);color:var(--vermilion);border-style:solid}
+.menu-btn{display:none;background:var(--ink);color:var(--bone);border:0;border-radius:999px;min-width:44px;min-height:44px;font-family:var(--font-mono);font-size:.8rem;cursor:pointer}
+.mobile-nav{display:none}
+/* ---------- hero ---------- */
+#hero{position:relative;padding:clamp(2rem,5vw,4.5rem) 0 0;overflow:clip}
+.hero-grid{position:relative;display:grid;grid-template-columns:1fr;gap:2rem;padding-bottom:2rem}
+@media(min-width:1000px){.hero-grid{grid-template-columns:1.6fr .7fr;gap:3rem;align-items:start}}
+.hero-manifesto{position:relative;border:1.5px solid var(--ink);background:var(--card);padding:clamp(1.2rem,3vw,2.8rem);box-shadow:8px 8px 0 var(--ink)}
+.tape{position:absolute;width:110px;height:28px;background:color-mix(in srgb, var(--lilac) 75%, white);opacity:.9;box-shadow:0 1px 3px rgba(0,0,0,.15);pointer-events:none}
+.tape-tl{left:-18px;top:-14px;rotate:-12deg}
+.tape-tr{right:-14px;top:22px;rotate:14deg;width:90px}
+.hero-meta{display:flex;flex-wrap:wrap;gap:.6rem 1.2rem;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:1rem;margin-bottom:1.2rem;font-family:var(--font-mono);font-size:.75rem;letter-spacing:.06em;color:var(--ink-soft)}
+.stamp{display:inline-block;border:2px solid var(--vermilion);color:var(--vermilion);font-family:var(--font-mono);font-size:.75rem;letter-spacing:.18em;padding:.3rem .7rem;rotate:-6deg;text-transform:uppercase;background:transparent}
+.stamp.is-ok{rotate:3deg;border-color:var(--ink);color:var(--ink)}
+.hero-title{overflow:visible}
+.hero-title .line{display:block;overflow:hidden;padding-bottom:.08em}
+.hero-title .h-char{display:inline-block;will-change:transform}
+.hero-title .lilac-hl{background:var(--lilac);padding:0 .08em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.hero-sub{display:grid;gap:1rem;margin-top:1.4rem}
+@media(min-width:700px){.hero-sub{grid-template-columns:1.2fr .8fr;align-items:end}}
+.hero-claim{font-size:clamp(1.15rem,2.2vw,1.6rem);line-height:1.3;font-weight:500;max-width:28ch}
+.hero-claim strong{font-weight:600}
+.hero-note{font-family:var(--font-mono);font-size:.78rem;color:var(--ink-soft);border-left:3px solid var(--vermilion);padding-left:.9rem}
+.hero-cta{display:flex;flex-wrap:wrap;gap:.7rem;margin-top:1.4rem}
+.hero-index{border:1.5px solid var(--ink);background:var(--bone);padding:1.2rem;position:relative}
+.hero-index h2{font-size:1rem;font-family:var(--font-mono);font-weight:400;letter-spacing:.14em;text-transform:uppercase;margin-bottom:.9rem}
+.hero-index ol{list-style:none;margin:0;padding:0;display:grid;gap:.15rem;counter-reset:idx}
+.hero-index li{counter-increment:idx}
+.hero-index a{display:flex;justify-content:space-between;align-items:center;gap:.6rem;text-decoration:none;padding:.6rem .6rem;min-height:44px;border-bottom:1px solid var(--line);font-weight:600;font-size:.95rem}
+.hero-index a::before{content:"0" counter(idx);font-family:var(--font-mono);font-size:.72rem;color:var(--vermilion);font-weight:400}
+.hero-index a:hover{background:var(--ink);color:var(--bone)}
+.hero-index a:hover::before{color:var(--lilac)}
+.margin-note{font-family:var(--font-mono);font-size:.72rem;color:var(--ink-faint);line-height:1.5}
+.hero-asterisk{position:absolute;right:-8px;bottom:-18px;font-family:var(--font-display);font-weight:800;font-size:6rem;line-height:1;color:var(--vermilion);pointer-events:none;user-select:none}
+.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);border:1.5px solid var(--ink);border-top:0;background:var(--ink);color:var(--bone)}
+.hero-stats div{padding:.9rem 1rem;border-right:1px solid rgba(242,239,233,.18)}
+.hero-stats div:last-child{border-right:0}
+.hero-stats b{display:block;font-family:var(--font-display);font-size:clamp(1.2rem,2.5vw,1.8rem)}
+.hero-stats span{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;opacity:.75}
+/* marquee */
+.marquee-oblique{margin:2.5rem 0 0;rotate:-2deg;background:var(--ink);color:var(--bone);border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);overflow:hidden;transform-origin:center}
+.marquee-track{display:flex;gap:0;width:max-content;will-change:transform;padding:.9rem 0}
+.marquee-track span{font-family:var(--font-display);font-weight:800;font-size:clamp(1rem,2.4vw,1.5rem);letter-spacing:.02em;white-space:nowrap;padding-right:2.5rem}
+.marquee-track em{font-family:var(--font-accent);font-weight:400;font-style:italic}
+.marquee-track i{color:var(--vermilion);font-style:normal;padding-right:2.5rem}
+/* sections common */
+section{padding:clamp(3.5rem,7vw,6.5rem) 0;position:relative}
+.sec-head{display:grid;gap:1rem;margin-bottom:2.2rem}
+@media(min-width:900px){.sec-head{grid-template-columns:1.2fr .6fr;align-items:end}}
+.sec-title{will-change:transform}
+.sec-desc{color:var(--ink-soft);max-width:38ch;font-size:1.02rem}
+.sec-num{font-family:var(--font-mono);font-size:.78rem;letter-spacing:.14em;color:var(--vermilion)}
+/* ---------- lavori ---------- */
+#lavori{background:var(--bone);border-top:1px solid var(--line)}
+.filters{display:flex;flex-wrap:wrap;gap:.6rem;margin-bottom:1.6rem}
+.chip{border:1.5px solid var(--ink);background:transparent;border-radius:var(--r-chip);min-height:44px;padding:.6rem 1.1rem;font-weight:600;font-size:.88rem;cursor:pointer;display:inline-flex;align-items:center;gap:.5rem}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bone)}
+.chip:hover{border-color:var(--vermilion);color:var(--vermilion)}
+.chip[aria-pressed="true"]:hover{color:var(--bone);background:var(--vermilion);border-color:var(--vermilion)}
+.chip .dot{width:8px;height:8px;border-radius:50%;background:var(--vermilion)}
+.works-grid{display:grid;grid-template-columns:1fr;gap:1.2rem}
+@media(min-width:700px){.works-grid{grid-template-columns:1fr 1fr}}
+@media(min-width:1100px){.works-grid{grid-template-columns:1fr 1fr 1fr}}
+.work-card{position:relative;background:var(--card);border:1.5px solid var(--ink);border-radius:var(--r-card);overflow:hidden;cursor:pointer;will-change:transform}
+.work-card:focus-visible{outline-offset:4px}
+.work-poster{aspect-ratio:4/3;position:relative;overflow:hidden;border-bottom:1.5px solid var(--ink);display:grid;place-items:center}
+.work-poster .poster-bg{position:absolute;inset:0}
+.work-poster .poster-type{position:relative;z-index:2;font-family:var(--font-display);font-weight:800;font-size:clamp(2rem,4vw,3.2rem);line-height:.9;text-align:center;padding:1rem;letter-spacing:-.03em}
+.work-poster .poster-kick{position:absolute;top:.8rem;left:.9rem;z-index:3;font-family:var(--font-mono);font-size:.68rem;letter-spacing:.12em;background:var(--bone);border:1px solid var(--ink);padding:.25rem .6rem;border-radius:999px}
+.work-poster .poster-ast{position:absolute;right:.6rem;bottom:-.6rem;z-index:3;font-family:var(--font-display);font-weight:800;font-size:4.2rem;line-height:1;color:var(--vermilion)}
+.work-body{padding:1.1rem 1.1rem 1.2rem;display:grid;gap:.5rem}
+.work-body h3{font-size:1.25rem}
+.work-meta{display:flex;flex-wrap:wrap;gap:.4rem;font-family:var(--font-mono);font-size:.72rem;color:var(--ink-soft)}
+.work-meta span{border:1px solid var(--line);padding:.2rem .6rem;border-radius:999px;background:var(--bone)}
+.work-more{max-height:0;overflow:hidden;transition:max-height .35s ease;font-size:.92rem;color:var(--ink-soft)}
+.work-card.is-open .work-more{max-height:220px}
+.work-link{display:inline-flex;align-items:center;gap:.4rem;font-weight:600;font-size:.88rem;color:var(--vermilion);text-decoration:none;min-height:44px}
+.work-link svg{width:18px;height:18px}
+/* peek */
+#peek{position:fixed;left:0;top:0;z-index:80;width:min(340px,80vw);pointer-events:none;opacity:0;will-change:transform}
+#peek .peek-inner{background:var(--ink);color:var(--bone);border-radius:14px;overflow:hidden;border:1.5px solid var(--ink);clip-path:inset(0 100% 0 0);box-shadow:12px 12px 0 rgba(15,15,14,.18)}
+#peek .peek-cover{height:150px;display:grid;place-items:center;font-family:var(--font-display);font-weight:800;font-size:2rem}
+#peek .peek-body{padding:.9rem 1rem;font-size:.85rem}
+#peek .peek-body b{display:block;font-family:var(--font-display)}
+#peek .peek-body span{font-family:var(--font-mono);font-size:.7rem;color:var(--lilac);letter-spacing:.1em}
+/* ---------- manifesto ---------- */
+#manifesto{background:var(--bone);padding:0;overflow:clip}
+.manifesto-pin{min-height:100svh;display:grid;place-items:center;padding:clamp(3rem,7vw,6rem) 0;position:relative}
+.manifesto-box{width:min(900px,calc(100% - 2rem));margin-inline:auto;text-align:left;position:relative;z-index:2}
+.manifesto-kick{margin-bottom:1.2rem}
+#manifestoText{font-family:var(--font-display);font-weight:800;font-size:clamp(1.7rem,4.6vw,3.6rem);line-height:1.08;letter-spacing:-.02em}
+#manifestoText .m-word{display:inline-block;margin-right:.28em;opacity:.14;will-change:opacity,transform;color:inherit}
+#manifestoText .m-word.is-lit{opacity:1}
+#manifestoText .m-word.hl{background:var(--lilac);padding:0 .12em;color:var(--ink);border-radius:2px}
+#manifestoText .m-word.verm{color:var(--vermilion)}
+.manifesto-ast{position:absolute;right:clamp(.5rem,4vw,3rem);top:clamp(.8rem,4vw,2.5rem);font-family:var(--font-display);font-weight:800;font-size:clamp(4rem,10vw,8rem);line-height:1;color:var(--vermilion);z-index:3;will-change:transform}
+.manifesto-foot{display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between;align-items:center;margin-top:2rem;border-top:1px solid currentColor;padding-top:1rem;font-family:var(--font-mono);font-size:.75rem;letter-spacing:.08em}
+.manifesto-progress{height:6px;background:var(--line);border-radius:999px;overflow:hidden;margin-top:1.2rem}
+.manifesto-progress i{display:block;height:100%;width:100%;background:var(--vermilion);transform:scaleX(0);transform-origin:left}
+/* ---------- metodo ---------- */
+#metodo{background:var(--paper2);border-top:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink)}
+.z-stack{display:grid;gap:1rem;margin-top:.5rem}
+@media(min-width:900px){.z-stack{grid-template-columns:repeat(4,1fr);align-items:start}}
+.z-card{background:var(--card);border:1.5px solid var(--ink);border-radius:0;padding:1.3rem;min-height:340px;display:flex;flex-direction:column;justify-content:space-between;gap:1rem;position:relative;box-shadow:6px 6px 0 var(--ink);transition:transform .25s ease;will-change:transform}
+.z-card:nth-child(1){rotate:-1.5deg}
+.z-card:nth-child(2){rotate:1deg;translate:0 14px}
+.z-card:nth-child(3){rotate:-1deg;translate:0 6px}
+.z-card:nth-child(4){rotate:1.4deg;translate:0 20px}
+.z-card:hover{transform:translateY(-8px) rotate(0deg)}
+.z-card .z-num{font-family:var(--font-display);font-weight:800;font-size:3rem;line-height:1;color:var(--lilac);-webkit-text-stroke:1.5px var(--ink)}
+.z-card h3{font-size:1.35rem}
+.z-card p{font-size:.95rem;color:var(--ink-soft);margin:0}
+.z-card .z-foot{font-family:var(--font-mono);font-size:.72rem;border-top:1px dashed var(--ink-faint);padding-top:.7rem;display:flex;justify-content:space-between}
+/* ---------- strumento ---------- */
+#strumento{background:var(--bone)}
+.stima-grid{display:grid;gap:1.2rem}
+@media(min-width:1000px){.stima-grid{grid-template-columns:1.1fr .9fr;align-items:start}}
+.stima-panel{background:var(--card);border:1.5px solid var(--ink);border-radius:0;padding:clamp(1.2rem,2.5vw,2rem);box-shadow:8px 8px 0 var(--ink);position:relative}
+.stima-panel h3{margin-bottom:1rem}
+.field{margin-bottom:1.4rem}
+.field legend,.field-label{font-weight:600;font-size:.95rem;margin-bottom:.7rem;display:block}
+.chip-group{display:flex;flex-wrap:wrap;gap:.6rem}
+.chip-radio input{position:absolute;opacity:0;width:1px;height:1px}
+.chip-radio span{display:inline-flex;align-items:center;min-height:44px;padding:.6rem 1.1rem;border:1.5px solid var(--ink);border-radius:999px;font-weight:600;font-size:.88rem;cursor:pointer;background:transparent}
+.chip-radio input:checked + span{background:var(--ink);color:var(--bone)}
+.chip-radio input:focus-visible + span{outline:3px solid var(--vermilion);outline-offset:2px}
+.chip-radio span:hover{border-color:var(--vermilion);color:var(--vermilion)}
+.chip-radio input:checked + span:hover{color:var(--bone)}
+input[type="range"]{width:100%;accent-color:var(--vermilion);min-height:44px;cursor:pointer}
+.range-row{display:grid;grid-template-columns:1fr auto;gap:.6rem;align-items:center}
+.range-val{font-family:var(--font-mono);font-size:.9rem;background:var(--ink);color:var(--bone);padding:.35rem .7rem;border-radius:6px;min-width:3.2rem;text-align:center}
+.toggles{display:grid;gap:.6rem}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:1rem;border:1.5px solid var(--line);border-radius:12px;padding:.7rem .9rem;min-height:56px;background:var(--bone);cursor:pointer}
+.toggle b{font-size:.92rem}
+.toggle small{display:block;font-weight:400;color:var(--ink-soft);font-size:.78rem}
+.switch{position:relative;width:52px;height:30px;flex:none}
+.switch input{position:absolute;inset:0;opacity:0;cursor:pointer;margin:0;width:100%;height:100%}
+.switch i{position:absolute;inset:0;background:#D8D2C4;border-radius:999px;border:1.5px solid var(--ink);transition:background .2s}
+.switch i::after{content:"";position:absolute;left:3px;top:3px;width:21px;height:21px;border-radius:50%;background:var(--bone);border:1.5px solid var(--ink);transition:transform .2s}
+.switch input:checked + i{background:var(--vermilion)}
+.switch input:checked + i::after{transform:translateX(21px);background:var(--bone)}
+.switch input:focus-visible + i{outline:3px solid var(--vermilion);outline-offset:2px}
+.stima-out{background:var(--ink);color:var(--bone);border-radius:14px;padding:clamp(1.2rem,2.5vw,2rem);position:sticky;top:calc(var(--header-h) + 1rem)}
+.stima-out .kicker{color:var(--bone)}
+.stima-out .kicker::before{color:var(--lilac)}
+.odometro{display:flex;align-items:end;gap:.4rem;margin:.8rem 0 .2rem}
+.odo-currency{font-family:var(--font-display);font-weight:800;font-size:2rem;color:var(--lilac)}
+.odo-digits{display:flex;gap:4px}
+.odo-col{width:.72em;height:1.25em;overflow:hidden;background:rgba(242,239,233,.08);border:1px solid rgba(242,239,233,.2);border-radius:6px;font-family:var(--font-display);font-weight:800;font-size:clamp(2.2rem,5vw,3.4rem);line-height:1.25em;text-align:center}
+.odo-strip{display:grid;will-change:transform}
+.odo-strip span{height:1.25em;display:grid;place-items:center}
+.odo-note{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;color:rgba(242,239,233,.7)}
+.weeks{font-family:var(--font-display);font-weight:700;font-size:1.2rem;margin:.9rem 0}
+.weeks em{font-family:var(--font-accent);font-style:italic;font-weight:400;color:var(--lilac)}
+.breakdown{display:grid;gap:.7rem;margin:1rem 0 1.3rem}
+.b-row{display:grid;grid-template-columns:110px 1fr auto;gap:.7rem;align-items:center;font-size:.85rem}
+.b-row label{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.06em}
+.b-track{height:10px;background:rgba(242,239,233,.14);border-radius:999px;overflow:hidden}
+.b-fill{height:100%;width:100%;background:var(--lilac);transform:scaleX(0);transform-origin:left;border-radius:999px}
+.b-row:nth-child(2) .b-fill{background:var(--vermilion)}
+.b-row:nth-child(3) .b-fill{background:var(--bone)}
+.b-row:nth-child(4) .b-fill{background:#7DE2A8}
+.b-val{font-family:var(--font-mono);font-size:.78rem;min-width:4.5rem;text-align:right}
+/* ---------- scarti ---------- */
+#scarti{background:var(--ink);color:var(--bone)}
+#scarti .sec-desc{color:rgba(242,239,233,.7)}
+#scarti .kicker{color:var(--bone)}
+.scarti-grid{display:grid;gap:1rem}
+@media(min-width:900px){.scarti-grid{grid-template-columns:repeat(3,1fr)}}
+.scarto{background:#1B1B1A;border:1.5px dashed rgba(242,239,233,.35);border-radius:0;padding:1.4rem;position:relative;overflow:hidden;min-height:360px;display:flex;flex-direction:column;gap:.8rem;transition:border-color .25s,transform .25s}
+.scarto:hover{border-color:var(--vermilion);transform:rotate(-.6deg)}
+.scarto .s-stamp{position:absolute;right:.8rem;top:.8rem;rotate:8deg;border:2px solid var(--vermilion);color:var(--vermilion);font-family:var(--font-mono);font-size:.68rem;letter-spacing:.2em;padding:.25rem .6rem}
+.scarto-illu{height:150px;border:1.5px solid rgba(242,239,233,.2);background:var(--bone);color:var(--ink);display:grid;place-items:center;position:relative;overflow:hidden}
+.scarto h3{font-size:1.25rem}
+.scarto p{font-size:.9rem;color:rgba(242,239,233,.78);margin:0}
+.scarto .s-tag{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.12em;color:var(--lilac)}
+/* scarto hover toys */
+.toy-cursor{font-size:3rem;transition:transform .3s}
+.scarto:hover .toy-cursor{animation:chase 1s infinite alternate ease-in-out}
+@keyframes chase{from{transform:translate(-18px,-10px) rotate(-12deg)}to{transform:translate(18px,12px) rotate(12deg)}}
+.toy-font{font-family:var(--font-display);font-weight:800;font-size:2.6rem;transition:letter-spacing .3s,transform .3s}
+.scarto:hover .toy-font{letter-spacing:.2em;transform:skewX(-12deg) scale(1.05)}
+.toy-wheel{width:90px;height:90px;border-radius:50%;border:6px dashed var(--vermilion);display:grid;place-items:center;font-family:var(--font-display);font-weight:800}
+.scarto:hover .toy-wheel{animation:spin 1.2s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* ---------- prezzi ---------- */
+#prezzi{background:var(--bone)}
+.price-grid{display:grid;gap:1rem}
+@media(min-width:900px){.price-grid{grid-template-columns:repeat(3,1fr);align-items:stretch}}
+.price-card{background:var(--card);border:1.5px solid var(--ink);border-radius:0;padding:1.5rem;display:flex;flex-direction:column;gap:.9rem;position:relative}
+.price-card.is-featured{background:var(--ink);color:var(--bone);box-shadow:8px 8px 0 var(--vermilion)}
+.price-card.is-featured .p-desc{color:rgba(242,239,233,.75)}
+.p-kick{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--vermilion)}
+.p-price{font-family:var(--font-display);font-weight:800;font-size:2.4rem;line-height:1}
+.p-price small{font-family:var(--font-mono);font-weight:400;font-size:.72rem;letter-spacing:.08em;color:inherit;opacity:.7}
+.p-desc{font-size:.92rem;color:var(--ink-soft);margin:0}
+.p-list{list-style:none;margin:.4rem 0 0;padding:0;display:grid;gap:.5rem;font-size:.9rem}
+.p-list li{display:flex;gap:.6rem;align-items:start}
+.p-list li::before{content:"*";color:var(--vermilion);font-weight:800;line-height:1.4}
+.price-card .btn{margin-top:auto}
+/* ---------- contatti ---------- */
+#contatti{background:var(--paper2);border-top:1.5px solid var(--ink)}
+.contact-grid{display:grid;gap:1.2rem}
+@media(min-width:1000px){.contact-grid{grid-template-columns:1.1fr .9fr}}
+.form-card,.cal-card{background:var(--card);border:1.5px solid var(--ink);padding:clamp(1.2rem,2.5vw,2rem);box-shadow:8px 8px 0 var(--ink)}
+.form-card h3,.cal-card h3{margin-bottom:.4rem}
+.demo-note{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--font-mono);font-size:.72rem;letter-spacing:.06em;background:var(--lilac);border:1px solid var(--ink);padding:.3rem .7rem;border-radius:999px;margin:.6rem 0 1.2rem}
+form.demo-form{display:grid;gap:.9rem}
+.form-row{display:grid;gap:.9rem}
+@media(min-width:600px){.form-row{grid-template-columns:1fr 1fr}}
+label.f-label{font-weight:600;font-size:.88rem;display:grid;gap:.35rem}
+label.f-label input,label.f-label select,label.f-label textarea{font:inherit;font-weight:400;border:1.5px solid var(--ink);border-radius:8px;padding:.8rem .9rem;background:var(--bone);min-height:48px;width:100%}
+label.f-label textarea{min-height:120px;resize:vertical}
+.form-ok{border:1.5px solid var(--ink);background:var(--lilac);padding:.9rem 1rem;border-radius:8px;font-size:.9rem;display:none}
+.form-ok.is-show{display:block}
+.cal-slots{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin:1rem 0}
+.cal-slot{border:1.5px solid var(--ink);background:var(--bone);border-radius:10px;min-height:56px;padding:.6rem;font-family:var(--font-mono);font-size:.78rem;cursor:pointer}
+.cal-slot[aria-pressed="true"]{background:var(--ink);color:var(--bone)}
+.cal-slot:hover{border-color:var(--vermilion);color:var(--vermilion)}
+.cal-slot[aria-pressed="true"]:hover{color:var(--bone)}
+.contact-lines{font-family:var(--font-mono);font-size:.82rem;display:grid;gap:.4rem;margin-top:1rem;border-top:1px dashed var(--ink-faint);padding-top:1rem}
+/* ---------- footer ---------- */
+.site-footer{background:var(--ink);color:var(--bone);padding:3rem 0 2rem;overflow:clip}
+.foot-index{display:grid;gap:0;border-top:1px solid rgba(242,239,233,.2);margin:1.5rem 0 2rem}
+.foot-index a{position:relative;display:flex;justify-content:space-between;align-items:center;padding:.9rem .4rem;text-decoration:none;font-family:var(--font-display);font-weight:800;font-size:clamp(1.6rem,5vw,3.4rem);line-height:1;letter-spacing:-.02em;border-bottom:1px solid rgba(242,239,233,.2);overflow:hidden;min-height:64px}
+.foot-index a span:last-child{font-family:var(--font-mono);font-weight:400;font-size:.75rem;letter-spacing:.12em;color:var(--lilac)}
+.foot-index a::after{content:"";position:absolute;inset:0;background:var(--vermilion);clip-path:inset(0 100% 0 0);transition:clip-path .35s ease;z-index:0}
+.foot-index a:hover::after{clip-path:inset(0 0 0 0)}
+.foot-index a > *{position:relative;z-index:1}
+.foot-index a:hover{color:var(--bone)}
+.foot-meta{display:grid;gap:1.2rem;font-size:.85rem;color:rgba(242,239,233,.75)}
+@media(min-width:900px){.foot-meta{grid-template-columns:1.2fr .8fr;align-items:start}}
+.disclaimer{font-size:.82rem;line-height:1.6;border:1.5px dashed rgba(242,239,233,.35);padding:1rem;border-radius:8px}
+.disclaimer strong{color:var(--bone)}
+.foot-bottom{display:flex;flex-wrap:wrap;gap:.8rem 1.5rem;justify-content:space-between;margin-top:1.5rem;padding-top:1.2rem;border-top:1px solid rgba(242,239,233,.18);font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em}
+/* reveal defaults (JS enhances) */
+.reveal{will-change:transform}
+/* responsive header */
+@media(max-width:920px){
+  .nav-desktop{display:none}
+  .menu-btn{display:inline-flex;align-items:center;justify-content:center}
+  .mobile-nav{position:fixed;inset:0;z-index:90;background:var(--ink);color:var(--bone);display:grid;place-items:center;opacity:0;visibility:hidden;transition:opacity .25s,visibility .25s}
+  .mobile-nav.is-open{opacity:1;visibility:visible}
+  .mobile-nav ul{list-style:none;margin:0;padding:0;display:grid;gap:.2rem;text-align:center}
+  .mobile-nav a{color:var(--bone);text-decoration:none;font-family:var(--font-display);font-weight:800;font-size:2rem;display:block;padding:.6rem 1rem;min-height:56px}
+  .mobile-nav a:hover{color:var(--vermilion)}
+  .mobile-close{position:absolute;top:1rem;right:1rem;background:var(--bone);color:var(--ink);border:0;border-radius:999px;min-width:48px;min-height:48px;font-weight:700;cursor:pointer}
+}
+@media(max-width:480px){
+  .hero-stats{grid-template-columns:1fr}
+  .hero-stats div{border-right:0;border-bottom:1px solid rgba(242,239,233,.18)}
+  .b-row{grid-template-columns:86px 1fr auto}
+  .cal-slots{grid-template-columns:1fr}
+}
+@media(min-width:1600px){
+  .wrap{width:min(1400px,calc(100% - 4rem))}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Salta al contenuto</a>
+<div class="grid-overlay" id="gridOverlay" aria-hidden="true"><div class="grid-overlay-inner"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+<div id="cursor" aria-hidden="true"><div class="cursor-star" id="cursorStar">*</div><div class="cursor-lens" id="cursorLens">APRI</div></div>
+<div id="peek" aria-hidden="true"><div class="peek-inner"><div class="peek-cover" id="peekCover">Aa</div><div class="peek-body"><span id="peekKick">CASE · 2025</span><b id="peekTitle">Titolo</b><span id="peekSub" style="color:rgba(242,239,233,.7)">sottotitolo</span></div></div></div>
+
+<header class="site-header">
+  <div class="header-bar">
+    <a class="brand" href="#hero" aria-label="Studio Rotta — torna all'inizio"><span class="brand-mark" aria-hidden="true">*</span><span>ROTTA<small>STUDIO · MILANO · N.29</small></span></a>
+    <nav class="nav-desktop" aria-label="Navigazione principale">
+      <a href="#lavori">Lavori</a><a href="#manifesto">Manifesto</a><a href="#metodo">Metodo</a><a href="#strumento">Stimatore</a><a href="#scarti">Scarti</a><a href="#prezzi">Prezzi</a><a href="#contatti">Contatti</a>
+    </nav>
+    <div class="header-actions">
+      <button class="grid-toggle" id="gridToggle" aria-pressed="false" type="button">mostra griglia</button>
+      <a class="btn btn-small" href="#contatti">Prenota prova</a>
+      <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="mobileNav" type="button">MENU</button>
+    </div>
+  </div>
+</header>
+<nav class="mobile-nav" id="mobileNav" aria-label="Menu mobile">
+  <button class="mobile-close" id="mobileClose" type="button" aria-label="Chiudi menu">✕</button>
+  <ul>
+    <li><a href="#lavori">Lavori</a></li><li><a href="#manifesto">Manifesto</a></li><li><a href="#metodo">Metodo</a></li><li><a href="#strumento">Stimatore</a></li><li><a href="#scarti">Scarti</a></li><li><a href="#prezzi">Prezzi</a></li><li><a href="#contatti">Contatti</a></li>
+  </ul>
+</nav>
+
+<main id="main">
+<!-- ============ HERO ============ -->
+<section id="hero" aria-labelledby="heroTitle">
+  <div class="wrap">
+    <div class="hero-grid" id="heroGrid">
+      <div class="hero-manifesto" id="heroPoster">
+        <span class="tape tape-tl" aria-hidden="true"></span><span class="tape tape-tr" aria-hidden="true"></span>
+        <div class="hero-meta"><span>PROVA N.29 — SALA COLLAUDI EDITORIALE</span><span>MILANO · VIA ESEMPIO 0</span><span class="stamp">Bozza</span></div>
+        <p class="kicker">Web design indipendente · dal 2019 fittizio</p>
+        <h1 class="hero-title" id="heroTitle" aria-label="Studio Rotta">
+          <span class="line" data-split>STUDIO</span>
+          <span class="line" data-split>ROTTA<span style="color:var(--vermilion)">*</span></span>
+        </h1>
+        <div class="hero-sub">
+          <p class="hero-claim"><strong>Siti che si leggono come riviste</strong> e convertono come <span class="accent" style="font-family:var(--font-accent);font-style:italic">negozi di fiducia.</span> Impaginiamo il web con forbici, refusi e forfait onesti.</p>
+          <p class="hero-note">NOTA A MARGINE / N.1<br>Se cerchi “wow effect” con coriandoli, siamo pessimi. Se cerchi titoli che reggono e pulsanti che vendono, accomodati in sala prove.</p>
+        </div>
+        <div class="hero-cta">
+          <a class="btn" href="#lavori">Sfoglia i lavori</a>
+          <a class="btn btn-ghost" href="#strumento">Stima il progetto</a>
+        </div>
+        <div class="hero-asterisk" aria-hidden="true" id="heroAsterisk">*</div>
+      </div>
+      <aside class="hero-index" aria-label="Indice della pagina">
+        <h2>Indice — 08 capitoli</h2>
+        <ol>
+          <li><a href="#lavori">Lavori scelti <span>→</span></a></li>
+          <li><a href="#manifesto">Manifesto <span>→</span></a></li>
+          <li><a href="#metodo">Metodo <span>→</span></a></li>
+          <li><a href="#strumento">Stimatore <span>→</span></a></li>
+          <li><a href="#scarti">Scarti <span>→</span></a></li>
+          <li><a href="#prezzi">Prezzi <span>→</span></a></li>
+          <li><a href="#contatti">Contatti <span>→</span></a></li>
+        </ol>
+        <p class="margin-note" style="margin:.9rem 0 0">margine: tutto ciò che vedi è finto ma curato. Come i cibi delle pubblicità, solo più leggibile.</p>
+        <div style="margin-top:.8rem"><span class="stamp is-ok">Approvato ★ fittizio</span></div>
+      </aside>
+    </div>
+    <div class="hero-stats" role="list" aria-label="Lo studio in numeri finti">
+      <div role="listitem"><b>64</b><span>prove buttate / anno</span></div>
+      <div role="listitem"><b>06</b><span>case in vetrina</span></div>
+      <div role="listitem"><b>02</b><span>caffè per refuso</span></div>
+    </div>
+  </div>
+  <div class="marquee-oblique" aria-hidden="true"><div class="marquee-track" id="marqueeTrack"><span>LEGGIBILE <em>prima,</em> BELLISSIMO <em>dopo</em></span><i>*</i><span>FORFAIT CHIARI <em>e</em> SCADENZE VERE</span><i>*</i><span>CARTA FUORI — <em>pixel dentro</em></span><i>*</i><span>BOZZE ONESTE <em>dal</em> 2019</span><i>*</i><span>LEGGIBILE <em>prima,</em> BELLISSIMO <em>dopo</em></span><i>*</i><span>FORFAIT CHIARI <em>e</em> SCADENZE VERE</span><i>*</i><span>CARTA FUORI — <em>pixel dentro</em></span><i>*</i><span>BOZZE ONESTE <em>dal</em> 2019</span><i>*</i></div></div>
+</section>
+
+<!-- ============ LAVORI ============ -->
+<section id="lavori" aria-labelledby="lavoriTitle">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><p class="kicker">Sala collaudi · 01</p><h2 class="sec-title" id="lavoriTitle">Lavori <span class="accent">scelti,</span> refusi inclusi<span style="color:var(--vermilion)">*</span></h2></div>
+      <p class="sec-desc">Sei case study inventati di sana pianta. Ogni progetto è passato dalla trafila: bozza brutale, litigio col titolo, approvazione con timbro storto.</p>
+    </div>
+    <div class="filters" role="group" aria-label="Filtra i lavori">
+      <button class="chip" type="button" data-filter="all" aria-pressed="true"><span class="dot" aria-hidden="true"></span>Tutti</button>
+      <button class="chip" type="button" data-filter="editoriale" aria-pressed="false">Editoriale</button>
+      <button class="chip" type="button" data-filter="commercio" aria-pressed="false">Negozio demo</button>
+      <button class="chip" type="button" data-filter="cultura" aria-pressed="false">Cultura</button>
+    </div>
+    <div class="works-grid" id="worksGrid">
+      <article class="work-card" tabindex="0" data-cat="commercio" data-peek="APRI" data-title="Pasticceria Ipotetica" data-kick="NEGOZIO DEMO · 2025" data-sub="Sfogliabile e ordinabile" data-color="#FF3D2E" aria-label="Pasticceria Ipotetica, negozio demo">
+        <div class="work-poster"><span class="poster-bg" style="background:linear-gradient(135deg,#FFD9A8,#FF3D2E)" aria-hidden="true"></span><span class="poster-kick">N.01 · E-COMMERCE DEMO</span><span class="poster-type">SFOGLIA<br>&amp; MORDI</span><span class="poster-ast" aria-hidden="true">*</span></div>
+        <div class="work-body"><h3>Pasticceria Ipotetica</h3><div class="work-meta"><span>commercio</span><span>2025</span><span>forfait demo</span></div><p class="work-more">Menu che si legge come un racconto, carrello che non fa domande imbarazzanti. Conversione +38% (finta, ma plausibile).</p><span class="work-link">Apri la prova <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+      </article>
+      <article class="work-card" tabindex="0" data-cat="editoriale" data-peek="LEGGI" data-title="Rivista Argine" data-kick="EDITORIALE · 2024" data-sub="Trimestrale di cose lente" data-color="#B8A9FF" aria-label="Rivista Argine, editoriale">
+        <div class="work-poster"><span class="poster-bg" style="background:linear-gradient(135deg,#B8A9FF,#F2EFE9 70%,#0F0F0E 170%)" aria-hidden="true"></span><span class="poster-kick">N.02 · TRIMESTRALE</span><span class="poster-type" style="font-family:var(--font-accent);font-style:italic;font-weight:400">cose<br>lente</span><span class="poster-ast" aria-hidden="true">*</span></div>
+        <div class="work-body"><h3>Rivista Argine</h3><div class="work-meta"><span>editoriale</span><span>2024</span><span>abbonamenti</span></div><p class="work-more">Longform con note a margine cliccabili e paywall gentile: prima ti fa leggere, poi ti chiede il caffè.</p><span class="work-link">Leggi la prova <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+      </article>
+      <article class="work-card" tabindex="0" data-cat="cultura" data-peek="APRI" data-title="Museo del Temporale" data-kick="CULTURA · 2025" data-sub="Archivio di tuoni e fulmini" data-color="#0F0F0E" aria-label="Museo del Temporale, cultura">
+        <div class="work-poster"><span class="poster-bg" style="background:repeating-linear-gradient(-8deg,#0F0F0E 0 18px,#F2EFE9 18px 20px)" aria-hidden="true"></span><span class="poster-kick">N.03 · ARCHIVIO</span><span class="poster-type" style="background:var(--bone);padding:.2em .4em">TUONO<br>ARCHIVIO</span><span class="poster-ast" aria-hidden="true">*</span></div>
+        <div class="work-body"><h3>Museo del Temporale</h3><div class="work-meta"><span>cultura</span><span>2025</span><span>640 schede</span></div><p class="work-more">4.000 tuoni catalogati, nessuno uguale all’altro. Ricerca per “umore del cielo”, ovviamente con filtri.</p><span class="work-link">Apri la prova <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+      </article>
+      <article class="work-card" tabindex="0" data-cat="commercio" data-peek="TRASCINA" data-title="Sartoria Orbita" data-kick="NEGOZIO DEMO · 2024" data-sub="Su misura, senza metro" data-color="#7DE2A8" aria-label="Sartoria Orbita, negozio demo">
+        <div class="work-poster"><span class="poster-bg" style="background:radial-gradient(circle at 30% 30%,#7DE2A8,#0F0F0E 120%)" aria-hidden="true"></span><span class="poster-kick">N.04 · CATALOGO</span><span class="poster-type">TAGLIO<br>ORBITA</span><span class="poster-ast" aria-hidden="true">*</span></div>
+        <div class="work-body"><h3>Sartoria Orbita</h3><div class="work-meta"><span>commercio</span><span>2024</span><span>configuratore</span></div><p class="work-more">Configuratore di abiti serio ma non serioso: tre domande, zero metro da sarto, un preventivo leggibile.</p><span class="work-link">Trascina la prova <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+      </article>
+      <article class="work-card" tabindex="0" data-cat="editoriale" data-peek="LEGGI" data-title="Orto Grafico" data-kick="EDITORIALE · 2023" data-sub="Vivaio con giornalino" data-color="#E9E4D8" aria-label="Orto Grafico, editoriale">
+        <div class="work-poster"><span class="poster-bg" style="background:linear-gradient(180deg,#E9E4D8 55%,#0F0F0E 55.5%,#B8A9FF 56%)" aria-hidden="true"></span><span class="poster-kick">N.05 · JOURNAL</span><span class="poster-type">SEMINA<br>LEGGI</span><span class="poster-ast" aria-hidden="true">*</span></div>
+        <div class="work-body"><h3>Orto Grafico</h3><div class="work-meta"><span>editoriale</span><span>2023</span><span>vivaio + journal</span></div><p class="work-more">Il vivaio che pubblica: schede pianta impaginate come poesie, con “annaffiatura consigliata” in calce.</p><span class="work-link">Leggi la prova <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+      </article>
+      <article class="work-card" tabindex="0" data-cat="cultura" data-peek="APRI" data-title="Pensilina Edizioni" data-kick="CULTURA · 2024" data-sub="Libri da fermata" data-color="#FFD9A8" aria-label="Pensilina Edizioni, cultura">
+        <div class="work-poster"><span class="poster-bg" style="background:linear-gradient(135deg,#0F0F0E 12%,#F2EFE9 12.5%,#F2EFE9 88%,#FF3D2E 88.5%)" aria-hidden="true"></span><span class="poster-kick">N.06 · CASA EDITRICE</span><span class="poster-type">LIBRI<br>DA 9 MIN</span><span class="poster-ast" aria-hidden="true">*</span></div>
+        <div class="work-body"><h3>Pensilina Edizioni</h3><div class="work-meta"><span>cultura</span><span>2024</span><span>collane brevi</span></div><p class="work-more">Piccola casa editrice per attese lunghe: collane da nove minuti, il tempo medio di un tram in ritardo.</p><span class="work-link">Apri la prova <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+      </article>
+    </div>
+    <p class="margin-note" style="margin-top:1.2rem">nota del correttore: nomi, loghi e risultati sono inventati. Qualsiasi somiglianza con pasticcerie reali è pura golosità.</p>
+  </div>
+</section>
+
+<!-- ============ MANIFESTO ============ -->
+<section id="manifesto" aria-labelledby="manifestoTitle">
+  <div class="manifesto-pin" id="manifestoPin">
+    <div class="manifesto-ast" id="manifestoAst" aria-hidden="true">*</div>
+    <div class="manifesto-box">
+      <p class="kicker manifesto-kick">Manifesto · 02 — scorri per accendere</p>
+      <h2 id="manifestoTitle" class="sr-only">Manifesto dello studio</h2>
+      <p id="manifestoText" aria-label="Facciamo siti che si leggono come riviste e convertono come negozi. Carta fuori, pixel dentro. Ogni progetto è una prova di stampa: si sbaglia, si taglia, si ricomincia, finché il titolo regge in edicola.">Facciamo siti che si leggono come *riviste e convertono come negozi. Carta fuori, pixel dentro. Ogni progetto è una prova di stampa: si sbaglia, si taglia, si ricomincia — finché il titolo regge in edicola.</p>
+      <div class="manifesto-progress" aria-hidden="true"><i id="maniBar"></i></div>
+      <div class="manifesto-foot"><span>TIMBRO: APPROVATO CON RISERVA ★</span><span>PAROLE ACCESE: <b id="maniCount">0 / 0</b></span><span>FIRMA: STUDIO ROTTA (FITTIZIO)</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ METODO ============ -->
+<section id="metodo" aria-labelledby="metodoTitle">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><p class="kicker">Metodo · 03</p><h2 class="sec-title" id="metodoTitle">Quattro fasi, <span class="accent">zero drammi</span> tipografici</h2></div>
+      <p class="sec-desc">Un metodo da redazione, non da cantiere. Si discute sul tavolo luminoso, si decide con la matita rossa, si consegna senza sparizioni.</p>
+    </div>
+    <div class="z-stack" id="zStack">
+      <article class="z-card"><div><div class="z-num" aria-hidden="true">01</div><h3>Bozza brutale</h3><p>Intervista scomoda, contenuti veri, wireframe brutti ma onesti. Meglio una brutta bozza subito che una bella sorpresa dopo.</p></div><div class="z-foot"><span>SETT. 1</span><span>★ MATITA ROSSA</span></div></article>
+      <article class="z-card"><div><div class="z-num" aria-hidden="true">02</div><h3>Prova di stampa</h3><p>Design editoriale su griglia vera: titoli, gerarchie, ritmi. Tu correggi con il pennarello, noi non ci offendiamo (quasi).</p></div><div class="z-foot"><span>SETT. 2–3</span><span>★ TIMBRO BOZZA</span></div></article>
+      <article class="z-card"><div><div class="z-num" aria-hidden="true">03</div><h3>Legatura</h3><p>Sviluppo cucito a filo: veloce, accessibile, senza plugin misteriosi. Ogni pagina passa la prova del dito (mobile prima).</p></div><div class="z-foot"><span>SETT. 3–5</span><span>★ FILO DI REFUSI</span></div></article>
+      <article class="z-card"><div><div class="z-num" aria-hidden="true">04</div><h3>Edicola</h3><p>Lancio con manuale d’uso di una pagina, analytics leggibili e un mese di assistenza. Poi il sito va in edicola da solo.</p></div><div class="z-foot"><span>SETT. 6</span><span>★ TIMBRO APPROVATO</span></div></article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STRUMENTO ============ -->
+<section id="strumento" aria-labelledby="strumentoTitle">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><p class="kicker">Strumento · 04 — stimatore di progetto</p><h2 class="sec-title" id="strumentoTitle">Quanto costa <span class="accent">una rivista</span> che vende?</h2></div>
+      <p class="sec-desc">Muovi i cursori come fossero refusi su bozza. Il forfait è dimostrativo, il sorriso del commercialista no.</p>
+    </div>
+    <div class="stima-grid">
+      <div class="stima-panel">
+        <h3>Componi il tuo numero unico</h3>
+        <fieldset class="field" style="border:0;padding:0;margin:0 0 1.4rem">
+          <legend>Tipo di progetto (scegline uno)</legend>
+          <div class="chip-group" role="radiogroup" aria-label="Tipo di progetto">
+            <label class="chip-radio"><input type="radio" name="tipo" value="landing" checked><span>Landing demo</span></label>
+            <label class="chip-radio"><input type="radio" name="tipo" value="sito"><span>Sito editoriale</span></label>
+            <label class="chip-radio"><input type="radio" name="tipo" value="ecommerce"><span>E-commerce demo</span></label>
+          </div>
+        </fieldset>
+        <div class="field">
+          <label class="field-label" for="rangePagine">Pagine da impaginare: <span id="pagineOut">8</span></label>
+          <div class="range-row"><input type="range" id="rangePagine" min="1" max="40" value="8" step="1" aria-describedby="pagineHelp"><span class="range-val" id="pagineVal">8 pg</span></div>
+          <p class="margin-note" id="pagineHelp" style="margin:.3rem 0 0">da volantino (1) a enciclopedia (40). Oltre le 20 offriamo tisana.</p>
+        </div>
+        <div class="field">
+          <label class="field-label" for="rangeLingue">Lingue: <span id="lingueOut">1</span></label>
+          <div class="range-row"><input type="range" id="rangeLingue" min="1" max="3" value="1" step="1"><span class="range-val" id="lingueVal">1 lg</span></div>
+        </div>
+        <div class="field">
+          <span class="field-label" id="optLabel">Optional da redazione</span>
+          <div class="toggles" role="group" aria-labelledby="optLabel">
+            <label class="toggle"><span><b>Copy editoriale</b><small>titoli che reggono, testi che non annoiano</small></span><span class="switch"><input type="checkbox" id="optCopy" checked><i aria-hidden="true"></i></span></label>
+            <label class="toggle"><span><b>CMS fittizio</b><small>pubblichi da solo, senza chiamarci di notte</small></span><span class="switch"><input type="checkbox" id="optCms"><i aria-hidden="true"></i></span></label>
+            <label class="toggle"><span><b>Multilingua curato</b><small>non tradotto col pilota automatico</small></span><span class="switch"><input type="checkbox" id="optMulti"><i aria-hidden="true"></i></span></label>
+          </div>
+        </div>
+        <p class="margin-note">stima onesta: se il budget trema, tagliamo pagine — mai leggibilità.</p>
+      </div>
+      <div class="stima-out" aria-live="polite" aria-atomic="true" aria-label="Risultato della stima dimostrativa">
+        <p class="kicker">Forfait demo · iva esclusa e fantasia inclusa</p>
+        <div class="odometro" aria-hidden="true"><span class="odo-currency">€</span><div class="odo-digits" id="odoDigits"></div></div>
+        <p class="sr-only">Forfait stimato: <span id="stimaSr">0 euro</span></p>
+        <p class="odo-note">FORFAIT DEMO — CIFRA FITTIZIA, TIMBRO VERO*</p>
+        <p class="weeks">Consegna fittizia: <em id="weeksOut">4 settimane</em></p>
+        <div class="breakdown" id="breakdown">
+          <div class="b-row"><label for="b1">Design</label><div class="b-track"><div class="b-fill" id="b1"></div></div><span class="b-val" id="v1">€0</span></div>
+          <div class="b-row"><label for="b2">Sviluppo</label><div class="b-track"><div class="b-fill" id="b2"></div></div><span class="b-val" id="v2">€0</span></div>
+          <div class="b-row"><label for="b3">Copy</label><div class="b-track"><div class="b-fill" id="b3"></div></div><span class="b-val" id="v3">€0</span></div>
+          <div class="b-row"><label for="b4">CMS/Lingue</label><div class="b-track"><div class="b-fill" id="b4"></div></div><span class="b-val" id="v4">€0</span></div>
+        </div>
+        <a class="btn" href="#contatti" id="stimaCta" style="width:100%;background:var(--vermilion);border-color:var(--vermilion)">Richiedi stima vera →</a>
+        <p class="odo-note" style="margin:.7rem 0 0">*il timbro è un disegno. La serietà no.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SCARTI ============ -->
+<section id="scarti" aria-labelledby="scartiTitle">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><p class="kicker">Cestino · 05 — maneggiare con ironia</p><h2 class="sec-title" id="scartiTitle">Scarti <span class="accent">d’autore,</span> buttati bene</h2></div>
+      <p class="sec-desc">Tre esperimenti originali finiti nel cestino. Li mostriamo per onestà scientifica e per farti sentire meglio con le tue bozze.</p>
+    </div>
+    <div class="scarti-grid">
+      <article class="scarto" tabindex="0" aria-label="Scarto uno: Cursorino troppo affettuoso"><span class="s-stamp">CESTINATO</span><span class="s-tag">ESPERIMENTO N.114 — 2023</span><div class="scarto-illu" aria-hidden="true"><span class="toy-cursor">➶</span></div><h3>Cursorino troppo affettuoso</h3><p>Un cursore che ti seguiva con gli occhioni e sospirava se non cliccavi. Tenero per 40 secondi, inquietante per sempre. Pensionato con onori.</p><span class="s-tag">CAUSA: MOLESTIE AFFETTIVE AL PUNTATORE</span></article>
+      <article class="scarto" tabindex="0" aria-label="Scarto due: Il font impossibile"><span class="s-stamp">CESTINATO</span><span class="s-tag">ESPERIMENTO N.207 — 2024</span><div class="scarto-illu" aria-hidden="true"><span class="toy-font">Rr*</span></div><h3>Il font impossibile</h3><p>Volevamo un carattere “serio ma scanzonato, colto ma urlato”. È uscito un’insegna da luna park laureata in filosofia. Conservato un solo glifo: l’asterisco.</p><span class="s-tag">CAUSA: IDENTITÀ TIPOGRAFICA MULTIPLA</span></article>
+      <article class="scarto" tabindex="0" aria-label="Scarto tre: Checkout a premi"><span class="s-stamp">CESTINATO</span><span class="s-tag">ESPERIMENTO N.312 — 2025</span><div class="scarto-illu" aria-hidden="true"><span class="toy-wheel">-30%</span></div><h3>Checkout a premi</h3><p>Paghi e giri la ruota: sconti, segnalibri, pacche sulle spalle. Divertente finché un cliente vinse “paghi doppio”. Ritirato prima delle denunce (finte).</p><span class="s-tag">CAUSA: ECCESSO DI GIOIA AL PAGAMENTO</span></article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PREZZI ============ -->
+<section id="prezzi" aria-labelledby="prezziTitle">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><p class="kicker">Tariffe · 06 — forfait demo fittizi</p><h2 class="sec-title" id="prezziTitle">Prezzi in chiaro, <span class="accent">come i titoli</span> in prima</h2></div>
+      <p class="sec-desc">Tre forfait dimostrativi, scritti grandi apposta. Niente asterischi minuscoli (a parte quelli decorativi, che sono grandi).</p>
+    </div>
+    <div class="price-grid">
+      <article class="price-card"><span class="p-kick">Volantino dignitoso</span><div class="p-price">€2.400 <small>DEMO · UNA TANTUM</small></div><p class="p-desc">La landing che si legge d’un fiato e converte senza alzare la voce. Per lanci, eventi, idee che fremono.</p><ul class="p-list"><li>1 pagina lunga, impaginata come copertina</li><li>Copy essenziale + titoli di riserva</li><li>Modulo demo + analytics leggibili</li><li>Consegna fittizia in 2 settimane</li></ul><a class="btn btn-ghost" href="#contatti">Scegli il volantino</a></article>
+      <article class="price-card is-featured"><span class="p-kick" style="color:var(--lilac)">Rivista bottega ★ più scelto</span><div class="p-price">€6.800 <small>DEMO · UNA TANTUM</small></div><p class="p-desc">Il sito-rivista completo: si sfoglia, si cerca, si compra. Per studi, botteghe e piccoli editori ambiziosi.</p><ul class="p-list"><li>Fino a 12 pagine + journal fittizio</li><li>Design editoriale + CMS fittizio</li><li>Copy di lancio + manuale di una pagina</li><li>Consegna fittizia in 4–5 settimane</li></ul><a class="btn" href="#contatti" style="background:var(--vermilion);border-color:var(--vermilion)">Scegli la rivista</a></article>
+      <article class="price-card"><span class="p-kick">Negozio di carta</span><div class="p-price">€11.500 <small>DEMO · UNA TANTUM</small></div><p class="p-desc">L’e-commerce demo che profuma di carta: schede prodotto come recensioni, checkout senza interrogatori.</p><ul class="p-list"><li>Catalogo demo + checkout gentile</li><li>Schede prodotto narrative</li><li>Multilingua base + formazione finta</li><li>Consegna fittizia in 6–7 settimane</li></ul><a class="btn btn-ghost" href="#contatti">Scegli il negozio</a></article>
+    </div>
+    <p class="margin-note" style="margin-top:1.2rem">postilla colta: i prezzi sono inventati come i finali a sorpresa. La stima vera arriva dopo una chiacchierata, non dopo un quiz.</p>
+  </div>
+</section>
+
+<!-- ============ CONTATTI ============ -->
+<section id="contatti" aria-labelledby="contattiTitle">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><p class="kicker">Redazione · 07 — rispondiamo tra un refuso e l’altro</p><h2 class="sec-title" id="contattiTitle">Scrivici, <span class="accent">ti richiamiamo</span> in orario d’inchiostro</h2></div>
+      <p class="sec-desc">Raccontaci il progetto in tre righe. Se sono quattro, va bene lo stesso: siamo redattori, non doganieri.</p>
+    </div>
+    <div class="contact-grid">
+      <div class="form-card">
+        <h3>Biglietto di redazione</h3>
+        <span class="demo-note" aria-hidden="true">● DEMO — NESSUN DATO INVIATO</span>
+        <form class="demo-form" id="demoForm" novalidate>
+          <div class="form-row">
+            <label class="f-label">Nome e cognome<input type="text" name="nome" autocomplete="name" required minlength="2" placeholder="Ada Bozza"></label>
+            <label class="f-label">Email<input type="email" name="email" autocomplete="email" required placeholder="ada@esempio.it"></label>
+          </div>
+          <label class="f-label">Tipo di progetto
+            <select name="tipo" id="formTipo"><option value="landing">Landing demo — Volantino dignitoso</option><option value="sito">Sito editoriale — Rivista bottega</option><option value="ecommerce">E-commerce demo — Negozio di carta</option><option value="altro">Altro: idea strana ma interessante</option></select>
+          </label>
+          <label class="f-label">Il tuo progetto in poche righe<textarea name="messaggio" required minlength="10" placeholder="Vorrei un sito che si legga come…"></textarea></label>
+          <p class="margin-note">Demo — nessun dato inviato. Il pulsante finge benissimo, garantito.</p>
+          <button class="btn" type="submit" style="width:100%">Invia la bozza →</button>
+          <div class="form-ok" id="formOk" role="status">Grazie! Bozza ricevuta (per finta). Ti risponderemmo entro 48 ore lavorative, se fossimo veri.</div>
+        </form>
+      </div>
+      <div class="cal-card">
+        <h3>Calendario fittizio</h3>
+        <p class="margin-note" style="margin:.2rem 0 0">Scegli uno slot immaginario. Nessuno verrà avvisato, promesso.</p>
+        <div class="cal-slots" role="group" aria-label="Slot disponibili fittizi">
+          <button class="cal-slot" type="button" aria-pressed="false">LUN 10:00<br>caffè + brief</button>
+          <button class="cal-slot" type="button" aria-pressed="false">MAR 15:30<br>bozza lampo</button>
+          <button class="cal-slot" type="button" aria-pressed="false">MER 11:00<br>prova titoli</button>
+          <button class="cal-slot" type="button" aria-pressed="false">GIO 16:00<br>timbro finale</button>
+        </div>
+        <p class="margin-note" id="slotOut">nessuno slot selezionato — il calendario non giudica.</p>
+        <div class="contact-lines" aria-label="Recapiti dimostrativi"><span>STUDIO ROTTA (FITTTIZIO) — VIA ESEMPIO 0, MILANO</span><span>TEL. <a href="tel:+390200000000">02 0000 0000</a> — SOLO DEMO</span><span>EMAIL <a href="mailto:ciao@rotta-demo.it">ciao@rotta-demo.it</a></span><span>ORARI: LUN–VEN 9:30–18:00, PAUSA REFUSI 13:00</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site-footer" aria-labelledby="footTitle">
+  <div class="wrap">
+    <p class="kicker" style="color:var(--bone)">Colophon · N.29 — fine della tiratura</p>
+    <h2 id="footTitle" class="sr-only">Indice finale e note legali</h2>
+    <nav class="foot-index" aria-label="Indice manifesto">
+      <a href="#lavori"><span>Lavori</span><span>06 PROVE</span></a>
+      <a href="#manifesto"><span>Manifesto</span><span>01 CREDO</span></a>
+      <a href="#metodo"><span>Metodo</span><span>04 FASI</span></a>
+      <a href="#strumento"><span>Stimatore</span><span>€ DEMO</span></a>
+      <a href="#scarti"><span>Scarti</span><span>03 ERRORI</span></a>
+      <a href="#prezzi"><span>Prezzi</span><span>FORFAIT FINTI</span></a>
+      <a href="#contatti"><span>Contatti</span><span>SCRIVICI*</span></a>
+    </nav>
+    <div class="foot-meta">
+      <p class="disclaimer"><strong>Disclaimer colto-ironico.</strong> Studio Rotta è un brand fittizio creato per questa demo: nomi, case study, prezzi, recensioni, indirizzi (via Esempio 0, Milano), telefoni (02 0000 0000) ed email (ciao@rotta-demo.it) sono inventati e non riferiti a persone o aziende reali. Nessun dato viene raccolto o inviato; i moduli sono dimostrativi. Qualsiasi somiglianza con studi veri è casuale e, diciamolo, lusinghiera. Contenuti originali al 100%, inchiostro incluso.</p>
+      <div><p style="margin:0 0 .6rem;font-family:var(--font-display);font-weight:800;font-size:1.4rem">ROTTA<span style="color:var(--vermilion)">*</span></p><p class="margin-note" style="color:rgba(242,239,233,.6)">composto con Syne, Instrument Sans, Instrument Serif corsivo e Space Mono. Stampato su pixel riciclati. Timbro BOZZA/APPROVATO puramente decorativo. © 2026 Studio Rotta fittizio — tutti i refusi riservati.</p></div>
+    </div>
+    <div class="foot-bottom"><span>N.29 — SALA COLLAUDI EDITORIALE</span><span><a href="#hero" style="color:var(--bone)">TORNA IN PRIMA PAGINA ↑</a></span><span>FATTO A MILANO ( PER FINTA )</span></div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+<script>
+(function(){
+"use strict";
+gsap.registerPlugin(ScrollTrigger);
+gsap.defaults({ease:"power3.out",overwrite:"auto",duration:.9});
+var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+var finePointer = window.matchMedia("(pointer: fine)").matches;
+/* ---------- Lenis sync ---------- */
+var lenis = null;
+if(!reduced && typeof Lenis !== "undefined"){
+  lenis = new Lenis({duration:1.05,smoothWheel:true});
+  lenis.on("scroll",ScrollTrigger.update);
+  gsap.ticker.add(function(t){lenis.raf(t*1000);});
+  gsap.ticker.lagSmoothing(0);
+}
+function scrollToTarget(sel){
+  var el=document.querySelector(sel);
+  if(!el) return;
+  if(lenis){lenis.scrollTo(el,{offset:-70,duration:1.2});}
+  else{el.scrollIntoView({behavior:reduced?"auto":"smooth"});}
+}
+document.querySelectorAll('a[href^="#"]').forEach(function(a){
+  a.addEventListener("click",function(e){
+    var id=a.getAttribute("href");
+    if(id.length>1 && document.querySelector(id)){e.preventDefault();scrollToTarget(id);closeMobile();}
+  });
+});
+/* ---------- split helpers (manuale) ---------- */
+function splitChars(el){
+  var text=el.textContent;el.textContent="";el.setAttribute("aria-label",text);
+  var frag=document.createDocumentFragment();
+  Array.prototype.forEach.call(text,function(ch){
+    var s=document.createElement("span");
+    s.className="h-char";s.setAttribute("aria-hidden","true");
+    s.textContent=(ch===" ")?" ":ch;frag.appendChild(s);
+  });
+  el.appendChild(frag);return el.querySelectorAll(".h-char");
+}
+function splitWords(el){
+  var raw=el.textContent.trim().split(/\s+/);
+  el.innerHTML="";
+  var words=raw.map(function(w){
+    var s=document.createElement("span");s.className="m-word";
+    if(w.indexOf("riviste")>-1||w.indexOf("negozi")>-1||w.indexOf("edicola")>-1){s.classList.add("hl");}
+    if(w.indexOf("*")>-1){s.classList.add("verm");w=w.replace(/\*/g,"*");}
+    s.textContent=w;el.appendChild(s);el.appendChild(document.createTextNode(" "));
+    return s;
+  });
+  return words;
+}
+/* ---------- grid toggle ---------- */
+var gridToggle=document.getElementById("gridToggle"),gridOverlay=document.getElementById("gridOverlay");
+gridToggle.addEventListener("click",function(){
+  var on=gridOverlay.classList.toggle("is-on");
+  gridToggle.setAttribute("aria-pressed",on?"true":"false");
+  gridToggle.textContent=on?"nascondi griglia":"mostra griglia";
+});
+/* ---------- mobile nav + trap + Esc ---------- */
+var mobileNav=document.getElementById("mobileNav"),menuBtn=document.getElementById("menuBtn"),mobileClose=document.getElementById("mobileClose"),lastFocus=null;
+function openMobile(){lastFocus=document.activeElement;mobileNav.classList.add("is-open");menuBtn.setAttribute("aria-expanded","true");mobileClose.focus();}
+function closeMobile(){if(!mobileNav.classList.contains("is-open"))return;mobileNav.classList.remove("is-open");menuBtn.setAttribute("aria-expanded","false");if(lastFocus&&lastFocus.focus)lastFocus.focus();}
+menuBtn.addEventListener("click",openMobile);mobileClose.addEventListener("click",closeMobile);
+mobileNav.addEventListener("keydown",function(e){
+  if(e.key!=="Tab")return;
+  var f=mobileNav.querySelectorAll("a,button"),first=f[0],last=f[f.length-1];
+  if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+  else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"){closeMobile();hidePeek();}});
+mobileNav.querySelectorAll("a").forEach(function(a){a.addEventListener("click",closeMobile);});
+/* ---------- cursor: asterisco * vermilion ---------- */
+var cursor=document.getElementById("cursor"),cursorStar=document.getElementById("cursorStar"),cursorLens=document.getElementById("cursorLens");
+var cxTo=null,cyTo=null;
+if(finePointer&&!reduced){
+  gsap.set(cursor,{xPercent:-50,yPercent:-50,x:-100,y:-100});
+  cxTo=gsap.quickTo(cursor,"x",{duration:.35,ease:"power3.out"});
+  cyTo=gsap.quickTo(cursor,"y",{duration:.35,ease:"power3.out"});
+  window.addEventListener("mousemove",function(e){cxTo(e.clientX);cyTo(e.clientY);},{passive:true});
+  gsap.to(cursorStar,{rotation:"+=360",duration:14,repeat:-1,ease:"none"});
+}else{cursor.style.display="none";}
+function lensOn(label){if(!finePointer||reduced)return;cursorLens.textContent=label||"APRI";cursor.classList.add("is-lens");}
+function lensOff(){cursor.classList.remove("is-lens");}
+/* ---------- signature 3a: hero scattered -> assemble ---------- */
+var heroChars=[];
+document.querySelectorAll("#heroTitle [data-split]").forEach(function(line){
+  var isSecond=line.textContent.indexOf("ROTTA")>-1;
+  if(isSecond){line.innerHTML="ROTTA";var chars=splitChars(line);var star=document.createElement("span");star.className="h-char";star.style.color="var(--vermilion)";star.textContent="*";star.setAttribute("aria-hidden","true");line.appendChild(star);heroChars=heroChars.concat(Array.prototype.slice.call(line.querySelectorAll(".h-char")));}
+  else{heroChars=heroChars.concat(Array.prototype.slice.call(splitChars(line)));}
+});
+var heroGrid=document.getElementById("heroGrid"),heroPoster=document.getElementById("heroPoster");
+if(!reduced){
+  gsap.set(heroChars,{xPercent:function(){return gsap.utils.random(-220,220);},yPercent:function(){return gsap.utils.random(-160,160);},rotation:function(){return gsap.utils.random(-120,120);},opacity:0,immediateRender:false});
+  gsap.set("#heroGrid .hero-index, #hero .hero-stats, #hero .hero-meta, #hero .hero-sub, #hero .hero-cta, #hero .kicker",{opacity:0,y:24,immediateRender:false});
+  gsap.set("#heroPoster",{opacity:0,immediateRender:false});
+  var intro=gsap.timeline({defaults:{ease:"expo.out",overwrite:"auto"},labels:{assemble:0,snap:.55}});
+  intro.to("#heroPoster",{opacity:1,duration:.4,ease:"power2.out"},0)
+    .to(heroChars,{xPercent:0,yPercent:0,rotation:0,opacity:1,duration:1.1,stagger:{from:"random",amount:.8},ease:"expo.out",clearProps:"transform"}, "assemble")
+    .to("#heroGrid .hero-index, #hero .hero-stats",{opacity:1,y:0,duration:.7,stagger:.08},"snap")
+    .to("#hero .hero-meta, #hero .kicker, #hero .hero-sub, #hero .hero-cta",{opacity:1,y:0,duration:.6,stagger:.07,clearProps:"transform"},"snap+=.1");
+  gsap.to("#heroAsterisk",{rotation:"+=180",duration:6,repeat:-1,ease:"none",yoyo:false});
+}else{
+  gsap.set("#heroPoster,.hero-index,.hero-stats",{clearProps:"all"});
+}
+/* ---------- signature 3c: marquee obliquo velocity-driven ---------- */
+var marqueeTrack=document.getElementById("marqueeTrack");
+var marqueeX=gsap.quickTo(marqueeTrack,"x",{duration:.6,ease:"power3.out"});
+var marqueeSkew=gsap.quickTo(marqueeTrack,"skewX",{duration:.5,ease:"power3.out"});
+(function(){
+  var x=0,half=0;
+  function measure(){half=marqueeTrack.scrollWidth/2;}
+  measure();
+  gsap.ticker.add(function(_,delta){
+    if(reduced)return;
+    var v=ScrollTrigger.isInViewport(marqueeTrack)?1:1;
+    x-= (delta/1000)*90*v;
+    if(half>0&&-x>=half){x+=half;}
+    marqueeTrack.style.transform="translate3d("+x+"px,0,0) skewX("+marqueeTrack.dataset.skew+")";
+  });
+  marqueeTrack.dataset.skew="0deg";
+  ScrollTrigger.create({trigger:"#hero",start:"top bottom",end:"max",onUpdate:function(self){
+    var vel=self.getVelocity();
+    var sk=gsap.utils.clamp(-14,14,vel/-220);
+    marqueeTrack.dataset.skew=sk+"deg";
+    gsap.to(marqueeTrack,{skewX:sk,duration:.4,ease:"power3.out",overwrite:"auto"});
+  }});
+  window.addEventListener("resize",measure);
+})();
+/* ---------- signature: titoli skew-da-velocita ---------- */
+if(!reduced){
+  document.querySelectorAll(".sec-title").forEach(function(t){
+    var q=gsap.quickTo(t,"skewX",{duration:.4,ease:"power3.out"});
+    var qy=gsap.quickTo(t,"y",{duration:.5,ease:"power3.out"});
+    ScrollTrigger.create({trigger:t,start:"top bottom",end:"bottom top",onUpdate:function(self){
+      var v=self.getVelocity();
+      q(gsap.utils.clamp(-8,8,v/-350));
+    }});
+    gsap.fromTo(t,{y:34,opacity:0},{y:0,opacity:1,duration:.9,ease:"power3.out",overwrite:"auto",immediateRender:false,
+      scrollTrigger:{trigger:t,start:"top 88%",once:true}});
+    void qy;
+  });
+}
+/* ---------- signature 2: lavori FLIP manuale + peek ---------- */
+var worksGrid=document.getElementById("worksGrid");
+var cards=Array.prototype.slice.call(worksGrid.querySelectorAll(".work-card"));
+var filterBtns=Array.prototype.slice.call(document.querySelectorAll(".filters .chip"));
+var peek=document.getElementById("peek"),peekInner=peek.querySelector(".peek-inner"),
+    peekCover=document.getElementById("peekCover"),peekTitle=document.getElementById("peekTitle"),
+    peekKick=document.getElementById("peekKick"),peekSub=document.getElementById("peekSub");
+var peekX=null,peekY=null;
+if(finePointer&&!reduced){
+  gsap.set(peek,{xPercent:14,yPercent:-110});
+  peekX=gsap.quickTo(peek,"x",{duration:.45,ease:"power3.out"});
+  peekY=gsap.quickTo(peek,"y",{duration:.45,ease:"power3.out"});
+  window.addEventListener("mousemove",function(e){peekX(e.clientX);peekY(e.clientY);},{passive:true});
+}
+function showPeek(card){
+  if(!finePointer||reduced)return;
+  peekTitle.textContent=card.dataset.title||"Prova";
+  peekKick.textContent=card.dataset.kick||"CASE";
+  peekSub.textContent=card.dataset.sub||"";
+  peekCover.style.background=card.dataset.color||"var(--lilac)";
+  peekCover.style.color=(card.dataset.color==="#0F0F0E")?"var(--bone)":"var(--ink)";
+  peekCover.textContent=(card.dataset.title||"Aa").split(" ").map(function(w){return w[0];}).join("").slice(0,2);
+  gsap.to(peek,{opacity:1,duration:.25,overwrite:"auto"});
+  gsap.fromTo(peekInner,{clipPath:"inset(0 100% 0 0)"},{clipPath:"inset(0 0% 0 0)",duration:.45,ease:"power3.out",overwrite:"auto",immediateRender:false});
+}
+function hidePeek(){
+  if(!finePointer||reduced)return;
+  gsap.to(peekInner,{clipPath:"inset(0 0% 0 100%)",duration:.3,ease:"power3.in",overwrite:"auto"});
+  gsap.to(peek,{opacity:0,duration:.25,delay:.15,overwrite:"auto"});
+}
+cards.forEach(function(card){
+  card.addEventListener("mouseenter",function(){showPeek(card);lensOn(card.dataset.peek||"APRI");});
+  card.addEventListener("mouseleave",function(){hidePeek();lensOff();});
+  card.addEventListener("focus",function(){lensOn(card.dataset.peek||"APRI");});
+  card.addEventListener("blur",function(){lensOff();});
+  function toggleOpen(){var open=card.classList.toggle("is-open");card.setAttribute("aria-expanded",open?"true":"false");}
+  card.addEventListener("click",function(e){if(window.matchMedia("(pointer: coarse)").matches||!finePointer){toggleOpen();}});
+  card.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();toggleOpen();}});
+});
+/* FLIP filter: misura prima/dopo, anima x/y/scale invertiti, nessuna crossfade */
+var activeFilter="all";
+filterBtns.forEach(function(btn){
+  btn.addEventListener("click",function(){applyFilter(btn.dataset.filter,btn);});
+});
+function applyFilter(f,btn){
+  if(f===activeFilter)return;activeFilter=f;
+  filterBtns.forEach(function(b){b.setAttribute("aria-pressed",b===btn?"true":"false");});
+  if(reduced){
+    cards.forEach(function(c){c.style.display=(f==="all"||c.dataset.cat===f)?"":"none";});
+    ScrollTrigger.refresh();return;
+  }
+  var first={};
+  cards.forEach(function(c){if(c.style.display!=="none"){first[c.dataset.title]=c.getBoundingClientRect();}});
+  cards.forEach(function(c){
+    var show=(f==="all"||c.dataset.cat===f);
+    c.style.display=show?"":"none";
+  });
+  var tl=gsap.timeline({defaults:{ease:"power3.out",overwrite:"auto"}});
+  cards.forEach(function(c){
+    if(c.style.display==="none")return;
+    var last=c.getBoundingClientRect();
+    var prev=first[c.dataset.title];
+    if(prev){
+      var dx=prev.left-last.left,dy=prev.top-last.top;
+      var sx=prev.width/last.width,sy=prev.height/last.height;
+      if(Math.abs(dx)>2||Math.abs(dy)>2||Math.abs(sx-1)>.02){
+        tl.fromTo(c,{x:dx,y:dy,scaleX:sx,scaleY:sy,transformOrigin:"top left",immediateRender:false},{x:0,y:0,scaleX:1,scaleY:1,duration:.65,clearProps:"transform"},0);
+      }
+    }else{
+      tl.fromTo(c,{scale:.92,y:14,transformOrigin:"center",immediateRender:false},{scale:1,y:0,duration:.5,clearProps:"transform"},0);
+    }
+  });
+  tl.add(function(){ScrollTrigger.refresh();});
+}
+/* ---------- signature 1: manifesto pinned scrub ---------- */
+var maniText=document.getElementById("manifestoText");
+var mWords=splitWords(maniText);
+var maniCount=document.getElementById("maniCount");
+maniCount.textContent="0 / "+mWords.length;
+var mm=gsap.matchMedia();
+mm.add({
+  isDesktop:"(min-width: 900px) and (prefers-reduced-motion: no-preference)",
+  isMobile:"(max-width: 899px), (prefers-reduced-motion: reduce)"
+},function(ctx){
+  var isDesktop=ctx.conditions.isDesktop;
+  var pinSec=document.getElementById("manifesto");
+  var ast=document.getElementById("manifestoAst");
+  var bar=document.getElementById("maniBar");
+  if(isDesktop){
+    gsap.set(mWords,{opacity:.14,immediateRender:false});
+    var mtl=gsap.timeline({defaults:{ease:"none",overwrite:"auto"},
+      scrollTrigger:{trigger:"#manifestoPin",start:"top top",end:"+=220%",pin:true,scrub:1,invalidateOnRefresh:true,markers:false,
+        onUpdate:function(self){bar.style.transform="scaleX("+self.progress+")";}}
+    });
+    mtl.to(pinSec,{backgroundColor:"#0F0F0E",color:"#F2EFE9",duration:1},0);
+    mtl.to(mWords,{opacity:1,duration:.6,stagger:.12,
+      onUpdate:function(){var lit=0;mWords.forEach(function(w){if(parseFloat(getComputedStyle(w).opacity)>.6)lit++;});maniCount.textContent=lit+" / "+mWords.length;}
+    },0);
+    mtl.to(ast,{rotation:"+=180_cw",duration:1.4,ease:"none"},0);
+    mtl.to(pinSec,{backgroundColor:"#F2EFE9",color:"#0F0F0E",duration:.8},.75);
+    mtl.to(ast,{rotation:"+=180_cw",duration:.8,ease:"none"},.75);
+  }else{
+    gsap.set([pinSec],{clearProps:"backgroundColor,color"});
+    gsap.set(mWords,{opacity:1});
+    gsap.set(ast,{rotation:0});
+    maniCount.textContent=mWords.length+" / "+mWords.length;
+    if(bar)bar.style.transform="scaleX(1)";
+    gsap.fromTo(mWords,{opacity:.2},{opacity:1,duration:.6,stagger:.02,overwrite:"auto",immediateRender:false,
+      scrollTrigger:{trigger:"#manifestoPin",start:"top 80%",once:true,markers:false}});
+  }
+});
+/* ---------- metodo entrance (no pin: un solo pinned) ---------- */
+if(!reduced){
+  gsap.fromTo("#zStack .z-card",{y:40,opacity:0,rotation:function(i){return i%2?3:-3;}},
+    {y:0,opacity:1,rotation:0,duration:.8,stagger:.1,ease:"power3.out",overwrite:"auto",immediateRender:false,clearProps:"opacity",
+    scrollTrigger:{trigger:"#zStack",start:"top 82%",once:true,markers:false}});
+}
+/* ---------- strumento: stimatore ---------- */
+var tipoInputs=document.querySelectorAll('input[name="tipo"]'),
+    rangePagine=document.getElementById("rangePagine"),rangeLingue=document.getElementById("rangeLingue"),
+    pagineOut=document.getElementById("pagineOut"),lingueOut=document.getElementById("lingueOut"),
+    pagineVal=document.getElementById("pagineVal"),lingueVal=document.getElementById("lingueVal"),
+    optCopy=document.getElementById("optCopy"),optCms=document.getElementById("optCms"),optMulti=document.getElementById("optMulti"),
+    odoDigits=document.getElementById("odoDigits"),weeksOut=document.getElementById("weeksOut"),
+    stimaSr=document.getElementById("stimaSr"),formTipo=document.getElementById("formTipo");
+var BASE={landing:2400,sito:6800,ecommerce:11500};
+var BASEW={landing:2,sito:4,ecommerce:6};
+function currentTipo(){var t="landing";tipoInputs.forEach(function(r){if(r.checked)t=r.value;});return t;}
+/* build odometer: 5 cols */
+var odoCols=[];
+(function(){
+  for(var i=0;i<5;i++){
+    var col=document.createElement("div");col.className="odo-col";
+    var strip=document.createElement("div");strip.className="odo-strip";
+    for(var d=0;d<10;d++){var s=document.createElement("span");s.textContent=d;strip.appendChild(s);}
+    col.appendChild(strip);odoDigits.appendChild(col);odoCols.push(strip);
+  }
+})();
+var lastTotal=0;
+function setOdometer(total){
+  var str=String(Math.round(total)).padStart(5,"0").slice(-5);
+  odoCols.forEach(function(strip,i){
+    var digit=parseInt(str[i],10);
+    var y=-(digit*1.25);
+    if(reduced){gsap.set(strip,{y:y+"em"});}
+    else{gsap.to(strip,{y:y+"em",duration:.7,ease:"power3.out",overwrite:"auto"});}
+  });
+}
+function calcStima(){
+  var tipo=currentTipo(),pagine=parseInt(rangePagine.value,10),lingue=parseInt(rangeLingue.value,10);
+  pagineOut.textContent=pagine;lingueOut.textContent=lingue;
+  pagineVal.textContent=pagine+" pg";lingueVal.textContent=lingue+" lg";
+  var base=BASE[tipo];
+  var extraPagine=Math.max(0,pagine-5)*120;
+  if(tipo==="ecommerce")extraPagine=Math.max(0,pagine-8)*150;
+  var design=Math.round(base*.42+extraPagine*.4);
+  var dev=Math.round(base*.40+extraPagine*.6+(optCms.checked?1200:0));
+  var copy=optCopy.checked?Math.round(500+pagine*45):0;
+  var cmsLang=(optCms.checked?400:0)+(lingue>1?(lingue-1)*(optMulti.checked?900:500):0);
+  var total=design+dev+copy+cmsLang;
+  var weeks=BASEW[tipo]+Math.ceil(Math.max(0,pagine-6)/8)+(lingue-1)*1+(optCms.checked?1:0);
+  weeks=Math.min(12,Math.max(2,weeks));
+  return{total:total,weeks:weeks,parts:[design,dev,copy,cmsLang]};
+}
+function renderStima(animate){
+  var r=calcStima();
+  setOdometer(r.total);
+  stimaSr.textContent=r.total.toLocaleString("it-IT")+" euro";
+  weeksOut.textContent=r.weeks+" settimane";
+  var max=Math.max.apply(null,r.parts.concat([1]));
+  r.parts.forEach(function(v,i){
+    var fill=document.getElementById("b"+(i+1)),val=document.getElementById("v"+(i+1));
+    val.textContent="€"+v.toLocaleString("it-IT");
+    var sc=Math.max(.04,v/max);
+    if(reduced||animate===false){gsap.set(fill,{scaleX:sc});}
+    else{gsap.to(fill,{scaleX:sc,duration:.7,ease:"power3.out",overwrite:"auto"});}
+  });
+  lastTotal=r.total;
+  if(formTipo){var map={landing:"landing",sito:"sito",ecommerce:"ecommerce"};formTipo.value=map[currentTipo()]||"landing";}
+}
+[tipoInputs,rangePagine,rangeLingue,optCopy,optCms,optMulti].forEach(function(el){
+  if(el instanceof NodeList){el.forEach(function(r){r.addEventListener("change",function(){renderStima(true);});});}
+  else if(el){el.addEventListener("input",function(){renderStima(false);});el.addEventListener("change",function(){renderStima(true);});}
+});
+renderStima(false);
+ScrollTrigger.create({trigger:"#strumento",start:"top 75%",once:true,onEnter:function(){renderStima(true);}});
+/* ---------- scarti: tastiera + tilt leggero ---------- */
+document.querySelectorAll(".scarto").forEach(function(s){
+  s.addEventListener("keydown",function(e){if(e.key==="Enter"){s.classList.toggle("is-open");}});
+  if(!reduced&&finePointer){
+    s.addEventListener("mousemove",function(e){
+      var r=s.getBoundingClientRect();
+      var rx=((e.clientY-r.top)/r.height-.5)*-6,ry=((e.clientX-r.left)/r.width-.5)*6;
+      gsap.to(s,{rotation:ry/4,duration:.4,ease:"power2.out",overwrite:"auto",transformPerspective:700});
+    });
+    s.addEventListener("mouseleave",function(){gsap.to(s,{rotation:0,duration:.5,ease:"power3.out",overwrite:"auto"});});
+  }
+});
+/* ---------- contatti demo ---------- */
+var demoForm=document.getElementById("demoForm"),formOk=document.getElementById("formOk");
+demoForm.addEventListener("submit",function(e){
+  e.preventDefault();
+  if(!demoForm.checkValidity()){demoForm.reportValidity();return;}
+  formOk.classList.add("is-show");
+  demoForm.querySelector("button[type=submit]").textContent="Bozza inviata (per finta) ✓";
+});
+document.querySelectorAll(".cal-slot").forEach(function(b){
+  b.addEventListener("click",function(){
+    var on=b.getAttribute("aria-pressed")==="true";
+    document.querySelectorAll(".cal-slot").forEach(function(x){x.setAttribute("aria-pressed","false");});
+    b.setAttribute("aria-pressed",on?"false":"true");
+    document.getElementById("slotOut").textContent=on?"nessuno slot selezionato — il calendario non giudica.":"slot fittizio prenotato: "+b.textContent.replace(/\s+/g," ").trim()+" — nessun vero appuntamento creato.";
+  });
+});
+document.getElementById("stimaCta").addEventListener("click",function(){
+  var ta=demoForm.querySelector("textarea");
+  ta.value="Ciao Rotta! Ho stimato circa €"+Math.round(lastTotal).toLocaleString("it-IT")+" per un progetto tipo "+currentTipo()+" ("+rangePagine.value+" pagine, "+rangeLingue.value+" lingue). Facciamo due chiacchiere?";
+});
+/* ---------- footer reveal ---------- */
+if(!reduced){
+  gsap.fromTo(".foot-index a",{y:26,opacity:0},{y:0,opacity:1,duration:.7,stagger:.06,ease:"power3.out",overwrite:"auto",immediateRender:false,
+    scrollTrigger:{trigger:".foot-index",start:"top 88%",once:true,markers:false}});
+}
+/* ---------- anchor offset + refresh dopo fonts ---------- */
+if(document.fonts&&document.fonts.ready){document.fonts.ready.then(function(){try{ScrollTrigger.refresh();}catch(e){}});}
+window.addEventListener("load",function(){ScrollTrigger.refresh();});
+})();
+</script>
+</body>
+</html>

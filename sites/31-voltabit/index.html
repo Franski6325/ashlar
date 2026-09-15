@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>31 — VOLTABIT · Laboratorio computer e reti | Apriamo le macchine. Chiudiamo i problemi.</title>
+<meta name="description" content="Voltabit è un laboratorio dimostrativo fittizio per computer e reti: assistenza, assemblaggio, reti casa/PMI. Diagnosi in 24h demo. Sigle e prezzi dimostrativi.">
+<!--
+  VOLTABIT — singolo file autonomo.
+  CDN: gsap@3.12.5 + ScrollTrigger@3.12.5 + lenis@1.1.18 (MIT) + Google Fonts (OFL).
+  MIT: GSAP https://gsap.com/docs/v3/Licensing/ — Lenis https://github.com/darkroom.engineering/lenis/blob/main/LICENSE.md
+  Tutto fittizio: brand, sigle VX/FX, listini, tempi, contatti. Nessun hardware reale, nessun marchio reale.
+-->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230B0E0C'/%3E%3Cpath d='M9 17 L14 17 L16 11 L19 22 L21 17 L24 17' stroke='%2300E07A' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='16' cy='26' r='1.6' fill='%23FFB224'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --lab:#0B0E0C;
+  --lab-2:#101511;
+  --lab-3:#151B17;
+  --phosphor-paper:#E8F0E8;
+  --paper:#E8F0E8;
+  --paper-2:#DDE7DD;
+  --phosphor:#00E07A;
+  --phosphor-deep:#00B866;
+  --phosphor-glow:rgba(0,224,122,.35);
+  --amber:#FFB224;
+  --amber-ink:#2A1B00;
+  --moss:#3A4A40;
+  --moss-soft:#5B6E62;
+  --line:rgba(232,240,232,.14);
+  --line-strong:rgba(232,240,232,.24);
+  --line-paper:rgba(11,14,12,.16);
+  --ink:#E8F0E8;
+  --ink-dim:rgba(232,240,232,.72);
+  --ink-faint:rgba(232,240,232,.52);
+  --ink-paper:#0B0E0C;
+  --ink-paper-dim:rgba(11,14,12,.72);
+  --font-display:"Unbounded",system-ui,sans-serif;
+  --font-body:"IBM Plex Sans",system-ui,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,monospace;
+  --r-mod:8px;
+  --r-chip:4px;
+  --r-tape:0;
+  --max:1280px;
+  --pad:clamp(16px,4vw,40px);
+  --sec:clamp(64px,9vw,128px);
+  --tap:44px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+body{
+  margin:0;background:var(--lab);color:var(--ink);
+  font-family:var(--font-body);font-size:clamp(15px,1.4vw,17px);line-height:1.6;
+  overflow-x:hidden;-webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--phosphor);color:#06110B}
+a{color:inherit}
+img,svg{display:block;max-width:100%}
+:focus{outline:none}
+:focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:4px}
+.skip-link{
+  position:fixed;top:-60px;left:16px;z-index:200;
+  background:var(--amber);color:#111;font-family:var(--font-mono);font-weight:700;
+  font-size:13px;padding:12px 16px;border-radius:0 0 6px 6px;text-decoration:none;
+  transition:top .2s ease;
+}
+.skip-link:focus{top:0}
+.wrap{max-width:var(--max);margin:0 auto;padding-left:var(--pad);padding-right:var(--pad)}
+.mono{font-family:var(--font-mono)}
+.eyebrow{
+  font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--phosphor);display:flex;align-items:center;gap:10px;
+}
+.eyebrow::before{content:"";width:28px;height:2px;background:var(--phosphor);flex:none}
+.eyebrow .n{color:var(--ink-faint);letter-spacing:.08em}
+h1,h2{font-family:var(--font-display);line-height:1.04;letter-spacing:-.01em;margin:0;text-wrap:balance}
+h1{font-size:clamp(34px,6.4vw,76px);font-weight:700}
+h2{font-size:clamp(26px,4.2vw,48px);font-weight:500}
+h2 strong{font-weight:700;color:var(--phosphor)}
+.light h2 strong{color:#0a7a48}
+.lead{color:var(--ink-dim);max-width:62ch}
+.light .lead{color:var(--ink-paper-dim)}
+.sec{padding-top:var(--sec);padding-bottom:var(--sec);position:relative}
+.sec-head{display:grid;gap:14px;margin-bottom:clamp(28px,4vw,52px);max-width:900px}
+.chip{
+  display:inline-flex;align-items:center;gap:8px;min-height:32px;
+  font-family:var(--font-mono);font-size:12px;font-weight:500;letter-spacing:.04em;
+  border:1px solid var(--line-strong);border-radius:var(--r-chip);padding:6px 10px;color:var(--ink-dim);
+  background:rgba(232,240,232,.04);white-space:nowrap;
+}
+.chip .dot{width:8px;height:8px;border-radius:50%;background:var(--phosphor);box-shadow:0 0 10px var(--phosphor-glow);flex:none}
+.chip.amber{border-color:rgba(255,178,36,.5);color:var(--amber);background:rgba(255,178,36,.08)}
+.chip.amber .dot{background:var(--amber);box-shadow:0 0 10px rgba(255,178,36,.4)}
+.light .chip{border-color:var(--line-paper);color:var(--ink-paper-dim);background:rgba(11,14,12,.04)}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  min-height:var(--tap);padding:12px 20px;border-radius:var(--r-mod);
+  font-family:var(--font-mono);font-size:14px;font-weight:700;letter-spacing:.02em;
+  text-decoration:none;border:1px solid transparent;cursor:pointer;transition:transform .18s ease,background .18s ease,border-color .18s ease;
+}
+.btn-primary{background:var(--amber);color:#141000;border-color:#d68f12}
+.btn-primary:hover{background:#ffc14d;transform:translateY(-1px)}
+.btn-ghost{border-color:var(--line-strong);color:var(--ink);background:transparent}
+.btn-ghost:hover{border-color:var(--phosphor);color:var(--phosphor)}
+.light .btn-ghost{border-color:var(--line-paper);color:var(--ink-paper)}
+.light .btn-ghost:hover{border-color:#0a7a48;color:#0a7a48}
+.asset-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:.1em;
+  background:var(--paper);color:#0B0E0C;padding:6px 10px 6px 8px;border-radius:3px;
+  border-left:6px solid var(--amber);text-transform:uppercase;
+}
+.asset-tag::after{content:"▮▮▮";letter-spacing:-1px;opacity:.55;font-size:10px}
+/* pegboard */
+.peg{
+  background-image:radial-gradient(circle,rgba(232,240,232,.16) 1.1px,transparent 1.6px);
+  background-size:18px 18px;
+}
+.peg-light{background-image:radial-gradient(circle,rgba(11,14,12,.14) 1.1px,transparent 1.6px);background-size:18px 18px}
+/* header */
+.site-head{
+  position:sticky;top:0;z-index:80;background:rgba(11,14,12,.86);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+}
+.site-head .bar{max-width:var(--max);margin:0 auto;padding:0 var(--pad);display:flex;align-items:center;gap:16px;min-height:64px}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;margin-right:auto}
+.brand-mark{width:36px;height:36px;flex:none;border-radius:8px;background:#060908;border:1px solid var(--line-strong);display:grid;place-items:center}
+.brand-name{font-family:var(--font-display);font-weight:700;font-size:15px;letter-spacing:.06em}
+.brand-name small{display:block;font-family:var(--font-mono);font-weight:500;font-size:10px;letter-spacing:.18em;color:var(--phosphor)}
+.nav{display:flex;gap:4px;align-items:center}
+.nav a{
+  font-family:var(--font-mono);font-size:12.5px;font-weight:500;text-decoration:none;
+  color:var(--ink-dim);padding:10px 12px;border-radius:6px;min-height:var(--tap);
+  display:inline-flex;align-items:center;
+}
+.nav a:hover{color:var(--phosphor);background:rgba(0,224,122,.07)}
+.head-cta{display:inline-flex}
+.menu-btn{display:none;background:transparent;border:1px solid var(--line-strong);color:var(--ink);border-radius:6px;min-width:var(--tap);min-height:var(--tap);font-family:var(--font-mono);font-weight:700;cursor:pointer}
+/* HERO */
+#hero{padding-top:clamp(28px,4vw,56px);padding-bottom:var(--sec);overflow:clip}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(20px,3vw,36px);align-items:start}
+.hero-copy{display:grid;gap:18px;align-content:start}
+.hero-title .ph{color:var(--phosphor);text-shadow:0 0 18px rgba(0,224,122,.35)}
+.claim{font-family:var(--font-mono);font-size:clamp(13px,1.6vw,15px);color:var(--amber);border-left:3px solid var(--amber);padding-left:12px;margin:4px 0 0}
+.hero-ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:6px}
+.hero-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.hero-note{font-family:var(--font-mono);font-size:12px;color:var(--ink-faint)}
+.hero-note b{color:var(--phosphor)}
+/* terminal */
+.term{
+  border:1px solid var(--line-strong);border-radius:var(--r-tape);
+  background:#070A08;overflow:hidden;position:relative;
+}
+.term-tape{
+  display:flex;align-items:center;gap:10px;padding:10px 14px;
+  background:#0E130F;border-bottom:1px solid var(--line);border-radius:var(--r-tape);
+  font-family:var(--font-mono);font-size:12px;color:var(--ink-dim);
+}
+.leds{display:flex;gap:6px}
+.led{width:10px;height:10px;border-radius:50%;background:#222}
+.led.g{background:var(--phosphor);box-shadow:0 0 8px var(--phosphor-glow)}
+.led.a{background:var(--amber)}.led.r{background:#3a2323;border:1px solid #5a3333}
+.term-tape .t{margin-left:auto;letter-spacing:.08em;font-size:11px}
+.term-body{
+  position:relative;padding:18px 16px 16px;min-height:340px;
+  font-family:var(--font-mono);font-size:13px;line-height:1.7;color:var(--phosphor);
+  text-shadow:0 0 12px rgba(0,224,122,.28);
+}
+.term-body::after{ /* scanline SOLO terminale */
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background:repeating-linear-gradient(to bottom,rgba(255,255,255,.035) 0 1px,transparent 1px 4px);
+}
+.term-body .dim{color:rgba(0,224,122,.62);text-shadow:none}
+.term-body .warn{color:var(--amber);text-shadow:0 0 12px rgba(255,178,36,.3)}
+.term-body .mut{color:var(--ink-faint);text-shadow:none}
+#postLog{display:grid;gap:2px;margin:0 0 12px;min-height:150px}
+#postLog .ln{white-space:pre-wrap;word-break:break-word}
+#postLog .ln .ok{color:var(--phosphor);font-weight:700}
+.post-check{list-style:none;margin:0 0 12px;padding:12px;border:1px dashed rgba(0,224,122,.3);border-radius:var(--r-chip);display:grid;gap:8px;background:rgba(0,224,122,.04)}
+.post-check li{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--ink-dim);text-shadow:none}
+.post-check .box{width:18px;height:18px;flex:none;border:1px solid rgba(0,224,122,.5);border-radius:3px;display:grid;place-items:center;font-size:13px;font-weight:700;color:transparent}
+.post-check li.is-ok{color:var(--ink)}
+.post-check li.is-ok .box{background:var(--phosphor);color:#06110B;border-color:var(--phosphor)}
+.post-prompt{display:flex;align-items:center;gap:8px;border-top:1px solid var(--line);padding-top:12px;color:var(--phosphor)}
+.cursor-blink{display:inline-block;width:10px;height:18px;background:var(--phosphor);animation:blink 1s steps(1) infinite;box-shadow:0 0 10px var(--phosphor-glow)}
+@keyframes blink{50%{opacity:0}}
+.term-foot{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:10px 14px;border-top:1px solid var(--line);background:#0B100C;font-family:var(--font-mono);font-size:11px;color:var(--ink-faint)}
+.skip-post{background:transparent;border:1px solid var(--line-strong);color:var(--ink-dim);font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:.08em;padding:8px 12px;min-height:36px;border-radius:var(--r-chip);cursor:pointer}
+.skip-post:hover{border-color:var(--amber);color:var(--amber)}
+/* bench panels */
+.bench-stack{display:grid;gap:12px;margin-top:14px}
+.bench-panel{
+  border:1px solid var(--line-strong);border-radius:var(--r-mod);
+  background:linear-gradient(180deg,rgba(232,240,232,.05),rgba(232,240,232,.015));
+  padding:14px 14px 14px 16px;display:grid;grid-template-columns:44px 1fr auto;gap:14px;align-items:center;
+  position:relative;overflow:hidden;
+}
+.bench-panel::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--moss)}
+.bench-panel.p1::before{background:var(--phosphor)}
+.bench-panel.p2::before{background:var(--amber)}
+.bench-panel.p3::before{background:#7FD8A8}
+.bench-ico{width:44px;height:44px;border-radius:8px;border:1px solid var(--line-strong);display:grid;place-items:center;background:#070A08}
+.bench-panel h3{margin:0;font-family:var(--font-mono);font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.bench-panel p{margin:4px 0 0;font-size:13.5px;color:var(--ink-dim)}
+.bench-val{font-family:var(--font-mono);font-size:12px;text-align:right;color:var(--ink-dim);line-height:1.5}
+.bench-val b{display:block;font-size:16px;color:var(--ink)}
+.corner{position:relative}
+.corner i{position:absolute;width:10px;height:10px;border:1px solid rgba(0,224,122,.5);pointer-events:none}
+.corner i:nth-child(1){top:6px;left:6px;border-right:0;border-bottom:0}
+.corner i:nth-child(2){top:6px;right:6px;border-left:0;border-bottom:0}
+.corner i:nth-child(3){bottom:6px;left:6px;border-right:0;border-top:0}
+.corner i:nth-child(4){bottom:6px;right:6px;border-left:0;border-top:0}
+.cable-svg{width:100%;height:56px;margin-top:4px}
+/* SERVIZI */
+#servizi{background:linear-gradient(180deg,var(--lab) 0%,var(--lab-2) 100%);border-top:1px solid var(--line)}
+.benches{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.bench{
+  border:1px solid var(--line-strong);border-radius:var(--r-mod);background:#0D120E;
+  padding:0;overflow:hidden;display:flex;flex-direction:column;min-height:100%;
+}
+.bench-top{padding:18px 18px 14px;display:grid;gap:12px;border-bottom:1px solid var(--line)}
+.bench-top .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.bench-n{font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--ink-faint)}
+.bench h3{margin:0;font-family:var(--font-display);font-size:20px;font-weight:700}
+.bench h3 span{color:var(--phosphor)}
+.bench:nth-child(2) h3 span{color:var(--amber)}
+.bench ul{list-style:none;margin:0;padding:14px 18px;display:grid;gap:10px;font-size:14px;color:var(--ink-dim)}
+.bench li{display:flex;gap:10px;align-items:flex-start}
+.bench li::before{content:"›";color:var(--phosphor);font-family:var(--font-mono);font-weight:700}
+.bench:nth-child(2) li::before{color:var(--amber)}
+.bench-foot{margin-top:auto;padding:14px 18px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px dashed var(--line-strong);background:rgba(232,240,232,.02)}
+.price{font-family:var(--font-mono);font-size:13px;color:var(--ink-dim)}
+.price b{display:block;font-size:19px;color:var(--ink)}
+.link-bench{font-family:var(--font-mono);font-size:13px;font-weight:700;color:var(--phosphor);text-decoration:none;border:1px solid rgba(0,224,122,.4);padding:10px 14px;min-height:var(--tap);display:inline-flex;align-items:center;border-radius:6px}
+.link-bench:hover{background:rgba(0,224,122,.1)}
+/* TEARDOWN */
+#teardown{border-top:1px solid var(--line);background:var(--lab)}
+.td-layout{display:grid;grid-template-columns:340px 1fr;gap:clamp(20px,3vw,40px);align-items:start}
+.td-copy{display:grid;gap:14px;position:sticky;top:84px}
+.td-copy ol{margin:6px 0 0;padding:0;list-style:none;display:grid;gap:8px;font-family:var(--font-mono);font-size:12.5px;color:var(--ink-dim)}
+.td-copy ol li{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:var(--r-chip);padding:10px 12px;background:rgba(232,240,232,.02)}
+.td-copy ol li.is-lit{border-color:rgba(0,224,122,.55);color:var(--ink);background:rgba(0,224,122,.07)}
+.td-copy ol .k{font-weight:700;color:var(--phosphor);min-width:34px}
+.td-stage-wrap{border:1px solid var(--line-strong);border-radius:var(--r-mod);background:radial-gradient(120% 90% at 50% 0%,#141B16 0%,#0B0E0C 60%);min-height:560px;position:relative;overflow:hidden}
+.td-stage-wrap .peg{position:absolute;inset:0;opacity:.6;pointer-events:none}
+.td-stage{position:relative;height:560px;transform-style:preserve-3d;perspective:1100px}
+.td-layer{
+  position:absolute;left:50%;top:50%;width:min(420px,78%);
+  border:1px solid var(--line-strong);border-radius:var(--r-mod);
+  background:linear-gradient(180deg,#182019,#0E130F);
+  padding:14px 16px;transform-style:preserve-3d;will-change:transform;
+  box-shadow:0 18px 50px rgba(0,0,0,.5);
+}
+.td-layer .lh{display:flex;align-items:center;justify-content:space-between;gap:10px;font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--ink-dim);text-transform:uppercase;margin-bottom:10px}
+.td-layer .lh .code{color:var(--phosphor)}
+.td-mock{height:64px;border-radius:6px;border:1px dashed rgba(232,240,232,.22);position:relative;overflow:hidden;background:rgba(232,240,232,.03)}
+.td-mock.l1{background:linear-gradient(90deg,rgba(0,224,122,.14),transparent 60%),rgba(232,240,232,.03)}
+.td-mock.l1::after{content:"SCOCCA · pannello forato";position:absolute;inset:auto 10px 8px auto;font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;color:var(--ink-faint)}
+.td-fins{display:flex;gap:5px;padding:12px}
+.td-fins span{flex:1;height:40px;background:linear-gradient(180deg,#2A3530,#151B17);border:1px solid rgba(232,240,232,.14);border-radius:2px}
+.td-pcb{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:12px}
+.td-pcb span{height:22px;border-radius:3px;background:#0B0E0C;border:1px solid rgba(0,224,122,.35)}
+.td-pcb span:nth-child(2){background:rgba(0,224,122,.22)}
+.td-pcb b{grid-column:1/-1;height:14px;border-radius:2px;background:repeating-linear-gradient(90deg,var(--moss) 0 14px,transparent 14px 20px);opacity:.7}
+.td-psu{display:flex;align-items:center;gap:12px;padding:12px}
+.td-fan{width:44px;height:44px;border-radius:50%;border:2px solid rgba(255,178,36,.5);position:relative;flex:none}
+.td-fan::before,.td-fan::after{content:"";position:absolute;left:50%;top:50%;width:36px;height:6px;background:rgba(255,178,36,.35);border-radius:4px;transform:translate(-50%,-50%)}
+.td-fan::after{transform:translate(-50%,-50%) rotate(90deg)}
+.td-bars{flex:1;display:grid;gap:6px}
+.td-bars i{display:block;height:8px;border-radius:2px;background:rgba(232,240,232,.12)}
+.td-bars i:first-child{width:72%;background:rgba(255,178,36,.4)}
+.td-cables{padding:6px 12px 12px}
+.td-tag{
+  position:absolute;right:-8px;top:-14px;font-family:var(--font-mono);font-size:11px;font-weight:700;
+  letter-spacing:.08em;background:var(--amber);color:#171000;padding:6px 10px;border-radius:var(--r-chip);
+  opacity:.18;transform:translateY(4px);white-space:nowrap;
+}
+.td-layer.is-lit{border-color:rgba(0,224,122,.6)}
+.td-layer.is-lit .td-tag{opacity:1;transform:none}
+.td-screw{
+  position:absolute;left:18px;bottom:16px;width:54px;height:54px;z-index:5;
+  filter:drop-shadow(0 6px 14px rgba(0,0,0,.5));will-change:transform;
+}
+.td-progress{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(232,240,232,.1)}
+.td-progress i{display:block;height:100%;width:100%;background:var(--phosphor);transform:scaleX(0);transform-origin:left}
+.td-hint{font-family:var(--font-mono);font-size:11.5px;color:var(--ink-faint);display:flex;justify-content:space-between;gap:10px;padding:10px 4px 0}
+/* BENCHMARK */
+#benchmark{background:var(--lab-2);border-top:1px solid var(--line)}
+.bm-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;align-items:stretch}
+.bm-card{border:1px solid var(--line-strong);border-radius:var(--r-mod);background:#0C110D;padding:20px;display:grid;gap:16px;align-content:start}
+.bm-card h3{margin:0;font-family:var(--font-mono);font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-dim)}
+.bm-row{display:grid;grid-template-columns:120px 1fr 86px;gap:12px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:var(--r-mod);background:rgba(232,240,232,.02)}
+.bm-name{font-family:var(--font-mono);font-size:13px;font-weight:700}
+.bm-name small{display:block;font-weight:400;font-size:11px;color:var(--ink-faint);letter-spacing:.06em}
+.bm-track{height:22px;border-radius:var(--r-chip);background:rgba(232,240,232,.07);border:1px solid var(--line);overflow:hidden;position:relative}
+.bm-fill{display:block;height:100%;width:100%;transform:scaleX(0);transform-origin:left;background:linear-gradient(90deg,var(--moss),var(--phosphor));border-radius:3px}
+.bm-row.hl .bm-fill{background:linear-gradient(90deg,#8a5c00,var(--amber))}
+.bm-val{font-family:var(--font-mono);font-size:13px;font-weight:700;text-align:right}
+.bm-val small{display:block;font-weight:400;font-size:10px;color:var(--ink-faint)}
+.fps-wrap{display:grid;grid-template-columns:1fr;gap:12px}
+.fps-dial{border:1px solid var(--line);border-radius:var(--r-mod);background:#070A08;padding:16px;display:grid;gap:8px;justify-items:center}
+.fps-num{font-family:var(--font-mono);font-size:12px;color:var(--ink-dim);letter-spacing:.1em}
+.fps-num b{font-size:28px;color:var(--phosphor);text-shadow:0 0 14px var(--phosphor-glow);letter-spacing:0}
+.bm-log{
+  border:1px solid var(--line);border-radius:var(--r-chip);background:#070A08;
+  font-family:var(--font-mono);font-size:12px;line-height:1.7;color:rgba(0,224,122,.85);
+  padding:12px 14px;min-height:150px;max-height:190px;overflow:hidden;
+}
+.bm-log p{margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+/* STRUMENTO (light) */
+#strumento{background:var(--paper);color:var(--ink-paper);border-top:6px solid var(--lab)}
+#strumento .eyebrow{color:#0a7a48}
+#strumento .eyebrow::before{background:#0a7a48}
+.cfg-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+.cfg-form{border:2px solid #0B0E0C;border-radius:var(--r-mod);background:#F4F7F4;padding:20px;display:grid;gap:16px;box-shadow:6px 6px 0 #0B0E0C}
+.field{display:grid;gap:8px}
+.field label{font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.field select{
+  appearance:none;min-height:var(--tap);border:2px solid #0B0E0C;border-radius:6px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%230B0E0C' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 14px center;
+  font-family:var(--font-mono);font-size:14px;font-weight:500;padding:10px 38px 10px 12px;color:#0B0E0C;width:100%;cursor:pointer;
+}
+.field .help{font-size:12.5px;color:var(--ink-paper-dim);font-family:var(--font-mono)}
+.toggles{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.toggle{border:2px solid #0B0E0C;border-radius:6px;background:#fff;padding:12px;display:flex;gap:12px;align-items:center;cursor:pointer;min-height:var(--tap)}
+.toggle input{width:22px;height:22px;accent-color:#0a7a48;flex:none}
+.toggle b{font-family:var(--font-mono);font-size:13px;display:block}
+.toggle small{font-family:var(--font-mono);font-size:11.5px;color:var(--ink-paper-dim)}
+.cfg-out{border:2px solid #0B0E0C;border-radius:var(--r-mod);background:#0B0E0C;color:var(--ink);padding:20px;display:grid;gap:16px;box-shadow:6px 6px 0 rgba(11,14,12,.25);position:sticky;top:84px}
+.odo-label{font-family:var(--font-mono);font-size:11px;letter-spacing:.16em;color:var(--ink-faint);text-transform:uppercase;display:flex;justify-content:space-between;gap:10px}
+.odo{display:flex;gap:6px;align-items:stretch}
+.odo-reel{
+  flex:1;min-width:0;background:#060908;border:1px solid rgba(0,224,122,.4);border-radius:6px;
+  font-family:var(--font-mono);font-weight:700;font-size:clamp(24px,3.4vw,34px);color:var(--phosphor);
+  text-align:center;padding:10px 4px;text-shadow:0 0 14px var(--phosphor-glow);position:relative;overflow:hidden;
+}
+.odo-reel::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(0,224,122,.3)}
+.odo-cur{align-self:end;font-family:var(--font-mono);font-weight:700;color:var(--amber);padding-bottom:12px}
+.watt-row{display:grid;gap:8px}
+.watt-top{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:12px;color:var(--ink-dim)}
+.watt-top b{color:var(--ink);font-size:15px}
+.watt-track{height:14px;border-radius:7px;background:rgba(232,240,232,.1);border:1px solid var(--line);overflow:hidden}
+.watt-fill{display:block;height:100%;background:linear-gradient(90deg,var(--phosphor),var(--amber));width:40%;border-radius:6px}
+.level-line{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.level-chip{font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.1em;padding:8px 12px;border-radius:var(--r-chip);background:var(--phosphor);color:#06110B}
+.level-chip[data-level="GIOCO DEMO"]{background:var(--amber);color:#1c1100}
+.level-chip[data-level="STUDIO"]{background:#7FD8A8;color:#06110B}
+.compat{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.compat li{display:flex;gap:10px;align-items:center;font-family:var(--font-mono);font-size:13px;color:var(--ink-dim);border:1px solid var(--line);border-radius:var(--r-chip);padding:10px 12px}
+.compat li .st{width:22px;height:22px;flex:none;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line-strong);font-weight:700;font-size:13px}
+.compat li.ok{color:var(--ink)}
+.compat li.ok .st{background:var(--phosphor);color:#06110B;border-color:var(--phosphor)}
+.compat li.warn .st{background:var(--amber);color:#1c1100;border-color:var(--amber)}
+.cfg-note{font-family:var(--font-mono);font-size:12px;color:var(--ink-faint);border-top:1px dashed var(--line-strong);padding-top:12px}
+/* LISTINO (light) */
+#listino{background:var(--paper-2);color:var(--ink-paper);border-top:2px solid #0B0E0C}
+#listino .eyebrow{color:#0a7a48}
+#listino .eyebrow::before{background:#0a7a48}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.filter-btn{
+  min-height:var(--tap);padding:10px 16px;border-radius:999px;cursor:pointer;
+  font-family:var(--font-mono);font-size:13px;font-weight:700;
+  border:2px solid #0B0E0C;background:#fff;color:#0B0E0C;
+}
+.filter-btn[aria-pressed="true"]{background:#0B0E0C;color:var(--phosphor)}
+.table-scroll{overflow-x:auto;border:2px solid #0B0E0C;border-radius:var(--r-mod);background:#fff;box-shadow:6px 6px 0 #0B0E0C}
+table.price-table{width:100%;border-collapse:collapse;min-width:640px;font-size:14px}
+.price-table caption{text-align:left;font-family:var(--font-mono);font-size:12px;color:var(--ink-paper-dim);padding:12px 16px;border-bottom:2px solid #0B0E0C;background:#F4F7F4}
+.price-table th{font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-align:left;padding:12px 16px;border-bottom:2px solid #0B0E0C;background:#0B0E0C;color:var(--paper)}
+.price-table td{padding:14px 16px;border-bottom:1px solid var(--line-paper);vertical-align:top}
+.price-table td.code{font-family:var(--font-mono);font-weight:700;font-size:12.5px;white-space:nowrap}
+.price-table td.prezzo{font-family:var(--font-mono);font-weight:700;white-space:nowrap}
+.price-table td .cat{display:inline-block;font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:.08em;border:1px solid #0B0E0C;border-radius:var(--r-chip);padding:3px 8px;background:var(--paper)}
+.price-table tr[data-cat]{transition:opacity .2s ease}
+.price-table tr.is-hidden{display:none}
+.listino-note{margin-top:12px;font-family:var(--font-mono);font-size:12px;color:var(--ink-paper-dim)}
+/* FAQ */
+#faq{background:var(--lab);border-top:1px solid var(--line)}
+.faq-list{display:grid;gap:10px;max-width:860px}
+.faq-item{border:1px solid var(--line-strong);border-radius:var(--r-mod);background:#0D120E;overflow:hidden}
+.faq-btn{
+  width:100%;display:flex;align-items:center;gap:14px;text-align:left;cursor:pointer;
+  background:transparent;border:0;color:var(--ink);padding:16px 18px;min-height:var(--tap);
+  font-family:var(--font-mono);font-size:14px;font-weight:700;
+}
+.faq-btn .qi{flex:none;width:34px;height:34px;border-radius:6px;display:grid;place-items:center;background:rgba(0,224,122,.1);border:1px solid rgba(0,224,122,.35);color:var(--phosphor);font-size:15px}
+.faq-btn .pl{margin-left:auto;flex:none;width:30px;height:30px;border-radius:50%;border:1px solid var(--line-strong);display:grid;place-items:center;font-size:18px;color:var(--amber);transition:transform .25s ease}
+.faq-item[data-open="true"] .pl{transform:rotate(45deg)}
+.faq-panel{max-height:0;overflow:hidden;transition:max-height .35s ease}
+.faq-panel-inner{padding:0 18px 18px 66px;color:var(--ink-dim);font-size:14.5px}
+.faq-panel-inner code{font-family:var(--font-mono);font-size:12.5px;background:rgba(0,224,122,.1);color:var(--phosphor);padding:2px 6px;border-radius:4px}
+/* CONTATTI */
+#contatti{background:linear-gradient(180deg,var(--lab-2),var(--lab));border-top:1px solid var(--line)}
+.contact-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:16px;align-items:start}
+.form-card{border:1px solid var(--line-strong);border-radius:var(--r-mod);background:#0D120E;padding:22px;display:grid;gap:14px}
+.form-card h3,.drop-card h3{margin:0;font-family:var(--font-display);font-size:19px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.f-field{display:grid;gap:7px}
+.f-field label{font-family:var(--font-mono);font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim)}
+.f-field input,.f-field select,.f-field textarea{
+  min-height:var(--tap);background:#070A08;border:1px solid var(--line-strong);border-radius:6px;
+  color:var(--ink);font-family:var(--font-mono);font-size:14px;padding:11px 12px;width:100%;
+}
+.f-field textarea{min-height:120px;resize:vertical;font-family:var(--font-body)}
+.f-field input:focus,.f-field select:focus,.f-field textarea:focus{border-color:var(--phosphor)}
+.f-check{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--ink-dim)}
+.f-check input{width:22px;height:22px;margin-top:2px;accent-color:var(--phosphor);flex:none}
+.form-ok{border:1px solid rgba(0,224,122,.5);background:rgba(0,224,122,.08);border-radius:6px;padding:12px 14px;font-family:var(--font-mono);font-size:13px;color:var(--phosphor)}
+.drop-card{border:1px solid rgba(255,178,36,.45);border-radius:var(--r-mod);background:linear-gradient(180deg,rgba(255,178,36,.1),rgba(255,178,36,.03));padding:22px;display:grid;gap:14px}
+.drop-card .addr{font-family:var(--font-mono);font-size:13.5px;line-height:1.8;color:var(--ink)}
+.drop-card .addr b{color:var(--amber)}
+.hours{width:100%;border-collapse:collapse;font-family:var(--font-mono);font-size:12.5px}
+.hours td{padding:8px 0;border-top:1px dashed rgba(255,178,36,.3);color:var(--ink-dim)}
+.hours td:last-child{text-align:right;color:var(--ink)}
+.ticket{border:1px dashed rgba(255,178,36,.5);border-radius:6px;padding:12px 14px;font-family:var(--font-mono);font-size:12px;color:var(--ink-dim);display:flex;gap:12px;align-items:center;justify-content:space-between}
+/* FOOTER */
+footer{border-top:1px solid var(--line);background:#070A08}
+.foot-term{border-bottom:1px solid var(--line);padding:26px 0}
+.foot-term .term-body{min-height:120px;padding:16px}
+.foot-grid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:24px;padding:32px 0}
+.foot-grid h4{margin:0 0 10px;font-family:var(--font-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint)}
+.foot-grid a{display:block;padding:6px 0;color:var(--ink-dim);text-decoration:none;font-size:14px}
+.foot-grid a:hover{color:var(--phosphor)}
+.disclaimer{border:1px solid var(--line-strong);border-radius:var(--r-mod);padding:16px;font-size:12.5px;color:var(--ink-dim);background:rgba(232,240,232,.02);margin-bottom:20px}
+.disclaimer b{color:var(--amber);font-family:var(--font-mono);font-size:12px;letter-spacing:.08em}
+.foot-base{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:0 0 28px;font-family:var(--font-mono);font-size:11.5px;color:var(--ink-faint)}
+/* cursor */
+#cursorCross,#cursorDot,#cursorReadout{display:none}
+@media (pointer:fine){
+  #cursorCross{display:block;position:fixed;left:0;top:0;width:34px;height:34px;z-index:120;pointer-events:none;transform:translate(-50%,-50%)}
+  #cursorCross::before,#cursorCross::after{content:"";position:absolute;background:var(--phosphor);opacity:.9}
+  #cursorCross::before{left:50%;top:0;bottom:0;width:1px}
+  #cursorCross::after{top:50%;left:0;right:0;height:1px}
+  #cursorDot{display:block;position:fixed;left:0;top:0;width:8px;height:8px;z-index:121;pointer-events:none;background:var(--amber);border:2px solid #0B0E0C;transform:translate(-50%,-50%)}
+  #cursorReadout{display:flex;position:fixed;left:0;top:0;z-index:121;pointer-events:none;gap:8px;align-items:center;font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:.08em;background:#0B0E0C;border:1px solid var(--phosphor);color:var(--phosphor);padding:4px 8px;border-radius:3px;white-space:nowrap}
+  #cursorReadout .lbl{background:var(--amber);color:#111;padding:1px 6px;border-radius:2px}
+}
+/* reveal defaults (JS animates, no-JS visible) */
+.js .rv{opacity:0}
+/* responsive */
+@media (max-width:1080px){
+  .hero-grid{grid-template-columns:1fr}
+  .td-layout{grid-template-columns:1fr}
+  .td-copy{position:static}
+  .bm-grid{grid-template-columns:1fr}
+  .cfg-grid{grid-template-columns:1fr}
+  .cfg-out{position:static}
+  .contact-grid{grid-template-columns:1fr}
+  .nav{display:none}
+  .nav.is-open{display:flex;position:absolute;top:64px;left:0;right:0;background:#0B0E0C;border-bottom:1px solid var(--line);flex-direction:column;padding:12px var(--pad) 18px;gap:2px}
+  .menu-btn{display:inline-flex;align-items:center;justify-content:center}
+  .head-cta{display:none}
+}
+@media (max-width:720px){
+  .benches{grid-template-columns:1fr}
+  .form-row{grid-template-columns:1fr}
+  .toggles{grid-template-columns:1fr}
+  .bm-row{grid-template-columns:86px 1fr 64px}
+  .term-body{font-size:12px;min-height:300px}
+  .td-stage{height:auto;display:grid;gap:12px;padding:18px;perspective:none}
+  .td-layer{position:relative;left:auto;top:auto;width:100%;transform:none!important}
+  .td-tag{opacity:1;transform:none}
+  .td-screw{display:none}
+  .td-stage-wrap{min-height:0}
+  .foot-grid{grid-template-columns:1fr}
+}
+@media (min-width:1600px){
+  :root{--max:1440px}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  .cursor-blink{animation:none;opacity:1}
+}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#hero">Salta al contenuto</a>
+<div id="cursorCross" aria-hidden="true"></div>
+<div id="cursorDot" aria-hidden="true"></div>
+<div id="cursorReadout" aria-hidden="true"><span class="lbl" id="cursorLabel">BANCO</span><span id="cursorXY">x 0000 · y 0000 μm</span></div>
+
+<header class="site-head">
+  <div class="bar">
+    <a class="brand" href="#hero" data-cursor="APRI" aria-label="Voltabit, torna all'inizio">
+      <span class="brand-mark" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true"><path d="M4 11.5h4l1.6-4.5 2.4 9 1.6-4.5H19" stroke="#00E07A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="18" r="1.4" fill="#FFB224"/></svg>
+      </span>
+      <span class="brand-name">VOLTABIT<small>LAB · COMPUTER &amp; RETI</small></span>
+    </a>
+    <nav class="nav" id="mainNav" aria-label="Navigazione principale">
+      <a href="#servizi" data-cursor="APRI">Banchi</a>
+      <a href="#teardown" data-cursor="APRI">Teardown</a>
+      <a href="#benchmark" data-cursor="TEST">Benchmark</a>
+      <a href="#strumento" data-cursor="TEST">Configura</a>
+      <a href="#listino" data-cursor="APRI">Listino</a>
+      <a href="#faq" data-cursor="APRI">FAQ</a>
+      <a href="#contatti" data-cursor="COMPILA">Contatti</a>
+    </nav>
+    <a class="btn btn-primary head-cta" href="#contatti" data-cursor="COMPILA" style="min-height:44px;padding:8px 16px">Prenota banco</a>
+    <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="mainNav" aria-label="Apri menu">≡</button>
+  </div>
+</header>
+
+<main id="main">
+<!-- ============ HERO ============ -->
+<section id="hero" class="sec" aria-labelledby="heroTitle">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow"><span class="n">31 / LAB-01</span> Laboratorio computer &amp; reti · demo fittizia</p>
+      <h1 id="heroTitle" class="hero-title">L'informatica<br>come <span class="ph">banco</span><br>da laboratorio.</h1>
+      <p class="claim">"Apriamo le macchine. Chiudiamo i problemi."</p>
+      <p class="lead">POST, teardown, benchmark: ogni macchina entra dal bancone, esce con un foglio di collaudo. Assistenza schietta, assemblati su misura con sigle dimostrative <span class="mono">VX / FX</span>, reti ordinate per casa e piccole attività. Niente fumo, solo viti e log.</p>
+      <div class="hero-ctas">
+        <a class="btn btn-primary" href="#strumento" data-cursor="TEST">Configura un PC demo</a>
+        <a class="btn btn-ghost" href="#teardown" data-cursor="APRI">Vedi il teardown</a>
+      </div>
+      <div class="hero-meta" aria-label="Tempi e garanzie dimostrative">
+        <span class="chip"><span class="dot"></span>diagnosi in 24h · demo</span>
+        <span class="chip"><span class="dot"></span>foglio collaudo incluso · demo</span>
+        <span class="chip amber"><span class="dot"></span>sigle VX/FX inventate</span>
+      </div>
+      <p class="hero-note">Banco <b>VB-2026-0001</b> · coda di oggi: <b>3 macchine</b> · ultimo POST superato alle <b>09:41</b> · tutto fittizio, è una demo.</p>
+      <div><span class="asset-tag">Cespite VB-2026-0001 · banco A</span></div>
+    </div>
+    <div>
+      <div class="term corner" role="region" aria-label="Terminale dimostrativo di accensione">
+        <i></i><i></i><i></i><i></i>
+        <div class="term-tape"><span class="leds" aria-hidden="true"><span class="led g"></span><span class="led a"></span><span class="led r"></span></span><span>VOLTABIT POST · rev demo 3.1</span><span class="t">TTY-0 · 9600</span></div>
+        <div class="term-body">
+          <div id="postLog" aria-hidden="true"></div>
+          <ul class="post-check" id="postCheck" aria-label="Esiti del controllo di accensione dimostrativo">
+            <li data-ok><span class="box" aria-hidden="true">✓</span><span>Alimentazione banco <b>&nbsp;OK fittizio</b></span></li>
+            <li data-ok><span class="box" aria-hidden="true">✓</span><span>CPU <b>&nbsp;VX-8 · 8C demo</b>&nbsp; OK</span></li>
+            <li data-ok><span class="box" aria-hidden="true">✓</span><span>RAM <b>&nbsp;32 GB demo</b>&nbsp; OK</span></li>
+            <li data-ok><span class="box" aria-hidden="true">✓</span><span>Rete banco <b>&nbsp;LINK 1G demo</b>&nbsp; OK</span></li>
+          </ul>
+          <div class="post-prompt"><span aria-hidden="true">tecnico@banco-a:~$</span><span id="postCmd" aria-hidden="true"></span><span class="cursor-blink" aria-hidden="true"></span><span class="sr-only">Terminale dimostrativo pronto.</span></div>
+        </div>
+        <div class="term-foot"><span>POST teatrale · max 2s · clicca o premi un tasto per saltare</span><button class="skip-post" id="skipPost" type="button">SALTA ⏎</button></div>
+      </div>
+      <svg class="cable-svg" viewBox="0 0 600 56" fill="none" aria-hidden="true"><path d="M20 8 C 140 52, 220 52, 300 18 S 470 8, 580 34" stroke="#00E07A" stroke-width="2" opacity=".5"/><path d="M20 22 C 160 60, 260 44, 340 26 S 480 22, 580 46" stroke="#FFB224" stroke-width="2" opacity=".4"/><circle cx="20" cy="8" r="4" fill="#0B0E0C" stroke="#00E07A"/><circle cx="580" cy="34" r="4" fill="#0B0E0C" stroke="#00E07A"/></svg>
+      <div class="bench-stack">
+        <article class="bench-panel p1"><div class="bench-ico" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="6" y="6" width="12" height="12" rx="2" stroke="#00E07A" stroke-width="1.6"/><path d="M9 6V3.5M15 6V3.5M9 20.5V18M15 20.5V18M3.5 9H6M3.5 15H6M18 9h2.5M18 15h2.5" stroke="#00E07A" stroke-width="1.4"/></svg></div><div><h3>Banco A · Riparazione</h3><p>Diagnosi in 24h demo, preventivo prima di ogni vite.</p></div><div class="bench-val">da<b>€ 29 demo</b></div></article>
+        <article class="bench-panel p2"><div class="bench-ico" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 17V9l8-4 8 4v8l-8 4-8-4Z" stroke="#FFB224" stroke-width="1.6" stroke-linejoin="round"/><path d="M4 9l8 4 8-4M12 13v8" stroke="#FFB224" stroke-width="1.4"/></svg></div><div><h3>Banco B · Assemblaggio</h3><p>VX-4 / VX-8 / VX-12 + FX-6 / FX-12, sigle inventate.</p></div><div class="bench-val">collaudo<b>48h demo</b></div></article>
+        <article class="bench-panel p3"><div class="bench-ico" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="6" cy="6" r="2.4" stroke="#7FD8A8" stroke-width="1.6"/><circle cx="18" cy="6" r="2.4" stroke="#7FD8A8" stroke-width="1.6"/><circle cx="12" cy="18" r="2.4" stroke="#7FD8A8" stroke-width="1.6"/><path d="M7.5 7.5 10.5 16M16.5 7.5 13.5 16M8.4 6h7.2" stroke="#7FD8A8" stroke-width="1.4"/></svg></div><div><h3>Banco C · Reti</h3><p>Cablaggi e Wi-Fi ordinati, etichettati, mappati.</p></div><div class="bench-val">sopralluogo<b>demo PMI</b></div></article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SERVIZI ============ -->
+<section id="servizi" class="sec peg" aria-labelledby="serviziTitle">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow"><span class="n">02</span> I tre banchi</p>
+      <h2 id="serviziTitle">Ripara. Assembla. <strong>Connetti.</strong></h2>
+      <p class="lead">Tre postazioni, un solo metodo: apri, fotografa, misura, ripara, richiudi, collauda. Tempi e prezzi qui sono dimostrativi — servono a farti capire come lavoreremmo davvero.</p>
+    </div>
+    <div class="benches">
+      <article class="bench rv">
+        <div class="bench-top"><div class="row"><span class="bench-n">BANCO A · RIPARA</span><span class="asset-tag" style="font-size:10px">VB-2026-0101</span></div>
+        <h3>Ripara<span>.</span></h3><p class="lead" style="font-size:14px;margin:0">Portatili lenti, desktop muti, dischi stanchi. Diagnosi scritta, poi si decide insieme.</p></div>
+        <ul><li>Pulizia + pasta termica demo con foto prima/dopo</li><li>Sostituzione SSD/RAM demo, clone dati incluso demo</li><li>Recupero file base demo, niente miracoli promessi</li><li>Foglio collaudo firmato dal banco, tempi fittizi</li></ul>
+        <div class="bench-foot"><div class="price">diagnosi demo<b>€ 29 · 24h demo</b></div><a class="link-bench" href="#listino" data-cursor="APRI">Listino →</a></div>
+      </article>
+      <article class="bench rv">
+        <div class="bench-top"><div class="row"><span class="bench-n">BANCO B · ASSEMBLA</span><span class="asset-tag" style="font-size:10px">VB-2026-0102</span></div>
+        <h3>Assembla<span>.</span></h3><p class="lead" style="font-size:14px;margin:0">Macchine sobrie con sigle inventate VX e FX. Niente marchi reali, solo watt e viti.</p></div>
+        <ul><li>Ufficio VX-4 · silenzioso, 16 GB demo</li><li>Gioco demo VX-8 + FX-6 · 32 GB demo</li><li>Studio VX-12 + FX-12 · 64 GB demo</li><li>Cablaggio pettinato + stress-test 12h demo</li></ul>
+        <div class="bench-foot"><div class="price">assemblaggio demo<b>€ 89 + pezzi demo</b></div><a class="link-bench" href="#strumento" data-cursor="TEST">Configura →</a></div>
+      </article>
+      <article class="bench rv">
+        <div class="bench-top"><div class="row"><span class="bench-n">BANCO C · CONNETTI</span><span class="asset-tag" style="font-size:10px">VB-2026-0103</span></div>
+        <h3>Connetti<span>.</span></h3><p class="lead" style="font-size:14px;margin:0">Reti casa e piccole attività: cavi numerati, armadio in ordine, mappa finale.</p></div>
+        <ul><li>Stesura cavi + prese numerate demo</li><li>Wi-Fi misurato stanza per stanza demo</li><li>Armadio riordinato + etichette demo</li><li>Mini-manuale cartaceo per la nonna demo</li></ul>
+        <div class="bench-foot"><div class="price">sopralluogo demo<b>€ 49 scalabili</b></div><a class="link-bench" href="#contatti" data-cursor="COMPILA">Prenota →</a></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TEARDOWN ============ -->
+<section id="teardown" class="sec" aria-labelledby="teardownTitle">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow"><span class="n">03</span> Teardown · esploso dimostrativo</p>
+      <h2 id="teardownTitle">Apriamo le macchine, <strong>davvero.</strong></h2>
+      <p class="lead">Scorri: la macchina dimostrativa <span class="mono">VB-2026-0001</span> si apre a strati. Su desktop è un esploso ancorato allo scroll; su mobile diventa una pila ordinata. Viti, alette, piste: tutto disegnato in CSS/SVG, nessun marchio reale.</p>
+    </div>
+    <div class="td-layout">
+      <div class="td-copy">
+        <span class="asset-tag">Macchina VB-2026-0001</span>
+        <ol id="tdSteps" aria-label="Fasi del teardown dimostrativo">
+          <li data-step="0"><span class="k">L1</span> Scocca — 4 viti, pannello forato</li>
+          <li data-step="1"><span class="k">L2</span> Dissipatore — alette + ventola demo</li>
+          <li data-step="2"><span class="k">L3</span> Scheda — VX-8 demo, piste fittizie</li>
+          <li data-step="3"><span class="k">L4</span> Alimentatore — cavi pettinati demo</li>
+          <li data-step="4"><span class="k">L5</span> Cablaggio — bezier sobrie, fascette</li>
+        </ol>
+        <p class="hero-note">Coppia viti <b>0,6 N·m demo</b> · braccialetto antistatico <b>sempre</b> · foto a ogni passo.</p>
+      </div>
+      <div>
+        <div class="td-stage-wrap">
+          <div class="peg" aria-hidden="true"></div>
+          <div class="td-stage" id="tdStage" aria-hidden="true">
+            <div class="td-layer" data-layer="0"><span class="td-tag">L1 · SCOCCA</span><div class="lh"><span>Strato 01 / Scocca</span><span class="code">VB·L1</span></div><div class="td-mock l1 peg" style="height:72px"></div></div>
+            <div class="td-layer" data-layer="1"><span class="td-tag">L2 · DISSIPATORE</span><div class="lh"><span>Strato 02 / Dissipatore</span><span class="code">VB·L2</span></div><div class="td-mock"><div class="td-fins"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div></div></div>
+            <div class="td-layer" data-layer="2"><span class="td-tag">L3 · SCHEDA VX-8</span><div class="lh"><span>Strato 03 / Scheda</span><span class="code">VB·L3</span></div><div class="td-mock"><div class="td-pcb"><span></span><span></span><span></span><span></span><span></span><span></span><b></b></div></div></div>
+            <div class="td-layer" data-layer="3"><span class="td-tag">L4 · ALIMENTATORE</span><div class="lh"><span>Strato 04 / Alimentatore</span><span class="code">VB·L4</span></div><div class="td-mock"><div class="td-psu"><span class="td-fan"></span><span class="td-bars"><i></i><i></i><i></i></span></div></div></div>
+            <div class="td-layer" data-layer="4"><span class="td-tag">L5 · CAVI</span><div class="lh"><span>Strato 05 / Cablaggio</span><span class="code">VB·L5</span></div><div class="td-mock td-cables"><svg viewBox="0 0 360 56" width="100%" height="52" fill="none" aria-hidden="true"><path d="M8 40 C 90 8, 150 8, 200 32 S 310 48, 352 14" stroke="#00E07A" stroke-width="2.5"/><path d="M8 48 C 100 22, 170 22, 230 40 S 310 54, 352 26" stroke="#FFB224" stroke-width="2.5"/><path d="M8 32 C 110 0, 180 2, 240 24" stroke="#7FD8A8" stroke-width="2"/></svg></div></div>
+            <svg class="td-screw" id="tdScrew" viewBox="0 0 54 54" fill="none" aria-hidden="true"><circle cx="27" cy="27" r="24" fill="#1B231E" stroke="#5B6E62" stroke-width="2"/><circle cx="27" cy="27" r="9" fill="#0B0E0C" stroke="#E8F0E8" stroke-width="2"/><path d="M27 20v14M20 27h14" stroke="#E8F0E8" stroke-width="2.4" stroke-linecap="round"/><path d="M8 12l4 4M42 38l4 4M46 12l-4 4M12 38l-4 4" stroke="#3A4A40" stroke-width="2"/></svg>
+          </div>
+          <div class="td-progress" aria-hidden="true"><i id="tdProg"></i></div>
+        </div>
+        <div class="td-hint"><span>SCROLL · l'esploso segue il dito</span><span class="mono">end: +=2800 · scrub desktop</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BENCHMARK ============ -->
+<section id="benchmark" class="sec" aria-labelledby="bmTitle">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow"><span class="n">04</span> Benchmark · numeri fittizi da banco</p>
+      <h2 id="bmTitle">Misuriamo, non <strong>promettiamo.</strong></h2>
+      <p class="lead">Punteggi inventati, metodo vero: tre passaggi, media, foglio firmato. Scorri per far salire le barre — la lancetta trema con la velocità di scroll. I dati veri stanno nella tabella accessibile qui sotto.</p>
+    </div>
+    <div class="bm-grid">
+      <div class="bm-card">
+        <h3>Punteggio banco VB-MARK · demo</h3>
+        <div class="bm-row" data-score="4200"><div class="bm-name">VX-4<small>ufficio · 16 GB demo</small></div><div class="bm-track"><span class="bm-fill" data-w="0.42"></span></div><div class="bm-val">4.200<small>punti demo</small></div></div>
+        <div class="bm-row" data-score="7800"><div class="bm-name">VX-8<small>gioco demo · 32 GB</small></div><div class="bm-track"><span class="bm-fill" data-w="0.72"></span></div><div class="bm-val">7.800<small>punti demo</small></div></div>
+        <div class="bm-row hl" data-score="9900"><div class="bm-name">VX-12<small>studio · 64 GB demo</small></div><div class="bm-track"><span class="bm-fill" data-w="1"></span></div><div class="bm-val">9.900<small>punti demo</small></div></div>
+        <div class="bm-row" data-score="6100"><div class="bm-name">VX-8 + FX-6<small>grafica demo</small></div><div class="bm-track"><span class="bm-fill" data-w="0.62"></span></div><div class="bm-val">6.100<small>punti demo</small></div></div>
+        <table class="sr-only" id="bmTable" aria-label="Punteggi dimostrativi VB-MARK">
+          <caption>Punteggi dimostrativi fittizi</caption><tr><th>Configurazione</th><th>Punteggio demo</th></tr>
+          <tr><td>VX-4 ufficio 16 GB</td><td>4200</td></tr><tr><td>VX-8 gioco demo 32 GB</td><td>7800</td></tr>
+          <tr><td>VX-12 studio 64 GB</td><td>9900</td></tr><tr><td>VX-8 più FX-6</td><td>6100</td></tr>
+        </table>
+      </div>
+      <div class="bm-card fps-wrap">
+        <h3>FPS meter · lancetta fittizia</h3>
+        <div class="fps-dial">
+          <svg width="220" height="130" viewBox="0 0 220 130" role="img" aria-label="Indicatore dimostrativo di fotogrammi al secondo">
+            <path d="M20 110 A 90 90 0 0 1 200 110" fill="none" stroke="rgba(232,240,232,.2)" stroke-width="10" stroke-linecap="round"/>
+            <path d="M20 110 A 90 90 0 0 1 200 110" fill="none" stroke="#00E07A" stroke-width="4" stroke-linecap="round" stroke-dasharray="60 240" opacity=".8"/>
+            <g id="fpsTicks" stroke="rgba(232,240,232,.35)" stroke-width="2"><path d="M30 96l8-4"/><path d="M60 62l6-7"/><path d="M110 44v10"/><path d="M160 62l-6-7"/><path d="M190 96l-8-4"/></g>
+            <g id="fpsNeedle" style="transform-origin:110px 110px"><path d="M110 110 L110 34" stroke="#FFB224" stroke-width="3.5" stroke-linecap="round"/><circle cx="110" cy="110" r="9" fill="#0B0E0C" stroke="#FFB224" stroke-width="2.5"/><circle cx="110" cy="110" r="3" fill="#FFB224"/></g>
+            <text x="24" y="126" fill="#5B6E62" font-family="IBM Plex Mono" font-size="10">0</text><text x="188" y="126" fill="#5B6E62" font-family="IBM Plex Mono" font-size="10">240</text>
+          </svg>
+          <div class="fps-num"><b id="fpsVal">92</b> FPS · fittizi · <span id="fpsState">STABILE DEMO</span></div>
+        </div>
+        <div class="bm-log" id="bmLog" aria-hidden="true"><p>> vb-mark pronto · in attesa di scroll…</p></div>
+        <p class="hero-note" style="margin:0">Log decorativo · max 12 righe · i dati ufficiali sono nella tabella per screen reader.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STRUMENTO ============ -->
+<section id="strumento" class="sec light" aria-labelledby="cfgTitle">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow"><span class="n">05</span> Strumento · configuratore PC demo</p>
+      <h2 id="cfgTitle">Fatti la macchina <strong>sul banco.</strong></h2>
+      <p class="lead">Scegli sigle inventate, noi stimiamo prezzo e watt fittizi. Tastierabile, annunci gentili via <span class="mono">aria-live</span>, funziona anche col JavaScript ridotto al minimo. Sigle e prezzi dimostrativi, nessun hardware reale.</p>
+    </div>
+    <div class="cfg-grid">
+      <form class="cfg-form peg-light" id="cfgForm" aria-label="Configuratore PC dimostrativo" onsubmit="return false">
+        <div class="field"><label for="cfgCpu">CPU · sigla inventata</label>
+          <select id="cfgCpu" name="cpu"><option value="VX-4" data-p="140" data-w="65">VX-4 · 4C ufficio · +€140 demo</option><option value="VX-8" data-p="290" data-w="105" selected>VX-8 · 8C equilibrata · +€290 demo</option><option value="VX-12" data-p="520" data-w="170">VX-12 · 12C studio · +€520 demo</option></select>
+          <span class="help">VX = sigla fittizia Voltabit. Non esiste davvero.</span></div>
+        <div class="field"><label for="cfgGpu">GPU · sigla inventata</label>
+          <select id="cfgGpu" name="gpu"><option value="FX-6" data-p="260" data-w="130" selected>FX-6 · gioco demo · +€260 demo</option><option value="FX-12" data-p="540" data-w="220">FX-12 · studio demo · +€540 demo</option><option value="FX-0" data-p="0" data-w="25">Integrata demo · +€0</option></select>
+          <span class="help">FX = sigla fittizia. Mai marchi reali qui dentro.</span></div>
+        <div class="form-row">
+          <div class="field"><label for="cfgRam">RAM demo</label><select id="cfgRam" name="ram"><option value="16" data-p="55">16 GB · +€55</option><option value="32" data-p="110" selected>32 GB · +€110</option><option value="64" data-p="230">64 GB · +€230</option></select></div>
+          <div class="field"><label for="cfgSsd">SSD demo</label><select id="cfgSsd" name="ssd"><option value="1" data-p="70">1 TB · +€70</option><option value="2" data-p="130" selected>2 TB · +€130</option><option value="4" data-p="280">4 TB · +€280</option></select></div>
+        </div>
+        <div class="toggles">
+          <label class="toggle"><input type="checkbox" id="cfgAsm" checked><span><b>Assemblaggio +€89</b><small>cablaggio pettinato demo</small></span></label>
+          <label class="toggle"><input type="checkbox" id="cfgTest" checked><span><b>Collaudo 48h +€39</b><small>stress-test + foglio demo</small></span></label>
+        </div>
+        <p class="help mono" style="margin:0;font-size:12px">Base banco €120 demo (case + scheda fittizie). Totale ricalcolato a ogni scelta.</p>
+      </form>
+      <div class="cfg-out" aria-live="polite" aria-atomic="false" aria-label="Stima dimostrativa">
+        <div><div class="odo-label"><span>Prezzo demo stimato</span><span>€ · IVA demo incl.</span></div>
+          <div class="odo" aria-hidden="true"><span class="odo-reel" id="odo1">0</span><span class="odo-reel" id="odo2">9</span><span class="odo-reel" id="odo3">9</span><span class="odo-reel" id="odo4">8</span><span class="odo-cur">€</span></div>
+          <p class="sr-only">Prezzo dimostrativo: <span id="cfgPriceSr">998 euro</span></p></div>
+        <div class="watt-row"><div class="watt-top"><span>Watt stimati fittizi · carico demo</span><b><span id="cfgWatt">365</span> W</b></div><div class="watt-track"><span class="watt-fill" id="cfgWattFill"></span></div></div>
+        <div class="level-line"><span class="mono" style="font-size:11px;letter-spacing:.14em;color:var(--ink-faint)">LIVELLO BANCO</span><span class="level-chip" id="cfgLevel" data-level="GIOCO DEMO">GIOCO DEMO</span><span class="mono" style="font-size:11.5px;color:var(--ink-dim)" id="cfgPsu">PSU consigliata demo: 550 W</span></div>
+        <ul class="compat" id="cfgCompat" aria-label="Compatibilità fittizia">
+          <li data-c="psu"><span class="st" aria-hidden="true">✓</span><span>Alimentatore adeguato ai watt demo</span></li>
+          <li data-c="cool"><span class="st" aria-hidden="true">✓</span><span>Dissipatore adeguato alla CPU demo</span></li>
+          <li data-c="ram"><span class="st" aria-hidden="true">✓</span><span>RAM coerente col livello demo</span></li>
+        </ul>
+        <p class="cfg-note">Sigle e prezzi dimostrativi, nessun hardware reale. · Stima scherzosa-ma-tecnica, non un preventivo.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LISTINO ============ -->
+<section id="listino" class="sec light" aria-labelledby="listTitle">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow"><span class="n">06</span> Listino · tabella demo filtrabile</p>
+      <h2 id="listTitle">Prezzi scritti <strong>a pennarello.</strong></h2>
+      <p class="lead">Filtra per banco. Ogni riga ha codice cespite fittizio, tempo fittizio e prezzo demo. Se un prezzo ti sembra vero, è un caso: sono tutti inventati.</p>
+    </div>
+    <div class="filters" role="group" aria-label="Filtra il listino dimostrativo">
+      <button class="filter-btn" type="button" data-filter="all" aria-pressed="true">Tutto · 9</button>
+      <button class="filter-btn" type="button" data-filter="assistenza" aria-pressed="false">Assistenza</button>
+      <button class="filter-btn" type="button" data-filter="assemblaggio" aria-pressed="false">Assemblaggio</button>
+      <button class="filter-btn" type="button" data-filter="reti" aria-pressed="false">Reti</button>
+    </div>
+    <div class="table-scroll">
+      <table class="price-table">
+        <caption>Listino dimostrativo Voltabit · 9 voci · prezzi e tempi fittizi · ultimo timbro 15/09/2026 demo</caption>
+        <thead><tr><th scope="col">Codice</th><th scope="col">Voce</th><th scope="col">Tempo demo</th><th scope="col">Prezzo demo</th></tr></thead>
+        <tbody id="priceBody">
+          <tr data-cat="assistenza"><td class="code">VB-2026-0201</td><td><span class="cat">assistenza</span><br>Diagnosi + preventivo scritto, foto interne</td><td class="mono">24h demo</td><td class="prezzo">€ 29</td></tr>
+          <tr data-cat="assistenza"><td class="code">VB-2026-0202</td><td><span class="cat">assistenza</span><br>Pulizia + pasta termica demo, test ventole</td><td class="mono">48h demo</td><td class="prezzo">€ 59</td></tr>
+          <tr data-cat="assistenza"><td class="code">VB-2026-0203</td><td><span class="cat">assistenza</span><br>Clone su SSD demo 1 TB + smaltimento vecchio</td><td class="mono">48h demo</td><td class="prezzo">€ 99</td></tr>
+          <tr data-cat="assemblaggio"><td class="code">VB-2026-0301</td><td><span class="cat">assemblaggio</span><br>Ufficio VX-4 · 16 GB · SSD 1 TB · silenziato demo</td><td class="mono">5 gg demo</td><td class="prezzo">€ 649</td></tr>
+          <tr data-cat="assemblaggio"><td class="code">VB-2026-0302</td><td><span class="cat">assemblaggio</span><br>Gioco demo VX-8 + FX-6 · 32 GB · SSD 2 TB</td><td class="mono">7 gg demo</td><td class="prezzo">€ 1.190</td></tr>
+          <tr data-cat="assemblaggio"><td class="code">VB-2026-0303</td><td><span class="cat">assemblaggio</span><br>Studio VX-12 + FX-12 · 64 GB · SSD 4 TB demo</td><td class="mono">10 gg demo</td><td class="prezzo">€ 2.340</td></tr>
+          <tr data-cat="reti"><td class="code">VB-2026-0401</td><td><span class="cat">reti</span><br>Sopralluogo PMI + mappa prese demo, scalabile</td><td class="mono">1 visita</td><td class="prezzo">€ 49</td></tr>
+          <tr data-cat="reti"><td class="code">VB-2026-0402</td><td><span class="cat">reti</span><br>Punto rete cablato + presa numerata demo</td><td class="mono">mezza giornata</td><td class="prezzo">€ 89 /punto</td></tr>
+          <tr data-cat="reti"><td class="code">VB-2026-0403</td><td><span class="cat">reti</span><br>Riordino armadio + etichette + manuale demo</td><td class="mono">1 giornata</td><td class="prezzo">€ 290</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="listino-note" id="listCount" aria-live="polite">9 voci mostrate · listino demo, nessun addebito reale.</p>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section id="faq" class="sec" aria-labelledby="faqTitle">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow"><span class="n">07</span> FAQ · risposte da banco</p>
+      <h2 id="faqTitle">Domande che ci fanno <strong>davvero.</strong></h2>
+      <p class="lead">Schiette, tecniche il giusto. Premi <span class="mono">Esc</span> per richiudere tutto.</p>
+    </div>
+    <div class="faq-list" id="faqList">
+      <div class="faq-item" data-open="false"><button class="faq-btn" type="button" aria-expanded="false" aria-controls="fp1" id="fb1"><span class="qi" aria-hidden="true">01</span>Quanto dura una diagnosi?<span class="pl" aria-hidden="true">+</span></button><div class="faq-panel" id="fp1" role="region" aria-labelledby="fb1"><div class="faq-panel-inner">In questa demo: <code>24h demo</code>. Nella realtà di un vero lab serio: dipende dalla coda. Qui riceveresti foto, log e un preventivo prima di ogni intervento. Niente via libera, niente viti tolte.</div></div></div>
+      <div class="faq-item" data-open="false"><button class="faq-btn" type="button" aria-expanded="false" aria-controls="fp2" id="fb2"><span class="qi" aria-hidden="true">02</span>Cosa sono CPU VX e GPU FX?<span class="pl" aria-hidden="true">+</span></button><div class="faq-panel" id="fp2" role="region" aria-labelledby="fb2"><div class="faq-panel-inner">Sigle <code>inventate al 100%</code> per questa demo: VX-4, VX-8, VX-12 e FX-6, FX-12 non corrispondono ad alcun hardware reale. Le usiamo per non citare marchi veri e per tenere il configuratore onesto: è un gioco da banco.</div></div></div>
+      <div class="faq-item" data-open="false"><button class="faq-btn" type="button" aria-expanded="false" aria-controls="fp3" id="fb3"><span class="qi" aria-hidden="true">03</span>Perdo i dati se porto la macchina?<span class="pl" aria-hidden="true">+</span></button><div class="faq-panel" id="fp3" role="region" aria-labelledby="fb3"><div class="faq-panel-inner">Prima regola del banco: <code>mai toccare senza copia</code>. In demo diremmo "clone sempre"; in un lab vero pretendi la stessa cosa. Se un disco è morente, te lo diciamo in faccia: recupero base sì, miracoli no.</div></div></div>
+      <div class="faq-item" data-open="false"><button class="faq-btn" type="button" aria-expanded="false" aria-controls="fp4" id="fb4"><span class="qi" aria-hidden="true">04</span>Fate assistenza a domicilio o solo in lab?<span class="pl" aria-hidden="true">+</span></button><div class="faq-panel" id="fp4" role="region" aria-labelledby="fb4"><div class="faq-panel-inner">Demo fittizia: ritiro al bancone in <code>via Esempio 0, Milano</code>. Per le reti PMI: sopralluogo demo da €49 scalabili. Niente interventi notturni eroici: le reti si cablano di giorno, con la luce giusta.</div></div></div>
+      <div class="faq-item" data-open="false"><button class="faq-btn" type="button" aria-expanded="false" aria-controls="fp5" id="fb5"><span class="qi" aria-hidden="true">05</span>I prezzi del listino sono veri?<span class="pl" aria-hidden="true">+</span></button><div class="faq-panel" id="fp5" role="region" aria-labelledby="fb5"><div class="faq-panel-inner">No: <code>100% dimostrativi</code>. Servono a mostrare tabella, filtri e odometro del configuratore. Nessun pagamento, nessun ordine, nessun hardware spedito. Solo pixel e buone maniere da laboratorio.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTATTI ============ -->
+<section id="contatti" class="sec" aria-labelledby="ctTitle">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow"><span class="n">08</span> Contatti · porta la macchina (fittizio)</p>
+      <h2 id="ctTitle">Il bancone è <strong>aperto.</strong></h2>
+      <p class="lead">Compila la scheda di accettazione demo: ti risponderemmo entro 24h fittizie. Oppure passa dal laboratorio immaginario con la macchina sotto braccio.</p>
+    </div>
+    <div class="contact-grid">
+      <form class="form-card" id="demoForm" aria-label="Scheda di accettazione dimostrativa" novalidate>
+        <h3>Scheda accettazione · demo</h3>
+        <div class="form-row">
+          <div class="f-field"><label for="fName">Nome e cognome</label><input id="fName" name="nome" type="text" autocomplete="name" placeholder="Es. Ada Banco" required></div>
+          <div class="f-field"><label for="fMail">Email</label><input id="fMail" name="email" type="email" autocomplete="email" placeholder="nome@esempio.it" required></div>
+        </div>
+        <div class="form-row">
+          <div class="f-field"><label for="fBanco">Banco</label><select id="fBanco" name="banco"><option>Ripara · Banco A</option><option>Assembla · Banco B</option><option>Connetti · Banco C</option></select></div>
+          <div class="f-field"><label for="fSlot">Fascia ritiro demo</label><select id="fSlot" name="fascia"><option>Mar–Ven · 9:30–12:30</option><option>Mar–Ven · 15:00–18:30</option><option>Sab · 9:30–12:00 demo</option></select></div>
+        </div>
+        <div class="f-field"><label for="fMsg">Sintomo della macchina</label><textarea id="fMsg" name="sintomo" placeholder="Es. si spegne dopo 10 minuti, ventola a elicottero… (testo fittizio)"></textarea></div>
+        <label class="f-check"><input type="checkbox" id="fBackup" checked><span>Ho capito che è una <b>demo</b>: nessun dato viene inviato davvero, nessun tecnico verrà a casa mia.</span></label>
+        <button class="btn btn-primary" type="submit" data-cursor="COMPILA" style="width:100%">Invia scheda demo</button>
+        <div class="form-ok" id="formOk" hidden role="status">Scheda registrata (finta) · ticket <b>VB-2026-0915</b> · Demo — nessun dato inviato. Ti richiameremmo entro 24h demo.</div>
+        <p class="hero-note" style="margin:0">Demo — nessun dato inviato. I campi restano nel tuo browser.</p>
+      </form>
+      <aside class="drop-card" aria-label="Dove portare la macchina, indirizzo fittizio">
+        <span class="asset-tag">Punto ritiro · VB-2026-0000</span>
+        <h3>Porta la macchina al banco</h3>
+        <p class="addr"><b>Voltabit · Laboratorio demo fittizio</b><br>via Esempio 0 · 20100 Milano (MI)<br>Tel. <b>02 0000 0000</b> · <b>ciao@voltabit-demo.it</b><br>P.IVA 00000000000 · tutto inventato</p>
+        <table class="hours" aria-label="Orari dimostrativi"><tbody>
+          <tr><td>Mar – Ven</td><td>9:30–12:30 · 15:00–18:30</td></tr>
+          <tr><td>Sabato demo</td><td>9:30–12:00</td></tr>
+          <tr><td>Dom – Lun</td><td>banco chiuso · POST spento</td></tr>
+        </tbody></table>
+        <div class="ticket"><span>Ticket di oggi: <b>VB-2026-0915…17</b></span><span aria-hidden="true">▮▮▮▮▮</span></div>
+        <p class="hero-note" style="margin:0;color:rgba(232,240,232,.7)">Porta anche l'alimentatore e, se puoi, la password scritta su carta. Non la sappiamo a memoria, giuriamo.</p>
+      </aside>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer aria-label="Piè di pagina Voltabit">
+  <div class="foot-term">
+    <div class="wrap">
+      <div class="term" role="region" aria-label="Terminale di saluto dimostrativo">
+        <div class="term-tape"><span class="leds" aria-hidden="true"><span class="led g"></span><span class="led a"></span><span class="led r"></span></span><span>VOLTABIT SHUTDOWN · demo</span><span class="t" id="footClock">--:--:--</span></div>
+        <div class="term-body" style="min-height:118px"><div id="footBye" aria-hidden="true"></div><div><span class="mut">tecnico@banco-a:~$ </span><span class="cursor-blink" aria-hidden="true"></span></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div><h4>Voltabit · lab fittizio</h4><p class="lead" style="font-size:13.5px;margin:0 0 10px">"Apriamo le macchine. Chiudiamo i problemi." Assistenza, assemblaggio VX/FX, reti casa e PMI. Tutto dimostrativo.</p><span class="asset-tag">VB-2026-FOOTER</span></div>
+      <nav aria-label="Collegamenti di sezione"><h4>Sezioni</h4><a href="#servizi">Banchi</a><a href="#teardown">Teardown</a><a href="#benchmark">Benchmark</a><a href="#strumento">Configuratore demo</a></nav>
+      <nav aria-label="Collegamenti di servizio"><h4>Servizio demo</h4><a href="#listino">Listino demo</a><a href="#faq">FAQ tecniche</a><a href="#contatti">Scheda accettazione</a><a href="#hero">Torna al POST ↑</a></nav>
+    </div>
+    <div class="disclaimer"><b>DISCLAIMER · TUTTO FITTIZIO — </b>Voltabit è un brand inventato per questa demo creativa. Sigle CPU (VX-4/VX-8/VX-12) e GPU (FX-6/FX-12), listini, tempi ("diagnosi in 24h demo"), punteggi, indirizzo (via Esempio 0 Milano), telefono (02 0000 0000), email (ciao@voltabit-demo.it) e P.IVA (00000000000) sono dati dimostrativi senza valore commerciale. Nessun hardware reale, nessun marchio reale citato, nessun dato personale raccolto o inviato: il form è solo dimostrativo ("Demo — nessun dato inviato"). Contenuti originali a scopo illustrativo.</div>
+    <div class="foot-base"><span>© 2026 Voltabit Demo Lab · fittizio · rev 31.1</span><span class="mono">lab #0B0E0C · phosphor #00E07A · amber #FFB224</span><span>nastro 0px · moduli 8px · chip 4px</span></div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+<script>
+(function(){
+"use strict";
+document.documentElement.classList.add("js");
+gsap.registerPlugin(ScrollTrigger);
+gsap.defaults({overwrite:"auto",ease:"power2.out"});
+var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+var finePointer = window.matchMedia("(pointer: fine)").matches;
+/* ---------- Lenis sync ---------- */
+var lenis = null;
+if(!reduced && typeof Lenis !== "undefined"){
+  lenis = new Lenis({duration:1.05,smoothWheel:true});
+  lenis.on("scroll",ScrollTrigger.update);
+  gsap.ticker.add(function(t){lenis.raf(t*1000);});
+  gsap.ticker.lagSmoothing(0);
+}
+function scrollToTarget(sel){
+  var el = document.querySelector(sel);
+  if(!el) return;
+  if(lenis){lenis.scrollTo(el,{offset:-70});}
+  else{el.scrollIntoView({behavior:reduced?"auto":"smooth"});}
+}
+document.querySelectorAll('a[href^="#"]').forEach(function(a){
+  a.addEventListener("click",function(e){
+    var id = a.getAttribute("href");
+    if(id.length>1 && document.querySelector(id)){e.preventDefault();scrollToTarget(id);
+      var nav=document.getElementById("mainNav");if(nav.classList.contains("is-open")){nav.classList.remove("is-open");document.getElementById("menuBtn").setAttribute("aria-expanded","false");}
+    }
+  });
+});
+var menuBtn=document.getElementById("menuBtn");
+menuBtn.addEventListener("click",function(){
+  var nav=document.getElementById("mainNav");
+  var open=nav.classList.toggle("is-open");
+  menuBtn.setAttribute("aria-expanded",open?"true":"false");
+});
+/* ---------- Cursor banco + snap 8px ---------- */
+var cCross=document.getElementById("cursorCross"),cDot=document.getElementById("cursorDot"),
+    cRead=document.getElementById("cursorReadout"),cXY=document.getElementById("cursorXY"),cLbl=document.getElementById("cursorLabel");
+if(finePointer && !reduced){
+  var qx=gsap.quickTo(cCross,"x",{duration:.18,ease:"power3"}),qy=gsap.quickTo(cCross,"y",{duration:.18,ease:"power3"});
+  var rx=gsap.quickTo(cRead,"x",{duration:.25,ease:"power3"}),ry=gsap.quickTo(cRead,"y",{duration:.25,ease:"power3"});
+  window.addEventListener("pointermove",function(e){
+    qx(e.clientX-17);qy(e.clientY-17);
+    var sx=Math.round(e.clientX/8)*8, sy=Math.round(e.clientY/8)*8;
+    gsap.set(cDot,{x:sx-4,y:sy-4});
+    rx(e.clientX+18);ry(e.clientY+18);
+    cXY.textContent="x "+String(sx).padStart(4,"0")+" · y "+String(sy).padStart(4,"0")+" μm";
+  },{passive:true});
+  document.querySelectorAll("[data-cursor]").forEach(function(el){
+    el.addEventListener("pointerenter",function(){cLbl.textContent=el.getAttribute("data-cursor");});
+    el.addEventListener("pointerleave",function(){cLbl.textContent="BANCO";});
+  });
+}
+/* ---------- 2) HERO POST/boot (max 2s, skippabile) ---------- */
+var postLines=[
+  {t:"VOLTABIT BIOS demo v3.1 — controllo banco A…",c:""},
+  {t:"[mem ] 32768 MB demo ............ OK",c:"dim"},
+  {t:"[cpu ] VX-8 8C @ banco .......... OK",c:"dim"},
+  {t:"[disk] SSD 2 TB demo ............ OK",c:"dim"},
+  {t:"[net ] link 1G demo ............. OK",c:"warn"}
+];
+var postLog=document.getElementById("postLog"),postCmd=document.getElementById("postCmd"),
+    postItems=document.querySelectorAll("#postCheck li"),skipBtn=document.getElementById("skipPost"),
+    benchPanels=document.querySelectorAll(".bench-panel");
+function postFinalState(){
+  postLog.innerHTML="";
+  postLines.forEach(function(l){
+    var d=document.createElement("div");d.className="ln "+l.c;d.textContent="> "+l.t;postLog.appendChild(d);
+  });
+  postItems.forEach(function(li){li.classList.add("is-ok");});
+  postCmd.textContent="avvia_banco --demo";
+  gsap.set(benchPanels,{clearProps:"opacity,transform"});
+}
+var postTl=null;
+if(reduced){
+  postFinalState();
+}else{
+  gsap.set(benchPanels,{y:22,opacity:0});
+  postTl=gsap.timeline({defaults:{ease:"none"},labels:{boot:0,check:1,bench:1.4}});
+  var proxy={v:0};
+  postLines.forEach(function(line,idx){
+    var div=document.createElement("div");div.className="ln "+line.c;postLog.appendChild(div);
+    var full="> "+line.t, o={i:0};
+    postTl.to(o,{i:full.length,duration:.16,ease:"steps("+full.length+")",
+      onUpdate:function(){div.textContent=full.slice(0,Math.round(o.i));},
+      onComplete:function(){div.textContent=full;}
+    },idx*.14);
+  });
+  postTl.addLabel("check",.95);
+  postTl.to({},{duration:.05});
+  postItems.forEach(function(li,i){
+    postTl.call(function(){li.classList.add("is-ok");},null,1+i*.12);
+  });
+  postTl.addLabel("bench",1.45);
+  postTl.to(benchPanels,{y:0,opacity:1,duration:.4,stagger:.08,ease:"power2.out",clearProps:"transform"},1.45);
+  postTl.call(function(){postCmd.textContent="avvia_banco --demo";},null,1.7);
+  postTl.to({},{duration:.1});
+  try{postTl.totalDuration(2);}catch(e){proxy.v=0;}
+  var skipped=false;
+  function skipPost(){if(skipped||!postTl)return;skipped=true;postTl.progress(1);}
+  skipBtn.addEventListener("click",skipPost);
+  window.addEventListener("keydown",function once(e){if(e.key==="Enter"||e.key===" "||e.key==="Escape"){if(document.activeElement===skipBtn||e.target===document.body){skipPost();}}},{passive:true});
+  document.querySelector("#hero .term").addEventListener("click",function(e){if(e.target!==skipBtn)skipPost();});
+}
+/* ---------- Reveal sobri (non protagonisti) ---------- */
+if(!reduced){
+  gsap.utils.toArray(".rv").forEach(function(el){
+    gsap.fromTo(el,{y:26,opacity:0},{y:0,opacity:1,duration:.7,ease:"power2.out",immediateRender:false,
+      scrollTrigger:{trigger:el,start:"top 88%",once:true},clearProps:"transform"});
+  });
+}else{gsap.set(".rv",{opacity:1});}
+/* ---------- 1) TEARDOWN pinned esploso ---------- */
+var mm=gsap.matchMedia();
+mm.add("(min-width: 721px)",function(){
+  var layers=gsap.utils.toArray(".td-layer");
+  var steps=gsap.utils.toArray("#tdSteps li");
+  gsap.set("#tdStage",{transformPerspective:1100});
+  gsap.set(layers,function(i){return{xPercent:-50,yPercent:-50,y:0,rotationX:8-i*1.2,opacity:1};});
+  gsap.set(".td-tag",{opacity:.18});
+  var spread=[-168,-84,0,84,168];
+  var tl=gsap.timeline({defaults:{ease:"none"},scrollTrigger:{
+    trigger:"#teardown",start:"top top+=60",end:"+=2800",scrub:1,pin:".td-stage-wrap",
+    anticipatePin:1,invalidateOnRefresh:true
+  }});
+  layers.forEach(function(layer,i){
+    tl.to(layer,{y:spread[i],rotationX:i===2?0:4,duration:1},i*.22);
+  });
+  tl.to("#tdScrew",{rotation:"+=360",x:60,y:-40,duration:2.4},0);
+  tl.to("#tdProg",{scaleX:1,duration:2.4},0);
+  layers.forEach(function(layer,i){
+    tl.call(function(){
+      layers.forEach(function(l,k){l.classList.toggle("is-lit",k<=i);});
+      steps.forEach(function(s,k){s.classList.toggle("is-lit",k<=i);});
+    },null,i*.32+.15);
+  });
+  tl.to({},{duration:.3});
+  return function(){gsap.set(layers,{clearProps:"transform"});};
+});
+mm.add("(max-width: 720px)",function(){
+  gsap.utils.toArray(".td-layer").forEach(function(l){l.classList.add("is-lit");});
+  gsap.utils.toArray("#tdSteps li").forEach(function(s){s.classList.add("is-lit");});
+  gsap.set("#tdProg",{scaleX:1});
+});
+/* ---------- 3) BENCHMARK reactive ---------- */
+var bmFills=document.querySelectorAll(".bm-fill");
+gsap.set(bmFills,{scaleX:0});
+if(!reduced){
+  bmFills.forEach(function(f){
+    var w=parseFloat(f.getAttribute("data-w")||"0.5");
+    gsap.to(f,{scaleX:w,ease:"none",immediateRender:false,
+      scrollTrigger:{trigger:"#benchmark",start:"top 75%",end:"center 35%",scrub:1,invalidateOnRefresh:true}});
+  });
+}else{bmFills.forEach(function(f){f.style.transform="scaleX("+f.getAttribute("data-w")+")";});}
+var needle=document.getElementById("fpsNeedle"),fpsVal=document.getElementById("fpsVal"),fpsState=document.getElementById("fpsState");
+var setNeedle=gsap.quickTo(needle,"rotation",{duration:.3,ease:"power2.out"});
+gsap.set(needle,{svgOrigin:"110 110",rotation:-58});
+var bmLog=document.getElementById("bmLog"),bmCount=0,lastPush=0;
+var bmPhrases=["pass 1/3 · VX-8 … 7.812 demo","temp 61° demo · ventole 40%","pass 2/3 · FX-6 frame 92 demo","jitter 1,2 ms demo · stabile","pass 3/3 · media 7.800 demo","collaudo: TIMBRO VERDE demo","watt picco 365 W demo","log archiviato VB-LOG-0915"];
+ScrollTrigger.create({trigger:"#benchmark",start:"top bottom",end:"bottom top",scrub:false,
+  onUpdate:function(self){
+    var v=self.getVelocity();
+    var base=-58+Math.min(116,Math.max(0,(self.progress)*116));
+    var tremor=Math.max(-14,Math.min(14,v/220));
+    setNeedle(base+tremor);
+    var fps=Math.round(92+tremor*2.4+Math.sin(self.progress*9)*3);
+    fpsVal.textContent=String(Math.max(40,Math.min(240,fps)));
+    fpsState.textContent=Math.abs(v)>1800?"SPINTA DEMO":(Math.abs(v)>500?"MISURA…":"STABILE DEMO");
+    var now=Date.now();
+    if(now-lastPush>420 && bmCount<12){
+      lastPush=now;bmCount++;
+      var p=document.createElement("p");
+      p.textContent="> "+bmPhrases[bmCount%bmPhrases.length];
+      bmLog.appendChild(p);
+      while(bmLog.children.length>12)bmLog.removeChild(bmLog.firstChild);
+      gsap.fromTo(p,{x:-14,opacity:0},{x:0,opacity:1,duration:.3,overwrite:"auto"});
+    }
+  }
+});
+/* ---------- CONFIGURATORE ---------- */
+var cfgCpu=document.getElementById("cfgCpu"),cfgGpu=document.getElementById("cfgGpu"),
+    cfgRam=document.getElementById("cfgRam"),cfgSsd=document.getElementById("cfgSsd"),
+    cfgAsm=document.getElementById("cfgAsm"),cfgTest=document.getElementById("cfgTest"),
+    odoEls=[document.getElementById("odo1"),document.getElementById("odo2"),document.getElementById("odo3"),document.getElementById("odo4")],
+    priceSr=document.getElementById("cfgPriceSr"),wattEl=document.getElementById("cfgWatt"),
+    wattFill=document.getElementById("cfgWattFill"),levelEl=document.getElementById("cfgLevel"),
+    psuEl=document.getElementById("cfgPsu"),compatEl=document.getElementById("cfgCompat");
+function optData(sel){var o=sel.options[sel.selectedIndex];return{p:parseInt(o.getAttribute("data-p"),10)||0,w:parseInt(o.getAttribute("data-w"),10)||0,v:o.value};}
+function setOdo(n){
+  var s=String(Math.max(0,Math.min(9999,n))).padStart(4,"0");
+  odoEls.forEach(function(el,i){
+    if(el.textContent!==s[i]){
+      el.textContent=s[i];
+      if(!reduced)gsap.fromTo(el,{y:-10,opacity:.4},{y:0,opacity:1,duration:.28,ease:"power2.out",overwrite:"auto"});
+    }
+  });
+  priceSr.textContent=n+" euro dimostrativi";
+}
+function updateCfg(){
+  var cpu=optData(cfgCpu),gpu=optData(cfgGpu),ram=optData(cfgRam),ssd=optData(cfgSsd);
+  var price=120+cpu.p+gpu.p+ram.p+ssd.p+(cfgAsm.checked?89:0)+(cfgTest.checked?39:0);
+  var watt=40+cpu.w+gpu.w+parseInt(cfgRam.value,10)+parseInt(cfgSsd.value,10)*8;
+  setOdo(price);
+  wattEl.textContent=String(watt);
+  wattFill.style.width=Math.min(100,Math.round(watt/520*100))+"%";
+  var level="UFFICIO",psu=450;
+  if((cpu.v==="VX-12")||(gpu.v==="FX-12")||parseInt(cfgRam.value,10)>=64){level="STUDIO";psu=750;}
+  else if(cpu.v==="VX-8"||gpu.v==="FX-6"||parseInt(cfgRam.value,10)>=32){level="GIOCO DEMO";psu=550;}
+  levelEl.textContent=level;levelEl.setAttribute("data-level",level);
+  psuEl.textContent="PSU consigliata demo: "+psu+" W";
+  var items=compatEl.querySelectorAll("li");
+  items.forEach(function(li){li.classList.remove("ok","warn");});
+  var okPsu=watt<psu*.85, okCool=!(cpu.v==="VX-12"&&!cfgTest.checked), okRam=!(level==="STUDIO"&&parseInt(cfgRam.value,10)<32);
+  setCompat(items[0],okPsu,okPsu?"Alimentatore adeguato ai watt demo":"PSU al limite demo · passa a "+(psu+100)+" W");
+  setCompat(items[1],okCool,okCool?"Dissipatore adeguato alla CPU demo":"VX-12 senza collaudo? Aggiungi test 48h demo");
+  setCompat(items[2],okRam,okRam?"RAM coerente col livello demo":"Studio con poca RAM demo · alza a 64 GB");
+  function setCompat(li,ok,txt){
+    li.classList.add(ok?"ok":"warn");
+    li.lastElementChild.textContent=txt;
+    li.querySelector(".st").textContent=ok?"✓":"!";
+    if(!reduced)gsap.fromTo(li,{x:-8,opacity:.5},{x:0,opacity:1,duration:.3,ease:"power2.out",overwrite:"auto"});
+  }
+}
+[cfgCpu,cfgGpu,cfgRam,cfgSsd,cfgAsm,cfgTest].forEach(function(el){el.addEventListener("change",updateCfg);});
+updateCfg();
+/* ---------- LISTINO filtri ---------- */
+var fBtns=document.querySelectorAll(".filter-btn"),rows=document.querySelectorAll("#priceBody tr"),listCount=document.getElementById("listCount");
+fBtns.forEach(function(btn){
+  btn.addEventListener("click",function(){
+    fBtns.forEach(function(b){b.setAttribute("aria-pressed","false");});
+    btn.setAttribute("aria-pressed","true");
+    var f=btn.getAttribute("data-filter"),n=0;
+    rows.forEach(function(r){
+      var show=(f==="all"||r.getAttribute("data-cat")===f);
+      r.classList.toggle("is-hidden",!show);
+      if(show){n++;if(!reduced)gsap.fromTo(r,{opacity:0},{opacity:1,duration:.25,overwrite:"auto"});}
+    });
+    listCount.textContent=n+(n===1?" voce mostrata":" voci mostrate")+" · listino demo, nessun addebito reale.";
+  });
+});
+/* ---------- FAQ accordion + Esc ---------- */
+var faqItems=document.querySelectorAll(".faq-item");
+faqItems.forEach(function(item){
+  var btn=item.querySelector(".faq-btn"),panel=item.querySelector(".faq-panel");
+  btn.addEventListener("click",function(){
+    var open=item.getAttribute("data-open")==="true";
+    faqItems.forEach(function(o){o.setAttribute("data-open","false");o.querySelector(".faq-btn").setAttribute("aria-expanded","false");o.querySelector(".faq-panel").style.maxHeight="0px";});
+    if(!open){item.setAttribute("data-open","true");btn.setAttribute("aria-expanded","true");panel.style.maxHeight=panel.scrollHeight+"px";}
+  });
+});
+document.addEventListener("keydown",function(e){
+  if(e.key==="Escape"){faqItems.forEach(function(o){o.setAttribute("data-open","false");o.querySelector(".faq-btn").setAttribute("aria-expanded","false");o.querySelector(".faq-panel").style.maxHeight="0px";});}
+});
+/* ---------- Form demo ---------- */
+document.getElementById("demoForm").addEventListener("submit",function(e){
+  e.preventDefault();
+  var name=document.getElementById("fName"),mail=document.getElementById("fMail"),ok=document.getElementById("formOk");
+  var valid=true;
+  [name,mail].forEach(function(f){
+    var bad=!f.value||(f===mail&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.value));
+    f.style.borderColor=bad?"#FF5C5C":"";
+    if(bad){valid=false;f.focus();}
+  });
+  if(!valid)return;
+  ok.hidden=false;
+  if(!reduced)gsap.fromTo(ok,{y:8,opacity:0},{y:0,opacity:1,duration:.35,ease:"power2.out"});
+  ok.scrollIntoView({block:"nearest",behavior:reduced?"auto":"smooth"});
+});
+/* ---------- Footer saluto + orologio ---------- */
+var footBye=document.getElementById("footBye"),footDone=false;
+var byeLines=["> spegnimento banchi… OK demo","> log archiviati · VB-LOG-0915","> arrivederci_"];
+function typeBye(){
+  if(footDone)return;footDone=true;
+  if(reduced){footBye.innerHTML=byeLines.map(function(l){return"<div>"+l+"</div>";}).join("");return;}
+  footBye.innerHTML="";
+  var li=0;
+  function nextLine(){
+    if(li>=byeLines.length)return;
+    var full=byeLines[li],div=document.createElement("div");footBye.appendChild(div);
+    var o={i:0};
+    gsap.to(o,{i:full.length,duration:.7,ease:"steps("+full.length+")",
+      onUpdate:function(){div.textContent=full.slice(0,Math.round(o.i));},
+      onComplete:function(){div.textContent=full;li++;nextLine();}});
+  }
+  nextLine();
+}
+ScrollTrigger.create({trigger:"footer",start:"top 80%",once:true,onEnter:typeBye});
+var clock=document.getElementById("footClock");
+setInterval(function(){var d=new Date();clock.textContent=String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")+":"+String(d.getSeconds()).padStart(2,"0");},1000);
+/* ---------- refresh dopo fonts ---------- */
+if(document.fonts&&document.fonts.ready){document.fonts.ready.then(function(){ScrollTrigger.refresh();});}
+window.addEventListener("load",function(){ScrollTrigger.refresh();});
+})();
+</script>
+</body>
+</html>

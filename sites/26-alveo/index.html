@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Alveo — Ogni progetto ha una rotta. Alveo la tiene.</title>
+<meta name="description" content="Alveo è il sistema operativo dei progetti: rotte, equipaggi, scadenze in un'unica plancia. Demo di design con dati fittizi.">
+<meta name="theme-color" content="#0E1B1A">
+<!--
+  ALVEO · 26 — Concept, copy, layout, icone e codice originali creati per questa demo (MIT per il codice originale di questa pagina).
+  CDN di terze parti restano dei rispettivi titolari:
+  - GSAP + ScrollTrigger © GreenSock, Inc. (https://gsap.com) — licenza GreenSock (gratuita per uso standard) via jsDelivr.
+  - Lenis smooth scroll © Darkroom Engineering / collaboratori — licenza MIT via jsDelivr.
+  - Google Fonts (Space Grotesk, Instrument Sans, Space Mono) — licenza SIL Open Font License 1.1.
+  Nessuna affiliazione con i titolari dei CDN. Marchio Alveo, dati, prezzi e persone in pagina sono fittizi.
+-->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%230E1B1A'/%3E%3Cpath d='M14 44 L26 20 L32 32 L38 20 L50 44' fill='none' stroke='%23F4EFE4' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='32' cy='48' r='3' fill='%23FF5C38'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Instrument+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --pine:#0E1B1A; --paper:#F4EFE4; --ink:#101614; --signal:#FF5C38; --mint:#7DD8C6;
+  --bg:#F4EFE4; --bg-2:#ECE5D2; --card:#FBF8F0;
+  --ink-strong:#101614; --muted:rgba(16,22,20,.62); --line:rgba(16,22,20,.12);
+  --accent:var(--signal); --ok:var(--mint);
+  --radius-card:6px; --radius-pill:999px; --radius-s:3px;
+  --font-display:"Space Grotesk",system-ui,sans-serif;
+  --font-body:"Instrument Sans",system-ui,sans-serif;
+  --font-mono:"Space Mono",ui-monospace,monospace;
+  --ease-out:cubic-bezier(.22,.8,.24,1); --ease-snap:cubic-bezier(.7,0,.2,1); --ease-elastic:cubic-bezier(.34,1.56,.64,1);
+  --fs-display:clamp(2.5rem,6.2vw,5rem); --fs-h2:clamp(1.85rem,3.8vw,3.05rem); --fs-h3:clamp(1.12rem,1.7vw,1.35rem);
+  --fs-body:clamp(1rem,1.2vw,1.08rem); --fs-small:.86rem; --fs-mono:.74rem;
+  --sp-8:8px; --sp-16:16px; --sp-24:24px; --sp-40:40px; --sp-64:64px; --sp-96:96px; --sp-128:128px;
+  --nav-h:68px;
+}
+.theme-dark{ --bg:#0E1B1A; --bg-2:#142726; --card:#12211F; --ink-strong:#F4EFE4; --ink:#F4EFE4; --muted:rgba(244,239,228,.66); --line:rgba(244,239,228,.14); }
+.theme-light{ --bg:#F4EFE4; --bg-2:#ECE5D2; --card:#FBF8F0; --ink-strong:#101614; --ink:#101614; --muted:rgba(16,22,20,.62); --line:rgba(16,22,20,.12); }
+/* ============ BASE ============ */
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:auto; -webkit-text-size-adjust:100%}
+html,body{overflow-x:clip}
+body{margin:0; font-family:var(--font-body); font-size:var(--fs-body); line-height:1.6; background:var(--pine); color:var(--paper); font-feature-settings:"tnum" 1,"ss01" 1; -webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--font-display); line-height:1.02; letter-spacing:-.02em; margin:0; text-wrap:balance}
+h1{font-size:var(--fs-display); font-weight:700}
+h2{font-size:var(--fs-h2); font-weight:500}
+h3{font-size:var(--fs-h3); font-weight:500}
+p{margin:0 0 1em}
+a{color:inherit}
+img,svg{display:block; max-width:100%}
+::selection{background:var(--signal); color:#101614}
+::-webkit-scrollbar{width:10px; height:10px}
+::-webkit-scrollbar-track{background:var(--pine)}
+::-webkit-scrollbar-thumb{background:#2c3f3d; border-radius:6px; border:2px solid var(--pine)}
+.theme-light ::-webkit-scrollbar-track{background:var(--paper)}
+:focus{outline:none}
+:focus-visible{outline:2px solid var(--signal); outline-offset:3px; border-radius:2px}
+.skip-link{position:fixed; top:8px; left:8px; z-index:200; background:var(--signal); color:#101614; font-family:var(--font-mono); font-size:.8rem; font-weight:700; padding:12px 18px; border-radius:4px; transform:translateY(-220%); transition:transform .2s var(--ease-out); text-decoration:none}
+.skip-link:focus-visible{transform:translateY(0)}
+.wrap{max-width:1280px; margin:0 auto; padding-left:24px; padding-right:24px}
+@media(min-width:1600px){.wrap{max-width:1440px}}
+@media(max-width:640px){.wrap{padding-left:16px; padding-right:16px}}
+section{position:relative}
+.section-pad{padding-top:var(--sp-96); padding-bottom:var(--sp-96)}
+@media(max-width:700px){.section-pad{padding-top:var(--sp-64); padding-bottom:var(--sp-64)}}
+.grid-12{display:grid; grid-template-columns:repeat(4,1fr); gap:16px}
+@media(min-width:900px){.grid-12{grid-template-columns:repeat(12,1fr); gap:24px}}
+.mono{font-family:var(--font-mono); font-size:var(--fs-mono); letter-spacing:.12em; text-transform:uppercase}
+.tabular{font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1}
+.kicker{display:inline-flex; align-items:center; gap:10px; font-family:var(--font-mono); font-size:.74rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin-bottom:16px}
+.kicker::before{content:""; width:28px; height:1px; background:currentColor; display:inline-block}
+.kicker .sq{width:8px; height:8px; background:var(--signal); display:inline-block}
+/* ============ INTRO tendina ============ */
+#intro{position:fixed; inset:0; z-index:120; display:grid; grid-template-columns:repeat(4,1fr); background:var(--pine)}
+#intro .intro-panel{position:relative; background:#0b1514; border-right:1px solid rgba(244,239,228,.1); will-change:transform,opacity; clip-path:inset(0 0 0 0)}
+#intro .intro-panel:nth-child(even){background:#102120}
+#intro .intro-center{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none}
+#intro .intro-card{pointer-events:auto; width:min(520px,88vw); background:#F4EFE4; color:#101614; border-radius:6px; overflow:hidden; border:1px solid rgba(16,22,20,.2)}
+#intro .intro-head{font-family:var(--font-mono); font-size:.72rem; letter-spacing:.14em; padding:12px 18px; border-bottom:1px solid rgba(16,22,20,.12); display:flex; justify-content:space-between; background:#ece5d2}
+#intro .intro-rows{padding:14px 18px 18px; display:grid; gap:8px}
+#intro .intro-row{display:flex; justify-content:space-between; gap:12px; font-family:var(--font-mono); font-size:.74rem; letter-spacing:.06em; border:1px solid rgba(16,22,20,.12); border-radius:4px; padding:9px 12px; background:#fff}
+#intro .intro-row b{font-weight:700}
+#intro .intro-bar{height:2px; background:rgba(16,22,20,.12); margin:0 18px 16px; position:relative; overflow:hidden; border-radius:2px}
+#intro .intro-bar span{position:absolute; inset:0; background:var(--signal); transform:scaleX(0); transform-origin:left}
+/* ============ CURSOR mirino ============ */
+#cursor{position:fixed; left:0; top:0; z-index:130; width:44px; height:44px; margin:-22px 0 0 -22px; pointer-events:none; opacity:0; will-change:transform,opacity}
+#cursor .ring{position:absolute; inset:0; border:1px solid currentColor; border-radius:50%; opacity:.9}
+#cursor .cross::before,#cursor .cross::after{content:""; position:absolute; background:currentColor}
+#cursor .cross::before{left:50%; top:6px; bottom:6px; width:1px; transform:translateX(-.5px)}
+#cursor .cross::after{top:50%; left:6px; right:6px; height:1px; transform:translateY(-.5px)}
+#cursor .dot{position:absolute; left:50%; top:50%; width:4px; height:4px; margin:-2px 0 0 -2px; background:var(--signal); border-radius:50%}
+#cursorMeta{position:absolute; left:50px; top:50%; transform:translateY(-50%); font-family:var(--font-mono); font-size:.66rem; letter-spacing:.08em; white-space:nowrap; background:var(--pine); color:var(--paper); border:1px solid rgba(244,239,228,.2); padding:3px 8px; border-radius:3px}
+#cursorLabel{position:absolute; left:50%; top:-24px; transform:translateX(-50%); font-family:var(--font-mono); font-size:.64rem; letter-spacing:.12em; background:var(--signal); color:#101614; padding:2px 8px; border-radius:3px; opacity:0; white-space:nowrap}
+body.has-cursor #cursor{opacity:1; color:#F4EFE4; mix-blend-mode:difference}
+body.has-cursor{cursor:none}
+body.has-cursor a,body.has-cursor button{cursor:none}
+body.has-cursor input,body.has-cursor textarea,body.has-cursor select,body.has-cursor option{cursor:auto}
+@media(pointer:coarse){#cursor{display:none}}
+/* ============ NAV ============ */
+#siteNav{position:fixed; top:0; left:0; right:0; z-index:100; height:var(--nav-h); background:rgba(14,27,26,.86); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-bottom:1px solid rgba(244,239,228,.14); color:var(--paper)}
+.nav-inner{height:100%; display:flex; align-items:center; gap:20px}
+.brand{display:flex; align-items:center; gap:10px; text-decoration:none; font-family:var(--font-display); font-weight:700; letter-spacing:.02em; min-height:44px}
+.brand svg{width:30px; height:30px}
+.brand small{font-family:var(--font-mono); font-size:.62rem; letter-spacing:.18em; border:1px solid rgba(244,239,228,.25); padding:2px 7px; border-radius:999px; font-weight:400}
+.nav-links{display:none; gap:2px; margin-left:12px}
+@media(min-width:1000px){.nav-links{display:flex}}
+.nav-links a{font-family:var(--font-mono); font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; text-decoration:none; padding:10px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:4px; color:rgba(244,239,228,.78); transition:color .18s,background .18s}
+.nav-links a:hover{background:rgba(244,239,228,.08); color:#fff}
+.nav-cta{margin-left:auto; display:flex; gap:10px; align-items:center}
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:10px; min-height:48px; padding:12px 22px; border-radius:6px; font-family:var(--font-body); font-weight:600; font-size:.98rem; text-decoration:none; border:1px solid transparent; transition:transform .18s var(--ease-out),background .18s,border-color .18s,color .18s,box-shadow .18s; cursor:pointer}
+.btn:active{transform:translateY(1px)}
+.btn-signal{background:var(--signal); color:#101614; box-shadow:0 8px 24px -10px rgba(255,92,56,.55)}
+.btn-signal:hover{background:#ff6f4d; box-shadow:0 12px 30px -10px rgba(255,92,56,.7)}
+.btn-ghost{background:transparent; color:inherit; border-color:var(--line)}
+.btn-ghost:hover{border-color:currentColor}
+.btn-sm{min-height:44px; padding:10px 16px; font-size:.9rem}
+#menuBtn{display:inline-flex; align-items:center; gap:8px; background:transparent; border:1px solid rgba(244,239,228,.25); color:var(--paper); border-radius:6px; min-width:44px; min-height:44px; padding:10px 14px; font-family:var(--font-mono); font-size:.72rem; letter-spacing:.12em}
+@media(min-width:1000px){#menuBtn{display:none}}
+#mobileMenu{position:fixed; inset:var(--nav-h) 0 0 0; z-index:99; background:#0b1514; border-top:1px solid rgba(244,239,228,.1); padding:20px 16px 32px; display:none; overflow:auto}
+#mobileMenu.open{display:block}
+#mobileMenu a{display:flex; align-items:center; justify-content:space-between; padding:16px 8px; border-bottom:1px solid rgba(244,239,228,.1); text-decoration:none; font-family:var(--font-display); font-size:1.3rem; min-height:56px}
+#mobileMenu a span{font-family:var(--font-mono); font-size:.7rem; letter-spacing:.12em; color:var(--mint)}
+/* ============ HERO ============ */
+#hero{background:var(--pine); color:var(--paper); padding-top:calc(var(--nav-h) + 40px); padding-bottom:64px; overflow:clip}
+.route-grid{position:absolute; inset:0; pointer-events:none; background-image:linear-gradient(rgba(244,239,228,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(244,239,228,.055) 1px,transparent 1px); background-size:36px 36px; mask-image:radial-gradient(ellipse 90% 80% at 50% 20%,#000 40%,transparent 78%)}
+.route-svg{position:absolute; inset:0; width:100%; height:100%; pointer-events:none}
+.hero-grid{display:grid; gap:32px; position:relative}
+@media(min-width:1000px){.hero-grid{grid-template-columns:1.02fr .98fr; gap:48px; align-items:start}}
+.hero-eyebrow{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:20px}
+.pill{display:inline-flex; align-items:center; gap:8px; border:1px solid rgba(244,239,228,.22); border-radius:999px; padding:7px 14px; font-family:var(--font-mono); font-size:.7rem; letter-spacing:.12em; text-transform:uppercase}
+.pill .dotlive{width:8px; height:8px; border-radius:50%; background:var(--mint); box-shadow:0 0 0 4px rgba(125,216,198,.18)}
+.hero-sub{color:rgba(244,239,228,.74); max-width:52ch; font-size:clamp(1.02rem,1.4vw,1.16rem)}
+.hero-ctas{display:flex; flex-wrap:wrap; gap:12px; margin:28px 0 22px}
+.hero-meta{display:flex; flex-wrap:wrap; gap:10px 22px; font-family:var(--font-mono); font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:rgba(244,239,228,.6); border-top:1px solid rgba(244,239,228,.14); padding-top:18px}
+.hero-meta b{color:var(--mint)}
+/* plancia card */
+.plancia{background:#12211f; border:1px solid rgba(244,239,228,.14); border-radius:6px; overflow:hidden; box-shadow:0 30px 80px -30px rgba(0,0,0,.6), inset 0 1px 0 rgba(244,239,228,.08)}
+.plancia-head{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 16px; border-bottom:1px solid rgba(244,239,228,.14); background:#0f1d1c; font-family:var(--font-mono); font-size:.7rem; letter-spacing:.12em; text-transform:uppercase}
+.plancia-head .lights{display:flex; gap:6px}
+.plancia-head .lights i{width:9px; height:9px; border-radius:50%; border:1px solid rgba(244,239,228,.3); display:block}
+.plancia-head .lights i:nth-child(1){background:var(--signal)} .plancia-head .lights i:nth-child(2){background:var(--mint)} .plancia-head .lights i:nth-child(3){background:transparent}
+#boardClock{color:var(--mint); font-weight:700}
+.bridge-rows{padding:12px; display:grid; gap:8px}
+.bridge-row{display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:center; border:1px solid rgba(244,239,228,.12); border-radius:4px; padding:10px 12px; background:rgba(244,239,228,.03); will-change:transform,opacity}
+.bridge-row time{font-family:var(--font-mono); font-size:.7rem; color:rgba(244,239,228,.6)}
+.bridge-row p{margin:0; font-size:.92rem; line-height:1.45}
+.bridge-row p b{font-weight:600}
+.timbro{font-family:var(--font-mono); font-size:.64rem; font-weight:700; letter-spacing:.12em; padding:5px 10px; border-radius:999px; border:1px solid; white-space:nowrap}
+.timbro.ok{color:var(--mint); border-color:rgba(125,216,198,.5); background:rgba(125,216,198,.08)}
+.timbro.wait{color:#F4EFE4; border-color:rgba(244,239,228,.35); background:rgba(244,239,228,.06)}
+.timbro.crit{color:#fff; border-color:var(--signal); background:rgba(255,92,56,.16)}
+.theme-light .timbro.ok{color:#0b3b34; border-color:#0b3b34; background:rgba(125,216,198,.22)}
+.theme-light .timbro.wait{color:#101614; border-color:rgba(16,22,20,.35)}
+.theme-light .timbro.crit{color:#7a1d0b; border-color:#c93a1c; background:rgba(255,92,56,.14)}
+.plancia-foot{display:grid; gap:12px; padding:12px 16px 16px; border-top:1px solid rgba(244,239,228,.12)}
+.spark-head{display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:.66rem; letter-spacing:.12em; color:rgba(244,239,228,.6)}
+.plancia-stats{display:grid; grid-template-columns:repeat(3,1fr); gap:8px}
+.stat-mini{border:1px solid rgba(244,239,228,.12); border-radius:4px; padding:10px; text-align:left}
+.stat-mini strong{display:block; font-family:var(--font-display); font-size:1.25rem; line-height:1}
+.stat-mini span{font-family:var(--font-mono); font-size:.62rem; letter-spacing:.1em; color:rgba(244,239,228,.6); text-transform:uppercase}
+.parallax-tag{position:absolute; font-family:var(--font-mono); font-size:.64rem; letter-spacing:.14em; border:1px dashed rgba(244,239,228,.3); padding:6px 10px; border-radius:4px; color:rgba(244,239,228,.6); background:rgba(14,27,26,.6)}
+.scroll-hint{margin-top:28px; display:flex; align-items:center; gap:12px; font-family:var(--font-mono); font-size:.68rem; letter-spacing:.14em; color:rgba(244,239,228,.55); text-transform:uppercase}
+.scroll-hint i{display:block; width:1px; height:34px; background:linear-gradient(var(--mint),transparent)}
+/* ============ TICKER ============ */
+.ticker{background:#0b1514; border-top:1px solid rgba(244,239,228,.14); border-bottom:1px solid rgba(244,239,228,.14); overflow:hidden; padding:12px 0; position:relative}
+.ticker-track{display:flex; gap:0; width:max-content; will-change:transform}
+.ticker-item{display:flex; align-items:center; gap:12px; padding:0 28px; font-family:var(--font-mono); font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:rgba(244,239,228,.75); white-space:nowrap}
+.ticker-item i{width:7px; height:7px; background:var(--signal); display:inline-block; transform:rotate(45deg)}
+.ticker-item.ok i{background:var(--mint)}
+/* ============ ROTTE ============ */
+#rotte{background:var(--paper); color:var(--ink)}
+.sec-head{display:grid; gap:14px; margin-bottom:40px; max-width:820px}
+.sec-head p.lead{color:var(--muted); font-size:1.08rem; max-width:62ch}
+.cards-4{display:grid; gap:16px}
+@media(min-width:900px){.cards-4{grid-template-columns:repeat(4,1fr)}}
+@media(min-width:640px) and (max-width:899px){.cards-4{grid-template-columns:repeat(2,1fr)}}
+.card-plancia{background:var(--card); border:1px solid var(--line); border-radius:var(--radius-card); overflow:hidden; display:flex; flex-direction:column; transition:transform .22s var(--ease-out),box-shadow .22s; box-shadow:0 1px 0 rgba(16,22,20,.06)}
+.card-plancia:hover{transform:translateY(-4px); box-shadow:0 24px 50px -24px rgba(16,22,20,.28)}
+.card-plancia .cp-head{display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-bottom:1px solid var(--line); font-family:var(--font-mono); font-size:.66rem; letter-spacing:.12em; background:rgba(16,22,20,.03)}
+.card-plancia .cp-body{padding:20px 18px; display:grid; gap:12px; flex:1}
+.card-plancia .cp-body h3{min-height:2.4em}
+.card-plancia .cp-body p{color:var(--muted); font-size:.96rem; margin:0}
+.card-plancia .cp-foot{padding:14px 18px; border-top:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; font-family:var(--font-mono); font-size:.68rem; letter-spacing:.1em}
+.icon-box{width:44px; height:44px; border:1px solid var(--line); border-radius:6px; display:grid; place-items:center; background:var(--bg)}
+/* ============ TIMELINE pinned ============ */
+#timeline{background:var(--pine); color:var(--paper); overflow:clip}
+#timeline .route-grid{opacity:.7}
+.tl-pin-wrap{position:relative; padding-top:var(--sp-96); padding-bottom:var(--sp-96)}
+.tl-stage{display:grid; gap:28px; margin-top:36px}
+@media(min-width:900px){.tl-stage{grid-template-columns:340px 1fr; gap:36px; align-items:start}}
+.tl-rail{display:grid; gap:16px}
+.atti{display:grid; gap:8px}
+.atto{display:grid; grid-template-columns:auto 1fr; gap:14px; padding:14px; border:1px solid rgba(244,239,228,.14); border-radius:6px; background:rgba(244,239,228,.03); opacity:.45; will-change:transform,opacity}
+.atto.active{opacity:1; border-color:rgba(125,216,198,.5); background:rgba(125,216,198,.06)}
+.atto .num{font-family:var(--font-mono); font-size:.7rem; color:var(--mint); border:1px solid rgba(125,216,198,.4); width:34px; height:34px; display:grid; place-items:center; border-radius:6px}
+.atto h3{font-size:1.05rem}
+.atto p{margin:4px 0 0; font-size:.88rem; color:rgba(244,239,228,.65)}
+.tl-instruments{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+.instrument{border:1px solid rgba(244,239,228,.14); border-radius:6px; padding:14px; background:#0f1d1c}
+.instrument h4{margin:0 0 10px; font-family:var(--font-mono); font-size:.64rem; letter-spacing:.12em; color:rgba(244,239,228,.6); font-weight:400}
+.board{border:1px solid rgba(244,239,228,.14); border-radius:6px; background:#0f1d1c; overflow:hidden}
+.board-head{display:grid; grid-template-columns:repeat(3,1fr); border-bottom:1px solid rgba(244,239,228,.14); font-family:var(--font-mono); font-size:.66rem; letter-spacing:.14em; text-align:center}
+.board-head span{padding:12px 8px}
+.board-head span+span{border-left:1px solid rgba(244,239,228,.14)}
+.board-cols{display:grid; grid-template-columns:repeat(3,1fr); min-height:420px}
+.kb-col{padding:12px; display:flex; flex-direction:column; gap:10px; position:relative}
+.kb-col+.kb-col{border-left:1px dashed rgba(244,239,228,.18)}
+.kb-slot{border:1px dashed rgba(244,239,228,.18); border-radius:4px; min-height:86px}
+.kanban-card{border:1px solid rgba(244,239,228,.2); border-radius:4px; background:#F4EFE4; color:#101614; padding:10px 11px; will-change:transform,opacity; box-shadow:0 10px 26px -12px rgba(0,0,0,.5)}
+.kanban-card .kc-top{display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:.62rem; letter-spacing:.1em; margin-bottom:6px}
+.kanban-card .kc-top em{font-style:normal; background:#101614; color:#F4EFE4; padding:1px 6px; border-radius:3px}
+.kanban-card strong{display:block; font-size:.88rem; line-height:1.35}
+.kanban-card small{font-family:var(--font-mono); font-size:.64rem; color:rgba(16,22,20,.6); letter-spacing:.06em}
+.kanban-card.crit{border-left:4px solid var(--signal)}
+.kanban-card.ok{border-left:4px solid #0b6b5c}
+.tl-mobile{display:grid; gap:12px; margin-top:28px}
+@media(min-width:900px){.tl-mobile{display:none}}
+@media(max-width:899px){.tl-desktop-only{display:none}}
+.tl-act-card{background:#12211f; border:1px solid rgba(244,239,228,.14); border-radius:6px; padding:18px}
+.tl-act-card h3{margin:8px 0 6px}
+.tl-act-card p{color:rgba(244,239,228,.68); font-size:.95rem; margin:0}
+.tl-progress-line{height:2px; background:rgba(244,239,228,.12); border-radius:2px; overflow:hidden; margin-top:20px}
+.tl-progress-line span{display:block; height:100%; background:var(--mint); transform:scaleX(0); transform-origin:left}
+/* ============ METRICHE ============ */
+#metriche{background:var(--paper); color:var(--ink)}
+.metrics-grid{display:grid; gap:16px; margin-bottom:40px}
+@media(min-width:900px){.metrics-grid{grid-template-columns:repeat(4,1fr)}}
+@media(min-width:560px) and (max-width:899px){.metrics-grid{grid-template-columns:repeat(2,1fr)}}
+.metric{border:1px solid var(--line); border-radius:6px; background:var(--card); padding:22px 20px; position:relative; overflow:hidden}
+.metric::after{content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--signal)}
+.metric:nth-child(even)::after{background:#0b6b5c}
+.metric strong{font-family:var(--font-display); font-size:clamp(2rem,3vw,2.7rem); line-height:1; display:block; font-variant-numeric:tabular-nums}
+.metric span{font-family:var(--font-mono); font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted)}
+.metric small{display:block; margin-top:8px; font-size:.84rem; color:var(--muted)}
+.quotes{display:grid; gap:16px}
+@media(min-width:900px){.quotes{grid-template-columns:repeat(3,1fr)}}
+.quote{border:1px solid var(--line); border-radius:6px; background:var(--card); padding:22px 20px; display:grid; gap:14px}
+.quote blockquote{margin:0; font-size:1.02rem; line-height:1.55}
+.quote figcaption{display:flex; gap:12px; align-items:center}
+.avatar{width:44px; height:44px; border-radius:50%; display:grid; place-items:center; font-family:var(--font-mono); font-weight:700; font-size:.8rem; background:var(--pine); color:var(--paper); flex-shrink:0}
+.quote:nth-child(2) .avatar{background:var(--signal); color:#101614}
+.quote:nth-child(3) .avatar{background:#0b6b5c; color:#fff}
+.quote cite{font-style:normal; font-size:.88rem}
+.quote cite b{display:block}
+.quote cite span{font-family:var(--font-mono); font-size:.66rem; letter-spacing:.08em; color:var(--muted); text-transform:uppercase}
+/* ============ STRUMENTO ============ */
+#strumento{background:var(--pine); color:var(--paper)}
+.sim-grid{display:grid; gap:20px}
+@media(min-width:1000px){.sim-grid{grid-template-columns:1fr 1.05fr; gap:28px}}
+.sim-panel{border:1px solid rgba(244,239,228,.14); border-radius:6px; background:#0f1d1c; overflow:hidden}
+.sim-panel .sp-head{padding:12px 18px; border-bottom:1px solid rgba(244,239,228,.14); font-family:var(--font-mono); font-size:.68rem; letter-spacing:.14em; display:flex; justify-content:space-between; text-transform:uppercase}
+.sim-body{padding:22px 20px; display:grid; gap:22px}
+.field{display:grid; gap:10px}
+.field-top{display:flex; justify-content:space-between; align-items:baseline; gap:12px}
+.field-top label{font-weight:600; font-size:1rem}
+.field-top output{font-family:var(--font-mono); font-size:.82rem; background:rgba(125,216,198,.12); border:1px solid rgba(125,216,198,.35); color:var(--mint); padding:4px 10px; border-radius:4px}
+input[type="range"]{width:100%; appearance:none; -webkit-appearance:none; height:44px; background:transparent; cursor:pointer; margin:0}
+input[type="range"]::-webkit-slider-runnable-track{height:4px; background:rgba(244,239,228,.18); border-radius:2px}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none; width:26px; height:26px; margin-top:-11px; border-radius:50%; background:var(--paper); border:3px solid var(--signal); box-shadow:0 4px 14px rgba(0,0,0,.4)}
+input[type="range"]::-moz-range-track{height:4px; background:rgba(244,239,228,.18); border-radius:2px}
+input[type="range"]::-moz-range-thumb{width:20px; height:20px; border-radius:50%; background:var(--paper); border:3px solid var(--signal)}
+.chips{display:flex; flex-wrap:wrap; gap:10px}
+.chip{min-height:44px; padding:10px 18px; border-radius:999px; border:1px solid rgba(244,239,228,.25); background:transparent; color:rgba(244,239,228,.8); font-family:var(--font-mono); font-size:.74rem; letter-spacing:.1em; text-transform:uppercase; transition:all .2s}
+.chip[aria-checked="true"]{background:var(--paper); color:#101614; border-color:var(--paper)}
+.chip:hover{border-color:var(--paper)}
+.sim-out{display:grid; gap:14px}
+.out-card{border:1px solid rgba(244,239,228,.14); border-radius:6px; padding:16px; background:rgba(244,239,228,.03)}
+.out-card h3{font-family:var(--font-mono); font-size:.66rem; letter-spacing:.14em; font-weight:400; color:rgba(244,239,228,.6); text-transform:uppercase; margin-bottom:10px}
+#simDate{font-family:var(--font-display); font-size:clamp(1.5rem,2.6vw,2.1rem); font-weight:700}
+#simDate small{display:block; font-family:var(--font-mono); font-size:.68rem; letter-spacing:.1em; color:var(--mint); font-weight:400; margin-top:6px}
+.load-row{display:grid; grid-template-columns:110px 1fr 44px; gap:12px; align-items:center; margin-bottom:10px; font-family:var(--font-mono); font-size:.68rem; letter-spacing:.08em}
+.load-bar{height:10px; background:rgba(244,239,228,.12); border-radius:5px; overflow:hidden}
+.load-bar span{display:block; height:100%; width:40%; background:var(--mint); border-radius:5px; transition:width .3s var(--ease-out),background .3s}
+.load-bar.warn span{background:var(--signal)}
+/* odometro a rulli */
+#odo{display:flex; gap:5px; align-items:stretch; font-family:var(--font-mono)}
+.reel{width:34px; height:46px; overflow:hidden; background:#F4EFE4; color:#101614; border-radius:4px; border:1px solid rgba(244,239,228,.2); position:relative}
+.reel .strip{display:block; transition:transform .35s var(--ease-snap)}
+.reel .strip span{display:flex; align-items:center; justify-content:center; height:46px; font-size:1.3rem; font-weight:700; font-variant-numeric:tabular-nums}
+.odo-sep{display:flex; align-items:center; font-size:1.3rem; font-weight:700; color:var(--paper)}
+.odo-cur{font-size:.8rem; align-self:center; margin-left:8px; color:rgba(244,239,228,.6); font-family:var(--font-mono)}
+.sim-route-box{border:1px solid rgba(244,239,228,.14); border-radius:6px; padding:14px; background:#0b1514}
+.sim-note{font-family:var(--font-mono); font-size:.68rem; letter-spacing:.08em; color:rgba(244,239,228,.55)}
+/* ============ PIANI ============ */
+#piani{background:var(--paper); color:var(--ink)}
+.plans{display:grid; gap:16px; align-items:stretch}
+@media(min-width:900px){.plans{grid-template-columns:repeat(3,1fr)}}
+.plan{border:1px solid var(--line); border-radius:6px; background:var(--card); overflow:hidden; display:flex; flex-direction:column; position:relative}
+.plan.featured{border:2px solid #101614; box-shadow:0 30px 60px -30px rgba(16,22,20,.3)}
+.plan .plan-flag{position:absolute; top:14px; right:-1px; background:var(--signal); color:#101614; font-family:var(--font-mono); font-size:.64rem; font-weight:700; letter-spacing:.12em; padding:6px 12px; border-radius:4px 0 0 4px}
+.plan-head{padding:26px 24px 18px; border-bottom:1px solid var(--line)}
+.plan-head h3{font-family:var(--font-mono); font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); margin-bottom:10px}
+.price{font-family:var(--font-display); font-size:2.6rem; font-weight:700; line-height:1; font-variant-numeric:tabular-nums}
+.price small{font-size:1rem; font-weight:400; color:var(--muted)}
+.plan-head p{color:var(--muted); font-size:.94rem; margin:10px 0 0}
+.plan ul{list-style:none; margin:0; padding:20px 24px; display:grid; gap:11px; flex:1}
+.plan li{display:grid; grid-template-columns:20px 1fr; gap:10px; font-size:.94rem; align-items:start}
+.plan li svg{margin-top:3px}
+.plan-foot{padding:0 24px 24px; display:grid; gap:10px}
+.demo-note{margin-top:18px; font-family:var(--font-mono); font-size:.7rem; letter-spacing:.08em; color:var(--muted); border:1px dashed var(--line); border-radius:6px; padding:12px 16px}
+/* ============ SICUREZZA ============ */
+#sicurezza{background:var(--pine); color:var(--paper)}
+.sec-grid{display:grid; gap:16px}
+@media(min-width:900px){.sec-grid{grid-template-columns:repeat(2,1fr)}}
+.sec-card{border:1px solid rgba(244,239,228,.14); border-radius:6px; padding:24px 22px; background:#0f1d1c; display:grid; grid-template-columns:52px 1fr; gap:18px; transition:border-color .2s,transform .2s}
+.sec-card:hover{border-color:rgba(125,216,198,.45); transform:translateY(-3px)}
+.sec-card .icon-box{background:transparent; border-color:rgba(244,239,228,.22); width:52px; height:52px}
+.sec-card h3{margin-bottom:8px}
+.sec-card p{color:rgba(244,239,228,.68); font-size:.96rem; margin:0}
+.sec-card .mono-tag{font-family:var(--font-mono); font-size:.64rem; letter-spacing:.12em; color:var(--mint); text-transform:uppercase; margin-bottom:8px; display:block}
+.no-cert{margin-top:20px; border:1px solid rgba(125,216,198,.3); border-radius:6px; padding:14px 18px; font-size:.9rem; color:rgba(244,239,228,.78); background:rgba(125,216,198,.05)}
+/* ============ FAQ ============ */
+#faq{background:var(--paper); color:var(--ink)}
+.faq-list{max-width:820px; display:grid; gap:10px}
+.faq-item{border:1px solid var(--line); border-radius:6px; background:var(--card); overflow:hidden}
+.faq-q{width:100%; display:flex; justify-content:space-between; align-items:center; gap:16px; padding:18px 20px; background:none; border:0; font-family:var(--font-display); font-size:1.05rem; font-weight:500; text-align:left; min-height:60px; cursor:pointer; color:inherit}
+.faq-q .plus{width:36px; height:36px; flex-shrink:0; border:1px solid var(--line); border-radius:6px; display:grid; place-items:center; font-size:1.3rem; line-height:1; transition:transform .25s var(--ease-out),background .2s}
+.faq-item.open .plus{transform:rotate(45deg); background:#101614; color:#F4EFE4}
+.faq-a{display:grid; grid-template-rows:0fr; transition:grid-template-rows .3s var(--ease-out)}
+.faq-item.open .faq-a{grid-template-rows:1fr}
+.faq-a-inner{overflow:hidden}
+.faq-a-inner p{padding:0 20px 20px; margin:0; color:var(--muted); max-width:62ch}
+/* ============ CONTATTI / FOOTER ============ */
+#contatti{background:#0b1514; color:var(--paper); overflow:clip}
+.footer-top{display:grid; gap:28px; padding-top:var(--sp-96)}
+@media(min-width:1000px){.footer-top{grid-template-columns:1.1fr .9fr; gap:40px}}
+.form-card{border:1px solid rgba(244,239,228,.14); border-radius:6px; background:#0f1d1c; overflow:hidden}
+.form-card .sp-head{padding:12px 18px; border-bottom:1px solid rgba(244,239,228,.14); font-family:var(--font-mono); font-size:.68rem; letter-spacing:.14em; display:flex; justify-content:space-between; text-transform:uppercase}
+#demoForm{padding:22px 20px; display:grid; gap:16px}
+.f-row{display:grid; gap:16px}
+@media(min-width:640px){.f-row{grid-template-columns:1fr 1fr}}
+.f-field{display:grid; gap:8px}
+.f-field label{font-size:.9rem; font-weight:600}
+.f-field label small{font-weight:400; color:rgba(244,239,228,.55)}
+.f-field input,.f-field select,.f-field textarea{background:rgba(244,239,228,.05); border:1px solid rgba(244,239,228,.22); border-radius:6px; color:var(--paper); padding:13px 14px; font-size:1rem; font-family:var(--font-body); min-height:48px; width:100%}
+.f-field textarea{min-height:110px; resize:vertical}
+.f-field input::placeholder,.f-field textarea::placeholder{color:rgba(244,239,228,.4)}
+.f-check{display:flex; gap:12px; align-items:flex-start; font-size:.88rem; color:rgba(244,239,228,.7)}
+.f-check input{width:22px; height:22px; margin-top:2px; accent-color:var(--signal); flex-shrink:0}
+#formSuccess{display:none; border:1px solid rgba(125,216,198,.5); background:rgba(125,216,198,.08); border-radius:6px; padding:18px; gap:12px}
+#formSuccess.show{display:grid}
+#formSuccess strong{font-family:var(--font-display); font-size:1.15rem}
+#formSuccess p{margin:0; font-size:.92rem; color:rgba(244,239,228,.75)}
+.contact-side{display:grid; gap:16px; align-content:start}
+.contact-lines{border:1px solid rgba(244,239,228,.14); border-radius:6px; padding:20px; background:rgba(244,239,228,.02); display:grid; gap:12px}
+.contact-lines a{color:var(--mint); text-decoration:none; border-bottom:1px solid rgba(125,216,198,.3)}
+.contact-lines address{font-style:normal; line-height:1.7}
+.routes-table{width:100%; border-collapse:collapse; font-size:.88rem}
+.routes-table caption{font-family:var(--font-mono); font-size:.66rem; letter-spacing:.14em; text-transform:uppercase; text-align:left; padding:12px 16px; color:rgba(244,239,228,.6); border-bottom:1px solid rgba(244,239,228,.14)}
+.routes-table th,.routes-table td{padding:12px 16px; text-align:left; border-bottom:1px solid rgba(244,239,228,.1)}
+.routes-table th{font-family:var(--font-mono); font-size:.64rem; letter-spacing:.12em; color:rgba(244,239,228,.55); text-transform:uppercase; font-weight:400}
+.routes-table tr:last-child td{border-bottom:0}
+.table-wrap{border:1px solid rgba(244,239,228,.14); border-radius:6px; overflow:hidden; background:#0f1d1c}
+.disclaimer{border:1px dashed rgba(244,239,228,.3); border-radius:6px; padding:16px 18px; font-size:.84rem; color:rgba(244,239,228,.66); line-height:1.6}
+.giant-wrap{margin-top:48px; border-top:1px solid rgba(244,239,228,.14); padding-top:24px; padding-bottom:8px}
+#alveoGiant{font-family:var(--font-display); font-weight:700; font-size:clamp(4.2rem,17vw,15rem); line-height:.86; letter-spacing:-.03em; text-align:center; white-space:nowrap; will-change:transform,opacity; color:var(--paper)}
+#alveoGiant .o{color:var(--signal)}
+.footer-bottom{display:flex; flex-wrap:wrap; gap:12px 28px; justify-content:space-between; align-items:center; padding:22px 0 32px; font-family:var(--font-mono); font-size:.68rem; letter-spacing:.1em; text-transform:uppercase; color:rgba(244,239,228,.5); border-top:1px solid rgba(244,239,228,.12); margin-top:16px}
+.footer-bottom nav{display:flex; flex-wrap:wrap; gap:6px 18px}
+.footer-bottom a{text-decoration:none; min-height:44px; display:inline-flex; align-items:center}
+.footer-bottom a:hover{color:var(--paper)}
+.skew-title{will-change:transform,opacity}
+.reveal-card{will-change:transform,opacity}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms !important; transition-duration:.001ms !important}
+  #intro{display:none !important}
+  #cursor{display:none !important}
+}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#hero">Salta alla plancia</a>
+
+<div id="cursor" aria-hidden="true">
+  <span class="ring"></span><span class="cross"></span><span class="dot"></span>
+  <span id="cursorLabel"></span><span id="cursorMeta">X 0000 · Y 0000</span>
+</div>
+
+<div id="intro" role="dialog" aria-label="Apertura plancia Alveo" aria-hidden="false">
+  <div class="intro-panel"></div><div class="intro-panel"></div><div class="intro-panel"></div><div class="intro-panel"></div>
+  <div class="intro-center">
+    <div class="intro-card">
+      <div class="intro-head"><span>ALVEO · APERTURA PLANCIA</span><span>UNITÀ 26</span></div>
+      <div class="intro-rows">
+        <div class="intro-row"><span>RETICOLO DI ROTTA</span><b>TRACCIATO</b></div>
+        <div class="intro-row"><span>EQUIPAGGI</span><b>12 · PRONTI</b></div>
+        <div class="intro-row"><span>SCADENZE</span><b>SINCRONIZZATE</b></div>
+      </div>
+      <div class="intro-bar" aria-hidden="true"><span id="introBarFill"></span></div>
+    </div>
+  </div>
+</div>
+
+<header id="siteNav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#hero" aria-label="Alveo, torna all'inizio">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="1" y="1" width="30" height="30" rx="6" fill="none" stroke="#F4EFE4" stroke-width="1.5"/><path d="M8 22 L13 10 L16 16 L19 10 L24 22" fill="none" stroke="#F4EFE4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="16" cy="25" r="1.8" fill="#FF5C38"/></svg>
+      <span>ALVEO</span><small>OS·26</small>
+    </a>
+    <nav class="nav-links" aria-label="Navigazione principale">
+      <a href="#rotte">Rotte</a><a href="#timeline">Metodo</a><a href="#metriche">Prove</a><a href="#strumento">Simulatore</a><a href="#piani">Piani</a><a href="#sicurezza">Governo</a><a href="#faq">FAQ</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-signal btn-sm" href="#contatti" data-cursor="Demo">Richiedi demo</a>
+      <button id="menuBtn" aria-expanded="false" aria-controls="mobileMenu" aria-label="Apri menu">MENU</button>
+    </div>
+  </div>
+</header>
+<div id="mobileMenu" role="dialog" aria-label="Menu navigazione">
+  <a href="#rotte">Rotte <span>01</span></a><a href="#timeline">Metodo <span>02</span></a><a href="#metriche">Prove <span>03</span></a><a href="#strumento">Simulatore <span>04</span></a><a href="#piani">Piani <span>05</span></a><a href="#sicurezza">Governo <span>06</span></a><a href="#faq">FAQ <span>07</span></a><a href="#contatti">Contatti <span>08</span></a>
+</div>
+
+<main>
+<!-- ================= HERO ================= -->
+<section id="hero" class="theme-dark" aria-labelledby="heroTitle">
+  <div class="route-grid" aria-hidden="true"></div>
+  <svg class="route-svg" viewBox="0 0 1200 700" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M-20,520 C240,480 320,300 560,340 S920,520 1220,260" fill="none" stroke="rgba(125,216,198,.35)" stroke-width="1.5" stroke-dasharray="8 8"/>
+    <path d="M-20,600 C300,560 520,420 760,460 S1040,560 1220,420" fill="none" stroke="rgba(244,239,228,.16)" stroke-width="1" stroke-dasharray="3 9"/>
+    <circle cx="560" cy="340" r="4" fill="none" stroke="rgba(125,216,198,.6)"/><circle cx="760" cy="460" r="4" fill="#FF5C38"/>
+  </svg>
+  <div class="wrap hero-grid">
+    <div>
+      <div class="hero-eyebrow">
+        <span class="pill"><span class="dotlive"></span>Plancia live · Demo</span>
+        <span class="mono" style="color:rgba(244,239,228,.55)">Alveo · Sistema operativo dei progetti</span>
+      </div>
+      <h1 id="heroTitle" class="skew-title">Ogni progetto ha una rotta. Alveo la tiene.</h1>
+      <p class="hero-sub" style="margin-top:18px">Sala di regia per progetti aziendali: rotte chiare, equipaggi al carico giusto, scadenze senza chase. Timeline leggibile, sprint senza rumore, handoff tracciati.</p>
+      <div class="hero-ctas">
+        <a class="btn btn-signal" href="#strumento" data-cursor="Simula">Traccia la rotta</a>
+        <a class="btn btn-ghost" href="#rotte" data-cursor="Esplora">Vedi la plancia</a>
+      </div>
+      <div class="hero-meta tabular">
+        <span>Stato flotta: <b>12 rotte</b> · 4 in attesa · 1 critica</span>
+        <span>Canale: timeline · sprint · handoff</span>
+      </div>
+      <div class="scroll-hint" aria-hidden="true"><i></i><span>Scorri — la plancia risponde</span></div>
+    </div>
+    <div style="position:relative">
+      <span class="parallax-tag" data-speed="0.10" style="top:-16px; right:12px; z-index:2" aria-hidden="true">WP-26 · 45°27′N</span>
+      <div class="plancia" data-speed="0.05" role="region" aria-label="Plancia operativa dimostrativa">
+        <div class="plancia-head">
+          <span style="display:flex; gap:10px; align-items:center"><span class="lights" aria-hidden="true"><i></i><i></i><i></i></span> Plancia · Unità 26</span>
+          <span><span id="boardClock" class="tabular">--:--:--</span> · Mare 2</span>
+        </div>
+        <div class="bridge-rows" id="bridgeRows">
+          <div class="bridge-row"><time class="tabular">08:12</time><p><b>Sprint 14 chiuso</b> · 21/24 task · handoff a QA registrato</p><span class="timbro ok">In rotta</span></div>
+          <div class="bridge-row"><time class="tabular">09:40</time><p><b>Rotta Q3</b> · milestone M4 al 78% · owner: E. Carena</p><span class="timbro ok">In rotta</span></div>
+          <div class="bridge-row"><time class="tabular">11:05</time><p><b>Fornitore vele</b> · preventivo in attesa · ping sobrio inviato</p><span class="timbro wait">In attesa</span></div>
+          <div class="bridge-row"><time class="tabular">12:31</time><p><b>Integrazione doganale</b> · scostamento +6gg · serve decisione</p><span class="timbro crit">Critico</span></div>
+          <div class="bridge-row"><time class="tabular">14:02</time><p><b>Handoff cliente</b> · checklist 9/11 · consegna parziale pronta</p><span class="timbro wait">In attesa</span></div>
+        </div>
+        <div class="plancia-foot">
+          <div class="spark-head"><span>Velocità sprint · ultimi 12 cicli</span><span class="tabular">+9%</span></div>
+          <svg viewBox="0 0 400 72" role="img" aria-label="Grafico dimostrativo della velocità degli ultimi 12 sprint, in crescita" style="width:100%; height:72px">
+            <path d="M0,60 L34,56 L68,58 L102,48 L136,50 L170,40 L204,42 L238,32 L272,34 L306,24 L340,26 L374,14 L400,16" fill="none" stroke="#7DD8C6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" id="sparkPath"/>
+            <circle cx="400" cy="16" r="4" fill="#FF5C38"/>
+          </svg>
+          <div class="plancia-stats tabular">
+            <div class="stat-mini"><strong>92%</strong><span>On-time demo</span></div>
+            <div class="stat-mini"><strong>71%</strong><span>Carico medio</span></div>
+            <div class="stat-mini"><strong>3</strong><span>Rischi aperti</span></div>
+          </div>
+        </div>
+      </div>
+      <span class="parallax-tag" data-speed="-0.07" style="bottom:-14px; left:8px; z-index:2" aria-hidden="true">ETA 14:40 · Canale 6</span>
+    </div>
+  </div>
+</section>
+
+<div class="ticker" aria-label="Bollettino operativo dimostrativo">
+  <div class="ticker-track" id="tickerTrack">
+    <span class="ticker-item ok"><i></i>Sprint 15 · bordo ok · 18/26 task</span><span class="ticker-item"><i></i>Handoff QA · owner assegnato</span><span class="ticker-item ok"><i></i>M4 al 78% · in rotta</span><span class="ticker-item"><i></i>Scostamento +6gg · decisione ore 16:00</span><span class="ticker-item ok"><i></i>Carico 71% · nessun sovraccarico</span><span class="ticker-item"><i></i>Timeline Q3 · 3 dipendenze risolte</span>
+    <span class="ticker-item ok"><i></i>Sprint 15 · bordo ok · 18/26 task</span><span class="ticker-item"><i></i>Handoff QA · owner assegnato</span><span class="ticker-item ok"><i></i>M4 al 78% · in rotta</span><span class="ticker-item"><i></i>Scostamento +6gg · decisione ore 16:00</span><span class="ticker-item ok"><i></i>Carico 71% · nessun sovraccarico</span><span class="ticker-item"><i></i>Timeline Q3 · 3 dipendenze risolte</span>
+  </div>
+</div>
+
+<!-- ================= ROTTE ================= -->
+<section id="rotte" class="theme-light section-pad" aria-labelledby="rotteTitle">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker"><span class="sq"></span>01 — Rotte · Capitoli prodotto</span>
+      <h2 id="rotteTitle" class="skew-title">Quattro capitoli, una sola plancia.</h2>
+      <p class="lead">Niente caccia allo stato tra chat, fogli e tool. Ogni capitolo scrive sulla stessa carta: la rotta resta una, leggibile da chiunque salga a bordo.</p>
+    </div>
+    <div class="cards-4">
+      <article class="card-plancia reveal-card">
+        <div class="cp-head"><span>CAP.01 · CARTE</span><span class="timbro ok">In rotta</span></div>
+        <div class="cp-body">
+          <span class="icon-box" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#101614" stroke-width="1.6"><circle cx="12" cy="12" r="8"/><path d="M12 4v3M12 17v3M4 12h3M17 12h3"/><path d="M9.5 14.5 L12 12 L14.5 9.5" stroke="#c93a1c" stroke-width="2" stroke-linecap="round"/></svg></span>
+          <h3>Rotte &amp; timeline</h3>
+          <p>Dipendenze, milestone e percorso critico sul reticolo unico. Il Gantt resta sullo sfondo; davanti c'è la decisione.</p>
+        </div>
+        <div class="cp-foot"><span>TIMELINE · GANTT SOBRIO</span><span>→</span></div>
+      </article>
+      <article class="card-plancia reveal-card">
+        <div class="cp-head"><span>CAP.02 · EQUIPAGGI</span><span class="timbro ok">In rotta</span></div>
+        <div class="cp-body">
+          <span class="icon-box" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#101614" stroke-width="1.6"><circle cx="8" cy="9" r="3"/><circle cx="16.5" cy="10" r="2.4"/><path d="M3 19c0-3 2.4-5 5-5s5 2 5 5M13.5 14.6c2.9.2 6 1.8 6.5 4.4"/></svg></span>
+          <h3>Equipaggi &amp; carichi</h3>
+          <p>Chi fa cosa, quando, a quale carico. Sprint, kanban o cascata: il carico resta leggibile, i colli di bottiglia emergono.</p>
+        </div>
+        <div class="cp-foot"><span>SPRINT · KANBAN</span><span>→</span></div>
+      </article>
+      <article class="card-plancia reveal-card">
+        <div class="cp-head"><span>CAP.03 · SCADENZE</span><span class="timbro wait">In attesa</span></div>
+        <div class="cp-body">
+          <span class="icon-box" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#101614" stroke-width="1.6"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9.5h16M8 3v4M16 3v4"/><path d="M9 14l2 2 4-4.5" stroke="#0b6b5c" stroke-width="2" stroke-linecap="round"/></svg></span>
+          <h3>Scadenze &amp; handoff</h3>
+          <p>Passaggi registrati, owner chiari, promemoria asciutti. Il passaggio di consegne non vive più in una chat persa.</p>
+        </div>
+        <div class="cp-foot"><span>HANDOFF TRACCIATO</span><span>→</span></div>
+      </article>
+      <article class="card-plancia reveal-card">
+        <div class="cp-head"><span>CAP.04 · DIARIO</span><span class="timbro crit">Critico</span></div>
+        <div class="cp-body">
+          <span class="icon-box" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#101614" stroke-width="1.6"><path d="M6 3h9l3 3v15H6z"/><path d="M9 11h7M9 14.5h7M9 18h4"/></svg></span>
+          <h3>Decisioni &amp; log</h3>
+          <p>Ogni scelta ha data, owner e contesto. Il diario di bordo evita i replay: si decide una volta, si ritrova sempre.</p>
+        </div>
+        <div class="cp-foot"><span>LOG · OWNER</span><span>→</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TIMELINE pinned ================= -->
+<section id="timeline" class="theme-dark" aria-labelledby="timelineTitle">
+  <div class="route-grid" aria-hidden="true"></div>
+  <div class="wrap tl-pin-wrap" id="tlPin">
+    <div class="sec-head">
+      <span class="kicker"><span class="sq"></span>02 — Metodo · Surf orchestrato</span>
+      <h2 id="timelineTitle" class="skew-title">Dalla bozza all'approdo, in quattro atti.</h2>
+      <p class="lead" style="color:rgba(244,239,228,.7)">Scorri e la plancia esegue il passaggio: le card cambiano colonna, il burndown scende, l'anello si chiude. Su mobile la sequenza è lineare.</p>
+    </div>
+    <div class="tl-stage tl-desktop-only">
+      <div class="tl-rail">
+        <div class="atti" role="list" aria-label="I quattro atti del metodo">
+          <div class="atto" role="listitem" data-atto="0"><span class="num">01</span><div><h3>Pianifica</h3><p>Rotta, perimetro, rischi. Si fissa l'approdo.</p></div></div>
+          <div class="atto" role="listitem" data-atto="1"><span class="num">02</span><div><h3>Esegui</h3><p>Sprint e flussi paralleli. La nave si muove.</p></div></div>
+          <div class="atto" role="listitem" data-atto="2"><span class="num">03</span><div><h3>Controlla</h3><p>Burndown, carichi, scostamenti. Si corregge.</p></div></div>
+          <div class="atto" role="listitem" data-atto="3"><span class="num">04</span><div><h3>Consegna</h3><p>Handoff e chiusura pulita. Si ormeggia.</p></div></div>
+        </div>
+        <div class="tl-instruments">
+          <div class="instrument">
+            <h4>Avanzamento rotta</h4>
+            <svg viewBox="0 0 120 120" role="img" aria-label="Anello di avanzamento dimostrativo che si chiude al 100 per cento" style="width:100%; max-width:150px; margin:0 auto">
+              <circle cx="60" cy="60" r="48" fill="none" stroke="rgba(244,239,228,.15)" stroke-width="9"/>
+              <circle id="ringProg" cx="60" cy="60" r="48" fill="none" stroke="#7DD8C6" stroke-width="9" stroke-linecap="round" transform="rotate(-90 60 60)"/>
+              <text id="ringLabel" x="60" y="66" text-anchor="middle" fill="#F4EFE4" font-family="Space Mono, monospace" font-size="18" font-weight="700">0%</text>
+            </svg>
+          </div>
+          <div class="instrument">
+            <h4>Burndown · sprint demo</h4>
+            <svg viewBox="0 0 200 130" role="img" aria-label="Grafico burndown dimostrativo in discesa" style="width:100%">
+              <path d="M14,8 V116 H192" fill="none" stroke="rgba(244,239,228,.25)" stroke-width="1"/>
+              <path d="M14,14 L192,108" fill="none" stroke="rgba(244,239,228,.3)" stroke-width="1" stroke-dasharray="4 5"/>
+              <path id="burnPath" d="M14,14 C60,30 90,44 120,66 S170,96 192,104" fill="none" stroke="#FF5C38" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="14" cy="14" r="3.5" fill="#7DD8C6"/><circle cx="192" cy="104" r="3.5" fill="#FF5C38"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="board" aria-label="Lavagna kanban dimostrativa con tre colonne">
+        <div class="board-head" aria-hidden="true"><span>Da fare</span><span>In corso</span><span>Approvato</span></div>
+        <div class="board-cols" id="boardCols">
+          <div class="kb-col" id="colTodo">
+            <div class="kanban-card" data-card="0"><div class="kc-top"><em>A-104</em><span>PERMESSI</span></div><strong>Rotta Q3 — perimetro e rischi</strong><small>OWNER E. CARENA · 3GG</small></div>
+            <div class="kanban-card crit" data-card="1"><div class="kc-top"><em>A-107</em><span>API</span></div><strong>Handoff integrazione doganale</strong><small>OWNER D. VOLTINI · 5GG</small></div>
+            <div class="kanban-card ok" data-card="2"><div class="kc-top"><em>A-112</em><span>BOARD</span></div><strong>Sprint 15 — board e carichi</strong><small>OWNER I. PAVESI · 2GG</small></div>
+            <div class="kanban-card" data-card="3"><div class="kc-top"><em>A-118</em><span>REPORT</span></div><strong>Report scostamenti M4</strong><small>OWNER E. CARENA · 1GG</small></div>
+            <div class="kanban-card ok" data-card="4"><div class="kc-top"><em>A-121</em><span>CHIUSURA</span></div><strong>Checklist consegna parziale</strong><small>OWNER D. VOLTINI · 2GG</small></div>
+          </div>
+          <div class="kb-col" id="colDoing" aria-hidden="true"><div class="kb-slot" data-slot="d0"></div><div class="kb-slot" data-slot="d1"></div><div class="kb-slot" data-slot="d2"></div><div class="kb-slot" data-slot="d3"></div></div>
+          <div class="kb-col" id="colDone" aria-hidden="true"><div class="kb-slot" data-slot="f0"></div><div class="kb-slot" data-slot="f1"></div><div class="kb-slot" data-slot="f2"></div><div class="kb-slot" data-slot="f3"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="tl-progress-line tl-desktop-only" aria-hidden="true"><span id="tlProgress"></span></div>
+    <div class="tl-mobile">
+      <div class="tl-act-card"><span class="mono" style="color:var(--mint)">Atto 01</span><h3>Pianifica — fissa l'approdo</h3><p>Perimetro, dipendenze e rischi su una carta sola. La card A-104 nasce qui, con owner e data.</p></div>
+      <div class="tl-act-card"><span class="mono" style="color:var(--mint)">Atto 02</span><h3>Esegui — muovi la nave</h3><p>Le card passano in corso. Sprint e kanban convivono; il carico resta sotto controllo.</p></div>
+      <div class="tl-act-card"><span class="mono" style="color:var(--mint)">Atto 03</span><h3>Controlla — correggi la barra</h3><p>Burndown e scostamenti dicono dove intervenire. La card critica A-107 viene presidata.</p></div>
+      <div class="tl-act-card"><span class="mono" style="color:var(--mint)">Atto 04</span><h3>Consegna — ormeggia pulito</h3><p>Handoff registrato, checklist chiusa, diario firmato. L'anello si chiude al 100%.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= METRICHE ================= -->
+<section id="metriche" class="theme-light section-pad" aria-labelledby="metricheTitle">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker"><span class="sq"></span>03 — Prove · Sala macchine</span>
+      <h2 id="metricheTitle" class="skew-title">Numeri da sala macchine, non da vetrina.</h2>
+      <p class="lead">Valori dimostrativi fittizi, calcolati su flotte immaginarie. Servono a mostrare il formato, non a promettere miracoli.</p>
+    </div>
+    <div class="metrics-grid tabular">
+      <div class="metric reveal-card"><strong>92%</strong><span>Consegne in rotta</span><small>Demo · su 48 rotte fittizie chiuse in trimestre.</small></div>
+      <div class="metric reveal-card"><strong>−31%</strong><span>Riunioni di stato</span><small>Demo · la plancia sostituisce il giro di aggiornamenti.</small></div>
+      <div class="metric reveal-card"><strong>4,2 gg</strong><span>Handoff medio</span><small>Demo · dal passaggio alla presa in carico.</small></div>
+      <div class="metric reveal-card"><strong>12</strong><span>Rotte attive</span><small>Demo · 3 equipaggi fittizi, un solo schermo.</small></div>
+    </div>
+    <div class="quotes">
+      <figure class="quote reveal-card"><blockquote>“Abbiamo smesso di cercare lo stato in tre tool. La plancia dice dov'è la nave, punto.”</blockquote><figcaption><span class="avatar" aria-hidden="true">EC</span><cite><b>Elisa Carena</b><span>Delivery lead · personaggio fittizio</span></cite></figcaption></figure>
+      <figure class="quote reveal-card"><blockquote>“Il carico è diventato una conversazione civile. Si vede, si discute, si decide. Fine.”</blockquote><figcaption><span class="avatar" aria-hidden="true">DV</span><cite><b>Dario Voltini</b><span>Responsabile operations · personaggio fittizio</span></cite></figcaption></figure>
+      <figure class="quote reveal-card"><blockquote>“Handoff senza chase. Quando passo il testimone, resta scritto chi lo tiene.”</blockquote><figcaption><span class="avatar" aria-hidden="true">IP</span><cite><b>Irene Pavesi</b><span>Project manager · personaggio fittizio</span></cite></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ================= STRUMENTO ================= -->
+<section id="strumento" class="theme-dark section-pad" aria-labelledby="strumentoTitle">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker"><span class="sq"></span>04 — Strumento · Simulatore di piano</span>
+      <h2 id="strumentoTitle" class="skew-title">Prova la rotta prima di salpare.</h2>
+      <p class="lead" style="color:rgba(244,239,228,.7)">Muovi i cursori e scegli il metodo. Alveo stima approdo, carichi e costo demo. Calcolo locale, dati fittizi, nessun invio.</p>
+    </div>
+    <div class="sim-grid">
+      <div class="sim-panel">
+        <div class="sp-head"><span>Parametri di missione</span><span class="tabular">SIM·01</span></div>
+        <div class="sim-body">
+          <div class="field">
+            <div class="field-top"><label for="simPersone">Persone in equipaggio</label><output id="outPersone" for="simPersone" class="tabular">14 persone</output></div>
+            <input type="range" id="simPersone" name="persone" min="3" max="60" step="1" value="14" aria-describedby="helpPersone">
+            <span class="sim-note" id="helpPersone">Da 3 a 60. Sotto 8 la rotta è agile, sopra 30 serve presidio.</span>
+          </div>
+          <div class="field">
+            <div class="field-top"><label for="simSettimane">Settimane di rotta</label><output id="outSettimane" for="simSettimane" class="tabular">10 settimane</output></div>
+            <input type="range" id="simSettimane" name="settimane" min="2" max="26" step="1" value="10" aria-describedby="helpSett">
+            <span class="sim-note" id="helpSett">Da 2 a 26. Oltre 16 settimane, prevedi un punto di controllo.</span>
+          </div>
+          <div class="field">
+            <div class="field-top"><label for="simBudget">Budget di missione</label><output id="outBudget" for="simBudget" class="tabular">€ 120.000</output></div>
+            <input type="range" id="simBudget" name="budget" min="15000" max="450000" step="5000" value="120000" aria-describedby="helpBudget">
+            <span class="sim-note" id="helpBudget">Solo demo. Il costo stimato non è un preventivo.</span>
+          </div>
+          <fieldset style="border:1px solid rgba(244,239,228,.16); border-radius:6px; padding:16px; margin:0">
+            <legend style="font-family:var(--font-mono); font-size:.68rem; letter-spacing:.14em; padding:0 8px; text-transform:uppercase">Metodo di navigazione</legend>
+            <div class="chips" role="radiogroup" aria-label="Metodo di lavoro">
+              <button type="button" class="chip" role="radio" aria-checked="true" data-metodo="sprint" data-cursor="Sprint">Sprint</button>
+              <button type="button" class="chip" role="radio" aria-checked="false" data-metodo="kanban" data-cursor="Kanban">Kanban</button>
+              <button type="button" class="chip" role="radio" aria-checked="false" data-metodo="cascata" data-cursor="Cascata">Cascata</button>
+            </div>
+          </fieldset>
+        </div>
+      </div>
+      <div class="sim-panel">
+        <div class="sp-head"><span>Esito stimato · fittizio</span><span class="tabular" id="simMetodoTag">SPRINT</span></div>
+        <div class="sim-body sim-out" id="simOutput" aria-live="polite" aria-atomic="false">
+          <div class="out-card"><h3>Data di approdo stimata · fittizia</h3><div id="simDate" class="tabular">—<small id="simDateSub">CALCOLO LOCALE · NESSUN IMPEGNO</small></div></div>
+          <div class="out-card"><h3>Carico equipaggio · animato</h3>
+            <div class="load-row"><span>PONTE A</span><div class="load-bar" id="loadA"><span></span></div><b class="tabular" id="loadATxt">0%</b></div>
+            <div class="load-row"><span>PONTE B</span><div class="load-bar" id="loadB"><span></span></div><b class="tabular" id="loadBTxt">0%</b></div>
+            <div class="load-row"><span>RISERVA</span><div class="load-bar" id="loadC"><span></span></div><b class="tabular" id="loadCTxt">0%</b></div>
+          </div>
+          <div class="out-card"><h3>Costo demo stimato · odometro a rulli</h3>
+            <div style="display:flex; align-items:center; flex-wrap:wrap; gap:4px">
+              <div id="odo" role="status" aria-label="Costo demo stimato in euro"></div><span class="odo-cur">EUR · DEMO</span>
+            </div>
+            <p class="sim-note" style="margin:10px 0 0">Stima fittizia a scopo dimostrativo. Non è un prezzo né un preventivo.</p>
+          </div>
+          <div class="sim-route-box">
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px"><span class="mono" style="color:rgba(244,239,228,.6)">Rotta ridisegnata</span><span class="mono tabular" id="simRouteTxt" style="color:var(--mint)">L-04 · BREZZA</span></div>
+            <svg viewBox="0 0 340 120" role="img" aria-label="Rotta dimostrativa che si ridisegna in base ai parametri" style="width:100%; height:120px">
+              <path d="M8,104 C70,96 96,60 150,64 S250,96 332,22" fill="none" stroke="rgba(244,239,228,.18)" stroke-width="1" stroke-dasharray="3 7"/>
+              <path id="simRoute" d="M8,104 C70,96 96,60 150,64 S250,96 332,22" fill="none" stroke="#7DD8C6" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="8" cy="104" r="4" fill="#F4EFE4"/><circle cx="332" cy="22" r="5" fill="#FF5C38"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PIANI ================= -->
+<section id="piani" class="theme-light section-pad" aria-labelledby="pianiTitle">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker"><span class="sq"></span>05 — Piani · Prezzi demo</span>
+      <h2 id="pianiTitle" class="skew-title">Tre ponti, prezzi demo chiari.</h2>
+      <p class="lead">Listino fittizio a scopo dimostrativo. Nessun pagamento, nessun rinnovo, nessuna sorpresa: in demo si guarda e basta.</p>
+    </div>
+    <div class="plans">
+      <article class="plan reveal-card">
+        <div class="plan-head"><h3>Bussola · Squadra singola</h3><div class="price tabular">€19<small> /utente/mese · demo</small></div><p>Per una squadra, una rotta. L'essenziale per partire ordinati.</p></div>
+        <ul>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-8" fill="none" stroke="#0b6b5c" stroke-width="2" stroke-linecap="round"/></svg>1 rotta attiva dimostrativa</li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-8" fill="none" stroke="#0b6b5c" stroke-width="2" stroke-linecap="round"/></svg>Board sprint / kanban</li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-8" fill="none" stroke="#0b6b5c" stroke-width="2" stroke-linecap="round"/></svg>Timeline base + scadenze</li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-8" fill="none" stroke="#0b6b5c" stroke-width="2" stroke-linecap="round"/></svg>Export CSV dimostrativo</li>
+        </ul>
+        <div class="plan-foot"><a class="btn btn-ghost" href="#contatti" data-cursor="Demo">Prova Bussola</a></div>
+      </article>
+      <article class="plan featured reveal-card">
+        <span class="plan-flag">Scelta operativa</span>
+        <div class="plan-head"><h3>Plancia · Più equipaggi</h3><div class="price tabular">€39<small> /utente/mese · demo</small></div><p>Per chi coordina rotte parallele e handoff tra squadre.</p></div>
+        <ul>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-8" fill="none" stroke="#0b6b5c" stroke-width="2" stroke-linecap="round"/></svg>8 rotte attive dimostrative</li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-8" fill="none" stroke="#0b6b5c" stroke-width="2" stroke-linecap="round"/></svg>Carichi, burndown, diario di bordo</li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-8" fill="none" stroke="#0b6b5c" stroke-width="2" stroke-linecap="round"/></svg>Handoff tracciati + owner</li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-8" fill="none" stroke="#0b6b5c" stroke-width="2" stroke-linecap="round"/></svg>Vista flotta + report sobri</li>
+        </ul>
+        <div class="plan-foot"><a class="btn btn-signal" href="#contatti" data-cursor="Demo">Prova Plancia</a></div>
+      </article>
+      <article class="plan reveal-card">
+        <div class="plan-head"><h3>Flotta · Azienda</h3><div class="price tabular">€79<small> /utente/mese · demo</small></div><p>Per la flotta intera, con governo degli accessi.</p></div>
+        <ul>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-8" fill="none" stroke="#0b6b5c" stroke-width="2" stroke-linecap="round"/></svg>Rotte illimitate in demo</li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-8" fill="none" stroke="#0b6b5c" stroke-width="2" stroke-linecap="round"/></svg>Opzione on-premise da valutare</li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-8" fill="none" stroke="#0b6b5c" stroke-width="2" stroke-linecap="round"/></svg>Permessi a ruoli + log export</li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-8" fill="none" stroke="#0b6b5c" stroke-width="2" stroke-linecap="round"/></svg>Sessione di bordo dimostrativa</li>
+        </ul>
+        <div class="plan-foot"><a class="btn btn-ghost" href="#contatti" data-cursor="Demo">Prova Flotta</a></div>
+      </article>
+    </div>
+    <p class="demo-note">Prezzi dimostrativi fittizi · IVA esclusa per finta · Disdici quando vuoi, tanto è una demo e non paghi nulla.</p>
+  </div>
+</section>
+
+<!-- ================= SICUREZZA ================= -->
+<section id="sicurezza" class="theme-dark section-pad" aria-labelledby="sicurezzaTitle">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker"><span class="sq"></span>06 — Governo · Dati e permessi</span>
+      <h2 id="sicurezzaTitle" class="skew-title">Dati in ordine, accessi chiari.</h2>
+      <p class="lead" style="color:rgba(244,239,228,.7)">Nessun bollino, nessuna sigla: solo pratiche operative che puoi verificare in demo. Se un fornitore promette sigle, chiedi i documenti.</p>
+    </div>
+    <div class="sec-grid">
+      <article class="sec-card reveal-card"><span class="icon-box" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="#7DD8C6" stroke-width="1.6"><rect x="4" y="4" width="18" height="7" rx="1.5"/><rect x="4" y="15" width="18" height="7" rx="1.5"/><circle cx="8" cy="7.5" r="1" fill="#7DD8C6"/><circle cx="8" cy="18.5" r="1" fill="#7DD8C6"/></svg></span><div><span class="mono-tag">Stanza server · tua</span><h3>On-premise opzionale</h3><p>Alveo gira nel tuo perimetro se serve: installazione assistita in demo, backup e ripristino documentati passo passo.</p></div></article>
+      <article class="sec-card reveal-card"><span class="icon-box" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="#7DD8C6" stroke-width="1.6"><circle cx="13" cy="8.5" r="3.5"/><path d="M5 21c0-4 3.5-6.5 8-6.5s8 2.5 8 6.5"/><path d="M16 13l2 2 4-4.5" stroke="#FF5C38" stroke-width="2" stroke-linecap="round"/></svg></span><div><span class="mono-tag">Ruoli · meno è meglio</span><h3>Permessi granulari</h3><p>Capitano, ufficiale, mozzo: ogni ruolo vede solo la sua carta. Le modifiche sensibili chiedono conferma a due mani.</p></div></article>
+      <article class="sec-card reveal-card"><span class="icon-box" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="#7DD8C6" stroke-width="1.6"><path d="M13 4v11M8.5 10.5L13 15l4.5-4.5"/><path d="M5 18v3.5h16V18"/></svg></span><div><span class="mono-tag">Uscita libera</span><h3>Export completo</h3><p>Rotte, log e allegati escono in formati aperti quando vuoi. Nessun lucchetto: i dati di bordo restano tuoi.</p></div></article>
+      <article class="sec-card reveal-card"><span class="icon-box" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="#7DD8C6" stroke-width="1.6"><path d="M6 5h11l3 3v13H6z"/><path d="M9 12l2.2 2.2L17 9.5"/></svg></span><div><span class="mono-tag">Traccia · sempre</span><h3>Diario delle modifiche</h3><p>Chi ha spostato la scadenza e perché resta scritto. Filtra per rotta, persona o periodo e ricostruisci tutto.</p></div></article>
+    </div>
+    <p class="no-cert">Nota onesta: questa pagina non esibisce certificazioni. In un acquisto reale, pretendete documenti verificabili e testate ripristino e permessi prima di firmare.</p>
+  </div>
+</section>
+
+<!-- ================= FAQ ================= -->
+<section id="faq" class="theme-light section-pad" aria-labelledby="faqTitle">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker"><span class="sq"></span>07 — Domande · Da plancia</span>
+      <h2 id="faqTitle" class="skew-title">Domande da plancia.</h2>
+      <p class="lead">Risposte asciutte. Tutto il resto si vede nella traversata di prova.</p>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item"><button class="faq-q" aria-expanded="false" aria-controls="fa1" id="fq1">Serve un onboarding lungo per partire?<span class="plus" aria-hidden="true">+</span></button><div class="faq-a" id="fa1" role="region" aria-labelledby="fq1"><div class="faq-a-inner"><p>No. Importi una rotta esistente o parti da un modello vuoto, inviti l'equipaggio e la timeline è già leggibile. La demo fittizia si esplora in dieci minuti, senza assistenza.</p></div></div></div>
+      <div class="faq-item"><button class="faq-q" aria-expanded="false" aria-controls="fa2" id="fq2">Sprint, kanban o cascata: devo scegliere?<span class="plus" aria-hidden="true">+</span></button><div class="faq-a" id="fa2" role="region" aria-labelledby="fq2"><div class="faq-a-inner"><p>No. Una rotta può ospitare sprint per il prodotto e un flusso kanban per il supporto, con una milestone di cascata sopra. Il carico resta unico, il metodo è un vestito.</p></div></div></div>
+      <div class="faq-item"><button class="faq-q" aria-expanded="false" aria-controls="fa3" id="fq3">Come funziona l'opzione on-premise?<span class="plus" aria-hidden="true">+</span></button><div class="faq-a" id="fa3" role="region" aria-labelledby="fq3"><div class="faq-a-inner"><p>In demo è solo un racconto: installazione nel tuo perimetro, backup documentati, nessun dato che esce. In un progetto reale valuteresti requisiti e ripristino con il tuo reparto IT.</p></div></div></div>
+      <div class="faq-item"><button class="faq-q" aria-expanded="false" aria-controls="fa4" id="fq4">I dati e i prezzi in pagina sono veri?<span class="plus" aria-hidden="true">+</span></button><div class="faq-a" id="fa4" role="region" aria-labelledby="fq4"><div class="faq-a-inner"><p>No. Marchio, persone, rotte, metriche e prezzi sono fittizi a scopo dimostrativo. I moduli non inviano dati e non processano pagamenti. P.IVA 00000000000, tanto per essere chiari.</p></div></div></div>
+      <div class="faq-item"><button class="faq-q" aria-expanded="false" aria-controls="fa5" id="fq5">Cosa succede se chiedo la demo?<span class="plus" aria-hidden="true">+</span></button><div class="faq-a" id="fa5" role="region" aria-labelledby="fq5"><div class="faq-a-inner"><p>Qui sotto compili il modulo dimostrativo e vedi un messaggio di successo animato. Nessun dato parte davvero: è una simulazione di interfaccia, con scritto “Demo — nessun dato inviato”.</p></div></div></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ================= CONTATTI / FOOTER ================= -->
+<footer id="contatti" class="theme-dark" aria-labelledby="contattiTitle">
+  <div class="wrap footer-top">
+    <div>
+      <span class="kicker"><span class="sq"></span>08 — Contatti · Traversata di prova</span>
+      <h2 id="contattiTitle" class="skew-title">Chiedi una traversata di prova.</h2>
+      <p style="color:rgba(244,239,228,.7); max-width:52ch">Raccontaci la rotta in una riga: ti mostriamo la plancia su un caso simile al tuo. Modulo dimostrativo, risposta finta, zero spam — perché non parte nulla.</p>
+      <div class="form-card" style="margin-top:24px">
+        <div class="sp-head"><span>Modulo demo · MD-01</span><span>Demo — nessun dato inviato</span></div>
+        <form id="demoForm" novalidate>
+          <div class="f-row">
+            <div class="f-field"><label for="fNome">Nome e cognome</label><input id="fNome" name="nome" type="text" autocomplete="name" placeholder="Es. Nemo Salgari — inventato" required></div>
+            <div class="f-field"><label for="fEmail">Email di lavoro <small>· fittizia va bene</small></label><input id="fEmail" name="email" type="email" autocomplete="email" placeholder="tu@azienda-esempio.it" required></div>
+          </div>
+          <div class="f-row">
+            <div class="f-field"><label for="fCrew">Dimensione equipaggio</label><select id="fCrew" name="equipaggio"><option value="1-8">1–8 · scialuppa</option><option value="9-25" selected>9–25 · brigantino</option><option value="26-60">26–60 · fregata</option><option value="60+">60+ · flotta</option></select></div>
+            <div class="f-field"><label for="fMetodo">Metodo a bordo</label><select id="fMetodo" name="metodo"><option>Sprint</option><option>Kanban</option><option>Cascata</option><option>Misto</option></select></div>
+          </div>
+          <div class="f-field"><label for="fMsg">La tua rotta in una riga</label><textarea id="fMsg" name="messaggio" placeholder="Es. Dobbiamo chiudere M4 entro fine trimestre senza affondare il supporto." required></textarea></div>
+          <label class="f-check"><input type="checkbox" id="fOk" required><span>Ho capito che è una demo: nessun dato viene inviato né conservato, nessun pagamento processato.</span></label>
+          <div id="formSuccess" role="status" aria-live="polite"><strong>Rotta ricevuta — in demo.</strong><p>Messaggio simulato con successo. Demo — nessun dato inviato. Ti risponderemmo entro un giorno di mare, se fossimo veri.</p></div>
+          <button class="btn btn-signal" type="submit" data-cursor="Invia">Invia richiesta demo</button>
+        </form>
+      </div>
+    </div>
+    <div class="contact-side">
+      <div class="contact-lines">
+        <span class="mono" style="color:rgba(244,239,228,.55)">Quartier generale · fittizio</span>
+        <address class="tabular">Alveo Demo S.r.l. — via Esempio 0, Milano<br>Tel. <a href="tel:+390200000000">02 0000 0000</a> · <a href="mailto:ciao@alveo-demo.it">ciao@alveo-demo.it</a><br>P.IVA 00000000000 · REA MI-000000</address>
+        <span class="mono" style="color:var(--mint)">Orari di porto · lun–ven 9:00–18:00</span>
+      </div>
+      <div class="table-wrap">
+        <table class="routes-table tabular">
+          <caption>Tabella rotte demo · dati fittizi</caption>
+          <thead><tr><th scope="col">Rotta</th><th scope="col">Stato</th><th scope="col">ETA demo</th></tr></thead>
+          <tbody>
+            <tr><td>Q3 · M4 nord-est</td><td><span class="timbro ok">In rotta</span></td><td>14 ott</td></tr>
+            <tr><td>Integrazione doganale</td><td><span class="timbro crit">Critico</span></td><td>da ricalcolare</td></tr>
+            <tr><td>Supporto · canale 6</td><td><span class="timbro wait">In attesa</span></td><td>02 nov</td></tr>
+            <tr><td>Chiusura sprint 15</td><td><span class="timbro ok">In rotta</span></td><td>ven 18:00</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="disclaimer">Demo di design — marchio, dati, prezzi e persone fittizi a scopo dimostrativo. Nessuna affiliazione con aziende reali. I moduli non inviano dati né processano pagamenti.</p>
+    </div>
+  </div>
+  <div class="wrap giant-wrap">
+    <div id="alveoGiant" aria-label="Alveo">ALVE<span class="o">O</span></div>
+    <div class="footer-bottom">
+      <span class="tabular">© <span id="yearNow">2026</span> Alveo demo · Tutti i mari riservati</span>
+      <nav aria-label="Link di servizio fittizi"><a href="#hero">Plancia</a><a href="#piani">Piani demo</a><a href="#faq">FAQ</a><a href="#contatti">Contatti fittizi</a></nav>
+      <span>26 · Carta n. 026 · Mare 2</span>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+<script>
+(function(){
+"use strict";
+var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+var finePointer = window.matchMedia("(pointer: fine)").matches;
+gsap.registerPlugin(ScrollTrigger);
+
+/* ---------- Lenis + ScrollTrigger sync ---------- */
+var lenis = null;
+if(!reduced && typeof Lenis !== "undefined"){
+  lenis = new Lenis({ duration: 1.1, smoothWheel: true });
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add(function(t){ lenis.raf(t * 1000); });
+  gsap.ticker.lagSmoothing(0);
+}
+
+/* ---------- Anchor smooth via Lenis ---------- */
+document.querySelectorAll('a[href^="#"]').forEach(function(a){
+  a.addEventListener("click", function(e){
+    var id = a.getAttribute("href");
+    if(id.length < 2) return;
+    var target = document.querySelector(id);
+    if(!target) return;
+    e.preventDefault();
+    closeMenu();
+    if(lenis){ lenis.scrollTo(target, { offset: -70, duration: 1.2 }); }
+    else{ target.scrollIntoView({ behavior: reduced ? "auto" : "smooth" }); }
+    if(target.tabIndex !== undefined){ target.setAttribute("tabindex","-1"); }
+  });
+});
+
+/* ---------- Orologio di bordo reale ---------- */
+var clockEl = document.getElementById("boardClock");
+function tickClock(){
+  if(!clockEl) return;
+  var d = new Date();
+  var p = function(n){ return String(n).padStart(2,"0"); };
+  clockEl.textContent = p(d.getHours()) + ":" + p(d.getMinutes()) + ":" + p(d.getSeconds());
+}
+tickClock();
+window.setInterval(tickClock, 1000);
+document.getElementById("yearNow").textContent = String(new Date().getFullYear());
+
+/* ---------- Intro: tendina tecnica a pannelli ---------- */
+var intro = document.getElementById("intro");
+function killIntro(){ if(intro){ intro.style.display = "none"; intro.setAttribute("aria-hidden","true"); } }
+if(reduced){ killIntro(); }
+else{
+  var panels = gsap.utils.toArray("#intro .intro-panel");
+  var rows = gsap.utils.toArray("#intro .intro-row");
+  gsap.set(rows, { y: 14, autoAlpha: 0 });
+  gsap.set("#introBarFill", { scaleX: 0 });
+  var introTl = gsap.timeline({ defaults: { duration: 0.55, ease: "power3.out" }, onComplete: function(){ killIntro(); ScrollTrigger.refresh(); } });
+  introTl.addLabel("apertura", 0);
+  introTl.to(rows, { y: 0, autoAlpha: 1, stagger: 0.09, duration: 0.4 }, "apertura");
+  introTl.to("#introBarFill", { scaleX: 1, duration: 0.9, ease: "power2.inOut" }, "apertura");
+  introTl.addLabel("svarco", 1.0);
+  introTl.to("#intro .intro-card", { y: -18, autoAlpha: 0, duration: 0.35, ease: "power2.in" }, "svarco");
+  introTl.to(panels, { clipPath: "inset(0 0 100% 0)", stagger: 0.08, duration: 0.7, ease: "power4.inOut", overwrite: "auto" }, "svarco+=0.15");
+  introTl.to("#intro", { autoAlpha: 0, duration: 0.25, clearProps: "all" }, "svarco+=0.85");
+}
+
+/* ---------- Hero plancia viva ---------- */
+var spark = document.getElementById("sparkPath");
+if(spark){
+  var sLen = spark.getTotalLength();
+  spark.style.strokeDasharray = String(sLen);
+  spark.style.strokeDashoffset = String(sLen);
+}
+var mm = gsap.matchMedia();
+mm.add("(prefers-reduced-motion: no-preference)", function(){
+  var heroTl = gsap.timeline({ defaults: { duration: 0.7, ease: "power3.out" } });
+  heroTl.addLabel("plancia", 0);
+  if(!reduced){
+    heroTl.from("#hero .hero-eyebrow, #heroTitle, #hero .hero-sub, #hero .hero-ctas, #hero .hero-meta", { y: 26, autoAlpha: 0, stagger: 0.08, immediateRender: false, clearProps: "transform" }, "plancia");
+    heroTl.from("#bridgeRows .bridge-row", { y: 16, autoAlpha: 0, stagger: 0.09, duration: 0.5, immediateRender: false, clearProps: "transform" }, "plancia+=0.25");
+    if(spark){ heroTl.to(spark, { strokeDashoffset: 0, duration: 1.3, ease: "power2.out" }, "plancia+=0.4"); }
+  }
+  /* parallasse sobria: max 3 layer [data-speed] */
+  gsap.utils.toArray("#hero [data-speed]").slice(0,3).forEach(function(el){
+    var sp = parseFloat(el.getAttribute("data-speed")) || 0.06;
+    gsap.to(el, { y: function(){ return sp * -260; }, ease: "none", overwrite: "auto",
+      scrollTrigger: { trigger: "#hero", start: "top top", end: "bottom top", scrub: 0.8, markers: false, invalidateOnRefresh: true } });
+  });
+});
+
+/* ---------- Skew da velocità sui titoli + ticker che accelera ---------- */
+var tickerTween = null;
+mm.add("(prefers-reduced-motion: no-preference)", function(){
+  gsap.utils.toArray(".skew-title").forEach(function(title){
+    var settle = gsap.to(title, { skewX: 0, duration: 0.9, ease: "elastic.out(1,0.55)", paused: true, overwrite: "auto" });
+    ScrollTrigger.create({ trigger: title, start: "top bottom", end: "bottom top", markers: false,
+      onUpdate: function(self){
+        var v = gsap.utils.clamp(-7, 7, self.getVelocity() / -350);
+        gsap.to(title, { skewX: v, duration: 0.25, ease: "power2.out", overwrite: "auto", onComplete: function(){ settle.restart(); } });
+      }
+    });
+  });
+  /* Ticker operativo: base costante + accelerazione da getVelocity */
+  var track = document.getElementById("tickerTrack");
+  if(track){
+    tickerTween = gsap.to(track, { xPercent: -50, duration: 26, ease: "none", repeat: -1, markers: false });
+    ScrollTrigger.create({ trigger: ".ticker", start: "top bottom", end: "bottom top", markers: false,
+      onUpdate: function(self){
+        var boost = 1 + gsap.utils.clamp(0, 5, Math.abs(self.getVelocity()) / 1400);
+        gsap.to(tickerTween, { timeScale: boost, duration: 0.3, ease: "power2.out", overwrite: "auto" });
+        gsap.to(tickerTween, { timeScale: 1, duration: 1.1, ease: "power2.out", overwrite: false, delay: 0.35 });
+      },
+      onToggle: function(self){ if(!tickerTween) return; if(self.isActive){ tickerTween.play(); } else { tickerTween.pause(); } }
+    });
+  }
+});
+
+/* ---------- Reveal sobri per card (non il numero principale) ---------- */
+mm.add("(prefers-reduced-motion: no-preference)", function(){
+  gsap.utils.toArray(".reveal-card").forEach(function(card, i){
+    gsap.from(card, { y: 26, autoAlpha: 0, duration: 0.7, ease: "power3.out", immediateRender: false, overwrite: "auto", delay: (i % 4) * 0.02,
+      scrollTrigger: { trigger: card, start: "top 88%", once: true, markers: false } });
+  });
+});
+
+/* ---------- #timeline pinned multi-stage scrub (desktop) ---------- */
+function flipDelta(card, slot){
+  var r1 = card.getBoundingClientRect();
+  var r2 = slot.getBoundingClientRect();
+  var dx = (r2.left + r2.width / 2) - (r1.left + r1.width / 2);
+  var dy = (r2.top + 6) - r1.top;
+  return { x: dx, y: dy };
+}
+mm.add("(min-width: 900px) and (prefers-reduced-motion: no-preference)", function(){
+  var cards = gsap.utils.toArray(".kanban-card");
+  var atti = gsap.utils.toArray("#timeline .atto");
+  var burn = document.getElementById("burnPath");
+  var ring = document.getElementById("ringProg");
+  var ringLabel = document.getElementById("ringLabel");
+  var prog = document.getElementById("tlProgress");
+  var burnLen = burn ? burn.getTotalLength() : 300;
+  var ringLen = 2 * Math.PI * 48;
+  if(burn){ burn.style.strokeDasharray = String(burnLen); burn.style.strokeDashoffset = String(burnLen); }
+  if(ring){ ring.style.strokeDasharray = String(ringLen); ring.style.strokeDashoffset = String(ringLen); }
+  gsap.set(atti, { autoAlpha: 0.45 });
+  gsap.set(atti[0], { autoAlpha: 1 });
+
+  var tl = gsap.timeline({ defaults: { duration: 1, ease: "power2.inOut" },
+    scrollTrigger: { trigger: "#timeline", start: "top top", end: "+=3200", pin: "#tlPin", scrub: 0.9, markers: false, invalidateOnRefresh: true, anticipatePin: 1,
+      onUpdate: function(self){
+        var pct = Math.round(self.progress * 100);
+        if(ringLabel) ringLabel.textContent = pct + "%";
+        if(prog) prog.style.transform = "scaleX(" + self.progress + ")";
+      }
+    }
+  });
+  tl.addLabel("atto-pianifica", 0);
+  tl.to({}, { duration: 0.4 }, "atto-pianifica");
+  tl.to(cards[0], { x: function(){ return flipDelta(cards[0], document.querySelector('[data-slot="d0"]')).x; }, y: function(){ return flipDelta(cards[0], document.querySelector('[data-slot="d0"]')).y; }, duration: 0.8, ease: "power3.inOut" }, "atto-pianifica+=0.2");
+  tl.to(atti[0], { autoAlpha: 1, duration: 0.3 }, "atto-pianifica");
+  if(burn) tl.to(burn, { strokeDashoffset: burnLen * 0.78, duration: 0.8 }, "atto-pianifica+=0.2");
+  if(ring) tl.to(ring, { strokeDashoffset: ringLen * 0.78, duration: 0.8 }, "atto-pianifica+=0.2");
+
+  tl.addLabel("atto-esegui", 1.4);
+  tl.to(atti[0], { autoAlpha: 0.45, duration: 0.3 }, "atto-esegui");
+  tl.to(atti[1], { autoAlpha: 1, duration: 0.3 }, "atto-esegui");
+  tl.to(cards[2], { x: function(){ return flipDelta(cards[2], document.querySelector('[data-slot="d1"]')).x; }, y: function(){ return flipDelta(cards[2], document.querySelector('[data-slot="d1"]')).y; }, duration: 0.8 }, "atto-esegui");
+  tl.to(cards[1], { x: function(){ return flipDelta(cards[1], document.querySelector('[data-slot="d2"]')).x; }, y: function(){ return flipDelta(cards[1], document.querySelector('[data-slot="d2"]')).y; }, duration: 0.8 }, "atto-esegui+=0.3");
+  if(burn) tl.to(burn, { strokeDashoffset: burnLen * 0.48, duration: 1 }, "atto-esegui");
+  if(ring) tl.to(ring, { strokeDashoffset: ringLen * 0.48, duration: 1 }, "atto-esegui");
+
+  tl.addLabel("atto-controlla", 2.9);
+  tl.to(atti[1], { autoAlpha: 0.45, duration: 0.3 }, "atto-controlla");
+  tl.to(atti[2], { autoAlpha: 1, duration: 0.3 }, "atto-controlla");
+  tl.to(cards[3], { x: function(){ return flipDelta(cards[3], document.querySelector('[data-slot="d3"]')).x; }, y: function(){ return flipDelta(cards[3], document.querySelector('[data-slot="d3"]')).y; }, duration: 0.8 }, "atto-controlla");
+  tl.to(cards[0], { x: function(){ return flipDelta(cards[0], document.querySelector('[data-slot="f0"]')).x; }, y: function(){ return flipDelta(cards[0], document.querySelector('[data-slot="f0"]')).y; }, duration: 0.9 }, "atto-controlla+=0.3");
+  tl.to(cards[2], { x: function(){ return flipDelta(cards[2], document.querySelector('[data-slot="f1"]')).x; }, y: function(){ return flipDelta(cards[2], document.querySelector('[data-slot="f1"]')).y; }, duration: 0.9 }, "atto-controlla+=0.45");
+  if(burn) tl.to(burn, { strokeDashoffset: burnLen * 0.2, duration: 1 }, "atto-controlla");
+  if(ring) tl.to(ring, { strokeDashoffset: ringLen * 0.2, duration: 1 }, "atto-controlla");
+
+  tl.addLabel("atto-consegna", 4.5);
+  tl.to(atti[2], { autoAlpha: 0.45, duration: 0.3 }, "atto-consegna");
+  tl.to(atti[3], { autoAlpha: 1, duration: 0.3 }, "atto-consegna");
+  tl.to(cards[4], { x: function(){ return flipDelta(cards[4], document.querySelector('[data-slot="f2"]')).x; }, y: function(){ return flipDelta(cards[4], document.querySelector('[data-slot="f2"]')).y; }, duration: 0.9 }, "atto-consegna");
+  tl.to(cards[1], { x: function(){ return flipDelta(cards[1], document.querySelector('[data-slot="f3"]')).x; }, y: function(){ return flipDelta(cards[1], document.querySelector('[data-slot="f3"]')).y; }, duration: 0.9 }, "atto-consegna+=0.35");
+  if(burn) tl.to(burn, { strokeDashoffset: 0, duration: 1 }, "atto-consegna");
+  if(ring) tl.to(ring, { strokeDashoffset: 0, duration: 1 }, "atto-consegna");
+  tl.addLabel("ormeggio", 6.0);
+  return function(){ gsap.set(cards, { clearProps: "transform" }); };
+});
+/* Fallback mobile: anello e burndown leggibili statici */
+mm.add("(max-width: 899px)", function(){
+  var burn = document.getElementById("burnPath");
+  var ring = document.getElementById("ringProg");
+  if(burn){ burn.style.strokeDasharray = "none"; burn.style.strokeDashoffset = "0"; }
+  if(ring){ ring.style.strokeDasharray = "none"; }
+  var lbl = document.getElementById("ringLabel"); if(lbl) lbl.textContent = "100%";
+});
+
+/* ---------- Footer ALVEO gigante scrub ---------- */
+mm.add("(prefers-reduced-motion: no-preference)", function(){
+  gsap.fromTo("#alveoGiant", { y: 70, autoAlpha: 0.25 }, { y: 0, autoAlpha: 1, ease: "none", overwrite: "auto",
+    scrollTrigger: { trigger: ".giant-wrap", start: "top bottom", end: "bottom bottom", scrub: 0.8, markers: false, invalidateOnRefresh: true } });
+});
+
+/* ---------- Simulatore di piano ---------- */
+var simP = document.getElementById("simPersone");
+var simS = document.getElementById("simSettimane");
+var simB = document.getElementById("simBudget");
+var outP = document.getElementById("outPersone");
+var outS = document.getElementById("outSettimane");
+var outB = document.getElementById("outBudget");
+var simDate = document.getElementById("simDate");
+var simDateSub = document.getElementById("simDateSub");
+var metodo = "sprint";
+var metodoTag = document.getElementById("simMetodoTag");
+var odo = document.getElementById("odo");
+var simRoute = document.getElementById("simRoute");
+var simRouteTxt = document.getElementById("simRouteTxt");
+var REELS = 6;
+function buildOdo(){
+  if(!odo) return;
+  odo.innerHTML = "";
+  for(var i = 0; i < REELS; i++){
+    var reel = document.createElement("span");
+    reel.className = "reel";
+    reel.setAttribute("aria-hidden", "true");
+    var strip = document.createElement("span");
+    strip.className = "strip";
+    for(var d = 0; d < 10; d++){
+      var cell = document.createElement("span");
+      cell.textContent = String(d);
+      strip.appendChild(cell);
+    }
+    reel.appendChild(strip);
+    odo.appendChild(reel);
+    if(i === 2){
+      var sep = document.createElement("span");
+      sep.className = "odo-sep";
+      sep.textContent = ".";
+      sep.setAttribute("aria-hidden","true");
+      odo.appendChild(sep);
+    }
+  }
+}
+buildOdo();
+function setOdo(value){
+  if(!odo) return;
+  var str = String(Math.max(0, Math.min(999999, Math.round(value)))).padStart(REELS, "0");
+  var strips = odo.querySelectorAll(".strip");
+  strips.forEach(function(strip, i){
+    var digit = parseInt(str[i], 10);
+    strip.style.transform = "translateY(" + (-digit * 46) + "px)";
+  });
+  odo.setAttribute("aria-label", "Costo demo stimato: " + Number(value).toLocaleString("it-IT") + " euro");
+}
+var routeLen = 0;
+if(simRoute){ routeLen = simRoute.getTotalLength(); simRoute.style.strokeDasharray = String(routeLen); simRoute.style.strokeDashoffset = String(routeLen * 0.35); }
+function eur(n){ return "€ " + Number(n).toLocaleString("it-IT"); }
+function updateSim(){
+  var p = parseInt(simP.value, 10), s = parseInt(simS.value, 10), b = parseInt(simB.value, 10);
+  outP.textContent = p + " persone";
+  outS.textContent = s + " settimane";
+  outB.textContent = eur(b);
+  var factor = metodo === "sprint" ? 1 : (metodo === "kanban" ? 0.92 : 1.18);
+  var giorni = Math.round(s * 7 * factor + p * 0.6);
+  var approdo = new Date(Date.now() + giorni * 86400000);
+  var mesi = ["gen","feb","mar","apr","mag","giu","lug","ago","set","ott","nov","dic"];
+  simDate.childNodes[0].textContent = approdo.getDate() + " " + mesi[approdo.getMonth()] + " " + approdo.getFullYear() + " ";
+  simDateSub.textContent = "+" + giorni + "GG · " + metodo.toUpperCase() + " · CALCOLO LOCALE · NESSUN IMPEGNO";
+  if(metodoTag) metodoTag.textContent = metodo.toUpperCase();
+  var caricoBase = Math.min(96, Math.round(38 + (p / 60) * 34 + (26 - s) * 0.9 + (metodo === "cascata" ? 8 : 0)));
+  var a = Math.min(99, caricoBase), bb = Math.min(99, Math.max(12, caricoBase - 14)), c = Math.min(99, Math.max(8, 100 - caricoBase - 6));
+  var bars = [["loadA","loadATxt",a],["loadB","loadBTxt",bb],["loadC","loadCTxt",c]];
+  bars.forEach(function(cfg){
+    var bar = document.getElementById(cfg[0]);
+    var txt = document.getElementById(cfg[1]);
+    if(bar){ bar.querySelector("span").style.width = cfg[2] + "%"; bar.classList.toggle("warn", cfg[2] > 82); }
+    if(txt) txt.textContent = cfg[2] + "%";
+  });
+  var costo = Math.round((b * 0.62 + p * s * 1450 * factor) / 10) * 10;
+  setOdo(costo);
+  if(simRoute){
+    var traffic = Math.min(0.9, a / 130);
+    var target = routeLen * (0.12 + traffic * 0.55);
+    gsap.to(simRoute, { strokeDashoffset: routeLen - (routeLen - target), duration: 0.5, ease: "power2.out", overwrite: "auto" });
+    simRoute.style.stroke = a > 82 ? "#FF5C38" : "#7DD8C6";
+  }
+  if(simRouteTxt){
+    var code = "L-" + String(Math.max(1, Math.min(9, Math.round(s / 3)))).padStart(2,"0");
+    simRouteTxt.textContent = code + (a > 82 ? " · GROPPO" : (a > 64 ? " · BREZZA TESA" : " · BREZZA"));
+  }
+}
+[simP, simS, simB].forEach(function(inp){ if(inp){ inp.addEventListener("input", updateSim); inp.addEventListener("change", updateSim); } });
+var chips = Array.prototype.slice.call(document.querySelectorAll(".chip"));
+chips.forEach(function(chip, idx){
+  chip.addEventListener("click", function(){ selectMetodo(chip); });
+  chip.addEventListener("keydown", function(e){
+    var next = null;
+    if(e.key === "ArrowRight" || e.key === "ArrowDown") next = chips[(idx + 1) % chips.length];
+    if(e.key === "ArrowLeft" || e.key === "ArrowUp") next = chips[(idx - 1 + chips.length) % chips.length];
+    if(next){ e.preventDefault(); next.focus(); selectMetodo(next); }
+  });
+});
+function selectMetodo(chip){
+  chips.forEach(function(c){ c.setAttribute("aria-checked","false"); });
+  chip.setAttribute("aria-checked","true");
+  metodo = chip.getAttribute("data-metodo");
+  updateSim();
+}
+updateSim();
+
+/* ---------- FAQ accordion ---------- */
+var faqItems = document.querySelectorAll(".faq-item");
+faqItems.forEach(function(item){
+  var btn = item.querySelector(".faq-q");
+  btn.addEventListener("click", function(){
+    var open = item.classList.contains("open");
+    faqItems.forEach(function(o){ o.classList.remove("open"); o.querySelector(".faq-q").setAttribute("aria-expanded","false"); });
+    if(!open){ item.classList.add("open"); btn.setAttribute("aria-expanded","true"); }
+  });
+});
+document.addEventListener("keydown", function(e){
+  if(e.key === "Escape"){
+    faqItems.forEach(function(o){ o.classList.remove("open"); o.querySelector(".faq-q").setAttribute("aria-expanded","false"); });
+    closeMenu();
+  }
+});
+
+/* ---------- Menu mobile + focus trap leggero ---------- */
+var menuBtn = document.getElementById("menuBtn");
+var mobileMenu = document.getElementById("mobileMenu");
+var lastFocus = null;
+function openMenu(){
+  lastFocus = document.activeElement;
+  mobileMenu.classList.add("open");
+  menuBtn.setAttribute("aria-expanded","true");
+  menuBtn.textContent = "CHIUDI";
+  var first = mobileMenu.querySelector("a");
+  if(first) first.focus();
+  if(lenis) lenis.stop();
+}
+function closeMenu(){
+  if(!mobileMenu.classList.contains("open")) return;
+  mobileMenu.classList.remove("open");
+  menuBtn.setAttribute("aria-expanded","false");
+  menuBtn.textContent = "MENU";
+  if(lenis) lenis.start();
+  if(lastFocus && lastFocus.focus) lastFocus.focus();
+}
+if(menuBtn){ menuBtn.addEventListener("click", function(){ mobileMenu.classList.contains("open") ? closeMenu() : openMenu(); }); }
+mobileMenu.addEventListener("keydown", function(e){
+  if(e.key !== "Tab") return;
+  var links = Array.prototype.slice.call(mobileMenu.querySelectorAll("a"));
+  if(!links.length) return;
+  var first = links[0], last = links[links.length - 1];
+  if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+  else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+});
+
+/* ---------- Form demo ---------- */
+var form = document.getElementById("demoForm");
+var success = document.getElementById("formSuccess");
+if(form){
+  form.addEventListener("submit", function(e){
+    e.preventDefault();
+    if(!form.checkValidity()){ form.reportValidity(); return; }
+    success.classList.add("show");
+    gsap.fromTo(success, { y: 12, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.5, ease: "power3.out", overwrite: "auto", immediateRender: false });
+    var btn = form.querySelector('button[type="submit"]');
+    if(btn){ btn.disabled = true; btn.textContent = "Richiesta simulata ✓"; }
+  });
+}
+
+/* ---------- Cursore mirino da carteggio ---------- */
+if(finePointer && !reduced){
+  document.body.classList.add("has-cursor");
+  var cursor = document.getElementById("cursor");
+  var meta = document.getElementById("cursorMeta");
+  var label = document.getElementById("cursorLabel");
+  var qx = gsap.quickTo(cursor, "x", { duration: 0.18, ease: "power3.out" });
+  var qy = gsap.quickTo(cursor, "y", { duration: 0.18, ease: "power3.out" });
+  window.addEventListener("mousemove", function(e){
+    qx(e.clientX); qy(e.clientY);
+    if(meta) meta.textContent = "X " + String(Math.round(e.clientX)).padStart(4,"0") + " · Y " + String(Math.round(e.clientY)).padStart(4,"0");
+  }, { passive: true });
+  document.querySelectorAll("[data-cursor]").forEach(function(el){
+    el.addEventListener("mouseenter", function(){ if(label){ label.textContent = el.getAttribute("data-cursor"); label.style.opacity = "1"; } });
+    el.addEventListener("mouseleave", function(){ if(label) label.style.opacity = "0"; });
+  });
+}
+
+/* ---------- Refresh dopo fonts/layout ---------- */
+if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){ ScrollTrigger.refresh(); }); }
+window.addEventListener("load", function(){ ScrollTrigger.refresh(); });
+})();
+</script>
+</body>
+</html>
