@@ -2,7 +2,18 @@
 
 Personal design portfolio of **fictional** single-file landing pages — GSAP, ScrollTrigger, Lenis, original copy and CSS/SVG graphics.
 
-Open `sites/index.html` for the catalog (25 planes across five batches). The root `index.html` is a separate studio study.
+The repository root `index.html` is the catalog. Each plane lives in `sites/<nn>-<slug>/index.html`. The studio study is `sites/00-ashlar/`.
+
+## Layout
+
+```
+index.html              ← catalog (lab home)
+sites/00-ashlar/        ← studio landing
+sites/01-deckle/ … 31-voltabit/
+sites/index.html        ← redirect to the catalog
+```
+
+Old catalog names that never matched folders (Vellum, Relay, Volta, Arc, Facet) now point at the live directories: Deckle, Murmur, Citrine, Stillpoint, Tessera.
 
 ## Disclaimer
 
@@ -20,11 +31,13 @@ Forms and checkout UIs are demos only; they do not process payments or send emai
 
 ## Local preview
 
-Serve the `sites` folder (or repo root) with any static server, e.g.:
+Serve the **repository root** (not the `sites` folder):
 
 ```bash
-npx --yes serve sites
+npx --yes serve .
 ```
+
+Then open `/` for the catalog and `/sites/00-ashlar/` for the studio.
 
 ## License
 
