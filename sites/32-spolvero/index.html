@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="it" class="js">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spolvero — Prima la polvere. Poi la firma.</title>
+<meta name="description" content="Spolvero è un SaaS fittizio per cantieri di restauro pittorico: legge una scansione dimostrativa, propone strati e un verbale, e non dipinge. Demo originale, nessun dipinto reale.">
+<meta name="theme-color" content="#f3ecdf">
+<meta property="og:title" content="Spolvero — Prima la polvere. Poi la firma.">
+<meta property="og:description" content="Osservatorio dimostrativo per il restauro. Il modello segna il dubbio. La mano firma.">
+<meta property="og:type" content="website">
+<!--
+  32 — SPOLVERO · SaaS fittizio per cantieri di restauro pittorico.
+  File autonomo. Testi, SVG, composizioni e interfaccia: opera originale.
+  Nessun dipinto storico, nessun museo, nessun pigmento di marca, nessuna persona reale.
+  CDN: GSAP 3.12.5 + ScrollTrigger (licenza standard GSAP), Lenis 1.1.18 (MIT),
+  Google Fonts Bodoni Moda, Familjen Grotesk, Red Hat Mono (OFL).
+-->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23f3ecdf'/%3E%3Ccircle cx='16' cy='16' r='5.5' fill='none' stroke='%231a1613' stroke-width='1.4'/%3E%3Cpath d='M16 3.5V10M16 22v6.5M3.5 16H10M22 16h6.5' stroke='%23a33b28' stroke-width='1.4'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;0,6..96,600;1,6..96,500&family=Familjen+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Red+Hat+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+  document.documentElement.classList.add("js");
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    document.documentElement.classList.add("js-motion");
+  }
+</script>
+<style>
+:root{
+  --gesso:#f3ecdf;
+  --gesso-2:#e7dcc8;
+  --paper:#f7f3ea;
+  --ink:#1a1613;
+  --ink-soft:rgba(26,22,19,.72);
+  --line:rgba(26,22,19,.16);
+  --line-strong:rgba(26,22,19,.4);
+  --azurite:#163e78;
+  --azurite-deep:#0f2f5c;
+  --sinopia:#a33b28;
+  --sinopia-deep:#7c2a1c;
+  --ochre:#e0b04a;
+  --ochre-deep:#c4922a;
+  --verdaccio:#314538;
+  --lacca:#6e1830;
+  --varnish:#6b4424;
+  --night:#14110e;
+  --night-text:#f3ecdf;
+  --muted-night:rgba(243,236,223,.74);
+  --display:"Bodoni Moda", "Didot", "Bodoni MT", Georgia, serif;
+  --sans:"Familjen Grotesk", "Avenir Next", "Segoe UI", sans-serif;
+  --mono:"Red Hat Mono", ui-monospace, "SFMono-Regular", monospace;
+  --nav:72px;
+  --pad:clamp(1.1rem, 3vw, 2.6rem);
+  --ease:cubic-bezier(.22,1,.36,1);
+  --max:1180px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{background:var(--gesso);scroll-behavior:auto}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto !important}
+body{
+  margin:0;
+  background:var(--gesso);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:1.05rem;
+  line-height:1.55;
+  overflow-x:clip;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:7;
+  opacity:.14;
+  mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-size:160px 160px;
+}
+::selection{background:var(--azurite);color:var(--gesso)}
+a{color:inherit}
+img,svg{display:block;max-width:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus{outline:none}
+:focus-visible{outline:2px solid var(--ochre-deep);outline-offset:3px}
+[hidden]{display:none !important}
+.sr-only{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0,0,0,0);white-space:nowrap;border:0;
+}
+.skip{
+  position:fixed;left:1rem;top:-4rem;z-index:80;
+  background:var(--ink);color:var(--gesso);
+  padding:.7rem 1rem;text-decoration:none;
+  font-family:var(--mono);font-size:.8rem;
+}
+.skip:focus{top:1rem}
+
+.sprite{position:absolute;width:0;height:0;overflow:hidden}
+
+.progress{
+  position:fixed;top:0;left:0;width:100%;height:3px;z-index:70;
+  transform:scaleX(0);transform-origin:0 50%;pointer-events:none;
+  background:repeating-linear-gradient(90deg,var(--sinopia) 0 3px,transparent 3px 8px);
+  will-change:transform;
+}
+
+.site-nav{
+  position:fixed;top:0;left:0;right:0;height:var(--nav);z-index:40;
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  padding:0 var(--pad);
+  background:#f3ecdf;
+  border-bottom:1px solid var(--line);
+}
+.logo{
+  display:flex;align-items:center;gap:.65rem;
+  text-decoration:none;color:inherit;
+  font-family:var(--display);font-weight:500;font-size:1.55rem;letter-spacing:-.03em;
+}
+.logo svg{width:26px;height:26px;flex:none}
+.nav-links{display:flex;align-items:center;gap:1.35rem}
+.nav-links a{
+  text-decoration:none;font-size:.95rem;
+  background-image:linear-gradient(currentColor,currentColor);
+  background-repeat:no-repeat;background-size:0 1px;background-position:0 100%;
+  transition:background-size .4s var(--ease);
+}
+.nav-links a:hover{background-size:100% 1px}
+.nav-side{display:flex;align-items:center;gap:.9rem}
+.demo-tag{
+  font-family:var(--mono);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-soft);
+}
+.menu-btn{
+  min-height:44px;padding:0 .2rem;
+  background:none;border:0;
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+}
+.menu-btn .when-open{display:none}
+body.menu-open .menu-btn .when-closed{display:none}
+body.menu-open .menu-btn .when-open{display:inline}
+
+.menu{
+  position:fixed;inset:0;z-index:35;
+  background:var(--gesso);
+  padding:calc(var(--nav) + 1.2rem) var(--pad) 2rem;
+  visibility:hidden;pointer-events:none;
+  overflow:auto;
+}
+.menu.is-open{pointer-events:auto}
+.menu-inner{width:min(980px,100%);margin:0 auto}
+.menu a{
+  display:flex;justify-content:space-between;align-items:baseline;gap:1rem;
+  text-decoration:none;
+  font-family:var(--display);font-weight:500;
+  font-size:clamp(2.4rem,6vw,4.6rem);
+  letter-spacing:-.03em;line-height:.95;
+  border-top:1px solid var(--line);
+  padding:.55rem 0 .7rem;
+}
+.menu a:last-of-type{border-bottom:1px solid var(--line)}
+.menu a em{
+  font-family:var(--mono);font-style:normal;font-size:.75rem;letter-spacing:.14em;
+}
+.menu p{max-width:38rem;color:var(--ink-soft);margin:1.2rem 0 0}
+
+.rail{
+  position:fixed;right:1rem;top:50%;transform:translateY(-50%);
+  z-index:30;display:flex;flex-direction:column;align-items:center;gap:.7rem;
+  pointer-events:none;
+}
+.rail span:first-child{
+  font-family:var(--display);font-size:1.3rem;letter-spacing:-.03em;
+}
+.rail span:last-child{
+  writing-mode:vertical-rl;transform:rotate(180deg);
+  font-family:var(--mono);font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;
+}
+
+.kicker{
+  display:flex;align-items:center;gap:.7rem;
+  font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;
+  margin:0;
+}
+.mark{
+  width:11px;height:11px;border:1px solid var(--sinopia);border-radius:50%;
+  box-shadow:inset 0 0 0 2px var(--gesso), inset 0 0 0 3.5px var(--sinopia);
+  flex:none;
+}
+.mark.light{box-shadow:inset 0 0 0 2px var(--night), inset 0 0 0 3.5px var(--ochre);border-color:var(--ochre)}
+
+h1,h2,h3{font-family:var(--display);font-weight:500;letter-spacing:-.03em;line-height:.92;margin:0}
+h1{font-size:clamp(2.15rem,13cqi,6.6rem);line-height:.96;letter-spacing:-.045em;text-wrap:nowrap}
+h1 em{font-style:italic;font-weight:500;color:var(--azurite)}
+h2{font-size:clamp(2.6rem,5.4vw,4.8rem);text-wrap:balance}
+h3{font-size:clamp(1.7rem,2.4vw,2.2rem);line-height:1}
+.line{display:block}
+html.js-motion .hero .line{overflow:hidden}
+h1 .line + .line{margin-top:.04em}
+.lead{max-width:38rem;color:var(--ink-soft);font-size:1.08rem;margin:0}
+.wrap{width:min(var(--max),100%);margin-inline:auto;padding-inline:var(--pad)}
+.sec{padding:clamp(4.5rem,10vw,8rem) 0}
+section,.pull,footer.site-foot{scroll-margin-top:var(--nav)}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:.6rem;
+  min-height:48px;padding:0 1.15rem;
+  border:1px solid var(--ink);background:transparent;color:var(--ink);
+  text-decoration:none;font-weight:600;font-size:.95rem;
+  transition:transform .25s var(--ease),background .25s var(--ease),color .25s var(--ease);
+}
+.btn:hover{transform:translateY(-2px);background:var(--ink);color:var(--gesso)}
+.btn-fill{background:var(--azurite);border-color:var(--azurite);color:var(--gesso)}
+.btn-fill:hover{background:var(--azurite-deep);border-color:var(--azurite-deep);color:var(--gesso)}
+.btn-row{display:flex;flex-wrap:wrap;gap:.7rem}
+
+.hero{
+  display:grid;
+  grid-template-columns:minmax(0,.96fr) minmax(0,1.04fr);
+  min-height:100svh;
+  padding-top:var(--nav);
+  background:var(--gesso);
+}
+.hero-copy{
+  container-type:inline-size;
+  min-height:calc(100svh - var(--nav));
+  display:flex;flex-direction:column;justify-content:space-between;gap:1.6rem;
+  padding:1.4rem var(--pad) 1.4rem;
+}
+.hero-body{display:flex;flex-direction:column;gap:1.15rem}
+.figures{
+  list-style:none;margin:0;padding:1rem 0 0;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;
+  border-top:1px solid var(--line);
+}
+.figures strong{
+  display:block;font-family:var(--display);font-weight:500;
+  font-size:clamp(1.8rem,3vw,2.8rem);letter-spacing:-.03em;line-height:1;
+}
+.figures span{
+  display:block;margin-top:.35rem;
+  font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-soft);
+}
+
+.hero-paint{
+  position:relative;min-height:calc(100svh - var(--nav));
+  background:#e6cf96;overflow:hidden;
+  --lx:68%;--ly:44%;
+}
+.hero-paint .layer{position:absolute;inset:0;width:100%;height:100%}
+.hero-paint .under{
+  opacity:0;
+  -webkit-mask-image:radial-gradient(circle at var(--lx) var(--ly), #000 0 78px, transparent 80px);
+  mask-image:radial-gradient(circle at var(--lx) var(--ly), #000 0 78px, transparent 80px);
+}
+.hero-paint.is-hot .under,.hero-paint.is-open .under{opacity:1}
+.hero-paint.is-open .under{-webkit-mask-image:none;mask-image:none}
+.rotella{
+  position:absolute;left:0;top:0;width:168px;height:168px;z-index:4;
+  pointer-events:none;opacity:0;
+}
+.rotella i{
+  display:block;width:100%;height:100%;border-radius:50%;
+  border:1.5px dashed var(--sinopia);
+  animation:spin 9s linear infinite;
+}
+.rotella::after{
+  content:"";position:absolute;left:50%;top:50%;width:7px;height:7px;border-radius:50%;
+  background:var(--sinopia);transform:translate(-50%,-50%);
+}
+.hero-paint.is-hot .rotella{opacity:1}
+.hero-paint.is-hot{cursor:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.paint-ui{
+  position:absolute;left:0;right:0;bottom:0;z-index:5;
+  display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;
+  padding:.9rem 1rem 1rem;
+  background:linear-gradient(transparent, rgba(26,22,19,.55));
+  color:var(--gesso);
+}
+.readout{
+  margin:0;padding:.4rem .55rem;background:rgba(26,22,19,.62);
+  font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;
+}
+.readout span{display:block}
+.sinopia-toggle{
+  min-height:44px;padding:0 .85rem;
+  background:var(--gesso);color:var(--ink);border:0;
+  font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;
+}
+.caption-abs{
+  position:absolute;top:1rem;left:1rem;z-index:5;margin:0;
+  max-width:18rem;color:var(--ink);background:rgba(243,236,223,.94);
+  padding:.55rem .65rem;
+  font-family:var(--mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;
+}
+
+.pull{
+  margin:0;
+  background:var(--azurite);
+  color:var(--gesso);
+  padding:clamp(4rem,9vw,7.5rem) var(--pad);
+}
+.pull blockquote{
+  margin:0 auto;width:min(22ch,100%);
+  font-family:var(--display);font-weight:500;font-style:italic;
+  font-size:clamp(2.1rem,4.6vw,4.15rem);line-height:1.02;letter-spacing:-.03em;
+}
+.pull figcaption{
+  width:min(var(--max),100%);margin:1.6rem auto 0;
+  font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(243,236,223,.75);
+}
+
+.gloss{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;
+  margin:2.4rem 0 0;padding:0;
+}
+.gloss div{border-top:1px solid var(--line);padding-top:.8rem}
+.gloss dt{font-family:var(--display);font-size:1.7rem;font-weight:500;letter-spacing:-.03em}
+.gloss dd{margin:.4rem 0 0;color:var(--ink-soft)}
+
+.verbali{margin-top:2.6rem;display:grid;gap:.8rem}
+.slip{
+  background:var(--paper);
+  border:1px solid var(--line-strong);
+  padding:1.1rem 1.15rem 1.15rem;
+  display:grid;grid-template-columns:auto 1fr auto;gap:1rem;align-items:start;
+}
+.slip p{margin:0}
+.slip .who{font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft)}
+.slip-final{background:#f3ecdf;border-color:var(--azurite);grid-template-columns:1fr auto}
+.stamp{
+  width:92px;height:92px;border:1.5px solid var(--azurite);border-radius:50%;
+  display:grid;place-items:center;text-align:center;
+  font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--azurite);transform:rotate(-8deg);line-height:1.25;
+}
+
+#metodo{background:var(--night);color:var(--night-text)}
+.metodo-stage{
+  min-height:100svh;
+  display:grid;
+  grid-template-columns:minmax(220px,300px) minmax(0,1fr);
+  gap:clamp(1.5rem,4vw,4rem);
+  align-items:center;
+  padding:calc(var(--nav) + 1.4rem) var(--pad) 1.6rem;
+}
+.sample{
+  position:relative;
+  height:min(68vh,640px);
+  display:flex;flex-direction:column;
+  border:1px solid rgba(243,236,223,.28);
+}
+.stratum{
+  display:flex;align-items:center;justify-content:space-between;gap:.5rem;
+  padding:0 .75rem;
+  font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;
+}
+.stratum.is-hot{box-shadow:inset 0 0 0 2px var(--ochre)}
+.s-varnish{flex:1.1;background:var(--varnish);color:var(--gesso)}
+.s-glaze{flex:1;background:var(--lacca);color:var(--gesso)}
+.s-body{flex:2.4;background:var(--azurite);color:var(--gesso)}
+.s-sino{flex:1;background:var(--sinopia);color:var(--gesso)}
+.s-gesso{flex:3.2;background:#f3ecdf;color:var(--ink)}
+.s-linen{flex:1.6;background:#cbb892;color:var(--ink)}
+.scan{
+  position:absolute;left:0;right:0;top:0;height:2px;background:var(--ochre);
+  will-change:transform;pointer-events:none;
+}
+.metodo-copy .kicker{color:var(--ochre)}
+.steps{position:relative;margin-top:1.4rem}
+.step h3{font-size:clamp(2rem,3.4vw,3.3rem);max-width:14ch}
+.step p{max-width:40rem;color:var(--muted-night);margin:.8rem 0 0}
+.step small{display:block;margin-top:.8rem;font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase;font-size:.66rem;color:var(--ochre)}
+@media (min-width:900px){
+  .js-motion #metodo .steps{min-height:300px}
+  .js-motion #metodo .step{position:absolute;inset:0}
+  .js-motion #metodo .step{opacity:0}
+  .js-motion #metodo .step:first-child{opacity:1}
+  .js-motion .metodo-stage{height:100vh;min-height:100vh}
+}
+
+.tavolo-head{display:grid;grid-template-columns:1.2fr .8fr;gap:2rem;align-items:end;margin-bottom:1.6rem}
+.frame{
+  border:1px solid var(--ink);
+  background:var(--paper);
+}
+.toolbar{
+  display:flex;flex-wrap:wrap;gap:.4rem;
+  padding:.7rem;
+  border-bottom:1px solid var(--line);
+  align-items:center;
+}
+.toolbar button{
+  min-height:42px;padding:0 .8rem;
+  border:1px solid var(--line-strong);background:transparent;
+  font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;
+}
+.toolbar button[aria-pressed="true"]{background:var(--ink);color:var(--gesso);border-color:var(--ink)}
+.rake-label{
+  margin-left:auto;display:flex;align-items:center;gap:.6rem;
+  font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;
+  min-width:min(100%,220px);
+}
+input[type="range"]{
+  -webkit-appearance:none;appearance:none;width:110px;height:2px;background:var(--ink);border:0;padding:0;
+}
+input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:14px;height:14px;border-radius:50%;
+  background:var(--azurite);border:2px solid var(--gesso);cursor:pointer;
+}
+.bench{
+  display:grid;grid-template-columns:minmax(0,1.15fr) minmax(240px,.85fr);
+  min-height:520px;
+}
+.stage{
+  position:relative;background:#e6cf96;min-height:460px;
+  --rake:128deg;
+}
+.stage .layer{position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:opacity .35s var(--ease)}
+.stage[data-mode="vis"] .vis,
+.stage[data-mode="ir"] .ir,
+.stage[data-mode="uv"] .uv{opacity:1}
+.stage[data-mode="proposta"] .vis,
+.stage[data-mode="proposta"] .hatches{opacity:1}
+.rake{
+  position:absolute;inset:0;pointer-events:none;z-index:2;
+  background:linear-gradient(var(--rake), transparent 28%, rgba(20,17,14,.42) 50%, transparent 72%);
+  mix-blend-mode:multiply;opacity:.72;
+}
+.notes{padding:1.15rem 1.15rem 1.3rem;border-left:1px solid var(--line)}
+.note{display:none}
+.stage[data-mode="vis"] ~ .notes .note[data-for="vis"],
+.stage[data-mode="ir"] ~ .notes .note[data-for="ir"],
+.stage[data-mode="uv"] ~ .notes .note[data-for="uv"],
+.stage[data-mode="proposta"] ~ .notes .note[data-for="proposta"]{display:block}
+.note h3{font-size:2rem;margin-bottom:.6rem}
+.note p{margin:0;color:var(--ink-soft)}
+.meter{margin-top:1rem}
+.meter span{font-family:var(--mono);font-size:.64rem;letter-spacing:.12em;text-transform:uppercase}
+.meter i{
+  display:block;height:8px;margin-top:.4rem;
+  background-image:radial-gradient(circle, var(--ink) 1.1px, transparent 1.3px);
+  background-size:9px 8px;background-repeat:repeat-x;
+  width:var(--w);max-width:100%;
+}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1rem}
+.chip{
+  font-family:var(--mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;
+  border:1px solid var(--line-strong);padding:.35rem .45rem;
+}
+
+#pigmenti{position:relative;background:var(--gesso)}
+.pigment-track{display:flex;flex-direction:column}
+.plate{
+  min-height:100svh;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:calc(var(--nav) + 1.5rem) var(--pad) 2rem;
+  position:relative;
+}
+.plate-index,.plate-meta{
+  font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;
+}
+.plate h3{font-size:clamp(4rem,11vw,9rem);letter-spacing:-.045em;max-width:10ch;margin:.4rem 0 .8rem}
+.plate-copy{max-width:28rem;font-size:1.15rem;margin:0 0 1.2rem}
+.plate-gesso{background:#f3ecdf;color:var(--ink)}
+.plate-rosso{background:var(--sinopia-deep);color:var(--gesso)}
+.plate-blu{background:var(--azurite);color:var(--gesso)}
+.plate-verde{background:var(--verdaccio);color:var(--gesso)}
+.plate-giallo{background:var(--ochre);color:var(--ink)}
+.pigment-count{
+  display:none;position:absolute;z-index:3;
+  top:calc(var(--nav) + .8rem);right:var(--pad);
+  background:#f3ecdf;color:var(--ink);border:1px solid var(--ink);
+  font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;
+  padding:.45rem .55rem;
+}
+#pigmenti.is-horiz{height:100vh;overflow:hidden}
+#pigmenti.is-horiz .pigment-track{flex-direction:row;width:max-content;height:100%;will-change:transform}
+#pigmenti.is-horiz .plate{height:100vh;min-height:0;flex:none}
+#pigmenti.is-horiz .pigment-count{display:block}
+
+.yards{list-style:none;margin:2rem 0 0;padding:0}
+.yard{
+  display:grid;grid-template-columns:4.5rem minmax(0,1fr) auto;
+  gap:1rem 1.4rem;align-items:start;
+  padding:1.6rem 0;border-top:1px solid var(--line);
+}
+.yard:last-child{border-bottom:1px solid var(--line)}
+.yn{font-family:var(--display);font-size:2rem;color:var(--azurite);letter-spacing:-.03em}
+.yard:hover .yn{color:var(--sinopia)}
+.yard p{margin:.45rem 0 0;color:var(--ink-soft);max-width:46rem}
+.ystatus{
+  font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;
+  text-align:right;padding-top:.4rem;
+}
+
+.limiti{
+  background:var(--night);color:var(--night-text);
+  padding:clamp(4.5rem,10vw,8rem) var(--pad);
+}
+.limiti .kicker{color:var(--ochre)}
+.limiti ul{list-style:none;margin:1.2rem 0 0;padding:0}
+.limiti li{
+  font-family:var(--display);font-weight:500;font-style:italic;
+  font-size:clamp(3.2rem,8.6vw,7.6rem);letter-spacing:-.04em;line-height:.9;
+}
+.limiti li span{color:var(--ochre)}
+.limiti .fine{max-width:36rem;color:var(--muted-night);margin:1.4rem 0 0}
+
+.estimate{
+  border:1px solid var(--ink);background:var(--paper);
+  padding:clamp(1.1rem,3vw,2.2rem);
+}
+.estimate header{display:flex;justify-content:space-between;gap:1rem;margin-bottom:1rem}
+.estimate header p{margin:0;font-family:var(--mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:.85rem .35rem;border-bottom:1px solid var(--line);vertical-align:baseline}
+th{font-family:var(--mono);font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;font-weight:500}
+td.price{font-family:var(--display);font-size:clamp(1.5rem,2vw,2rem);letter-spacing:-.03em;white-space:nowrap}
+.estimate footer{margin-top:1rem;color:var(--ink-soft);font-size:.95rem}
+
+.ask{
+  display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(1.5rem,4vw,4rem);align-items:start;
+}
+form{display:grid;gap:1rem}
+.field{display:flex;flex-direction:column;gap:.35rem}
+.field > span,.check span{font-family:var(--mono);font-size:.64rem;letter-spacing:.12em;text-transform:uppercase}
+input[type="text"],input[type="email"],select,textarea{
+  width:100%;background:transparent;border:0;border-bottom:1px solid var(--ink);
+  border-radius:0;padding:.75rem 0;font-size:1rem;
+}
+textarea{border:1px solid var(--ink);padding:.75rem;min-height:8rem;resize:vertical}
+.field.is-invalid input,.field.is-invalid select,.field.is-invalid textarea{border-color:var(--sinopia)}
+.check{display:flex;gap:.7rem;align-items:flex-start}
+.check input{margin-top:.2rem;accent-color:var(--azurite);width:1.05rem;height:1.05rem}
+.check.is-invalid span{color:var(--sinopia)}
+.form-status{min-height:1.4rem;margin:0;font-family:var(--mono);font-size:.75rem;letter-spacing:.04em;color:var(--sinopia)}
+.receipt{
+  margin-top:.4rem;border:1px dashed var(--azurite);padding:1rem 1rem 1.1rem;background:var(--paper);
+}
+.receipt strong{font-family:var(--display);font-size:1.8rem;font-weight:500;letter-spacing:-.03em;display:block}
+.receipt p{margin:.4rem 0 0;color:var(--ink-soft)}
+
+.site-foot{background:var(--night);color:var(--night-text);padding:2rem var(--pad) 1.2rem}
+.giant{
+  font-family:var(--display);font-weight:500;
+  font-size:clamp(4.2rem,14.6vw,12.4rem);
+  line-height:.88;letter-spacing:-.045em;
+  color:transparent;-webkit-text-stroke:1px rgba(243,236,223,.62);
+  margin:0 0 1rem;white-space:nowrap;
+}
+.site-foot{overflow:hidden}
+.foot-grid{display:grid;grid-template-columns:1.4fr .8fr .8fr;gap:1.5rem;padding-top:1rem;border-top:1px solid rgba(243,236,223,.18)}
+.site-foot a{color:var(--ochre)}
+.site-foot p{margin:0;color:var(--muted-night);font-size:.95rem}
+.foot-meta{font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase}
+.disclaimer{margin-top:1.4rem;max-width:78rem;color:rgba(243,236,223,.78);font-size:.92rem}
+
+.intro{
+  position:fixed;inset:0;z-index:90;
+  background:var(--night);color:var(--gesso);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.8rem;
+}
+.intro-arch{width:min(280px,70vw);height:auto}
+.intro-kicker{margin:0;font-family:var(--display);font-size:2.4rem;letter-spacing:-.03em}
+.intro-sub{margin:0;font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ochre)}
+.intro-skip{
+  position:absolute;top:1rem;right:1rem;min-height:44px;padding:0 .8rem;
+  background:transparent;color:var(--gesso);border:1px solid rgba(243,236,223,.4);
+  font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;
+}
+
+@media (max-width:900px){
+  .nav-links,.rail,.demo-tag{display:none}
+  .hero{grid-template-columns:1fr;min-height:0}
+  .hero-copy,.hero-paint{min-height:0}
+  .hero-paint{height:74vh}
+  .hero-copy{padding-bottom:2rem}
+  .gloss,.tavolo-head,.bench,.ask,.foot-grid,.slip,.yard,.metodo-stage{grid-template-columns:1fr}
+  .slip-final{grid-template-columns:1fr}
+  .notes{border-left:0;border-top:1px solid var(--line)}
+  .rake-label{margin-left:0;width:100%}
+  .ystatus{text-align:left}
+  .stamp{width:76px;height:76px}
+  .sample{height:420px;width:min(100%,420px)}
+}
+@media (max-width:700px){
+  .figures{grid-template-columns:1fr;gap:.7rem}
+  table,thead,tbody,tr,th,td{display:block}
+  thead{display:none}
+  tr{padding:.85rem 0;border-bottom:1px solid var(--line)}
+  td{border:0;padding:.15rem 0}
+  td::before{
+    content:attr(data-label);display:block;
+    font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);
+  }
+  td.price{white-space:normal}
+  .estimate header{flex-direction:column}
+}
+@media (prefers-reduced-motion:reduce){
+  .intro{display:none !important}
+  .rotella i{animation:none}
+  .btn{transition:none}
+}
+@media (max-height:740px) and (min-width:900px){
+  h1{font-size:clamp(2.8rem,5.4vw,4.6rem)}
+  .sample{height:min(58vh,520px)}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#superficie">Salta al contenuto</a>
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="site-nav">
+  <a class="logo" href="#superficie">
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <circle cx="16" cy="16" r="5.5" fill="none" stroke="currentColor" stroke-width="1.4"/>
+      <path d="M16 3.5V10M16 22v6.5M3.5 16H10M22 16h6.5" stroke="#a33b28" stroke-width="1.4"/>
+    </svg>
+    Spolvero
+  </a>
+  <nav class="nav-links" aria-label="Sezioni">
+    <a href="#metodo">Metodo</a>
+    <a href="#tavolo">Tavolo</a>
+    <a href="#pigmenti">Pigmenti</a>
+    <a href="#listino">Listino</a>
+  </nav>
+  <div class="nav-side">
+    <span class="demo-tag">Demo fittizia</span>
+    <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="menu">
+      <span class="when-closed">Indice</span>
+      <span class="when-open">Chiudi</span>
+    </button>
+  </div>
+</header>
+
+<div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Indice di Spolvero">
+  <div class="menu-inner">
+    <a href="#superficie">Superficie <em>01</em></a>
+    <a href="#cantiere">Cantiere <em>02</em></a>
+    <a href="#metodo">Sezione <em>03</em></a>
+    <a href="#tavolo">Tavolo <em>04</em></a>
+    <a href="#pigmenti">Pigmenti <em>05</em></a>
+    <a href="#cantieri">Cantieri <em>06</em></a>
+    <a href="#limiti">Limiti <em>07</em></a>
+    <a href="#listino">Listino <em>08</em></a>
+    <a href="#richiesta">Richiesta <em>09</em></a>
+    <p>Spolvero è un osservatorio dimostrativo. Non è un laboratorio di restauro, non è un museo, non è un’offerta.</p>
+  </div>
+</div>
+
+<aside class="rail" aria-hidden="true">
+  <span id="railIndex">01</span>
+  <span id="railName">Superficie</span>
+</aside>
+
+<svg class="sprite" aria-hidden="true">
+  <defs>
+    <filter id="tooth" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="4"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.2  0 0 0 0 0.16  0 0 0 0 0.1  0 0 0 0.28 0"/>
+    </filter>
+    <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse">
+      <path d="M0 8 L8 0" stroke="#a33b28" stroke-width="1.2"/>
+    </pattern>
+    <symbol id="sym-tavola" viewBox="0 0 800 1040">
+      <rect width="800" height="1040" fill="#e4c98a"/>
+      <rect width="530" height="1040" fill="#efd7a6"/>
+      <path d="M528 0 C540 160 512 340 534 520 C552 700 516 860 530 1040" fill="none" stroke="#d4b67a" stroke-width="4"/>
+      <rect width="36" height="1040" fill="#6e1830"/>
+      <rect x="36" y="790" width="764" height="250" fill="#314538"/>
+      <rect x="36" y="790" width="764" height="26" fill="#243328"/>
+      <rect x="36" y="816" width="764" height="7" fill="#e0b04a"/>
+      <path d="M108 790 V300 C108 150 692 150 692 300 V790 Z" fill="#163e78"/>
+      <path d="M186 790 V356 C186 232 614 232 614 356 V790 Z" fill="#f4efe4"/>
+      <circle cx="400" cy="488" r="86" fill="#0f2f5c"/>
+      <circle cx="400" cy="488" r="50" fill="#e6cf96"/>
+      <circle cx="400" cy="488" r="13" fill="#6e1830"/>
+      <rect x="168" y="688" width="464" height="15" fill="#1a1613"/>
+      <g fill="#e0b04a">
+        <rect x="214" y="292" width="12" height="12"/>
+        <rect x="268" y="248" width="12" height="12"/>
+        <rect x="330" y="222" width="12" height="12"/>
+        <rect x="394" y="214" width="12" height="12"/>
+        <rect x="458" y="222" width="12" height="12"/>
+        <rect x="520" y="248" width="12" height="12"/>
+        <rect x="574" y="292" width="12" height="12"/>
+      </g>
+      <path d="M612 196 l34 8 -6 24 -20 12 -24 -6 -4 -22 z" fill="#d8c6a6"/>
+      <rect x="248" y="900" width="304" height="52" fill="#f3ecdf"/>
+      <path d="M270 926 H530" stroke="#1a1613" stroke-width="1" stroke-dasharray="2 6" opacity=".45"/>
+      <g fill="none" stroke="#1a1613" stroke-width="1.15" opacity=".3">
+        <path d="M150 320 C190 360 170 430 220 470"/>
+        <path d="M220 470 C250 500 240 545 290 568"/>
+        <path d="M310 250 C322 310 300 350 338 400"/>
+        <path d="M338 400 C358 440 348 505 398 528"/>
+        <path d="M490 270 C512 330 482 390 528 438"/>
+        <path d="M528 438 C548 478 566 524 608 548"/>
+        <path d="M190 650 C280 628 360 668 450 646"/>
+        <path d="M450 646 C530 626 600 674 680 656"/>
+        <path d="M260 830 C320 870 370 848 410 910"/>
+        <path d="M410 910 C470 952 530 908 610 948"/>
+      </g>
+      <rect width="800" height="1040" filter="url(#tooth)"/>
+    </symbol>
+    <symbol id="sinopia" viewBox="0 0 800 1040">
+      <rect width="800" height="1040" fill="#efe4d2"/>
+      <g stroke="#1a1613" stroke-width="0.7" opacity=".18">
+        <path d="M40 0 V1040 M120 0 V1040 M200 0 V1040 M280 0 V1040 M360 0 V1040 M440 0 V1040 M520 0 V1040 M600 0 V1040 M680 0 V1040 M760 0 V1040"/>
+        <path d="M0 40 H800 M0 120 H800 M0 200 H800 M0 280 H800 M0 360 H800 M0 440 H800 M0 520 H800 M0 600 H800 M0 680 H800 M0 760 H800 M0 840 H800 M0 920 H800 M0 1000 H800"/>
+      </g>
+      <path d="M108 790 V300 C108 150 692 150 692 300 V790 Z" fill="none" stroke="#a33b28" stroke-width="2.2"/>
+      <path d="M186 790 V356 C186 232 614 232 614 356 V790 Z" fill="none" stroke="#a33b28" stroke-width="1.6"/>
+      <circle cx="400" cy="488" r="86" fill="none" stroke="#a33b28" stroke-width="1.6"/>
+      <circle cx="400" cy="488" r="50" fill="none" stroke="#a33b28" stroke-width="1.2"/>
+      <rect x="168" y="688" width="464" height="15" fill="none" stroke="#a33b28"/>
+      <rect x="36" y="790" width="764" height="250" fill="none" stroke="#a33b28" stroke-width="1.4"/>
+      <path d="M400 80 V980 M70 488 H740" stroke="#a33b28" stroke-width="0.8" opacity=".75"/>
+      <g fill="#a33b28">
+        <circle cx="214" cy="298" r="3"/><circle cx="274" cy="254" r="3"/><circle cx="336" cy="228" r="3"/>
+        <circle cx="400" cy="220" r="3"/><circle cx="464" cy="228" r="3"/><circle cx="526" cy="254" r="3"/>
+        <circle cx="580" cy="298" r="3"/><circle cx="400" cy="402" r="3"/><circle cx="400" cy="574" r="3"/>
+        <circle cx="314" cy="488" r="3"/><circle cx="486" cy="488" r="3"/>
+      </g>
+      <g fill="#a33b28" font-family="Red Hat Mono, ui-monospace, monospace" font-size="18">
+        <text x="96" y="286">1</text>
+        <text x="676" y="286">2</text>
+        <text x="96" y="810">3</text>
+        <text x="676" y="810">4</text>
+      </g>
+      <rect width="800" height="1040" filter="url(#tooth)" opacity=".65"/>
+    </symbol>
+    <symbol id="uv" viewBox="0 0 800 1040">
+      <rect width="800" height="1040" fill="#140e22"/>
+      <path d="M108 790 V300 C108 150 692 150 692 300 V790 Z" fill="#241838"/>
+      <path d="M186 790 V356 C186 232 614 232 614 356 V790 Z" fill="#1a1230"/>
+      <circle cx="400" cy="488" r="86" fill="#2a1848"/>
+      <rect x="36" y="790" width="764" height="250" fill="#1c1430"/>
+      <ellipse cx="640" cy="210" rx="46" ry="26" fill="#d6ff4a" opacity=".88"/>
+      <ellipse cx="400" cy="926" rx="86" ry="22" fill="#8ef6ff" opacity=".78"/>
+      <ellipse cx="400" cy="696" rx="70" ry="12" fill="#e7ff6a" opacity=".55"/>
+      <ellipse cx="250" cy="430" rx="22" ry="14" fill="#b8ff9a" opacity=".7"/>
+      <ellipse cx="560" cy="520" rx="18" ry="28" fill="#9af0ff" opacity=".62"/>
+      <rect width="800" height="1040" filter="url(#tooth)" opacity=".5"/>
+    </symbol>
+    <symbol id="proposta" viewBox="0 0 800 1040">
+      <rect width="800" height="1040" fill="none"/>
+      <path d="M612 176 l54 14 -8 40 -34 20 -40 -10 -8 -36 z" fill="url(#hatch)"/>
+      <circle cx="400" cy="488" r="92" fill="none" stroke="#a33b28" stroke-width="10" stroke-dasharray="3 7" opacity=".85"/>
+      <rect x="248" y="900" width="304" height="52" fill="url(#hatch)" opacity=".85"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="intro" id="intro">
+  <button class="intro-skip" id="introSkip" type="button">Salta</button>
+  <svg class="intro-arch" viewBox="0 0 240 140" aria-hidden="true">
+    <path id="introPath" d="M24 128 V70 C24 22 216 22 216 70 V128" fill="none" stroke="#e0b04a" stroke-width="4" stroke-linecap="round" stroke-dasharray="0.2 14"/>
+  </svg>
+  <p class="intro-kicker">Spolvero</p>
+  <p class="intro-sub">si fora il cartone</p>
+</div>
+
+<main>
+  <section class="hero" id="superficie" data-rail="01|Superficie">
+    <div class="hero-copy">
+      <p class="kicker"><i class="mark" aria-hidden="true"></i> SaaS per cantieri di restauro pittorico</p>
+      <div class="hero-body">
+        <h1>
+          <span class="line"><span>Prima la polvere.</span></span>
+          <span class="line"><span><em>Poi la firma.</em></span></span>
+        </h1>
+        <p class="lead">Spolvero legge una scansione multispettrale dimostrativa e propone strati, pigmenti di studio e un verbale. Il modello non dipinge: segna il dubbio, come una rotella sul cartone, e aspetta la mano.</p>
+        <div class="btn-row">
+          <a class="btn btn-fill" href="#tavolo">Apri il tavolo</a>
+          <a class="btn btn-ghost" href="#metodo">Guarda la sezione</a>
+        </div>
+      </div>
+      <ul class="figures">
+        <li><strong>06</strong><span>strati nel campione</span></li>
+        <li><strong>01</strong><span>verbale proposto</span></li>
+        <li><strong>00</strong><span>pennelli mossi</span></li>
+      </ul>
+    </div>
+    <div class="hero-paint" id="heroPaint">
+      <svg class="layer" viewBox="0 0 800 1040" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><use href="#sym-tavola"/></svg>
+      <svg class="layer under" viewBox="0 0 800 1040" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><use href="#sinopia"/></svg>
+      <div class="rotella" id="rotella" aria-hidden="true"><i></i></div>
+      <p class="caption-abs">Tavola di studio n.14 · oculo e archivolto · geometria originale, nessun dipinto storico</p>
+      <div class="paint-ui">
+        <p class="readout" id="readout"><span id="readXY">x — · y —</span><span id="readLayer">avvicina la rotella</span></p>
+        <button class="sinopia-toggle" id="sinopiaBtn" type="button" aria-pressed="false">Mostra la sinopia</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="cantiere" data-rail="02|Cantiere">
+    <div class="wrap">
+      <p class="kicker"><i class="mark" aria-hidden="true"></i> 02 — Il problema</p>
+      <h2 style="margin-top:.7rem">Il cantiere ha troppe lingue.</h2>
+      <p class="lead" style="margin-top:1rem">In un turno il colore vive in cartelle, mail e memoria. Due persone guardano lo stesso manto e scrivono due secoli diversi. Spolvero tiene insieme la scansione, il dubbio e la frase che si può firmare. Se il modello non sa, lo scrive.</p>
+      <dl class="gloss">
+        <div>
+          <dt>Spolvero</dt>
+          <dd>Trasferimento di un disegno per punti di polvere. Qui è la metafora del modello: segna, non copre.</dd>
+        </div>
+        <div>
+          <dt>Sinopia</dt>
+          <dd>Disegno preparatorio in terra rossa. Nel tavolo è uno strato da leggere, non un filtro vintage.</dd>
+        </div>
+        <div>
+          <dt>Giornata</dt>
+          <dd>Porzione di intonaco stesa in un giorno. Nel software è un confine, non una maschera automatica.</dd>
+        </div>
+      </dl>
+      <div class="verbali" id="verbali">
+        <article class="slip">
+          <p class="who">Turno A · demo</p>
+          <p>Il manto dell’oculo è ottocentesco. Pulire.</p>
+          <p class="who">verbale 3</p>
+        </article>
+        <article class="slip">
+          <p class="who">Turno B · demo</p>
+          <p>Il manto è originale. È solo sporco. Non toccare.</p>
+          <p class="who">verbale 4</p>
+        </article>
+        <article class="slip">
+          <p class="who">Turno C · demo</p>
+          <p>Senza ultravioletto non si decide. Fermare il cantiere.</p>
+          <p class="who">verbale 5</p>
+        </article>
+        <article class="slip slip-final">
+          <div>
+            <p class="who">Proposta Spolvero · GS—014</p>
+            <p>Due campagne possibili. Incertezza alta sul bordo. Nessuna pulitura. Il dissenso del turno B resta nel foglio.</p>
+          </div>
+          <div class="stamp">Proposta<br>non è<br>intervento</div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <figure class="pull">
+    <blockquote>Il modello aveva chiamato lacca quello che era sporco. La mano ha scritto no. Il no resta nel verbale.</blockquote>
+    <figcaption>Registro dimostrativo · cantiere di Santa Limina · mano inventata, non una persona reale</figcaption>
+  </figure>
+
+  <section id="metodo" data-rail="03|Sezione">
+    <div class="metodo-stage">
+      <div>
+        <p class="kicker"><i class="mark light" aria-hidden="true"></i> Sezione lucida · ×40 di studio</p>
+        <div class="sample" id="sample">
+          <div class="stratum s-varnish">Vernice <span>12 µm</span></div>
+          <div class="stratum s-glaze">Velatura <span>8 µm</span></div>
+          <div class="stratum s-body">Corpo <span>64 µm</span></div>
+          <div class="stratum s-sino">Sinopia <span>6 µm</span></div>
+          <div class="stratum s-gesso">Gesso <span>140 µm</span></div>
+          <div class="stratum s-linen">Tela <span>supporto</span></div>
+          <div class="scan" id="scan"></div>
+        </div>
+      </div>
+      <div class="metodo-copy">
+        <h2>Quattro fermate, poi ci si alza dal tavolo.</h2>
+        <div class="steps">
+          <article class="step">
+            <h3>La superficie non è un filtro.</h3>
+            <p>Vernice e velatura entrano come misure di studio: spessore, confine, fluorescenza. Nessun preset chiamato «restauro».</p>
+            <small>Spessori inventati per la demo · non sono un referto</small>
+          </article>
+          <article class="step">
+            <h3>Il colore resta un’ipotesi.</h3>
+            <p>Il corpo pittorico viene nominato con parole di bottega: blu di rame, terra, lacca. Mai un certificato, mai una marca.</p>
+            <small>Pigmenti di studio · nomenclatura aperta</small>
+          </article>
+          <article class="step">
+            <h3>Il disegno si spolvera.</h3>
+            <p>Sinopia e gesso affiorano nella rotella. Il modello segna dove una mano successiva potrebbe aver coperto, e quanto è incerto.</p>
+            <small>La lente non è una prova</small>
+          </article>
+          <article class="step">
+            <h3>Al supporto ci si ferma.</h3>
+            <p>Sulla tela il software tace. Propone il verbale e lascia il pennello dov’è: in mano a chi firma.</p>
+            <small>Zero ritocco automatico</small>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="tavolo" data-rail="04|Tavolo">
+    <div class="wrap">
+      <div class="tavolo-head">
+        <div>
+          <p class="kicker"><i class="mark" aria-hidden="true"></i> 04 — Strumento</p>
+          <h2 style="margin-top:.7rem">Un tavolo, non una chat.</h2>
+        </div>
+        <p class="lead">Quattro modi di guardare la stessa tavola dimostrativa. La luce radente è un cursore. I numeri sono di scena, non di laboratorio.</p>
+      </div>
+      <div class="frame">
+        <div class="toolbar" role="toolbar" aria-label="Modi di lettura">
+          <button type="button" data-mode="vis" aria-pressed="true">Visibile</button>
+          <button type="button" data-mode="ir" aria-pressed="false">Infrarosso</button>
+          <button type="button" data-mode="uv" aria-pressed="false">Ultravioletto</button>
+          <button type="button" data-mode="proposta" aria-pressed="false">Proposta</button>
+          <label class="rake-label">Luce radente
+            <input id="rake" type="range" min="70" max="170" value="128" aria-valuemin="70" aria-valuemax="170" aria-valuenow="128">
+          </label>
+        </div>
+        <div class="bench">
+          <div class="stage" id="stage" data-mode="vis">
+            <svg class="layer vis" viewBox="0 0 800 1040" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><use href="#sym-tavola"/></svg>
+            <svg class="layer ir" viewBox="0 0 800 1040" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><use href="#sinopia"/></svg>
+            <svg class="layer uv" viewBox="0 0 800 1040" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><use href="#uv"/></svg>
+            <svg class="layer hatches" viewBox="0 0 800 1040" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><use href="#proposta"/></svg>
+            <div class="rake" id="rakeLayer"></div>
+          </div>
+          <div class="notes">
+            <article class="note" data-for="vis">
+              <h3>Luce visibile</h3>
+              <p>L’oculo e l’archivolto sono campagne distinte. Il confine di giornata, a destra, è disegnato per questa demo. In questo modo non si propone alcun intervento.</p>
+              <div class="meter" style="--w:28%"><span>Certezza di studio · bassa</span><i></i></div>
+              <div class="chips"><span class="chip">GS—014</span><span class="chip">oculo</span><span class="chip">nessuna pulitura</span></div>
+            </article>
+            <article class="note" data-for="ir">
+              <h3>Infrarosso di studio</h3>
+              <p>Il disegno preparatorio segue l’arco, non il bordo lacca. Due pentimenti nell’oculo, entrambi incerti. Non è una radiografia reale: è il modo in cui il tavolo mostra un sotto-disegno.</p>
+              <div class="meter" style="--w:46%"><span>Certezza di studio · media</span><i></i></div>
+              <div class="chips"><span class="chip">griglia</span><span class="chip">punti 1–4</span><span class="chip">pentimento incerto</span></div>
+            </article>
+            <article class="note" data-for="uv">
+              <h3>Ultravioletto di studio</h3>
+              <p>Le fluorescenze sono finte e messe dove un restauratore guarderebbe: lacuna in alto a destra, cartiglio vuoto, filo del listello. Servono a mostrare il modo, non un dato.</p>
+              <div class="meter" style="--w:34%"><span>Certezza di studio · bassa</span><i></i></div>
+              <div class="chips"><span class="chip">lacuna</span><span class="chip">cartiglio</span><span class="chip">fluorescenza finta</span></div>
+            </article>
+            <article class="note" data-for="proposta">
+              <h3>Proposta GS—014</h3>
+              <p>Non pulire l’oculo. Registrare la lacuna. Il tratteggio è una ridipintura ipotetica, non una cancellazione. Incertezza alta. Firma assente: questa è una demo.</p>
+              <div class="meter" style="--w:40%"><span>Certezza di studio · da firmare</span><i></i></div>
+              <div class="chips"><span class="chip">tratteggio</span><span class="chip">astensione</span><span class="chip">firma vuota</span></div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pigmenti" data-rail="05|Pigmenti">
+    <h2 class="sr-only">Pigmenti di studio</h2>
+    <p class="pigment-count" id="pigmentCount">01 / 05</p>
+    <div class="pigment-track" id="pigmentTrack">
+      <article class="plate plate-gesso" data-nav="dark">
+        <p class="plate-index">01 / 05</p>
+        <h3>Bianco di gesso</h3>
+        <p class="plate-copy">Il fondo. Tutto quello che il modello non deve coprire. Senza questo strato gli altri sono solo colore sospeso.</p>
+        <p class="plate-meta">SP—01 · preparazione</p>
+      </article>
+      <article class="plate plate-rosso" data-nav="light">
+        <p class="plate-index">02 / 05</p>
+        <h3>Terra rossa</h3>
+        <p class="plate-copy">Il disegno che precede il colore. In Spolvero è uno strato da discutere, non una texture da applicare sopra la fotografia.</p>
+        <p class="plate-meta">SP—02 · sinopia</p>
+      </article>
+      <article class="plate plate-blu" data-nav="light">
+        <p class="plate-index">03 / 05</p>
+        <h3>Blu di rame</h3>
+        <p class="plate-copy">Il corpo dell’archivolto. Lo trattiamo come ipotesi di pigmento. Nessun nome di tubetto, nessun «azzurro certificato».</p>
+        <p class="plate-meta">SP—03 · corpo</p>
+      </article>
+      <article class="plate plate-verde" data-nav="light">
+        <p class="plate-index">04 / 05</p>
+        <h3>Terra verde</h3>
+        <p class="plate-copy">La banda bassa della tavola n.14. Un orizzonte ridotto a una striscia. Non è un paesaggio copiato da un maestro.</p>
+        <p class="plate-meta">SP—04 · banda</p>
+      </article>
+      <article class="plate plate-giallo" data-nav="dark">
+        <p class="plate-index">05 / 05</p>
+        <h3>Giallo di bottega</h3>
+        <p class="plate-copy">L’ocra dell’oculo e della polvere sul cartone. Tiene il contrasto del marchio e il colore della rotella. Nient’altro.</p>
+        <p class="plate-meta">SP—05 · ocra di studio</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="sec" id="cantieri" data-rail="06|Cantieri">
+    <div class="wrap">
+      <p class="kicker"><i class="mark" aria-hidden="true"></i> 06 — Scenari inventati</p>
+      <h2 style="margin-top:.7rem">Tre cantieri che non esistono.</h2>
+      <p class="lead" style="margin-top:1rem">Nomi, luoghi e esiti sono di finzione. Servono a mostrare che il modello può essere contraddetto, e che a volte deve tacere.</p>
+      <ol class="yards">
+        <li class="yard">
+          <span class="yn">01</span>
+          <div>
+            <h3>Cappella di Santa Limina</h3>
+            <p>Borgo inventato, superficie di bottega anonima. Spolvero separa una campagna più tarda da un blu più antico, poi sbaglia: scambia sporco per lacca. Il restauratore di studio rifiuta quella riga. Il rifiuto resta.</p>
+          </div>
+          <span class="ystatus">Dissenso firmato</span>
+        </li>
+        <li class="yard">
+          <span class="yn">02</span>
+          <div>
+            <h3>Soffitto di Ca’ Rovina</h3>
+            <p>Villa fittizia, umidità di scena. Il modello vede un fronte di sali e si ferma: non propone pulitura, non propone consolidante, non inventa una ricetta. Scrive solo «astensione».</p>
+          </div>
+          <span class="ystatus">Astensione</span>
+        </li>
+        <li class="yard">
+          <span class="yn">03</span>
+          <div>
+            <h3>Tavola n.14, oculo</h3>
+            <p>La geometria di questa pagina. Tre veli di vernice immaginari, un cartiglio lasciato vuoto, una lacuna in alto a destra. La proposta è pronta e la firma no: in una demo non c’è mano.</p>
+          </div>
+          <span class="ystatus">In attesa di firma</span>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="limiti" id="limiti" data-rail="07|Limiti">
+    <p class="kicker"><i class="mark light" aria-hidden="true"></i> Il perimetro del prodotto</p>
+    <ul>
+      <li>Non dipinge<span>.</span></li>
+      <li>Non firma<span>.</span></li>
+      <li>Non invia<span>.</span></li>
+    </ul>
+    <p class="fine">Spolvero si ferma dove inizia il mestiere. Questa pagina non restaura, non contrae, non conserva dati e non sostituisce chi ha la responsabilità della superficie.</p>
+  </section>
+
+  <section class="sec" id="listino" data-rail="08|Listino">
+    <div class="wrap">
+      <p class="kicker"><i class="mark" aria-hidden="true"></i> 08 — Cifre di scena</p>
+      <h2 style="margin-top:.7rem">Listino dimostrativo.</h2>
+      <p class="lead" style="margin-top:1rem">Le righe somigliano a un preventivo di studio perché il software, se esistesse, vivrebbe dentro un cantiere. Non esiste un conto. Non esiste l’IVA. Non esiste il contratto.</p>
+      <article class="estimate" style="margin-top:1.8rem">
+        <header>
+          <p>Spolvero · studio fittizio<br>Via del Cartone 14, 00000 Borgo Limina</p>
+          <p>Documento GS—LIST—00<br>Non è un’offerta</p>
+        </header>
+        <table>
+          <caption class="sr-only">Piani dimostrativi e cifre finte</caption>
+          <thead>
+            <tr><th>Piano</th><th>Per</th><th>Include, in demo</th><th>Cifra</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td data-label="Piano">Tavolo</td>
+              <td data-label="Per">Un cantiere, due accessi</td>
+              <td data-label="Include">Una tavola attiva, la lente, il verbale</td>
+              <td class="price" data-label="Cifra">€ 1.800</td>
+            </tr>
+            <tr>
+              <td data-label="Piano">Navata</td>
+              <td data-label="Per">Un istituto inventato</td>
+              <td data-label="Include">Più tavole, i dissensi, il registro</td>
+              <td class="price" data-label="Cifra">€ 4.600</td>
+            </tr>
+            <tr>
+              <td data-label="Piano">Mandato</td>
+              <td data-label="Per">Una rete di cantieri di scena</td>
+              <td data-label="Include">Archivio, formazione, nulla di reale</td>
+              <td class="price" data-label="Cifra">Convenzione</td>
+            </tr>
+          </tbody>
+        </table>
+        <footer>Cifre al mese, finte, senza imposta. Nessun pulsante di questa pagina addebita denaro.</footer>
+      </article>
+    </div>
+  </section>
+
+  <section class="sec" id="richiesta" data-rail="09|Richiesta">
+    <div class="wrap ask">
+      <div>
+        <p class="kicker"><i class="mark" aria-hidden="true"></i> 09 — Modulo locale</p>
+        <h2 style="margin-top:.7rem">Porta una tavola.</h2>
+        <p class="lead" style="margin-top:1rem">Il modulo non ha un server. Compilalo per vedere una ricevuta che nasce e muore in questo browser. L’email di esempio non viene aperta e non viene salvata.</p>
+      </div>
+      <div>
+        <form id="studioForm" novalidate>
+          <label class="field" for="istituto"><span>Istituto di studio</span>
+            <input id="istituto" name="istituto" type="text" autocomplete="organization" placeholder="Nome inventato">
+          </label>
+          <label class="field" for="nome"><span>Nome di studio</span>
+            <input id="nome" name="nome" type="text" autocomplete="name" placeholder="Come vuoi firmare la demo">
+          </label>
+          <label class="field" for="email"><span>Email di studio</span>
+            <input id="email" name="email" type="email" autocomplete="email" placeholder="tu@esempio-demo.it" inputmode="email">
+          </label>
+          <label class="field" for="tavola"><span>Tavola</span>
+            <select id="tavola" name="tavola">
+              <option value="">Scegli una tavola di scena</option>
+              <option>Tavola n.14 — oculo e archivolto</option>
+              <option>Tavola n.02 — banda verde</option>
+              <option>Tavola n.77 — cartiglio vuoto</option>
+            </select>
+          </label>
+          <label class="field" for="nota"><span>Nota</span>
+            <textarea id="nota" name="nota" placeholder="Cosa vorresti che il modello non facesse."></textarea>
+          </label>
+          <label class="check" for="consenso">
+            <input id="consenso" name="consenso" type="checkbox">
+            <span>Confermo che è una demo e che nessun dato lascia questo browser.</span>
+          </label>
+          <button class="btn btn-fill" type="submit">Chiedi la ricevuta</button>
+          <p class="form-status" id="formStatus" role="status"></p>
+        </form>
+        <div class="receipt" id="receipt" hidden>
+          <strong>Ricevuta GS—DEMO—014</strong>
+          <p id="receiptBody"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot" data-rail="10|Colophon">
+  <p class="giant" aria-hidden="true">Spolvero</p>
+  <div class="foot-grid">
+    <div>
+      <p class="foot-meta">Studio fittizio</p>
+      <p style="margin-top:.45rem">Via del Cartone 14<br>00000 Borgo Limina<br>+39 000 000 0000</p>
+    </div>
+    <div>
+      <p class="foot-meta">Indice</p>
+      <p style="margin-top:.45rem"><a href="#tavolo">Tavolo</a><br><a href="#metodo">Sezione</a><br><a href="#listino">Listino</a><br><a href="#richiesta">Richiesta</a></p>
+    </div>
+    <div>
+      <p class="foot-meta">Catalogo</p>
+      <p style="margin-top:.45rem"><a href="../../index.html">Ashlar Lab</a><br><a href="#superficie">Torna in superficie</a><br>studio@spolvero-demo.it</p>
+    </div>
+  </div>
+  <p class="disclaimer">Spolvero è un marchio e un prodotto inventati per questa demo di design. Tavole, scansioni, pigmenti, spessori, cantieri, persone, prezzi, indirizzo, telefono ed email sono fittizi. Non c’è affiliazione con musei, soprintendenze, restauratori, case di pigmenti o software reali. Nessun dipinto storico è riprodotto: la tavola n.14 è una geometria originale. I moduli non inviano dati e non processano pagamenti. Qualsiasi somiglianza con un nome esistente è casuale.</p>
+  <p class="foot-meta" style="margin-top:1rem">© <span id="yearNow">2026</span> Spolvero demo · 32 · carta di studio</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+<script>
+(function () {
+  "use strict";
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var fine = window.matchMedia("(pointer: fine)").matches;
+  var hasGsap = typeof gsap !== "undefined" && typeof ScrollTrigger !== "undefined";
+  var lenis = null;
+  var menu = document.getElementById("menu");
+  var menuBtn = document.getElementById("menuBtn");
+
+  if (hasGsap) {
+    gsap.registerPlugin(ScrollTrigger);
+    if (!reduced && typeof Lenis !== "undefined") {
+      lenis = new Lenis({ duration: 1.08, smoothWheel: true });
+      lenis.on("scroll", ScrollTrigger.update);
+      gsap.ticker.add(function (t) { lenis.raf(t * 1000); });
+      gsap.ticker.lagSmoothing(0);
+    }
+    gsap.to("#progress", {
+      scaleX: 1,
+      ease: "none",
+      scrollTrigger: { start: 0, end: "max", scrub: 0.35 }
+    });
+  } else {
+    var stuck = document.getElementById("intro");
+    if (stuck) stuck.remove();
+  }
+
+  function scrollToTarget(el) {
+    if (!el) return;
+    if (lenis) lenis.scrollTo(el, { offset: -72, duration: reduced ? 0 : 1.15 });
+    else el.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+  }
+
+  document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+    a.addEventListener("click", function (e) {
+      var id = a.getAttribute("href");
+      if (!id || id.length < 2) return;
+      var target = document.querySelector(id);
+      if (!target) return;
+      e.preventDefault();
+      closeMenu(false);
+      scrollToTarget(target);
+    });
+  });
+
+  function focusables() {
+    return Array.prototype.slice.call(menu.querySelectorAll("a, button")).filter(function (el) {
+      return !el.hasAttribute("disabled");
+    });
+  }
+
+  function openMenu() {
+    if (!menu || !menuBtn) return;
+    menu.classList.add("is-open");
+    document.body.classList.add("menu-open");
+    menuBtn.setAttribute("aria-expanded", "true");
+    if (lenis) lenis.stop();
+    if (hasGsap) {
+      gsap.killTweensOf(menu);
+      gsap.fromTo(menu, { autoAlpha: 0 }, { autoAlpha: 1, duration: reduced ? 0 : 0.4, ease: "power3.out" });
+    } else {
+      menu.style.visibility = "visible";
+      menu.style.opacity = "1";
+    }
+    var first = menu.querySelector("a");
+    if (first) first.focus();
+  }
+
+  function closeMenu(restore) {
+    if (!menu || !menu.classList.contains("is-open")) return;
+    var done = function () {
+      menu.classList.remove("is-open");
+      document.body.classList.remove("menu-open");
+      menuBtn.setAttribute("aria-expanded", "false");
+      if (lenis) lenis.start();
+      if (restore) menuBtn.focus();
+    };
+    if (hasGsap) {
+      gsap.killTweensOf(menu);
+      gsap.to(menu, { autoAlpha: 0, duration: reduced ? 0 : 0.28, ease: "power2.in", onComplete: done });
+    } else {
+      menu.style.visibility = "hidden";
+      done();
+    }
+  }
+
+  if (menuBtn) {
+    menuBtn.addEventListener("click", function () {
+      if (menu.classList.contains("is-open")) closeMenu(true);
+      else openMenu();
+    });
+  }
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") closeMenu(true);
+    if (e.key !== "Tab" || !menu.classList.contains("is-open")) return;
+    var nodes = focusables();
+    if (!nodes.length) return;
+    var first = nodes[0];
+    var last = nodes[nodes.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  });
+
+  var year = document.getElementById("yearNow");
+  if (year) year.textContent = String(new Date().getFullYear());
+
+  var paint = document.getElementById("heroPaint");
+  var readXY = document.getElementById("readXY");
+  var readLayer = document.getElementById("readLayer");
+  var sinopiaBtn = document.getElementById("sinopiaBtn");
+  var rotX = null;
+  var rotY = null;
+  if (hasGsap && paint) {
+    gsap.set("#rotella", { xPercent: -50, yPercent: -50 });
+    if (!reduced) {
+      rotX = gsap.quickTo("#rotella", "x", { duration: 0.22, ease: "power3" });
+      rotY = gsap.quickTo("#rotella", "y", { duration: 0.22, ease: "power3" });
+    }
+  }
+  function layerName(y) {
+    if (y < 16) return "vernice · ~12 µm";
+    if (y < 28) return "velatura · ~8 µm";
+    if (y < 62) return "corpo · ipotesi";
+    if (y < 74) return "sinopia · disegno";
+    if (y < 88) return "gesso · fondo";
+    return "tela · supporto";
+  }
+  function placeRotella(clientX, clientY) {
+    if (!paint) return;
+    var r = paint.getBoundingClientRect();
+    var x = clientX - r.left;
+    var y = clientY - r.top;
+    var xp = (x / r.width) * 100;
+    var yp = (y / r.height) * 100;
+    paint.style.setProperty("--lx", xp + "%");
+    paint.style.setProperty("--ly", yp + "%");
+    if (rotX) { rotX(x); rotY(y); }
+    else if (hasGsap) gsap.set("#rotella", { x: x, y: y });
+    if (readXY) readXY.textContent = "x " + xp.toFixed(0) + " · y " + yp.toFixed(0);
+    if (readLayer && !paint.classList.contains("is-open")) {
+      readLayer.textContent = "demo · " + layerName(yp);
+    }
+  }
+  if (paint) {
+    paint.addEventListener("pointerenter", function (e) {
+      if (e.pointerType === "touch" || !fine) return;
+      paint.classList.add("is-hot");
+    });
+    paint.addEventListener("pointerleave", function () {
+      paint.classList.remove("is-hot");
+      if (readLayer && !paint.classList.contains("is-open")) readLayer.textContent = "avvicina la rotella";
+      if (readXY && !paint.classList.contains("is-open")) readXY.textContent = "x — · y —";
+    });
+    paint.addEventListener("pointermove", function (e) {
+      if (e.pointerType === "touch" || !fine) return;
+      placeRotella(e.clientX, e.clientY);
+    });
+  }
+  if (sinopiaBtn && paint) {
+    sinopiaBtn.addEventListener("click", function () {
+      var open = paint.classList.toggle("is-open");
+      sinopiaBtn.setAttribute("aria-pressed", open ? "true" : "false");
+      sinopiaBtn.textContent = open ? "Torna al colore" : "Mostra la sinopia";
+      if (readLayer) readLayer.textContent = open ? "sinopia intera · demo" : "avvicina la rotella";
+    });
+  }
+
+  var stage = document.getElementById("stage");
+  var rake = document.getElementById("rake");
+  document.querySelectorAll(".toolbar button[data-mode]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var mode = btn.getAttribute("data-mode");
+      if (stage) stage.setAttribute("data-mode", mode);
+      document.querySelectorAll(".toolbar button[data-mode]").forEach(function (b) {
+        b.setAttribute("aria-pressed", b === btn ? "true" : "false");
+      });
+    });
+  });
+  if (rake && stage) {
+    var applyRake = function () {
+      stage.style.setProperty("--rake", rake.value + "deg");
+      rake.setAttribute("aria-valuenow", rake.value);
+    };
+    rake.addEventListener("input", applyRake);
+    applyRake();
+  }
+
+  var form = document.getElementById("studioForm");
+  var formStatus = document.getElementById("formStatus");
+  var receipt = document.getElementById("receipt");
+  var receiptBody = document.getElementById("receiptBody");
+  function mark(id, bad) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var field = el.closest(".field, .check");
+    if (field) field.classList.toggle("is-invalid", bad);
+  }
+  if (form) {
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var istituto = document.getElementById("istituto").value.trim();
+      var nome = document.getElementById("nome").value.trim();
+      var email = document.getElementById("email").value.trim();
+      var tavola = document.getElementById("tavola").value.trim();
+      var nota = document.getElementById("nota").value.trim();
+      var consenso = document.getElementById("consenso").checked;
+      var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      mark("istituto", !istituto);
+      mark("nome", !nome);
+      mark("email", !emailOk);
+      mark("tavola", !tavola);
+      mark("nota", nota.length < 3);
+      mark("consenso", !consenso);
+      var ok = istituto && nome && emailOk && tavola && nota.length >= 3 && consenso;
+      if (!ok) {
+        if (formStatus) formStatus.textContent = "Manca un campo. Il verbale dimostrativo non è completo.";
+        if (receipt) receipt.hidden = true;
+        return;
+      }
+      if (formStatus) formStatus.textContent = "";
+      if (receiptBody) {
+        receiptBody.textContent = nome + " · " + istituto + " · " + tavola + ". Nessun messaggio è uscito da questo browser. Non c’è un server, non c’è una coda, non c’è una firma.";
+      }
+      if (receipt) receipt.hidden = false;
+      form.reset();
+      ["istituto", "nome", "email", "tavola", "nota", "consenso"].forEach(function (id) { mark(id, false); });
+    });
+  }
+
+  if (!hasGsap) return;
+
+  var railIndex = document.getElementById("railIndex");
+  var railName = document.getElementById("railName");
+  document.querySelectorAll("[data-rail]").forEach(function (section) {
+    var parts = section.getAttribute("data-rail").split("|");
+    ScrollTrigger.create({
+      trigger: section,
+      start: "top 55%",
+      end: "bottom 55%",
+      onToggle: function (self) {
+        if (!self.isActive || !railIndex) return;
+        railIndex.textContent = parts[0];
+        railName.textContent = parts[1];
+      }
+    });
+  });
+
+  var intro = document.getElementById("intro");
+  var introPlayed = false;
+  function killIntro() {
+    if (!intro) return;
+    intro.style.display = "none";
+    intro.setAttribute("aria-hidden", "true");
+  }
+  function revealHero() {
+    if (introPlayed || reduced) return;
+    introPlayed = true;
+    gsap.from(".hero .line > span", {
+      yPercent: 110,
+      duration: 1.05,
+      stagger: 0.08,
+      ease: "power4.out",
+      onComplete: function () {
+        document.querySelectorAll(".hero .line").forEach(function (el) { el.style.overflow = "visible"; });
+      }
+    });
+  }
+  if (reduced) {
+    killIntro();
+  } else if (intro) {
+    document.body.style.overflow = "hidden";
+    var path = document.getElementById("introPath");
+    var length = 400;
+    try { length = path.getTotalLength(); } catch (err) { length = 400; }
+    gsap.set(path, { strokeDashoffset: length });
+    var introTl = gsap.timeline({
+      onComplete: function () {
+        document.body.style.overflow = "";
+        killIntro();
+        revealHero();
+        ScrollTrigger.refresh();
+      }
+    });
+    introTl.to(path, { strokeDashoffset: 0, duration: 1.15, ease: "power1.inOut" });
+    introTl.to("#intro", { autoAlpha: 0, duration: 0.35, ease: "power2.in" }, "+=0.15");
+    var finishIntro = function () {
+      if (!intro || intro.style.display === "none") return;
+      introTl.kill();
+      document.body.style.overflow = "";
+      killIntro();
+      revealHero();
+      ScrollTrigger.refresh();
+    };
+    var skip = document.getElementById("introSkip");
+    if (skip) skip.addEventListener("click", finishIntro);
+    window.setTimeout(finishIntro, 4200);
+  }
+
+  var mm = gsap.matchMedia();
+  mm.add("(min-width: 900px) and (prefers-reduced-motion: no-preference)", function () {
+    var steps = gsap.utils.toArray("#metodo .step");
+    var bands = gsap.utils.toArray("#metodo .stratum");
+    var sample = document.getElementById("sample");
+    if (!steps.length || !sample) return;
+    gsap.set(steps, { autoAlpha: 0, y: 18 });
+    gsap.set(steps[0], { autoAlpha: 1, y: 0 });
+    var tl = gsap.timeline({
+      defaults: { ease: "none" },
+      scrollTrigger: {
+        trigger: "#metodo",
+        start: "top top",
+        end: "+=2400",
+        pin: true,
+        scrub: 0.65,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+        onUpdate: function (self) {
+          var idx = Math.min(bands.length - 1, Math.floor(self.progress * bands.length));
+          bands.forEach(function (band, i) { band.classList.toggle("is-hot", i === idx); });
+        }
+      }
+    });
+    tl.to("#scan", {
+      y: function () { return Math.max(0, sample.clientHeight - 2); },
+      duration: steps.length
+    }, 0);
+    for (var i = 1; i < steps.length; i++) {
+      tl.to(steps[i - 1], { autoAlpha: 0, y: -14, duration: 0.4 }, i);
+      tl.to(steps[i], { autoAlpha: 1, y: 0, duration: 0.4 }, i);
+    }
+    gsap.from("#verbali .slip", {
+      y: 28,
+      autoAlpha: 0,
+      stagger: 0.1,
+      duration: 0.7,
+      ease: "power3.out",
+      immediateRender: false,
+      scrollTrigger: { trigger: "#verbali", start: "top 82%", toggleActions: "play none none reverse" }
+    });
+    return function () {
+      bands.forEach(function (band) { band.classList.remove("is-hot"); });
+    };
+  });
+
+  mm.add("(min-width: 900px) and (prefers-reduced-motion: no-preference)", function () {
+    var section = document.getElementById("pigmenti");
+    var track = document.getElementById("pigmentTrack");
+    var plates = gsap.utils.toArray("#pigmentTrack .plate");
+    var count = document.getElementById("pigmentCount");
+    if (!section || !track || !plates.length) return;
+    section.classList.add("is-horiz");
+    var dist = 0;
+    var measure = function () {
+      var w = document.documentElement.clientWidth;
+      plates.forEach(function (plate) { plate.style.width = w + "px"; });
+      dist = Math.max(0, track.scrollWidth - w);
+    };
+    measure();
+    gsap.to(track, {
+      x: function () { return -dist; },
+      ease: "none",
+      scrollTrigger: {
+        trigger: section,
+        start: "top top",
+        end: function () { return "+=" + dist; },
+        pin: true,
+        scrub: 0.75,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+        onRefresh: measure,
+        onUpdate: function (self) {
+          if (!count) return;
+          var i = Math.round(self.progress * (plates.length - 1));
+          count.textContent = String(i + 1).padStart(2, "0") + " / 05";
+        }
+      }
+    });
+    return function () {
+      section.classList.remove("is-horiz");
+      gsap.set(track, { clearProps: "transform" });
+      plates.forEach(function (plate) { plate.style.width = ""; });
+    };
+  });
+
+  mm.add("(prefers-reduced-motion: no-preference)", function () {
+    gsap.utils.toArray(".sec h2, .limiti li").forEach(function (el) {
+      gsap.from(el, {
+        y: 24,
+        autoAlpha: 0,
+        duration: 0.8,
+        ease: "power3.out",
+        immediateRender: false,
+        scrollTrigger: { trigger: el, start: "top 88%", toggleActions: "play none none reverse" }
+      });
+    });
+  });
+
+  window.addEventListener("load", function () { ScrollTrigger.refresh(); });
+})();
+</script>
+</body>
+</html>
