@@ -9,7 +9,7 @@ The repository root `index.html` is the catalog. Each plane lives in `sites/<nn>
 ```
 index.html              ← catalog (lab home)
 sites/00-ashlar/        ← studio landing
-sites/01-deckle/ … 31-voltabit/
+sites/01-deckle/ … 32-spolvero/
 sites/index.html        ← redirect to the catalog
 ```
 
